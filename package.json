@@ -1,0 +1,62 @@
+{
+  "name": "envision-portal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "lint:js": "eslint --ext \".ts,.vue\" --ignore-path .gitignore .",
+    "lint:prettier": "prettier --check .",
+    "lint": "yarn lint:js && yarn lint:prettier",
+    "lint:fix": "prettier --write --list-different . && yarn lint:js --fix",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:dev": "prisma migrate dev --preview-feature",
+    "prisma:studio": "prisma studio",
+    "prisma:db:push": "prisma db push",
+    "prisma:db:pull": "prisma db pull",
+    "postinstall": "nuxt prepare && prisma generate",
+    "prune-branches": "git removed-branches --prune --force"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.14.0",
+    "@nuxt/devtools": "latest",
+    "@nuxt/eslint": "0.7.5",
+    "@nuxt/ui": "^2.21.0",
+    "@nuxtjs/eslint-config-typescript": "^12.1.0",
+    "@prisma/client": "^6.2.1",
+    "@stylistic/eslint-plugin-js": "^2.13.0",
+    "@types/bcrypt": "^5.0.2",
+    "@typescript-eslint/parser": "^8.21.0",
+    "eslint": "8.57.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-sort-keys-custom-order": "^2.2.1",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "eslint-plugin-vue": "^9.32.0",
+    "i": "^0.3.7",
+    "npm": "^11.0.0",
+    "nuxt": "^3.15.2",
+    "nuxt-auth-utils": "0.5.7",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.10",
+    "prisma": "^6.2.1",
+    "tailwindcss-debug-screens": "^2.2.1",
+    "typescript": "^5.7.3",
+    "vue": "latest",
+    "zod": "^3.24.1"
+  },
+  "packageManager": "yarn@1.22.22",
+  "volta": {
+    "node": "20.18.1",
+    "yarn": "1.22.22"
+  }
+}
