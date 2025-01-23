@@ -47,8 +47,144 @@ useSeoMeta({
     </UContainer>
 
     <UContainer>
-      <div class="flex w-full items-center justify-center">
+      <div
+        class="mx-auto grid w-full max-w-7xl gap-16 px-4 py-24 sm:gap-y-24 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8"
+      >
+        <div>
+          <h2 class="text-3xl font-bold lg:text-4xl">
+            Lorem ipsum dolor sit adipisicing elit.
+          </h2>
+
+          <div class="mt-6 text-lg">
+            Dolore ad ex ad mollit proident mollit. Dolor mollit qui deserunt ex
+            deserunt veniam sit nulla qui laboris deserunt ullamco ea. Sunt eu
+            proident quis id cillum reprehenderit veniam occaecat dolore dolore
+            culpa.
+          </div>
+
+          <dl class="mt-6 space-y-4">
+            <div class="relative pl-8">
+              <dt class="font-semibold">
+                <Icon
+                  name="mingcute:ai-fill"
+                  class="absolute top-1 left-0"
+                  size="25"
+                />
+
+                <span> Eu anim irure adipisicing tempor. </span>
+              </dt>
+
+              <dd>Magna cupidatat laborum laboris cillum.</dd>
+            </div>
+
+            <div class="relative pl-8">
+              <dt class="font-semibold">
+                <Icon
+                  name="mingcute:cat-fill"
+                  class="absolute top-1 left-0"
+                  size="25"
+                />
+
+                <span>
+                  Aute aliqua nostrud ad sint dolore eiusmod aute ex Lorem
+                  minim.
+                </span>
+              </dt>
+
+              <dd>Culpa ipsum exercitation minim sint sunt tempor minim.</dd>
+            </div>
+
+            <div class="relative pl-8">
+              <dt class="font-semibold">
+                <Icon
+                  name="mingcute:flower-2-fill"
+                  class="absolute top-1 left-0"
+                  size="25"
+                />
+
+                <span>
+                  Ex elit eiusmod labore velit ipsum sit mollit do non nulla
+                  duis.
+                </span>
+              </dt>
+
+              <dd>Laboris nisi nostrud Lorem elit anim.</dd>
+            </div>
+          </dl>
+        </div>
+
         <AppImagePlaceholder />
+      </div>
+    </UContainer>
+
+    <UContainer>
+      <div
+        class="mx-auto grid w-full max-w-7xl gap-16 px-4 py-24 sm:gap-y-24 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8"
+      >
+        <AppImagePlaceholder />
+
+        <div>
+          <h2 class="text-3xl font-bold lg:text-4xl">
+            Lorem ipsum dolor sit adipisicing elit.
+          </h2>
+
+          <div class="mt-6 text-lg">
+            Dolore ad ex ad mollit proident mollit. Dolor mollit qui deserunt ex
+            deserunt veniam sit nulla qui laboris deserunt ullamco ea. Sunt eu
+            proident quis id cillum reprehenderit veniam occaecat dolore dolore
+            culpa.
+          </div>
+
+          <dl class="mt-6 space-y-4">
+            <div class="relative pl-8">
+              <dt class="font-semibold">
+                <Icon
+                  name="mingcute:lemon-squeezy-fill"
+                  class="absolute top-1 left-0"
+                  size="25"
+                />
+
+                <span> Eu anim irure adipisicing tempor. </span>
+              </dt>
+
+              <dd>Magna cupidatat laborum laboris cillum.</dd>
+            </div>
+
+            <div class="relative pl-8">
+              <dt class="font-semibold">
+                <Icon
+                  name="mingcute:pig-money-fill"
+                  class="absolute top-1 left-0"
+                  size="25"
+                />
+
+                <span>
+                  Aute aliqua nostrud ad sint dolore eiusmod aute ex Lorem
+                  minim.
+                </span>
+              </dt>
+
+              <dd>Culpa ipsum exercitation minim sint sunt tempor minim.</dd>
+            </div>
+
+            <div class="relative pl-8">
+              <dt class="font-semibold">
+                <Icon
+                  name="mingcute:safe-flash-fill"
+                  class="absolute top-1 left-0"
+                  size="25"
+                />
+
+                <span>
+                  Ex elit eiusmod labore velit ipsum sit mollit do non nulla
+                  duis.
+                </span>
+              </dt>
+
+              <dd>Laboris nisi nostrud Lorem elit anim.</dd>
+            </div>
+          </dl>
+        </div>
       </div>
     </UContainer>
   </div>
