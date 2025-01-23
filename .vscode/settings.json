@@ -9,5 +9,9 @@
     "source.fixAll.eslint": "explicit"
   },
   "vue.codeActions.enabled": false,
-  "editor.hover.enabled": true
+  "editor.hover.enabled": true,
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.classAttributes": ["active-class", "inactive-class"]
 }

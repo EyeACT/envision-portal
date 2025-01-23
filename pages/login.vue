@@ -43,9 +43,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     body,
     method: "POST",
   })
-    .then(async () => {
+    .then(() => {
       toast.add({
-        id: "login_success",
         title: "Login successful",
         description: "You can now access your account",
         icon: "material-symbols:check-circle-outline",
@@ -57,9 +56,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       console.error(error.data);
 
       toast.add({
-        id: "login_error",
         title: "Error logging in",
-        color: "red",
+        color: "error",
         description: error.data.statusMessage,
         icon: "material-symbols:error",
       });
@@ -80,10 +78,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
         <p class="font-medium text-slate-600">
           Don't have an account?
-          <NuxtLink
-            to="/signup"
-            class="font-medium text-sky-500 hover:underline"
-          >
+          <NuxtLink to="/signup" class="text-primary-500 font-medium">
             Sign up
           </NuxtLink>
         </p>
@@ -95,11 +90,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         class="mt-6 space-y-4"
         @submit="onSubmit"
       >
-        <UFormGroup label="Username" name="username">
+        <UFormField label="Username" name="username">
           <UInput v-model="state.username" type="text" />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup label="Password" name="password">
+        <UFormField label="Password" name="password">
           <template #hint>
             <NuxtLink
               to="/forgot-password"
@@ -110,7 +105,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </template>
 
           <UInput v-model="state.password" type="password" />
-        </UFormGroup>
+        </UFormField>
 
         <UButton
           type="submit"
@@ -126,10 +121,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     </div>
 
     <template #footer>
-      By signing in, you agree to our
-      <NuxtLink to="/" class="text-primary font-medium">
-        Terms of Service </NuxtLink
-      >.
+      <p class="text-center text-sm">
+        By signing in, you agree to our
+        <NuxtLink to="/signup" class="text-primary-500 text-sm font-medium">
+          Terms of Service</NuxtLink
+        >.
+      </p>
     </template>
   </UCard>
 </template>
