@@ -2,10 +2,12 @@
 
 <template>
   <div>
-    <DashboardHeader />
+    <AppPublicHeader />
 
-    <main class="mt-[52px] py-10">
+    <main class="my-10">
       <slot />
     </main>
+
+    <AppPublicFooter />
   </div>
 </template>

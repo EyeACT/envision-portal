@@ -31,7 +31,14 @@ const logout = async () => {
       </div>
 
       <AuthState v-slot="{ loggedIn }">
-        <UButton v-if="loggedIn" size="sm" @click="logout"> Logout </UButton>
+        <UButton
+          v-if="loggedIn"
+          color="neutral"
+          variant="outline"
+          @click="logout"
+        >
+          Logout
+        </UButton>
 
         <div v-else class="flex items-center justify-center gap-3">
           <UButton to="/login" color="neutral" variant="outline">
