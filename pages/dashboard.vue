@@ -9,65 +9,75 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="flex flex-col gap-10 px-4">
-    <UCard>
-      <template #header>
-        <AppPlaceholder class="h-8" />
-      </template>
+  <div class="px-4">
+    <UBreadcrumb
+      separator-icon="i-lucide-arrow-right"
+      :items="[
+        { label: 'Home', to: '/' },
+        { label: 'Dashboard', to: '/dashboard' },
+      ]"
+    />
 
-      <AppPlaceholder class="h-32" />
+    <div class="flex flex-col gap-10 pt-5">
+      <UCard>
+        <template #header>
+          <AppPlaceholder class="h-8" />
+        </template>
 
-      <template #footer>
-        <AppPlaceholder class="h-8" />
-      </template>
-    </UCard>
+        <AppPlaceholder class="h-32" />
 
-    <UCard>
-      <template #header>
-        <AppPlaceholder class="h-8" />
-      </template>
+        <template #footer>
+          <AppPlaceholder class="h-8" />
+        </template>
+      </UCard>
 
-      <AppPlaceholder class="h-32" />
+      <UCard>
+        <template #header>
+          <AppPlaceholder class="h-8" />
+        </template>
 
-      <template #footer>
-        <AppPlaceholder class="h-8" />
-      </template>
-    </UCard>
+        <AppPlaceholder class="h-32" />
 
-    <UCard>
-      <template #header>
-        <AppPlaceholder class="h-8" />
-      </template>
+        <template #footer>
+          <AppPlaceholder class="h-8" />
+        </template>
+      </UCard>
 
-      <AppPlaceholder class="h-32" />
+      <UCard>
+        <template #header>
+          <AppPlaceholder class="h-8" />
+        </template>
 
-      <template #footer>
-        <AppPlaceholder class="h-8" />
-      </template>
-    </UCard>
+        <AppPlaceholder class="h-32" />
 
-    <UCard>
-      <template #header>
-        <AppPlaceholder class="h-8" />
-      </template>
+        <template #footer>
+          <AppPlaceholder class="h-8" />
+        </template>
+      </UCard>
 
-      <AppPlaceholder class="h-32" />
+      <UCard>
+        <template #header>
+          <AppPlaceholder class="h-8" />
+        </template>
 
-      <template #footer>
-        <AppPlaceholder class="h-8" />
-      </template>
-    </UCard>
+        <AppPlaceholder class="h-32" />
 
-    <UCard>
-      <template #header>
-        <AppPlaceholder class="h-8" />
-      </template>
+        <template #footer>
+          <AppPlaceholder class="h-8" />
+        </template>
+      </UCard>
 
-      <AppPlaceholder class="h-32" />
+      <UCard>
+        <template #header>
+          <AppPlaceholder class="h-8" />
+        </template>
 
-      <template #footer>
-        <AppPlaceholder class="h-8" />
-      </template>
-    </UCard>
+        <AppPlaceholder class="h-32" />
+
+        <template #footer>
+          <AppPlaceholder class="h-8" />
+        </template>
+      </UCard>
+    </div>
   </div>
 </template>
