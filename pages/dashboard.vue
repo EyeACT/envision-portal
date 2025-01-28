@@ -9,16 +9,15 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="px-4">
+  <div>
     <UBreadcrumb
-      separator-icon="i-lucide-arrow-right"
       :items="[
         { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/dashboard' },
       ]"
     />
 
-    <div class="flex flex-col gap-10 pt-5">
+    <div class="flex flex-col gap-5 pt-5">
       <UCard>
         <template #header>
           <AppPlaceholder class="h-8" />

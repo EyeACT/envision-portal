@@ -95,6 +95,19 @@
 
           <li>
             <ULink
+              to="/settings"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="heroicons-outline:cog" size="20" />
+
+              <span> Settings </span>
+            </ULink>
+          </li>
+
+          <li>
+            <ULink
               to="/help"
               class="group flex items-center justify-start gap-3 rounded-lg p-2"
               active-class="bg-gray-200 dark:bg-gray-700"
@@ -109,7 +122,7 @@
       </div>
     </aside>
 
-    <main class="mt-[52px] px-4 py-6 sm:ml-64">
+    <main class="mt-[52px] px-8 py-6 sm:ml-64">
       <slot />
     </main>
   </div>
