@@ -1,5 +1,5 @@
 import { z } from "zod";
-import bcrypt from "bcrypt";
+import { compare } from "bcrypt";
 
 const loginSchema = z.object({
   username: z.string().min(3),
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if the password matches
-  if (!(await bcrypt.compare(body.data.password, user.password))) {
+  if (!(await compare(body.data.password, user.password))) {
     throw createError({
       statusCode: 401,
       statusMessage: "Invalid username or password",
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Create a new session for the user
-  const userData = { username: user.username };
+  const userData = { id: user.id, username: user.username };
 
   await setUserSession(event, {
     loggedInAt: new Date(),

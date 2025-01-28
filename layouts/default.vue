@@ -2,12 +2,128 @@
 
 <template>
   <div>
-    <AppHeader />
+    <DashboardHeader />
 
-    <main class="my-10">
+    <aside
+      id="default-sidebar"
+      class="fixed top-0 left-0 z-0 mt-[52px] h-screen w-64 -translate-x-full transition-transform sm:translate-x-0"
+      aria-label="Sidebar"
+    >
+      <div
+        class="h-full overflow-y-auto border-r border-gray-200 px-3 py-4 dark:border-gray-700"
+      >
+        <ul class="flex flex-col gap-1 font-medium">
+          <li>
+            <ULink
+              to="/dashboard"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="material-symbols:dashboard-rounded" size="20" />
+
+              <span> Dashboard </span>
+            </ULink>
+          </li>
+
+          <li>
+            <ULink
+              to="/inbox"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="material-symbols:inbox-rounded" size="20" />
+
+              <span> Inbox </span>
+            </ULink>
+          </li>
+
+          <li>
+            <ULink
+              to="/users"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="flowbite:users-outline" size="20" />
+
+              <span> Users </span>
+            </ULink>
+          </li>
+
+          <li>
+            <ULink
+              to="/products"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="heroicons-outline:shopping-bag" size="20" />
+
+              <span> Products </span>
+            </ULink>
+          </li>
+
+          <hr class="border-gray-200 dark:border-gray-700" />
+
+          <li>
+            <ULink
+              to="/docs"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="heroicons-outline:document-text" size="20" />
+
+              <span> Docs </span>
+            </ULink>
+          </li>
+
+          <li>
+            <ULink
+              to="/settings"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="heroicons-outline:cog" size="20" />
+
+              <span> Settings </span>
+            </ULink>
+          </li>
+
+          <li>
+            <ULink
+              to="/settings"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="heroicons-outline:cog" size="20" />
+
+              <span> Settings </span>
+            </ULink>
+          </li>
+
+          <li>
+            <ULink
+              to="/help"
+              class="group flex items-center justify-start gap-3 rounded-lg p-2"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="heroicons-outline:question-mark-circle" size="20" />
+
+              <span> Help </span>
+            </ULink>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="mt-[52px] px-8 py-6 sm:ml-64">
       <slot />
     </main>
-
-    <AppFooter />
   </div>
 </template>

@@ -3,5 +3,5 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-01-16",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
-  modules: ["@nuxt/ui", "nuxt-auth-utils"],
+  modules: ["@nuxt/ui", "nuxt-auth-utils", "dayjs-nuxt"],
 });
