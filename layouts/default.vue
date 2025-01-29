@@ -41,27 +41,14 @@
 
           <li>
             <ULink
-              to="/users"
+              to="/upload"
               class="group flex items-center justify-start gap-3 rounded-lg p-2"
               active-class="bg-gray-200 dark:bg-gray-700"
               inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <Icon name="flowbite:users-outline" size="20" />
+              <Icon name="heroicons-outline:upload" size="20" />
 
-              <span> Users </span>
-            </ULink>
-          </li>
-
-          <li>
-            <ULink
-              to="/products"
-              class="group flex items-center justify-start gap-3 rounded-lg p-2"
-              active-class="bg-gray-200 dark:bg-gray-700"
-              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Icon name="heroicons-outline:shopping-bag" size="20" />
-
-              <span> Products </span>
+              <span> Upload </span>
             </ULink>
           </li>
 
@@ -77,19 +64,6 @@
               <Icon name="heroicons-outline:document-text" size="20" />
 
               <span> Docs </span>
-            </ULink>
-          </li>
-
-          <li>
-            <ULink
-              to="/settings"
-              class="group flex items-center justify-start gap-3 rounded-lg p-2"
-              active-class="bg-gray-200 dark:bg-gray-700"
-              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Icon name="heroicons-outline:cog" size="20" />
-
-              <span> Settings </span>
             </ULink>
           </li>
 
