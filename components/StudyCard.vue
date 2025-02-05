@@ -29,7 +29,7 @@ const navigateToStudy = () => {
     @click="navigateToStudy"
   >
     <div class="flex items-center gap-4">
-      <!-- Thumbnail -->
+      <!-- Thumbnail (Can be readjusted depending on what the standard dimension of the banner images will be) -->
       <img
         :src="`https://api.dicebear.com/9.x/identicon/svg?seed=${study.id}&backgroundColor=ffffff&backgroundType=gradientLinear`"
         alt="Study Thumbnail"

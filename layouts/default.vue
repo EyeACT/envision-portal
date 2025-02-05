@@ -25,7 +25,6 @@ const studyNavItems = [
 </script>
 
 <template>
-  <!-- Full-Width Background with Proper Content Wrapping -->
   <div
     class="flex min-h-screen w-full overflow-hidden bg-gray-100 dark:bg-gray-900"
   >

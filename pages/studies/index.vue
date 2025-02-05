@@ -72,7 +72,7 @@ const studies = ref([
   },
 ]);
 
-// Toggle dropdown while preventing outside click from immediately closing it
+// Toggle dropdown while preventing outside click from immediately closing it (doesn't seem to work atm, vueuse is conflicting with this)
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
 };
@@ -121,7 +121,7 @@ const filteredStudies = computed(() => {
   });
 });
 
-// Close dropdown when clicking outside
+// Close dropdown when clicking outside (currently conflicts with trying to close via button click)
 onClickOutside(dropdownRef, () => {
   showDropdown.value = false;
 });
@@ -164,7 +164,7 @@ onClickOutside(dropdownRef, () => {
         />
       </div>
 
-      <!-- Filter Dropdown -->
+      <!-- Filter Dropdown (Needs more styling) -->
       <div class="relative">
         <button
           class="flex items-center gap-2 rounded-lg bg-gray-100 px-5 py-3 text-gray-700 shadow-sm transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
