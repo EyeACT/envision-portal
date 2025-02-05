@@ -29,7 +29,7 @@ const navigateToStudy = () => {
     @click="navigateToStudy"
   >
     <div class="flex items-center gap-4">
-      <!-- Identicon Thumbnail -->
+      <!-- Thumbnail -->
       <img
         :src="`https://api.dicebear.com/9.x/identicon/svg?seed=${study.id}&backgroundColor=ffffff&backgroundType=gradientLinear`"
         alt="Study Thumbnail"

@@ -20,7 +20,7 @@ const studies = ref([
   },
 ]);
 
-// Find the study details
+// Find the study details (This will search through the database)
 const study = computed(() => studies.value.find((s) => s.id === studyId));
 
 // Tabs Management
@@ -53,7 +53,7 @@ const tabs = ["Overview", "Metadata", "Files", "Datasets", "Collaborators"];
           </p>
         </div>
 
-        <!-- Manage Study Button (Only for Owners) -->
+        <!-- Manage Study Button (Only for Owners [Editors too?]) -->
         <button
           v-if="study?.role === 'Owner'"
           class="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white shadow-md transition hover:bg-blue-700"
