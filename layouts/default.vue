@@ -16,9 +16,16 @@ const studyNavItems = [
   { name: "Files", icon: "ph:files-fill", route: "files" },
   { name: "Datasets", icon: "material-symbols:dataset", route: "datasets" },
   {
-    name: "Collaborators",
+    name: "Permissions",
     icon: "mdi:account-group-outline",
     route: "collaborators",
+  },
+  { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
+  { name: "Data Upload", icon: "heroicons-outline:upload", route: "upload" },
+  {
+    name: "Data Processing",
+    icon: "heroicons-outline:cube",
+    route: "processing",
   },
   { name: "Settings", icon: "heroicons-outline:cog", route: "settings" },
 ];
