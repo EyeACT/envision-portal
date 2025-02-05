@@ -50,7 +50,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         icon: "material-symbols:check-circle-outline",
       });
 
-      window.location.href = "/dashboard";
+      window.location.href = "/studies";
     })
     .catch((error) => {
       console.error(error.data);
