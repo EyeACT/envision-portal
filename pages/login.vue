@@ -19,21 +19,23 @@ useSeoMeta({
 const toast = useToast();
 const loading = ref(false);
 
+const showPassword = ref(false);
+
 const schema = z.object({
-  username: z.string().min(3, "Must be at least 3 characters"),
+  emailAddress: z.string().email(),
   password: z.string().min(8, "Must be at least 8 characters"),
 });
 
 type Schema = z.output<typeof schema>;
 
 const state = reactive({
-  username: "test",
+  emailAddress: "rick@example.com",
   password: "12345678",
 });
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   const body = {
-    username: event.data.username,
+    emailAddress: event.data.emailAddress,
     password: event.data.password,
   };
 
@@ -90,8 +92,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         class="mt-6 space-y-4"
         @submit="onSubmit"
       >
-        <UFormField label="Username" name="username">
-          <UInput v-model="state.username" type="text" />
+        <UFormField label="Email Address" name="emailAddress">
+          <UInput v-model="state.emailAddress" type="email" />
         </UFormField>
 
         <UFormField label="Password" name="password">
@@ -104,7 +106,20 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             </NuxtLink>
           </template>
 
-          <UInput v-model="state.password" type="password" />
+          <UInput
+            v-model="state.password"
+            :type="showPassword ? 'text' : 'password'"
+          >
+            <template #trailing>
+              <Icon
+                name="solar:eye-linear"
+                size="16"
+                class="cursor-pointer text-slate-400 transition-colors hover:text-slate-600"
+                @mousedown="showPassword = true"
+                @mouseup="showPassword = false"
+              />
+            </template>
+          </UInput>
         </UFormField>
 
         <UButton
