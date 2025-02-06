@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const { clear } = useUserSession();
-const { loggedIn, user } = useUserSession();
+const { clear, loggedIn, user } = useUserSession();
 
 // Showing an alert for now but can redirect to a verification page later if needed
 const emailVerified = computed(
@@ -54,7 +53,7 @@ const toggleSidebar = () => {
       <div class="flex items-center justify-center gap-3">
         <AppColorModeButton />
 
-        <AuthState v-slot="{ loggedIn }">
+        <AuthState>
           <UButton
             v-if="loggedIn"
             color="neutral"
