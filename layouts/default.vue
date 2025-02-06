@@ -109,6 +109,39 @@ const studyNavItems = [
         <hr class="border-gray-200 dark:border-gray-700" />
       </ul>
 
+      <!-- Help & Settings -->
+      <ul class="space-y-1">
+        <li>
+          <ULink
+            to="/help"
+            class="group mt-1 flex items-center gap-3 rounded-lg px-3 py-2"
+            active-class="bg-gray-200 dark:bg-gray-700"
+            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <Icon name="heroicons-outline:question-mark-circle" size="20" />
+
+            <span> Help </span>
+          </ULink>
+        </li>
+
+        <li>
+          <ULink
+            to="/settings"
+            class="group flex items-center gap-3 rounded-lg px-3 py-2"
+            active-class="bg-gray-200 dark:bg-gray-700"
+            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <Icon name="heroicons-outline:cog" size="20" />
+
+            <span> Settings </span>
+          </ULink>
+        </li>
+
+        <hr class="border-gray-200 dark:border-gray-700" />
+      </ul>
+      <!-- <div class="w-full">
+      </div> -->
+
       <!-- Study-Specific Navigation -->
       <template v-if="selectedStudy">
         <div class="mt-4">
@@ -134,37 +167,6 @@ const studyNavItems = [
           </ul>
         </div>
       </template>
-
-      <!-- Help & Settings -->
-      <div class="absolute bottom-4 w-full">
-        <ul class="space-y-1">
-          <li>
-            <ULink
-              to="/help"
-              class="group flex items-center gap-3 rounded-lg px-3 py-2"
-              active-class="bg-gray-200 dark:bg-gray-700"
-              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Icon name="heroicons-outline:question-mark-circle" size="20" />
-
-              <span> Help </span>
-            </ULink>
-          </li>
-
-          <li>
-            <ULink
-              to="/settings"
-              class="group flex items-center gap-3 rounded-lg px-3 py-2"
-              active-class="bg-gray-200 dark:bg-gray-700"
-              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Icon name="heroicons-outline:cog" size="20" />
-
-              <span> Settings </span>
-            </ULink>
-          </li>
-        </ul>
-      </div>
     </aside>
 
     <!-- Main Content -->
