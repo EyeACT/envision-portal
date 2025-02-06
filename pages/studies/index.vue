@@ -143,11 +143,10 @@ onClickOutside(dropdownRef, () => {
         </p>
       </div>
 
-      <button
-        class="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white shadow-md transition hover:bg-blue-700"
-      >
+      <!-- New Study Button (TODO: Add functionality, open sidepanel) -->
+      <UButton color="primary" size="xl" class="text-white shadow-md">
         + New Study
-      </button>
+      </UButton>
     </div>
 
     <!-- Controls & Filtering -->
@@ -166,13 +165,13 @@ onClickOutside(dropdownRef, () => {
 
       <!-- Filter Dropdown (Needs more styling) -->
       <div class="relative">
-        <button
+        <UButton
           class="flex items-center gap-2 rounded-lg bg-gray-100 px-5 py-3 text-gray-700 shadow-sm transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           @click.stop="toggleDropdown"
         >
           <Icon name="material-symbols:filter-list" size="20" />
           Filter
-        </button>
+        </UButton>
 
         <!-- Dropdown Menu -->
         <div
