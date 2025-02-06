@@ -19,24 +19,29 @@ useSeoMeta({
 const toast = useToast();
 const loading = ref(false);
 
+const showPassword = ref(false);
+
 const schema = z.object({
-  username: z.string().min(3, "Must be at least 3 characters"),
-  name: z.string().min(3, "Must be at least 3 characters"),
+  emailAddress: z.string().email(),
+  familyName: z.string(),
+  givenName: z.string(),
   password: z.string().min(8, "Must be at least 8 characters"),
 });
 
 type Schema = z.output<typeof schema>;
 
 const state = reactive({
-  username: "test",
-  name: "Alessandra",
+  emailAddress: "rick@example.com",
+  familyName: "Sanchez",
+  givenName: "Rick",
   password: "12345678",
 });
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   const body = {
-    username: event.data.username,
-    name: event.data.name,
+    emailAddress: event.data.emailAddress,
+    familyName: event.data.familyName,
+    givenName: event.data.givenName,
     password: event.data.password,
   };
 
@@ -89,20 +94,33 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         class="mt-6 space-y-4"
         @submit="onSubmit"
       >
-        <UFormField label="Name" name="name">
-          <UInput v-model="state.name" type="text" />
+        <UFormField label="Given Name" name="givenName">
+          <UInput v-model="state.givenName" type="text" />
         </UFormField>
 
-        <UFormField label="Username" name="username">
-          <UInput v-model="state.username" type="text" />
+        <UFormField label="Family Name" name="familyName">
+          <UInput v-model="state.familyName" type="text" />
+        </UFormField>
+
+        <UFormField label="Email Address" name="emailAddress">
+          <UInput v-model="state.emailAddress" type="email" />
         </UFormField>
 
         <UFormField label="Password" name="password">
-          <template #trailing>
-            <Icon name="solar:eye-linear" size="16" />
-          </template>
-
-          <UInput v-model="state.password" type="password" />
+          <UInput
+            v-model="state.password"
+            :type="showPassword ? 'text' : 'password'"
+          >
+            <template #trailing>
+              <Icon
+                name="solar:eye-linear"
+                size="16"
+                class="cursor-pointer text-slate-400 transition-colors hover:text-slate-600"
+                @mousedown="showPassword = true"
+                @mouseup="showPassword = false"
+              />
+            </template>
+          </UInput>
         </UFormField>
 
         <UButton

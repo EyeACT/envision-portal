@@ -1,4 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const { loggedIn, user } = useUserSession();
+
+// Showing an alert for now but can redirect to a verification page later if needed
+const emailVerified = computed(
+  () => loggedIn.value && user.value?.emailVerified,
+);
+</script>
 
 <template>
   <div>
@@ -6,7 +13,11 @@
 
     <aside
       id="default-sidebar"
-      class="fixed top-0 left-0 z-0 mt-[52px] h-screen w-64 -translate-x-full transition-transform sm:translate-x-0"
+      class="fixed top-0 left-0 z-0 h-screen w-64 -translate-x-full transition-transform sm:translate-x-0"
+      :class="{
+        'mt-[52px]': emailVerified,
+        'mt-[80px]': !emailVerified,
+      }"
       aria-label="Sidebar"
     >
       <div
@@ -96,7 +107,7 @@
       </div>
     </aside>
 
-    <main class="mt-[52px] px-8 py-6 sm:ml-64">
+    <main class="px-8 py-6 sm:ml-64">
       <slot />
     </main>
   </div>
