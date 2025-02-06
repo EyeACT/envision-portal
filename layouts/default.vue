@@ -139,8 +139,6 @@ const studyNavItems = [
 
         <hr class="border-gray-200 dark:border-gray-700" />
       </ul>
-      <!-- <div class="w-full">
-      </div> -->
 
       <!-- Study-Specific Navigation -->
       <template v-if="selectedStudy">
@@ -174,7 +172,7 @@ const studyNavItems = [
       class="ml-64 min-h-screen flex-1 overflow-x-hidden overflow-y-auto transition-all"
     >
       <!-- Dashboard Header -->
-      <DashboardHeader v-model:sidebar-collapsed="sidebarCollapsed" />
+      <DashboardHeader />
 
       <!-- Page Content -->
       <div class="mt-16 p-6">
