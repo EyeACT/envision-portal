@@ -4,6 +4,11 @@
 :root {
   --ui-radius: var(--radius-lg);
   --ui-container: var(--container-7xl);
+  --ui-primary: var(--ui-color-primary-500);
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-700);
 }
 
 @theme {
