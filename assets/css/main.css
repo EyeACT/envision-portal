@@ -7,6 +7,8 @@
 }
 
 @theme {
+  --font-sans: "Inter", sans-serif;
+
   --auth-color-primary-400: 56 189 248;
   --auth-color-primary-500: 14 165 233;
 
