@@ -18,14 +18,23 @@ datasource db {
 model User {
     id String @id @default(cuid())
 
-    username String @unique
-    password String
+    givenName  String @default("")
+    familyName String @default("")
 
-    created      DateTime       @default(now())
-    updated      DateTime       @updatedAt
+    emailAddress String @unique
+    password     String
+
+    emailVerified                 Boolean   @default(false)
+    emailVerifiedAt               DateTime?
+    emailVerificationToken        String?   @unique
+    emailVerificationTokenExpires DateTime?
+
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+
     Notification Notification[]
 
-    @@index([username])
+    @@index([emailAddress])
 }
 
 model Notification {

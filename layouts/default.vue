@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
+const { loggedIn, user } = useUserSession();
+
+// Showing an alert for now but can redirect to a verification page later if needed
+const emailVerified = computed(
+  () => loggedIn.value && user.value?.emailVerified,
+);
 
 const route = useRoute();
 const sidebarCollapsed = ref(false);
@@ -37,10 +43,14 @@ const studyNavItems = [
   >
     <!-- Sidebar -->
     <aside
-      id="sidebar"
+      id="default-sidebar"
+      class="fixed top-0 left-0 z-0 h-screen w-64 -translate-x-full transition-transform sm:translate-x-0"
+      aria-label="Sidebar"
       :class="[
         'fixed top-0 left-0 z-10 h-full w-64 border-r border-gray-200 bg-white px-4 py-3 transition-transform dark:border-gray-700 dark:bg-gray-900',
         sidebarCollapsed ? '-translate-x-full' : 'translate-x-0',
+        'mt-[52px]': emailVerified,
+        'mt-[80px]': !emailVerified,
       ]"
     >
       <!-- Sidebar Logo -->

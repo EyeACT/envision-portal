@@ -2,7 +2,9 @@ import { z } from "zod";
 import { hash } from "bcrypt";
 
 const signupSchema = z.object({
-  username: z.string().min(3),
+  emailAddress: z.string().email(),
+  familyName: z.string(),
+  givenName: z.string(),
   password: z.string().min(8),
 });
 
@@ -19,35 +21,35 @@ export default defineEventHandler(async (event) => {
   // Check if the user already exists
   const user = await prisma.user.findUnique({
     where: {
-      username: body.data.username,
+      emailAddress: body.data.emailAddress,
     },
   });
 
   if (user) {
     throw createError({
       statusCode: 401,
-      statusMessage: "Username already exists",
+      statusMessage: "Email address already in use",
     });
   }
 
   // Create a new user
   const hashedPassword = await hash(body.data.password, 10);
 
-  await prisma.user.create({
+  const newUser = await prisma.user.create({
     data: {
-      username: body.data.username,
+      emailAddress: body.data.emailAddress,
+      familyName: body.data.familyName,
+      givenName: body.data.givenName,
       password: hashedPassword,
     },
   });
 
-  // Create a new session for the user
-  const userData = { username: body.data.username };
-
-  await setUserSession(event, {
-    loggedInAt: new Date(),
-    user: userData,
-    userSessionField: "",
-  });
+  if (!newUser) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Error creating user",
+    });
+  }
 
   return sendRedirect(event, "/login");
 });

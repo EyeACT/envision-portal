@@ -1,5 +1,10 @@
 <script setup lang="ts">
-const { clear } = useUserSession();
+const { clear, loggedIn, user } = useUserSession();
+
+// Showing an alert for now but can redirect to a verification page later if needed
+const emailVerified = computed(
+  () => loggedIn.value && user.value?.emailVerified,
+);
 
 const sidebarCollapsed = ref(false);
 
@@ -15,8 +20,17 @@ const toggleSidebar = () => {
 
 <template>
   <header
-    class="fixed top-0 right-0 left-0 z-10 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+    class="top-0 right-0 left-0 z-10 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
   >
+    <div
+      v-if="!emailVerified"
+      class="flex items-center justify-center gap-2 bg-red-500 p-1 text-sm font-semibold text-white"
+    >
+      <Icon name="ic:baseline-warning" size="16" />
+
+      <span> Please verify your email address. </span>
+    </div>
+
     <div class="mx-auto flex items-center justify-between px-4 py-2">
       <div class="flex items-center gap-1">
         <UButton
@@ -39,7 +53,7 @@ const toggleSidebar = () => {
       <div class="flex items-center justify-center gap-3">
         <AppColorModeButton />
 
-        <AuthState v-slot="{ loggedIn }">
+        <AuthState>
           <UButton
             v-if="loggedIn"
             color="neutral"
