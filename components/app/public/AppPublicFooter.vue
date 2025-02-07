@@ -13,11 +13,11 @@
         <AppColorModeButton />
 
         <UButton
-          to="https://github.com/nuxt-ui-pro/saas"
+          to="https://github.com/eyeact/envision-portal"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"
-          color="gray"
+          color="neutral"
           variant="ghost"
         />
       </div>
