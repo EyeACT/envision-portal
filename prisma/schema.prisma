@@ -33,6 +33,7 @@ model User {
     updated DateTime @updatedAt
 
     Notification Notification[]
+    Study        Study[] // To quickly query all studies a user is involved in
 
     @@index([emailAddress])
 }
@@ -51,4 +52,88 @@ model Notification {
 
     created DateTime @default(now())
     updated DateTime @updatedAt
+}
+
+enum StudyRole {
+    owner
+    admin
+    editor
+    viewer
+}
+
+enum ContributorStatus {
+    invited
+    accepted
+    declined
+}
+
+// model StudyKeyword {
+//     studyId   String
+//     keywordId String
+//     study     Study   @relation(fields: [studyId], references: [id])
+//     keyword   Keyword @relation(fields: [keywordId], references: [id])
+
+//     @@id([studyId, keywordId]) // composite primary key (ensures uniqueness of keywords per study)
+// }
+
+// model Keyword {
+//     id      String         @id @default(cuid())
+//     keyword String
+//     studies StudyKeyword[]
+// }
+
+model Study {
+    id          String   @id @default(cuid())
+    title       String
+    acronym     String
+    description String
+    image       String
+    // (Separate StudyKeyword table to standardize keywords)
+    // keywords    StudyKeyword[]
+    keywords    String[]
+
+    ownerId           String
+    owner             User                    @relation(fields: [ownerId], references: [id])
+    role              StudyRole
+    size              Int
+    updatedOn         DateTime
+    createdOn         DateTime                @default(now())
+    contributors      StudyContributor[]
+    publishedVersions StudyPublishedVersion[]
+    collaborators     StudyCollaborator[]
+    // StudyKeyword      StudyKeyword[]
+}
+
+model StudyPublishedVersion {
+    id      String   @id @default(cuid())
+    date    DateTime
+    doi     String
+    version String
+    study   Study    @relation(fields: [studyId], references: [id])
+    studyId String
+}
+
+model StudyCollaborator {
+    id                  String  @id @default(cuid())
+    givenName           String?
+    familyName          String?
+    identifierScheme    String?
+    identifierSchemeUri String?
+    originalId          String?
+    study               Study   @relation(fields: [studyId], references: [id])
+    studyId             String
+}
+
+model StudyContributor {
+    id           String            @id @default(cuid())
+    givenName    String
+    familyName   String
+    emailAddress String
+    ORCID        String?
+    role         String
+    status       ContributorStatus
+    token        String?
+    updatedRole  String
+    study        Study             @relation(fields: [studyId], references: [id])
+    studyId      String
 }
