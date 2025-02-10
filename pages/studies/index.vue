@@ -70,6 +70,24 @@ const studies = ref([
     role: "Viewer",
     updated: "2025-09-05",
   },
+  {
+    id: 6,
+    title: "Cybersecurity Research",
+    created: "2025-09-01",
+    description: "Exploring security vulnerabilities and protections.",
+    owner: "Cyber Defense Agency",
+    role: "Viewer",
+    updated: "2025-09-05",
+  },
+  {
+    id: 6,
+    title: "Cybersecurity Research",
+    created: "2025-09-01",
+    description: "Exploring security vulnerabilities and protections.",
+    owner: "Cyber Defense Agency",
+    role: "Viewer",
+    updated: "2025-09-05",
+  },
 ]);
 
 // Toggle dropdown while preventing outside click from immediately closing it (doesn't seem to work atm, vueuse is conflicting with this)
