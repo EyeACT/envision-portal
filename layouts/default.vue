@@ -54,7 +54,7 @@ const toggleSidebar = () => {
       id="sidebar"
       :class="[
         'fixed top-20 left-0 z-10 h-full border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
-        sidebarCollapsed ? 'w-20' : 'w-64', // Reduced collapsed width to remove extra space
+        sidebarCollapsed ? 'w-20' : 'w-64',
       ]"
     >
       <!-- Global Navigation -->
@@ -68,104 +68,22 @@ const toggleSidebar = () => {
             inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <Icon name="tabler:home-2" size="28" />
-            <!-- Increased icon size -->
+
             <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
               My Studies
             </span>
           </ULink>
         </li>
 
-        <!-- <li>
-          <ULink
-            to="/inbox"
-            class="group flex items-center gap-3 rounded-lg px-3 py-3"
-            active-class="bg-gray-200 dark:bg-gray-700"
-            :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
-            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Icon name="material-symbols:inbox-rounded" size="28" />
-
-            <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-              Inbox
-            </span>
-          </ULink>
-        </li> -->
-
         <hr class="border-gray-200 dark:border-gray-700" />
-        <!-- 
-        <li>
-          <ULink
-            to="/upload"
-            class="group flex items-center gap-3 rounded-lg px-3 py-3"
-            active-class="bg-gray-200 dark:bg-gray-700"
-            :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
-            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Icon name="heroicons-outline:upload" size="28" />
-
-            <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-              Upload
-            </span>
-          </ULink>
-        </li> -->
-
-        <!-- <li>
-          <ULink
-            to="/docs"
-            class="group flex items-center gap-3 rounded-lg px-3 py-3"
-            active-class="bg-gray-200 dark:bg-gray-700"
-            :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
-            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Icon name="heroicons-outline:document-text" size="28" />
-
-            <span :class="[sidebarCollapsed ? 'hidden' : 'block']"> Docs </span>
-          </ULink>
-        </li>
-
-        <hr class="border-gray-200 dark:border-gray-700" /> -->
       </ul>
-
-      <!-- Help & Settings -->
-      <!-- <ul class="space-y-1">
-        <li>
-          <ULink
-            to="/help"
-            class="group mt-1 flex items-center gap-3 rounded-lg px-3 py-3"
-            active-class="bg-gray-200 dark:bg-gray-700"
-            :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
-            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Icon name="heroicons-outline:question-mark-circle" size="28" />
-
-            <span :class="[sidebarCollapsed ? 'hidden' : 'block']"> Help </span>
-          </ULink>
-        </li>
-
-        <li>
-          <ULink
-            to="/settings"
-            class="group flex items-center gap-3 rounded-lg px-3 py-3"
-            active-class="bg-gray-200 dark:bg-gray-700"
-            :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
-            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Icon name="heroicons-outline:cog" size="28" />
-
-            <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-              Settings
-            </span>
-          </ULink>
-        </li>
-
-        <hr class="border-gray-200 dark:border-gray-700" />
-      </ul> -->
 
       <!-- Study-Specific Navigation -->
       <template v-if="selectedStudy">
         <div class="mt-4">
           <p
             class="px-3 py-2 text-xs font-semibold text-gray-600 uppercase dark:text-gray-400"
+            :class="[sidebarCollapsed ? 'hidden' : 'block']"
           >
             Study Navigation
           </p>
@@ -174,13 +92,16 @@ const toggleSidebar = () => {
             <li v-for="item in studyNavItems" :key="item.route">
               <ULink
                 :to="`/studies/${selectedStudy}/${item.route}`"
-                class="group flex items-center gap-3 rounded-lg px-3 py-2"
+                class="group flex items-center gap-3 rounded-lg px-3 py-3"
+                :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
                 active-class="bg-gray-200 dark:bg-gray-700"
                 inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <Icon :name="item.icon" size="20" />
+                <Icon :name="item.icon" size="28" />
 
-                <span> {{ item.name }} </span>
+                <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                  {{ item.name }}
+                </span>
               </ULink>
             </li>
           </ul>
@@ -199,6 +120,7 @@ const toggleSidebar = () => {
       <header
         class="fixed top-0 right-0 left-0 z-10 block w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
       >
+        <!-- Alert for email verification -->
         <div
           v-if="!emailVerified"
           class="flex items-center justify-center gap-2 bg-red-500 p-1 text-sm font-semibold text-white"
@@ -209,6 +131,7 @@ const toggleSidebar = () => {
         </div>
 
         <div class="mx-auto flex items-center justify-between px-4 py-2">
+          <!-- Logo -->
           <div class="flex items-center gap-1">
             <UButton
               :icon="
@@ -227,6 +150,7 @@ const toggleSidebar = () => {
             </NuxtLink>
           </div>
 
+          <!-- User Menu (Inbox, Docs, Settings) -->
           <div class="flex items-center justify-center gap-3">
             <UTooltip text="Inbox">
               <UButton
@@ -260,6 +184,7 @@ const toggleSidebar = () => {
               <AppColorModeButton />
             </UTooltip>
 
+            <!-- Logged In State -->
             <AuthState>
               <UButton
                 v-if="loggedIn"
