@@ -57,7 +57,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         description: "You can now login",
         icon: "material-symbols:check-circle-outline",
       });
-      await navigateTo("/login");
     })
     .catch((error) => {
       console.error(error.data);

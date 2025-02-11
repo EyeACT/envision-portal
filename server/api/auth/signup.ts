@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { hash } from "bcrypt";
+import { nanoid } from "nanoid";
+import { sendEmail } from "../../utils/sendEmail";
+import { addMinutes } from "date-fns";
 
 const signupSchema = z.object({
   emailAddress: z.string().email(),
@@ -14,7 +17,7 @@ export default defineEventHandler(async (event) => {
   if (!body.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing login credentials",
+      statusMessage: "Missing or invalid signup details",
     });
   }
 
@@ -34,6 +37,8 @@ export default defineEventHandler(async (event) => {
 
   // Create a new user
   const hashedPassword = await hash(body.data.password, 10);
+  const verificationToken = nanoid();
+  const tokenExpiry = addMinutes(new Date(), 30);
 
   const newUser = await prisma.user.create({
     data: {
@@ -41,6 +46,9 @@ export default defineEventHandler(async (event) => {
       familyName: body.data.familyName,
       givenName: body.data.givenName,
       password: hashedPassword,
+      emailVerified: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationTokenExpires: tokenExpiry,
     },
   });
 
@@ -51,5 +59,14 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return sendRedirect(event, "/login");
+  // Send verification email
+  // TODO: Update to real domain 
+  const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
+  await sendEmail(
+    newUser.emailAddress,
+    "Verify Your Email Address",
+    `Click the link to verify your email: ${verificationLink}`
+  );
+
+  return { message: "Verification email sent. Please check your inbox." };
 });
