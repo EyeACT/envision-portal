@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 
+// TODO: Update from mailtrap sandbox to live email sending service
 export const sendEmail = async (to: string, subject: string, text: string) => {
   const transporter = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
