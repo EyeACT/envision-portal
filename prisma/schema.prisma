@@ -67,41 +67,22 @@ enum ContributorStatus {
     declined
 }
 
-// model StudyKeyword {
-//     studyId   String
-//     keywordId String
-//     study     Study   @relation(fields: [studyId], references: [id])
-//     keyword   Keyword @relation(fields: [keywordId], references: [id])
-
-//     @@id([studyId, keywordId]) // composite primary key (ensures uniqueness of keywords per study)
-// }
-
-// model Keyword {
-//     id      String         @id @default(cuid())
-//     keyword String
-//     studies StudyKeyword[]
-// }
-
 model Study {
     id          String   @id @default(cuid())
     title       String
-    acronym     String
     description String
-    image       String
-    // (Separate StudyKeyword table to standardize keywords)
-    // keywords    StudyKeyword[]
+    image       String?
     keywords    String[]
 
     ownerId           String
     owner             User                    @relation(fields: [ownerId], references: [id])
     role              StudyRole
-    size              Int
-    updatedOn         DateTime
+    size              Int                     @default(0)
+    updatedOn         DateTime                @updatedAt
     createdOn         DateTime                @default(now())
     contributors      StudyContributor[]
     publishedVersions StudyPublishedVersion[]
     collaborators     StudyCollaborator[]
-    // StudyKeyword      StudyKeyword[]
 }
 
 model StudyPublishedVersion {
