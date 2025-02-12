@@ -94,11 +94,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         class="mt-6 space-y-4"
         @submit="onSubmit"
       >
-        <UFormField label="Given Name" name="givenName">
+        <UFormField label="Given or First Name" name="givenName">
           <UInput v-model="state.givenName" type="text" />
         </UFormField>
 
-        <UFormField label="Family Name" name="familyName">
+        <UFormField label="Family or Last Name" name="familyName">
           <UInput v-model="state.familyName" type="text" />
         </UFormField>
 
