@@ -1,27 +1,42 @@
 <template>
-  <div v-if="loading" class="loading-spinner">Loading...</div>
-  <div v-else>
-    <h1>Email Verification</h1>
-    <p v-if="message" :class="messageClass">{{ message }}</p>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="text-center">
+      <h1 class="text-2xl font-bold">
+        {{ verifying ? "Verifying Email..." : successMessage || errorMessage }}
+      </h1>
+      <p v-if="errorMessage" class="text-red-500">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="text-green-500">{{ successMessage }}</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const { loggedIn } = useUserSession();
+
+if (loggedIn.value) {
+  await navigateTo("/dashboard");
+}
+
+definePageMeta({
+  layout: "auth",
+});
+
+useSeoMeta({
+  title: "Email Verification",
+});
 
 const route = useRoute();
 const toast = useToast();
-const token = route.query.token as string;  // Get token from query params
-let loading = true;
-let message = "";
-let errorMessage = "";
-let messageClass = "success";
+const token = route.query.token as string;
+const verifying = ref(true);
+const successMessage = ref("");
+const errorMessage = ref("");
 
-// Handle token validation and verification
+// Verify email when the page loads
 onMounted(async () => {
   if (!token) {
-    loading = false;
-    errorMessage = "No verification token found in the URL.";
+    verifying.value = false;
+    errorMessage.value = "No verification token found.";
     return;
   }
 
@@ -31,8 +46,7 @@ onMounted(async () => {
       body: { token },
     });
 
-    message = response.message;
-    loading = false;
+    successMessage.value = "Email verified successfully! Redirecting...";
     toast.add({
       title: "Email Verified",
       description: response.message,
@@ -40,16 +54,19 @@ onMounted(async () => {
       icon: "material-symbols:check-circle-outline",
     });
 
-    // Redirect after verification
-    navigateTo("/login");
+    setTimeout(() => {
+      navigateTo("/login");
+    }, 3000); 
   } catch (error) {
-    loading = false;
+    errorMessage.value = "Email verification failed. Please try again.";
     toast.add({
       title: "Verification Failed",
-      description: "An error occurred. Please try again later",
+      description: errorMessage.value,
       color: "error",
       icon: "material-symbols:error",
     });
+  } finally {
+    verifying.value = false;
   }
 });
 </script>
