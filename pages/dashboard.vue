@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onClickOutside } from "@vueuse/core";
+import { z } from "zod";
 definePageMeta({
   middleware: ["auth"],
 });
@@ -8,6 +9,7 @@ useSeoMeta({
   title: "Dashboard",
 });
 
+// Search query and filter variables
 const searchQuery = ref("");
 const selectedFilters = ref<Record<string, string | null>>({
   createdAfter: null,
@@ -19,81 +21,60 @@ const showDropdown = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 const availablePermissions = ["Owner", "Contributor", "Viewer"];
 
-// Example studies (Replace with API data)
-const studies = ref([
-  {
-    id: 1,
-    title: "Quantum Computing",
-    created: "2025-04-01",
-    description: "Research in quantum physics and computing.",
-    owner: "Dr. Alice Johnson",
-    role: "Owner",
-    updated: "2025-04-05",
-  },
-  {
-    id: 2,
-    title: "Space Exploration",
-    created: "2025-05-15",
-    description: "Studying planetary and deep space exploration.",
-    owner: "NASA Research Team",
-    role: "Contributor",
-    updated: "2025-05-20",
-  },
-  {
-    id: 3,
-    title: "Climate Change Study",
-    created: "2025-06-20",
-    description: "Assessing environmental impacts and solutions.",
-    owner: "Green Earth Initiative",
-    role: "Viewer",
-    updated: "2025-06-25",
-  },
-  {
-    id: 4,
-    title: "Healthcare Data Analysis",
-    created: "2025-07-05",
-    description: "Analyzing trends in medical research and treatments.",
-    owner: "Dr. Emily Roberts",
-    role: "Owner",
-    updated: "2025-07-10",
-  },
-  {
-    id: 5,
-    title: "Social Media Study",
-    created: "2025-08-10",
-    description: "Understanding social media behaviors and trends.",
-    owner: "Digital Behavior Lab",
-    role: "Contributor",
-    updated: "2025-08-15",
-  },
-  {
-    id: 6,
-    title: "Cybersecurity Research",
-    created: "2025-09-01",
-    description: "Exploring security vulnerabilities and protections.",
-    owner: "Cyber Defense Agency",
-    role: "Viewer",
-    updated: "2025-09-05",
-  },
-  {
-    id: 6,
-    title: "Cybersecurity Research",
-    created: "2025-09-01",
-    description: "Exploring security vulnerabilities and protections.",
-    owner: "Cyber Defense Agency",
-    role: "Viewer",
-    updated: "2025-09-05",
-  },
-  {
-    id: 6,
-    title: "Cybersecurity Research",
-    created: "2025-09-01",
-    description: "Exploring security vulnerabilities and protections.",
-    owner: "Cyber Defense Agency",
-    role: "Viewer",
-    updated: "2025-09-05",
-  },
-]);
+// User session + study management variables
+const loading = ref(false);
+const showSidePanel = ref(false);
+const newStudySchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+});
+
+const newStudyState = reactive({
+  title: "",
+  description: "",
+});
+
+const onSubmit = async () => {
+  loading.value = true;
+
+  try {
+    await $fetch("/api/studies", {
+      body: newStudyState,
+      method: "POST",
+    }).then((response) => {
+      console.log(response);
+      studies.value.push(response);
+    });
+  } catch (error) {
+    console.error("Error creating new study:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const studies = ref([]);
+
+try {
+  await $fetch("/api/studies", {
+    method: "GET",
+  }).then((response) => {
+    // studies.value = response;
+    studies.value = response.map((study) => ({
+      id: study.id,
+      title: study.title,
+      created: study.createdOn,
+      description: study.description,
+      keywords: study.keywords,
+      owner: study.ownerId,
+      role: study.role,
+      updated: study.updatedOn,
+    }));
+  });
+} catch (error) {
+  console.error("Error fetching studies:", error);
+} finally {
+  loading.value = false;
+}
 
 // Toggle dropdown while preventing outside click from immediately closing it (doesn't seem to work atm, vueuse is conflicting with this)
 const toggleDropdown = () => {
@@ -148,16 +129,28 @@ const filteredStudies = computed(() => {
 onClickOutside(dropdownRef, () => {
   showDropdown.value = false;
 });
+
+// Change state of slideover
+const toggleSlideover = () => {
+  showSidePanel.value = !showSidePanel.value;
+  if (showSidePanel.value) {
+    // Reset the form state when opening the slideover
+    newStudyState.title = "";
+    newStudyState.description = "";
+  }
+};
 </script>
 
 <template>
   <div>
     <UBreadcrumb
+      class="mb-4"
       :items="[
         { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/dashboard' },
       ]"
     />
+    <!-- Side Panel for Creating New Study -->
 
     <div class="w-full">
       <!-- Header Section -->
@@ -174,10 +167,49 @@ onClickOutside(dropdownRef, () => {
           </p>
         </div>
 
-        <!-- New Study Button (TODO: Add functionality, open sidepanel) -->
-        <UButton color="primary" size="xl" class="text-white shadow-md">
-          + New Study
-        </UButton>
+        <!-- New Study Button -->
+        <USlideover side="left" title="Create New Study">
+          <UButton
+            color="primary"
+            size="xl"
+            class="text-white shadow-md"
+            @click="toggleSlideover"
+          >
+            + New Study
+          </UButton>
+
+          <template #body>
+            <div>
+              <UForm
+                :schema="newStudySchema"
+                :state="newStudyState"
+                class="space-y-4"
+                @submit="onSubmit"
+              >
+                <UFormField label="Title" name="title">
+                  <UInput v-model="newStudyState.title" type="text" />
+                </UFormField>
+
+                <UFormField label="Description" name="description">
+                  <UInput v-model="newStudyState.description" type="text" />
+                </UFormField>
+              </UForm>
+            </div>
+          </template>
+
+          <template #footer>
+            <div class="flex justify-end p-2">
+              <UButton
+                color="primary"
+                size="lg"
+                class="text-white shadow-md"
+                @click="onSubmit"
+              >
+                Create Study
+              </UButton>
+            </div>
+          </template>
+        </USlideover>
       </div>
 
       <!-- Controls & Filtering -->
