@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
-const { clear, loggedIn, user } = useUserSession();
-
-// Showing an alert for now but can redirect to a verification page later if needed
-const emailVerified = computed(
-  () => loggedIn.value && user.value?.emailVerified,
-);
 
 const sidebarCollapsed = ref(true);
 const route = useRoute();
@@ -34,15 +28,6 @@ const studyNavItems = [
     route: "processing",
   },
 ];
-
-const logout = async () => {
-  clear();
-  await navigateTo("/login");
-};
-
-const toggleSidebar = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value;
-};
 </script>
 
 <template>
@@ -61,7 +46,7 @@ const toggleSidebar = () => {
       <ul class="mt-4 space-y-1">
         <li>
           <ULink
-            to="/studies"
+            to="/dashboard"
             class="group flex items-center gap-3 rounded-lg px-3 py-3"
             active-class="bg-gray-200 dark:bg-gray-700"
             :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
@@ -120,7 +105,7 @@ const toggleSidebar = () => {
       <DashboardHeader @update:sidebar-collapsed="sidebarCollapsed = $event" />
 
       <!-- Page Content -->
-      <div class="mt-24 w-full p-6">
+      <div class="mt-24 w-full px-6">
         <slot />
       </div>
     </main>

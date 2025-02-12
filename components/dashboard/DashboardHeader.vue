@@ -20,10 +20,6 @@ const logout = async () => {
   clear();
   await navigateTo("/login");
 };
-
-const toggleSidebar = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value;
-};
 </script>
 
 <template>
