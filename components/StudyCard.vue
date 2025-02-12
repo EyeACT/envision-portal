@@ -7,10 +7,11 @@ const router = useRouter();
 // Define props
 const props = defineProps<{
   study: {
-    id: number;
+    id: string;
     title: string;
     created: string;
     description: string;
+    keywords: string[];
     owner: string;
     role: string;
     updated: string;
@@ -21,6 +22,8 @@ const props = defineProps<{
 const navigateToStudy = () => {
   router.push(`/studies/${props.study.id}/overview`);
 };
+
+console.log("StudyCard props:", props.study);
 </script>
 
 <template>
@@ -43,12 +46,12 @@ const navigateToStudy = () => {
 
         <p class="text-gray-500 dark:text-gray-400">{{ study.description }}</p>
       </div>
+      <!-- Tags (Can be readjusted depending on what the standard dimension of the banner images will be) -->
+      <UBadge :label="study.role" class="ml-auto" color="primary" size="sm" />
     </div>
 
     <div class="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
       <p><strong>Owner:</strong> {{ study.owner }}</p>
-
-      <p><strong>Permission:</strong> {{ study.role }}</p>
 
       <p><strong>Created:</strong> {{ study.created }}</p>
 
