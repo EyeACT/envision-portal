@@ -15,6 +15,7 @@ const props = defineProps<{
     owner: string;
     role: string;
     updated: string;
+    userName: string;
   };
 }>();
 
@@ -23,7 +24,7 @@ const navigateToStudy = () => {
   router.push(`/studies/${props.study.id}/overview`);
 };
 
-console.log("StudyCard props:", props.study);
+// console.log("StudyCard props:", props.study);
 </script>
 
 <template>
@@ -51,7 +52,7 @@ console.log("StudyCard props:", props.study);
     </div>
 
     <div class="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
-      <p><strong>Owner:</strong> {{ study.owner }}</p>
+      <p><strong>Owner:</strong> {{ study.userName }}</p>
 
       <p><strong>Created:</strong> {{ study.created }}</p>
 
