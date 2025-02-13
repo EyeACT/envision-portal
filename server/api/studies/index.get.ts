@@ -49,6 +49,11 @@ export default defineEventHandler(async (event) => {
     };
   });
 
+  // Sort by updatedOn date
+  mappedStudies.sort((a, b) => {
+    return new Date(b.updatedOn).getTime() - new Date(a.updatedOn).getTime();
+  });
+
   // Return the studies
   console.log("Mapped Studies:", mappedStudies);
 
