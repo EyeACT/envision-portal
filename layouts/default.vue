@@ -28,6 +28,11 @@ const studyNavItems = [
     route: "processing",
   },
 ];
+
+// Watch the sidebarCollapsed state in the parent if you need to trigger any other actions
+watch(sidebarCollapsed, (newVal) => {
+  sidebarCollapsed.value = newVal;
+});
 </script>
 
 <template>
@@ -43,16 +48,16 @@ const studyNavItems = [
       ]"
     >
       <!-- Global Navigation -->
-      <ul class="mt-4 space-y-1">
+      <ul class="mt-2 space-y-2">
         <li>
           <ULink
             to="/dashboard"
-            class="group flex items-center gap-3 rounded-lg px-3 py-3"
+            class="group mx-1 flex items-center gap-3 rounded-lg px-3 py-3"
             active-class="bg-gray-200 dark:bg-gray-700"
             :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
             inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <Icon name="tabler:home-2" size="28" />
+            <Icon name="tabler:home-2" size="20" />
 
             <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
               My Studies
@@ -82,7 +87,7 @@ const studyNavItems = [
                 active-class="bg-gray-200 dark:bg-gray-700"
                 inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <Icon :name="item.icon" size="28" />
+                <Icon :name="item.icon" size="20" />
 
                 <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
                   {{ item.name }}
