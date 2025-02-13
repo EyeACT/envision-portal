@@ -3,17 +3,25 @@ import { useRoute } from "vue-router";
 import { ref } from "vue";
 import type { Study } from "@/types/study";
 
+useSeoMeta({
+  title: "Study Overview",
+});
+
 const route = useRoute();
 const studyId = route.params.id;
 const study = ref<Study | null>(null);
 
 // TODO: Fetch the study details from the API
 try {
-  await $fetch(`/api/studies/${studyId}`, {
+  const { data, error } = await useFetch(`/api/studies/${studyId}`, {
     method: "GET",
-  }).then((response) => {
-    study.value = response;
   });
+
+  if (error.value) {
+    console.error("Error fetching study details:", error.value);
+  } else {
+    study.value = data.value;
+  }
 } catch (error) {
   console.error("Error fetching study details:", error);
 }
@@ -49,12 +57,13 @@ const tabs = ["Overview", "Metadata", "Files", "Datasets", "Collaborators"];
         </div>
 
         <!-- Manage Study Button (Only for Owners [Editors too?]) -->
-        <button
-          v-if="study?.role === 'Owner'"
+        <UButton
+          v-if="['owner', 'editor'].includes(study?.role ?? '')"
+          :to="`/studies/${studyId}/metadata`"
           class="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white shadow-md transition hover:bg-blue-700"
         >
           Manage Study
-        </button>
+        </UButton>
       </div>
 
       <!-- Study Info -->
