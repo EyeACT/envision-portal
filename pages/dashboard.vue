@@ -10,6 +10,8 @@ useSeoMeta({
   title: "Dashboard",
 });
 
+const toast = useToast();
+
 // Search query and filter variables
 const searchQuery = ref("");
 const selectedFilters = ref<Record<string, string | null>>({
@@ -28,11 +30,17 @@ const showSidePanel = ref(false);
 const studies = ref<Study[]>([]);
 
 try {
-  await $fetch("/api/studies", {
+  const { data, error } = await useFetch<Study[]>("/api/studies", {
     method: "GET",
-  }).then((response) => {
-    studies.value = response;
   });
+
+  if (error.value) {
+    throw new Error(error.value.message);
+  }
+
+  if (data.value) {
+    studies.value = data.value;
+  }
 } catch (error) {
   console.error("Error fetching studies:", error);
 }
@@ -58,15 +66,26 @@ const onSubmit = async () => {
       body: newStudyState,
       method: "POST",
     }).then((response) => {
-      studies.value.push(response);
+      studies.value.unshift(response);
     });
   } catch (error) {
     console.error("Error creating new study:", error);
+    toast.add({
+      title: "Error creating study",
+      color: "error",
+      description: "Please try again later",
+      icon: "material-symbols:error",
+    });
   } finally {
     loading.value = false;
     newStudyState.title = "";
     newStudyState.description = "";
     newStudyState.bannerImageUrl = "";
+    toast.add({
+      title: "Study created successfully",
+      description: "You can now manage your new study",
+      icon: "material-symbols:check-circle-outline",
+    });
   }
 };
 
@@ -193,6 +212,7 @@ onClickOutside(dropdownRef, () => {
                 color="primary"
                 size="lg"
                 class="text-white shadow-md"
+                :loading="loading"
                 @click="onSubmit"
               >
                 Create Study
