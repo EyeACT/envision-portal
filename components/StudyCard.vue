@@ -9,12 +9,13 @@ const props = defineProps<{
   study: {
     id: string;
     title: string;
-    created: string;
+    createdOn: string;
     description: string;
+    image: string;
     keywords: string[];
-    owner: string;
+    ownerId: string;
     role: string;
-    updated: string;
+    updatedOn: string;
     userName: string;
   };
 }>();
@@ -35,6 +36,14 @@ const navigateToStudy = () => {
     <div class="flex items-center gap-4">
       <!-- Thumbnail (Can be readjusted depending on what the standard dimension of the banner images will be) -->
       <img
+        v-if="study.image"
+        :src="study.image"
+        alt="Study Thumbnail"
+        class="h-16 w-16 rounded-lg"
+      />
+
+      <img
+        v-else
         :src="`https://api.dicebear.com/9.x/identicon/svg?seed=${study.id}&backgroundColor=ffffff&backgroundType=gradientLinear`"
         alt="Study Thumbnail"
         class="h-16 w-16 rounded-lg"
@@ -54,9 +63,9 @@ const navigateToStudy = () => {
     <div class="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
       <p><strong>Owner:</strong> {{ study.userName }}</p>
 
-      <p><strong>Created:</strong> {{ study.created }}</p>
+      <p><strong>Created:</strong> {{ study.createdOn }}</p>
 
-      <p><strong>Last Updated:</strong> {{ study.updated }}</p>
+      <p><strong>Last Updated:</strong> {{ study.updatedOn }}</p>
     </div>
   </div>
 </template>

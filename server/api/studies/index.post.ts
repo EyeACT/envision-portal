@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const createStudySchema = z.object({
   title: z.string().min(1),
-  bannerImage: z.instanceof(File).optional(),
+  bannerImageUrl: z.string().optional(),
   description: z.string(),
   keywords: z.array(z.string()).optional(),
 });
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     data: {
       title: body.data.title,
       description: body.data.description,
-      image: body.data.bannerImage || "",
+      image: body.data.bannerImageUrl || "",
       keywords: body.data.keywords || [],
       ownerId: userId,
       role: "owner",
@@ -59,7 +59,8 @@ export default defineEventHandler(async (event) => {
     year: "numeric",
   });
 
-  const userName = session.user.givenName + " " + session.user.familyName;
+  const { familyName, givenName } = session.user;
+  const userName = `${givenName} ${familyName}`.trim();
 
   return {
     id: newStudy.id,

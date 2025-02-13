@@ -12,7 +12,8 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const userName = session.user.givenName + " " + session.user.familyName;
+  const { familyName, givenName } = session.user;
+  const userName = `${givenName} ${familyName}`.trim();
 
   // Map the studies to the desired format
   const mappedStudies = studies.map((study) => {

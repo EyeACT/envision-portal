@@ -12,12 +12,13 @@ useSeoMeta({
 interface Study {
   id: string;
   title: string;
-  created: string;
+  createdOn: string;
   description: string;
+  image: string;
   keywords: string[];
-  owner: string;
+  ownerId: string;
   role: string;
-  updated: string;
+  updatedOn: string;
   userName: string;
 }
 const studies = ref<Study[]>([]);
@@ -26,18 +27,7 @@ try {
   await $fetch("/api/studies", {
     method: "GET",
   }).then((response) => {
-    // studies.value = response;
-    studies.value = response.map((study) => ({
-      id: study.id,
-      title: study.title,
-      created: study.createdOn,
-      description: study.description,
-      keywords: study.keywords,
-      owner: study.ownerId,
-      role: study.role,
-      updated: study.updatedOn,
-      userName: study.userName,
-    }));
+    studies.value = response;
   });
 } catch (error) {
   console.error("Error fetching studies:", error);
@@ -62,76 +52,33 @@ const showSidePanel = ref(false);
 // New study form schema and state
 const newStudySchema = z.object({
   title: z.string().min(1, "Title is required"),
-  bannerImage: z.instanceof(File).optional(),
+  bannerImageUrl: z.string().optional(),
   description: z.string().optional(),
 });
 
 const newStudyState = reactive({
   title: "",
-  bannerImage: null as File | null,
+  bannerImageUrl: "",
   description: "",
 });
-
-const handleBannerImage = (event: Event) => {
-  console.log("handling banner image upload...");
-  console.log(event);
-  const file = (event.target as HTMLInputElement).files?.[0];
-
-  console.log(file);
-
-  if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-    // TODO: Integrate image cropper library such as CropperJS
-    newStudyState.bannerImage = file;
-  } else {
-    console.error("Invalid file type. Please upload a JPEG or PNG image.");
-  }
-};
 
 const onSubmit = async () => {
   loading.value = true;
 
-  // Use FormData for file uploads.
-  const formData = new FormData();
-
-  formData.append("title", newStudyState.title);
-  formData.append("description", newStudyState.description);
-  if (newStudyState.bannerImage) {
-    formData.append("bannerImage", newStudyState.bannerImage);
-  }
-
-  console.log("Form data:", formData);
-
   try {
     await $fetch("/api/studies", {
-      body: formData,
+      body: newStudyState,
       method: "POST",
     }).then((response) => {
-      studies.value.push({
-        id: response.id,
-        title: response.title,
-        created: response.createdOn,
-        description: response.description,
-        keywords: response.keywords,
-        owner: response.ownerId,
-        role: response.role,
-        updated: response.updatedOn,
-        userName: response.userName,
-      });
+      studies.value.push(response);
     });
   } catch (error) {
     console.error("Error creating new study:", error);
   } finally {
     loading.value = false;
-  }
-};
-
-// Change state of slideover
-const toggleSlideover = () => {
-  showSidePanel.value = !showSidePanel.value;
-  if (showSidePanel.value) {
-    // Reset the form state when opening the slideover
     newStudyState.title = "";
     newStudyState.description = "";
+    newStudyState.bannerImageUrl = "";
   }
 };
 
@@ -169,11 +116,11 @@ const filteredStudies = computed(() => {
 
     const matchesCreatedAfter =
       !selectedFilters.value.createdAfter ||
-      new Date(study.created) >= new Date(selectedFilters.value.createdAfter);
+      new Date(study.createdOn) >= new Date(selectedFilters.value.createdAfter);
 
     const matchesUpdatedAfter =
       !selectedFilters.value.updatedAfter ||
-      new Date(study.updated) >= new Date(selectedFilters.value.updatedAfter);
+      new Date(study.updatedOn) >= new Date(selectedFilters.value.updatedAfter);
 
     return (
       matchesSearch &&
@@ -222,7 +169,7 @@ onClickOutside(dropdownRef, () => {
             color="primary"
             size="xl"
             class="text-white shadow-md"
-            @click="toggleSlideover"
+            @click="showSidePanel = !showSidePanel"
           >
             + New Study
           </UButton>
@@ -244,13 +191,9 @@ onClickOutside(dropdownRef, () => {
                 </UFormField>
 
                 <!-- New Banner Image Field -->
-                <UFormField label="Banner Image" name="bannerImage">
+                <UFormField label="Banner Image URL" name="bannerImageUrl">
                   <!-- Accepts only JPEG and PNG -->
-                  <UInput
-                    type="file"
-                    accept="image/jpeg, image/png"
-                    @change="handleBannerImage"
-                  />
+                  <UInput v-model="newStudyState.bannerImageUrl" type="href" />
                 </UFormField>
               </UForm>
             </div>
