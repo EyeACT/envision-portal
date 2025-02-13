@@ -54,17 +54,17 @@ model Notification {
     updated DateTime @updatedAt
 }
 
+enum ContributorStatus {
+    invited
+    accepted
+    declined
+}
+
 enum StudyRole {
     owner
     admin
     editor
     viewer
-}
-
-enum ContributorStatus {
-    invited
-    accepted
-    declined
 }
 
 model Study {
@@ -83,15 +83,6 @@ model Study {
     contributors      StudyContributor[]
     publishedVersions StudyPublishedVersion[]
     collaborators     StudyCollaborator[]
-}
-
-model StudyPublishedVersion {
-    id      String   @id @default(cuid())
-    date    DateTime
-    doi     String
-    version String
-    study   Study    @relation(fields: [studyId], references: [id])
-    studyId String
 }
 
 model StudyCollaborator {
@@ -117,4 +108,13 @@ model StudyContributor {
     updatedRole  String
     study        Study             @relation(fields: [studyId], references: [id])
     studyId      String
+}
+
+model StudyPublishedVersion {
+    id      String   @id @default(cuid())
+    date    DateTime
+    doi     String
+    version String
+    study   Study    @relation(fields: [studyId], references: [id])
+    studyId String
 }
