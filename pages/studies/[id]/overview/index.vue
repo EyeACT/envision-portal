@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import { ref, computed } from "vue";
+import { ref } from "vue";
+import type { Study } from "@/types/study";
 
 const route = useRoute();
 const studyId = route.params.id;
+const study = ref<Study | null>(null);
 
 // TODO: Fetch the study details from the API
-
-// Find the study details (This will search through the database)
-const study = computed(() =>
-  studies.value.find((s) => String(s.id) === studyId),
-);
+try {
+  await $fetch(`/api/studies/${studyId}`, {
+    method: "GET",
+  }).then((response) => {
+    study.value = response;
+  });
+} catch (error) {
+  console.error("Error fetching study details:", error);
+}
 
 // Tabs Management
 const activeTab = ref("Overview");
@@ -23,7 +29,7 @@ const tabs = ["Overview", "Metadata", "Files", "Datasets", "Collaborators"];
     <!-- Study Banner -->
     <div v-if="study" class="relative">
       <img
-        :src="study.banner"
+        :src="study.image"
         alt="Study Banner"
         class="h-64 w-full rounded-lg object-cover shadow-md"
       />
@@ -53,11 +59,11 @@ const tabs = ["Overview", "Metadata", "Files", "Datasets", "Collaborators"];
 
       <!-- Study Info -->
       <div class="mt-4 text-gray-600 dark:text-gray-300">
-        <p><strong>Owner:</strong> {{ study?.owner }}</p>
+        <p><strong>Owner:</strong> {{ study?.userName }}</p>
 
-        <p><strong>Created:</strong> {{ study?.created }}</p>
+        <p><strong>Created:</strong> {{ study?.createdOn }}</p>
 
-        <p><strong>Last Updated:</strong> {{ study?.updated }}</p>
+        <p><strong>Last Updated:</strong> {{ study?.updatedOn }}</p>
       </div>
     </div>
 

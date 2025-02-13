@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onClickOutside } from "@vueuse/core";
 import { z } from "zod";
+import type { Study } from "@/types/study";
 definePageMeta({
   middleware: ["auth"],
 });
@@ -8,30 +9,6 @@ definePageMeta({
 useSeoMeta({
   title: "Dashboard",
 });
-
-interface Study {
-  id: string;
-  title: string;
-  createdOn: string;
-  description: string;
-  image: string;
-  keywords: string[];
-  ownerId: string;
-  role: string;
-  updatedOn: string;
-  userName: string;
-}
-const studies = ref<Study[]>([]);
-
-try {
-  await $fetch("/api/studies", {
-    method: "GET",
-  }).then((response) => {
-    studies.value = response;
-  });
-} catch (error) {
-  console.error("Error fetching studies:", error);
-}
 
 // Search query and filter variables
 const searchQuery = ref("");
@@ -48,6 +25,17 @@ const availablePermissions = ["Owner", "Contributor", "Viewer"];
 // User session + study management variables
 const loading = ref(false);
 const showSidePanel = ref(false);
+const studies = ref<Study[]>([]);
+
+try {
+  await $fetch("/api/studies", {
+    method: "GET",
+  }).then((response) => {
+    studies.value = response;
+  });
+} catch (error) {
+  console.error("Error fetching studies:", error);
+}
 
 // New study form schema and state
 const newStudySchema = z.object({
