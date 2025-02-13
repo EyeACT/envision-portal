@@ -9,50 +9,18 @@ useSeoMeta({
   title: "Dashboard",
 });
 
-// Search query and filter variables
-const searchQuery = ref("");
-const selectedFilters = ref<Record<string, string | null>>({
-  createdAfter: null,
-  permission: null,
-  updatedAfter: null,
-});
-const tempFilters = ref({ ...selectedFilters.value });
-const showDropdown = ref(false);
-const dropdownRef = ref<HTMLElement | null>(null);
-const availablePermissions = ["Owner", "Contributor", "Viewer"];
-
-// User session + study management variables
-const loading = ref(false);
-const showSidePanel = ref(false);
-const newStudySchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-});
-
-const newStudyState = reactive({
-  title: "",
-  description: "",
-});
-
-const onSubmit = async () => {
-  loading.value = true;
-
-  try {
-    await $fetch("/api/studies", {
-      body: newStudyState,
-      method: "POST",
-    }).then((response) => {
-      console.log(response);
-      studies.value.push(response);
-    });
-  } catch (error) {
-    console.error("Error creating new study:", error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const studies = ref([]);
+interface Study {
+  id: string;
+  title: string;
+  created: string;
+  description: string;
+  keywords: string[];
+  owner: string;
+  role: string;
+  updated: string;
+  userName: string;
+}
+const studies = ref<Study[]>([]);
 
 try {
   await $fetch("/api/studies", {
@@ -68,13 +36,104 @@ try {
       owner: study.ownerId,
       role: study.role,
       updated: study.updatedOn,
+      userName: study.userName,
     }));
   });
 } catch (error) {
   console.error("Error fetching studies:", error);
-} finally {
-  loading.value = false;
 }
+
+// Search query and filter variables
+const searchQuery = ref("");
+const selectedFilters = ref<Record<string, string | null>>({
+  createdAfter: null,
+  permission: null,
+  updatedAfter: null,
+});
+const tempFilters = ref({ ...selectedFilters.value });
+const showDropdown = ref(false);
+const dropdownRef = ref<HTMLElement | null>(null);
+const availablePermissions = ["Owner", "Contributor", "Viewer"];
+
+// User session + study management variables
+const loading = ref(false);
+const showSidePanel = ref(false);
+
+// New study form schema and state
+const newStudySchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  bannerImage: z.instanceof(File).optional(),
+  description: z.string().optional(),
+});
+
+const newStudyState = reactive({
+  title: "",
+  bannerImage: null as File | null,
+  description: "",
+});
+
+const handleBannerImage = (event: Event) => {
+  console.log("handling banner image upload...");
+  console.log(event);
+  const file = (event.target as HTMLInputElement).files?.[0];
+
+  console.log(file);
+
+  if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+    // TODO: Integrate image cropper library such as CropperJS
+    newStudyState.bannerImage = file;
+  } else {
+    console.error("Invalid file type. Please upload a JPEG or PNG image.");
+  }
+};
+
+const onSubmit = async () => {
+  loading.value = true;
+
+  // Use FormData for file uploads.
+  const formData = new FormData();
+
+  formData.append("title", newStudyState.title);
+  formData.append("description", newStudyState.description);
+  if (newStudyState.bannerImage) {
+    formData.append("bannerImage", newStudyState.bannerImage);
+  }
+
+  console.log("Form data:", formData);
+
+  try {
+    await $fetch("/api/studies", {
+      body: formData,
+      method: "POST",
+    }).then((response) => {
+      studies.value.push({
+        id: response.id,
+        title: response.title,
+        created: response.createdOn,
+        description: response.description,
+        keywords: response.keywords,
+        owner: response.ownerId,
+        role: response.role,
+        updated: response.updatedOn,
+        userName: response.userName,
+      });
+    });
+  } catch (error) {
+    console.error("Error creating new study:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Change state of slideover
+const toggleSlideover = () => {
+  showSidePanel.value = !showSidePanel.value;
+  if (showSidePanel.value) {
+    // Reset the form state when opening the slideover
+    newStudyState.title = "";
+    newStudyState.description = "";
+  }
+};
 
 // Toggle dropdown while preventing outside click from immediately closing it (doesn't seem to work atm, vueuse is conflicting with this)
 const toggleDropdown = () => {
@@ -129,16 +188,6 @@ const filteredStudies = computed(() => {
 onClickOutside(dropdownRef, () => {
   showDropdown.value = false;
 });
-
-// Change state of slideover
-const toggleSlideover = () => {
-  showSidePanel.value = !showSidePanel.value;
-  if (showSidePanel.value) {
-    // Reset the form state when opening the slideover
-    newStudyState.title = "";
-    newStudyState.description = "";
-  }
-};
 </script>
 
 <template>
@@ -192,6 +241,16 @@ const toggleSlideover = () => {
 
                 <UFormField label="Description" name="description">
                   <UInput v-model="newStudyState.description" type="text" />
+                </UFormField>
+
+                <!-- New Banner Image Field -->
+                <UFormField label="Banner Image" name="bannerImage">
+                  <!-- Accepts only JPEG and PNG -->
+                  <UInput
+                    type="file"
+                    accept="image/jpeg, image/png"
+                    @change="handleBannerImage"
+                  />
                 </UFormField>
               </UForm>
             </div>
