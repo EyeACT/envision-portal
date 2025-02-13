@@ -5,75 +5,7 @@ import { ref, computed } from "vue";
 const route = useRoute();
 const studyId = route.params.id;
 
-// Mock study data (Replace with API fetch)
-const studies = ref([
-  {
-    id: 1,
-    title: "Quantum Computing",
-    banner:
-      "https://images.unsplash.com/photo-1612521564135-31ae9a5a2a9b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    created: "2025-04-01",
-    description: "Research in quantum physics and computing.",
-    owner: "Dr. Alice Johnson",
-    role: "Owner",
-    updated: "2025-04-05",
-  },
-  {
-    id: 2,
-    title: "Space Exploration",
-    banner:
-      "https://images.unsplash.com/photo-1612521564135-31ae9a5a2a9b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    created: "2025-05-15",
-    description: "Studying planetary and deep space exploration.",
-    owner: "NASA Research Team",
-    role: "Contributor",
-    updated: "2025-05-20",
-  },
-  {
-    id: 3,
-    title: "Climate Change Study",
-    banner:
-      "https://images.unsplash.com/photo-1612521564135-31ae9a5a2a9b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    created: "2025-06-20",
-    description: "Assessing environmental impacts and solutions.",
-    owner: "Green Earth Initiative",
-    role: "Viewer",
-    updated: "2025-06-25",
-  },
-  {
-    id: 4,
-    title: "Healthcare Data Analysis",
-    banner:
-      "https://images.unsplash.com/photo-1612521564135-31ae9a5a2a9b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    created: "2025-07-05",
-    description: "Analyzing trends in medical research and treatments.",
-    owner: "Dr. Emily Roberts",
-    role: "Owner",
-    updated: "2025-07-10",
-  },
-  {
-    id: 5,
-    title: "Social Media Study",
-    banner:
-      "https://images.unsplash.com/photo-1612521564135-31ae9a5a2a9b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    created: "2025-08-10",
-    description: "Understanding social media behaviors and trends.",
-    owner: "Digital Behavior Lab",
-    role: "Contributor",
-    updated: "2025-08-15",
-  },
-  {
-    id: 6,
-    title: "Cybersecurity Research",
-    banner:
-      "https://images.unsplash.com/photo-1612521564135-31ae9a5a2a9b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    created: "2025-09-01",
-    description: "Exploring security vulnerabilities and protections.",
-    owner: "Cyber Defense Agency",
-    role: "Viewer",
-    updated: "2025-09-05",
-  },
-]);
+// TODO: Fetch the study details from the API
 
 // Find the study details (This will search through the database)
 const study = computed(() =>
