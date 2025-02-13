@@ -9,12 +9,12 @@ const emailVerified = computed(
 // Emit event setup
 const emit = defineEmits(["update:sidebar-collapsed"]);
 
-const sidebarCollapsed = ref(false);
+const sidebarCollapsed = ref(true);
 
-// Watch for changes to emit to the parent
-watch(sidebarCollapsed, (newVal) => {
-  emit("update:sidebar-collapsed", newVal);
-});
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+  emit("update:sidebar-collapsed", sidebarCollapsed.value);
+};
 
 const logout = async () => {
   clear();
@@ -43,8 +43,8 @@ const logout = async () => {
         <UButton
           :icon="
             sidebarCollapsed
-              ? 'tabler:layout-sidebar-left-collapse-filled'
-              : 'tabler:layout-sidebar-right-collapse-filled'
+              ? 'tabler:layout-sidebar-right-collapse-filled'
+              : 'tabler:layout-sidebar-left-collapse-filled'
           "
           variant="ghost"
           color="neutral"
