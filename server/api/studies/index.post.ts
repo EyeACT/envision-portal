@@ -4,17 +4,9 @@ import { z } from "zod";
 
 const createStudySchema = z.object({
   title: z.string().min(1),
+  bannerImage: z.instanceof(File).optional(),
   description: z.string(),
-  image: z.string().optional(),
   keywords: z.array(z.string()).optional(),
-});
-
-const createStudyResponseSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  created: z.date(),
-  description: z.string(),
-  image: z.string().optional(),
 });
 
 // Create new study into the prisma database
@@ -36,17 +28,50 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  console.log("Body:", body);
+
   // Create the new study in the database
   const newStudy = await prisma.study.create({
     data: {
       title: body.data.title,
       description: body.data.description,
-      image: body.data.image || "",
+      image: body.data.bannerImage || "",
       keywords: body.data.keywords || [],
       ownerId: userId,
-      role: "owner", // replace with appropriate role
+      role: "owner",
     },
   });
 
-  return newStudy;
+  // Convert updatedOn and CreatedOn to human readable format
+  const createdOn = new Date(newStudy.createdOn).toLocaleString("en-US", {
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  const updatedOn = new Date(newStudy.updatedOn).toLocaleString("en-US", {
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  const userName = session.user.givenName + " " + session.user.familyName;
+
+  return {
+    id: newStudy.id,
+    title: newStudy.title,
+    createdOn,
+    description: newStudy.description,
+    image: newStudy.image || "",
+    keywords: newStudy.keywords,
+    ownerId: newStudy.ownerId,
+    role: newStudy.role,
+    size: newStudy.size,
+    updatedOn,
+    userName,
+  };
 });
