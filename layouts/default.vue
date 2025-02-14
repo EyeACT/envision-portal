@@ -6,6 +6,7 @@ const sidebarCollapsed = ref(true);
 const route = useRoute();
 const selectedStudy = computed(() => route.params.id || null);
 
+// TODO: Add tooltip for each nav item
 const studyNavItems = [
   {
     name: "Overview",

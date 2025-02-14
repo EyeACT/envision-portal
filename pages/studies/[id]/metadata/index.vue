@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const metadata = ref({});
+</script>
 
 <template>
   <div class="p-6">
