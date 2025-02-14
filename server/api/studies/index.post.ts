@@ -42,6 +42,19 @@ export default defineEventHandler(async (event) => {
     },
   });
 
+  // Add owner to the study's contributor table
+  await prisma.studyContributor.create({
+    data: {
+      emailAddress: session.user.emailAddress,
+      familyName: session.user.familyName || "",
+      givenName: session.user.givenName,
+      role: "owner",
+      status: "accepted",
+      studyId: newStudy.id,
+      userId: session.user.id,
+    },
+  });
+
   // Convert updatedOn and CreatedOn to human readable format
   const createdOn = new Date(newStudy.createdOn).toLocaleString("en-US", {
     day: "2-digit",

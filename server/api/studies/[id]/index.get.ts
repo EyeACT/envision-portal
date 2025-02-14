@@ -1,16 +1,13 @@
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
 
-  const { user } = session;
-  const userId = user.id;
-
   // Get the study ID from the path
-  const id = getRouterParam(event, "id");
+  const studyId = getRouterParam(event, "id");
 
   // Get the study from the database
   const study = await prisma.study.findUnique({
     where: {
-      id,
+      id: studyId,
     },
   });
 
