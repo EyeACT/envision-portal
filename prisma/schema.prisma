@@ -32,8 +32,8 @@ model User {
     created DateTime @default(now())
     updated DateTime @updatedAt
 
-    Notification Notification[]
-    Study        Study[] // To quickly query all studies a user is involved in
+    Notification     Notification[]
+    StudyContributor StudyContributor[]
 
     @@index([emailAddress])
 }
@@ -68,53 +68,292 @@ enum StudyRole {
 }
 
 model Study {
-    id          String   @id @default(cuid())
-    title       String
-    description String
-    image       String?
-    keywords    String[]
+    id        String   @id @default(cuid())
+    title     String
+    acronym   String
+    image     String
+    updatedOn DateTime @updatedAt
+    createdAt DateTime @default(now())
 
-    ownerId           String
-    owner             User                    @relation(fields: [ownerId], references: [id])
-    role              StudyRole
-    size              Int                     @default(0)
-    updatedOn         DateTime                @updatedAt
-    createdOn         DateTime                @default(now())
-    contributors      StudyContributor[]
-    publishedVersions StudyPublishedVersion[]
-    collaborators     StudyCollaborator[]
+    // One-to-one relations
+    description StudyDescription?
+    status      StudyStatus?
+    sponsors    StudySponsors?
+    oversight   StudyOversight?
+    design      StudyDesign?
+    eligibilty  StudyEligibilty?
+    other       StudyOther?
+
+    // One-to-many relations
+    identifications  StudyIdentification[]
+    collaborators    StudyCollaborators[]
+    conditions       StudyConditions[]
+    keywords         StudyKeywords[]
+    arms             StudyArm[]
+    interventions    StudyIntervention[]
+    centralContacts  StudyCentralContact[]
+    overallOfficials StudyOverallOfficial[]
+    locations        StudyLocation[]
+    contributors     StudyContributor[]
+    participants     Participant[]
 }
 
-model StudyCollaborator {
-    id                  String  @id @default(cuid())
-    givenName           String?
-    familyName          String?
-    identifierScheme    String?
-    identifierSchemeUri String?
-    originalId          String?
-    study               Study   @relation(fields: [studyId], references: [id])
-    studyId             String
+// One-to-one relation models
+model StudyDescription {
+    studyId             String @id
+    briefSummary        String
+    detailedDescription String
+
+    study Study @relation(fields: [studyId], references: [id])
 }
 
-model StudyContributor {
-    id           String            @id @default(cuid())
-    givenName    String
-    familyName   String
-    emailAddress String
-    ORCID        String?
-    role         String
-    status       ContributorStatus
-    token        String?
-    updatedRole  String
-    study        Study             @relation(fields: [studyId], references: [id])
-    studyId      String
+model StudyStatus {
+    studyId            String  @id
+    overallStatus      String?
+    whyStopped         String
+    startDate          String?
+    startDateType      String?
+    completionDate     String?
+    completionDateType String?
+
+    study Study @relation(fields: [studyId], references: [id])
 }
 
-model StudyPublishedVersion {
-    id      String   @id @default(cuid())
-    date    DateTime
-    doi     String
-    version String
-    study   Study    @relation(fields: [studyId], references: [id])
+model StudySponsors {
+    studyId                                                    String  @id
+    responsiblePartyType                                       String?
+    responsiblePartyInvestigatorGivenName                      String
+    responsiblePartyInvestigatorFamilyName                     String
+    responsiblePartyInvestigatorTitle                          String
+    responsiblePartyInvestigatorIdentifierScheme               String
+    responsiblePartyInvestigatorIdentifierValue                String
+    responsiblePartyInvestigatorAffiliationName                String
+    responsiblePartyInvestigatorAffiliationIdentifier          String
+    responsiblePartyInvestigatorAffiliationIdentifierScheme    String
+    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri String
+    leadSponsorName                                            String
+    leadSponsorIdentifier                                      String
+    leadSponsorIdentifierScheme                                String
+    leadSponsorIdentifierSchemeUri                             String
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyOversight {
+    studyId                  String  @id
+    fdaRegulatedDrug         String?
+    fdaRegulatedDevice       String?
+    humanSubjectReviewStatus String?
+    hasDmc                   String?
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyDesign {
+    studyId                        String   @id
+    studyType                      String?
+    designAllocation               String?
+    designInterventionModel        String?
+    designPrimaryPurpose           String?
+    designMasking                  String?
+    designMaskingDescription       String?
+    designWhoMaskedList            String[]
+    phaseList                      String[]
+    enrollmentCount                Int?
+    enrollmentType                 String?
+    numberOfArms                   Int?
+    designOberservationalModelList String[]
+    designTimePerspectiveList      String[]
+    bioSpecRetention               String?
+    bioSpecDescription             String?
+    targetDuration                 String?
+    isPatientRegistry              String?
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyEligibilty {
+    studyId           String   @id
+    sex               String?
+    genderBased       String?
+    genderDescription String?
+    minimumAgeValue   String?
+    minimumAgeUnit    String?
+    maximumAgeValue   String?
+    maximumAgeUnit    String?
+    healthyVolunteers String?
+    inclusionCriteria String[]
+    exclusionCriteria String[]
+    studyPopulation   String
+    samplingMethod    String?
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyOther {
+    studyId String @id
+    size    Int
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+// One-to-many relation models
+model StudyIdentification {
+    id               String   @id @default(cuid())
+    studyId          String
+    identifier       String
+    identifierType   String?
+    identifierDomain String?
+    identifierLink   String
+    secondary        Boolean
+    createdAt        DateTime @default(now())
+    Study            Study    @relation(fields: [studyId], references: [id])
+}
+
+model StudyCollaborators {
+    id         String   @id @default(cuid())
+    studyId    String
+    name       String
+    identifier String
+    scheme     String
+    schemeUri  String
+    createdAt  DateTime @default(now())
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyConditions {
+    id                 String   @id @default(cuid())
+    studyId            String
+    name               String
+    classificationCode String
+    scheme             String
+    schemeUri          String
+    conditionUri       String
+    createdAt          DateTime @default(now())
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyKeywords {
+    id                 String   @id @default(uuid())
+    studyId            String
+    name               String
+    classificationCode String
+    scheme             String
+    schemeUri          String
+    keywordUri         String
+    createdAt          DateTime
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyArm {
+    id               String   @id @default(cuid())
+    studyId          String
+    label            String
+    type             String?
+    description      String
+    interventionList String[]
+    createdAt        DateTime @default(now())
+    Study            Study    @relation(fields: [studyId], references: [id])
+}
+
+model StudyIntervention {
+    id            String   @id @default(cuid())
+    studyId       String
+    type          String?
+    name          String
+    description   String
+    otherNameList String[]
+    createdAt     DateTime @default(now())
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyCentralContact {
+    id                          String   @id @default(cuid())
+    studyId                     String
+    givenName                   String
+    familyName                  String
+    degree                      String
+    identifier                  String
+    identifierScheme            String
+    affiliation                 String
+    affiliationIdentifier       String
+    affiliationIdentifierScheme String
+    phone                       String
+    phoneExt                    String
+    emailAddress                String
+    createdAt                   DateTime @default(now())
+
+    study Study @relation(fields: [studyId], references: [id])
+}
+
+model StudyOverallOfficial {
+    id      String @id @default(cuid())
     studyId String
+    Study   Study  @relation(fields: [studyId], references: [id])
+}
+
+model StudyLocation {
+    id                  String   @id @default(cuid())
+    studyId             String
+    facility            String
+    status              String?
+    city                String
+    state               String
+    zip                 String
+    country             String
+    identifier          String
+    identifierScheme    String
+    identifierSchemeUri String
+    createdAt           DateTime @default(now())
+
+    study                    Study                      @relation(fields: [studyId], references: [id])
+    StudyLocationContactList StudyLocationContactList[]
+}
+
+model StudyLocationContactList {
+    id                  String   @id @default(cuid())
+    locationId          String
+    givenName           String
+    familyName          String
+    identifier          String
+    identifierScheme    String
+    identifierSchemeUri String
+    role                String
+    phone               String
+    phoneExt            String
+    emailAddress        String
+    createdAt           DateTime @default(now())
+
+    location StudyLocation @relation(fields: [locationId], references: [id])
+}
+
+// Many-to-one relation models
+model StudyContributor {
+    studyId    String
+    userId     String
+    permission String
+    createdAt  DateTime
+
+    study Study @relation(fields: [studyId], references: [id])
+    user  User  @relation(fields: [userId], references: [id])
+
+    // This defines a composite (multiple comlumns) primary key for the table using the fields 'studyId' and 'userId'
+    @@id([studyId, userId])
+}
+
+model Participant {
+    id         String   @id @default(cuid())
+    studyId    String
+    givenName  String
+    familyName String
+    address    String
+    age        Int
+    updatedAt  DateTime @updatedAt
+    createdAt  DateTime @default(now())
+
+    study Study @relation(fields: [studyId], references: [id])
 }
