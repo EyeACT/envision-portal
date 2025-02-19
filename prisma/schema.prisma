@@ -32,8 +32,9 @@ model User {
     created DateTime @default(now())
     updated DateTime @updatedAt
 
-    Notification     Notification[]
-    StudyContributor StudyContributor[]
+    Notification    Notification[]
+    StudyMember     StudyMember[]
+    StudyInvitation StudyInvitation[]
 
     @@index([emailAddress])
 }
@@ -50,255 +51,338 @@ model Notification {
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    created DateTime @default(now())
     updated DateTime @updatedAt
-}
-
-enum ContributorStatus {
-    invited
-    accepted
-    declined
-}
-
-enum StudyRole {
-    owner
-    admin
-    editor
-    viewer
+    created DateTime @default(now())
 }
 
 model Study {
-    id        String   @id @default(cuid())
-    title     String
-    acronym   String
-    image     String
-    updatedOn DateTime @updatedAt
-    createdAt DateTime @default(now())
+    id String @id @default(cuid())
 
-    // One-to-one relations
-    description StudyDescription?
-    status      StudyStatus?
-    sponsors    StudySponsors?
-    oversight   StudyOversight?
-    design      StudyDesign?
-    eligibilty  StudyEligibilty?
-    other       StudyOther?
+    title    String
+    acronym  String?
+    imageUrl String  @default("https://picsum.photos/400")
 
-    // One-to-many relations
-    identifications  StudyIdentification[]
-    collaborators    StudyCollaborators[]
-    conditions       StudyConditions[]
-    keywords         StudyKeywords[]
-    arms             StudyArm[]
-    interventions    StudyIntervention[]
-    centralContacts  StudyCentralContact[]
-    overallOfficials StudyOverallOfficial[]
-    locations        StudyLocation[]
-    contributors     StudyContributor[]
-    participants     Participant[]
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+
+    StudyDescription    StudyDescription[]
+    StudyStatus         StudyStatus[]
+    StudySponsors       StudySponsors[]
+    StudyOversight      StudyOversight[]
+    StudyDesign         StudyDesign[]
+    StudyEligibilty     StudyEligibilty[]
+    StudyIdentification StudyIdentification[]
+    StudyCollaborators  StudyCollaborators[]
+    StudyConditions     StudyConditions[]
+    StudyKeywords       StudyKeywords[]
+    StudyArm            StudyArm[]
+    StudyIntervention   StudyIntervention[]
+    StudyCentralContact StudyCentralContact[]
+    StudyLocation       StudyLocation[]
+    StudyMember         StudyMember[]
+    StudyInvitation     StudyInvitation[]
 }
 
-// One-to-one relation models
-model StudyDescription {
-    studyId             String @id
-    briefSummary        String
-    detailedDescription String
+model StudyMember {
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
 
-    study Study @relation(fields: [studyId], references: [id])
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    owner Boolean @default(false)
+    role  String  @default("viewer") // owner | admin | editor | viewer
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+
+    @@id([studyId, userId])
+}
+
+model StudyInvitation {
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    userId String? // for users with  accounts
+    user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    emailAddress String? // for users with no accounts
+
+    role String @default("viewer") // owner | admin | editor | viewer
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+
+    @@unique([studyId, userId])
+    @@unique([studyId, emailAddress])
+}
+
+model StudyDescription {
+    id String @id @default(cuid())
+
+    studyId String @unique
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    briefSummary        String @default("")
+    detailedDescription String @default("")
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyStatus {
-    studyId            String  @id
-    overallStatus      String?
-    whyStopped         String
-    startDate          String?
-    startDateType      String?
-    completionDate     String?
+    id String @id @default(cuid())
+
+    studyId String @unique
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    overallStatus String?
+    whyStopped    String?
+
+    startDate     DateTime?
+    startDateType String?
+
+    completionDate     DateTime?
     completionDateType String?
 
-    study Study @relation(fields: [studyId], references: [id])
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudySponsors {
-    studyId                                                    String  @id
-    responsiblePartyType                                       String?
-    responsiblePartyInvestigatorGivenName                      String
-    responsiblePartyInvestigatorFamilyName                     String
-    responsiblePartyInvestigatorTitle                          String
-    responsiblePartyInvestigatorIdentifierScheme               String
-    responsiblePartyInvestigatorIdentifierValue                String
-    responsiblePartyInvestigatorAffiliationName                String
-    responsiblePartyInvestigatorAffiliationIdentifier          String
-    responsiblePartyInvestigatorAffiliationIdentifierScheme    String
-    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri String
-    leadSponsorName                                            String
-    leadSponsorIdentifier                                      String
-    leadSponsorIdentifierScheme                                String
-    leadSponsorIdentifierSchemeUri                             String
+    id String @id @default(cuid())
 
-    study Study @relation(fields: [studyId], references: [id])
+    studyId String @unique
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    responsiblePartyType                                       String?
+    responsiblePartyInvestigatorGivenName                      String?
+    responsiblePartyInvestigatorFamilyName                     String?
+    responsiblePartyInvestigatorTitle                          String?
+    responsiblePartyInvestigatorIdentifierScheme               String?
+    responsiblePartyInvestigatorIdentifierValue                String?
+    responsiblePartyInvestigatorAffiliationName                String?
+    responsiblePartyInvestigatorAffiliationIdentifier          String?
+    responsiblePartyInvestigatorAffiliationIdentifierScheme    String?
+    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri String?
+
+    leadSponsorName                String?
+    leadSponsorIdentifier          String?
+    leadSponsorIdentifierScheme    String?
+    leadSponsorIdentifierSchemeUri String?
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyOversight {
-    studyId                  String  @id
+    id String @id @default(cuid())
+
+    studyId String @unique
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
     fdaRegulatedDrug         String?
     fdaRegulatedDevice       String?
     humanSubjectReviewStatus String?
     hasDmc                   String?
 
-    study Study @relation(fields: [studyId], references: [id])
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyDesign {
-    studyId                        String   @id
-    studyType                      String?
-    designAllocation               String?
-    designInterventionModel        String?
-    designPrimaryPurpose           String?
-    designMasking                  String?
-    designMaskingDescription       String?
-    designWhoMaskedList            String[]
-    phaseList                      String[]
-    enrollmentCount                Int?
-    enrollmentType                 String?
-    numberOfArms                   Int?
+    id String @id @default(cuid())
+
+    studyId String @unique
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    studyType String?
+
+    designAllocation         String?
+    designInterventionModel  String?
+    designPrimaryPurpose     String?
+    designMasking            String?
+    designMaskingDescription String?
+    designWhoMaskedList      String[]
+
+    phaseList String[]
+
+    enrollmentCount Int?
+    enrollmentType  String?
+
+    numberOfArms Int?
+
     designOberservationalModelList String[]
     designTimePerspectiveList      String[]
-    bioSpecRetention               String?
-    bioSpecDescription             String?
-    targetDuration                 String?
-    isPatientRegistry              String?
 
-    study Study @relation(fields: [studyId], references: [id])
+    bioSpecRetention   String?
+    bioSpecDescription String?
+
+    targetDuration    String?
+    isPatientRegistry String?
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyEligibilty {
-    studyId           String   @id
+    id String @id @default(cuid())
+
+    studyId String @unique
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
     sex               String?
     genderBased       String?
     genderDescription String?
-    minimumAgeValue   String?
-    minimumAgeUnit    String?
-    maximumAgeValue   String?
-    maximumAgeUnit    String?
+
+    minimumAgeValue String?
+    minimumAgeUnit  String?
+
+    maximumAgeValue String?
+    maximumAgeUnit  String?
+
     healthyVolunteers String?
+
     inclusionCriteria String[]
     exclusionCriteria String[]
-    studyPopulation   String
-    samplingMethod    String?
 
-    study Study @relation(fields: [studyId], references: [id])
+    studyPopulation String
+    samplingMethod  String?
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
-model StudyOther {
-    studyId String @id
-    size    Int
-
-    study Study @relation(fields: [studyId], references: [id])
-}
-
-// One-to-many relation models
 model StudyIdentification {
-    id               String   @id @default(cuid())
-    studyId          String
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
     identifier       String
     identifierType   String?
     identifierDomain String?
     identifierLink   String
-    secondary        Boolean
-    createdAt        DateTime @default(now())
-    Study            Study    @relation(fields: [studyId], references: [id])
+    isSecondary      Boolean @default(false)
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyCollaborators {
-    id         String   @id @default(cuid())
-    studyId    String
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
     name       String
     identifier String
     scheme     String
     schemeUri  String
-    createdAt  DateTime @default(now())
 
-    study Study @relation(fields: [studyId], references: [id])
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyConditions {
-    id                 String   @id @default(cuid())
-    studyId            String
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
     name               String
     classificationCode String
     scheme             String
     schemeUri          String
     conditionUri       String
-    createdAt          DateTime @default(now())
 
-    study Study @relation(fields: [studyId], references: [id])
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyKeywords {
-    id                 String   @id @default(uuid())
-    studyId            String
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
     name               String
     classificationCode String
     scheme             String
     schemeUri          String
     keywordUri         String
-    createdAt          DateTime
 
-    study Study @relation(fields: [studyId], references: [id])
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyArm {
-    id               String   @id @default(cuid())
-    studyId          String
-    label            String
-    type             String?
-    description      String
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    label       String
+    type        String?
+    description String
+
     interventionList String[]
-    createdAt        DateTime @default(now())
-    Study            Study    @relation(fields: [studyId], references: [id])
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyIntervention {
-    id            String   @id @default(cuid())
-    studyId       String
-    type          String?
-    name          String
-    description   String
-    otherNameList String[]
-    createdAt     DateTime @default(now())
+    id String @id @default(cuid())
 
-    study Study @relation(fields: [studyId], references: [id])
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    type        String?
+    name        String
+    description String
+
+    otherNameList String[]
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyCentralContact {
-    id                          String   @id @default(cuid())
-    studyId                     String
-    givenName                   String
-    familyName                  String
-    degree                      String
-    identifier                  String
-    identifierScheme            String
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    givenName  String
+    familyName String
+
+    degree String
+
+    identifier       String
+    identifierScheme String
+
     affiliation                 String
     affiliationIdentifier       String
     affiliationIdentifierScheme String
-    phone                       String
-    phoneExt                    String
-    emailAddress                String
-    createdAt                   DateTime @default(now())
 
-    study Study @relation(fields: [studyId], references: [id])
-}
+    phone    String
+    phoneExt String
 
-model StudyOverallOfficial {
-    id      String @id @default(cuid())
-    studyId String
-    Study   Study  @relation(fields: [studyId], references: [id])
+    emailAddress String
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model StudyLocation {
-    id                  String   @id @default(cuid())
-    studyId             String
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
     facility            String
     status              String?
     city                String
@@ -308,52 +392,32 @@ model StudyLocation {
     identifier          String
     identifierScheme    String
     identifierSchemeUri String
-    createdAt           DateTime @default(now())
 
-    study                    Study                      @relation(fields: [studyId], references: [id])
+    updated                  DateTime                   @updatedAt
+    created                  DateTime                   @default(now())
     StudyLocationContactList StudyLocationContactList[]
 }
 
 model StudyLocationContactList {
-    id                  String   @id @default(cuid())
-    locationId          String
-    givenName           String
-    familyName          String
+    id String @id @default(cuid())
+
+    locationId String
+    location   StudyLocation @relation(fields: [locationId], references: [id])
+
+    givenName  String
+    familyName String
+
     identifier          String
     identifierScheme    String
     identifierSchemeUri String
-    role                String
-    phone               String
-    phoneExt            String
-    emailAddress        String
-    createdAt           DateTime @default(now())
 
-    location StudyLocation @relation(fields: [locationId], references: [id])
-}
+    role String
 
-// Many-to-one relation models
-model StudyContributor {
-    studyId    String
-    userId     String
-    permission String
-    createdAt  DateTime
+    phone    String
+    phoneExt String
 
-    study Study @relation(fields: [studyId], references: [id])
-    user  User  @relation(fields: [userId], references: [id])
+    emailAddress String
 
-    // This defines a composite (multiple comlumns) primary key for the table using the fields 'studyId' and 'userId'
-    @@id([studyId, userId])
-}
-
-model Participant {
-    id         String   @id @default(cuid())
-    studyId    String
-    givenName  String
-    familyName String
-    address    String
-    age        Int
-    updatedAt  DateTime @updatedAt
-    createdAt  DateTime @default(now())
-
-    study Study @relation(fields: [studyId], references: [id])
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }

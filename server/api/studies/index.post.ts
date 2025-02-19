@@ -1,12 +1,9 @@
-// Create a new Study
-// This endpoint creates a new study and returns the created study object
 import { z } from "zod";
 
 const createStudySchema = z.object({
   title: z.string().min(1),
-  bannerImageUrl: z.string().optional(),
   description: z.string(),
-  keywords: z.array(z.string()).optional(),
+  imageUrl: z.string().optional(),
 });
 
 // Create new study into the prisma database
@@ -28,64 +25,30 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  console.log("Body:", body);
-
   // Create the new study in the database
   const newStudy = await prisma.study.create({
     data: {
       title: body.data.title,
-      description: body.data.description,
-      image: body.data.bannerImageUrl || "",
-      keywords: body.data.keywords || [],
-      ownerId: userId,
-      role: "owner",
+      acronym: "",
+      imageUrl: body.data.imageUrl,
+      StudyDescription: {
+        create: {
+          briefSummary: body.data.description,
+          detailedDescription: "",
+        },
+      },
+      StudyMember: {
+        create: {
+          owner: true,
+          role: "owner",
+          userId,
+        },
+      },
     },
   });
-
-  // Add owner to the study's contributor table
-  await prisma.studyContributor.create({
-    data: {
-      emailAddress: session.user.emailAddress,
-      familyName: session.user.familyName || "",
-      givenName: session.user.givenName,
-      role: "owner",
-      status: "accepted",
-      studyId: newStudy.id,
-      userId: session.user.id,
-    },
-  });
-
-  // Convert updatedOn and CreatedOn to human readable format
-  const createdOn = new Date(newStudy.createdOn).toLocaleString("en-US", {
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const updatedOn = new Date(newStudy.updatedOn).toLocaleString("en-US", {
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const { familyName, givenName } = session.user;
-  const userName = `${givenName} ${familyName}`.trim();
 
   return {
-    id: newStudy.id,
-    title: newStudy.title,
-    createdOn,
-    description: newStudy.description,
-    image: newStudy.image || "",
-    keywords: newStudy.keywords,
-    ownerId: newStudy.ownerId,
-    role: newStudy.role,
-    size: newStudy.size,
-    updatedOn,
-    userName,
+    data: { studyId: newStudy.id },
+    statusCode: 201,
   };
 });

@@ -2,9 +2,10 @@
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 
-const sidebarCollapsed = ref(true);
 const route = useRoute();
-const selectedStudy = computed(() => route.params.id || null);
+
+const sidebarCollapsed = ref(true);
+const selectedStudy = computed(() => route.params.studyId || null);
 
 // TODO: Add tooltip for each nav item
 const studyNavItems = [
@@ -44,36 +45,38 @@ watch(sidebarCollapsed, (newVal) => {
     <aside
       id="sidebar"
       :class="[
-        'fixed top-20 left-0 z-10 h-full border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
-        sidebarCollapsed ? 'w-20' : 'w-64',
+        'fixed top-20 left-0 z-10 h-full border-r border-gray-200 bg-white px-2 py-1 transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
+        sidebarCollapsed ? 'w-15' : 'w-64',
       ]"
     >
       <!-- Global Navigation -->
-      <ul class="mt-2 space-y-2">
+      <ul>
         <li>
           <ULink
             to="/dashboard"
-            class="group mx-1 flex items-center gap-3 rounded-lg px-3 py-3"
+            class="mt-2 flex items-center gap-3 rounded-lg p-2 transition-all"
             active-class="bg-gray-200 dark:bg-gray-700"
             :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
             inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <Icon name="tabler:home-2" size="20" />
 
-            <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+            <span
+              :class="[sidebarCollapsed ? 'hidden opacity-0' : 'opacity-100']"
+            >
               My Studies
             </span>
           </ULink>
         </li>
 
-        <hr class="border-gray-200 dark:border-gray-700" />
+        <hr class="my-2 border-gray-200 dark:border-gray-700" />
       </ul>
 
       <!-- Study-Specific Navigation -->
       <template v-if="selectedStudy">
         <div class="mt-4">
           <p
-            class="px-3 py-2 text-xs font-semibold text-gray-600 uppercase dark:text-gray-400"
+            class="px-2 py-1 text-xs font-semibold text-gray-600 uppercase dark:text-gray-400"
             :class="[sidebarCollapsed ? 'hidden' : 'block']"
           >
             Study Navigation
@@ -82,8 +85,8 @@ watch(sidebarCollapsed, (newVal) => {
           <ul class="space-y-1">
             <li v-for="item in studyNavItems" :key="item.route">
               <ULink
-                :to="`/studies/${selectedStudy}/${item.route}`"
-                class="group flex items-center gap-3 rounded-lg px-3 py-3"
+                :to="`/study/${selectedStudy}/${item.route}`"
+                class="flex items-center gap-2 rounded-lg p-2 text-sm"
                 :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
                 active-class="bg-gray-200 dark:bg-gray-700"
                 inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
