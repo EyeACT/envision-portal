@@ -1,22 +1,92 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
-// TODO: Update from mailtrap sandbox to live email sending service
+// Load environment variables from .env file
+dotenv.config(); 
+
 export const sendEmail = async (to: string, subject: string, text: string) => {
   const transporter = nodemailer.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    port: 587,
+    host: process.env.MAIL_HOST,
+    port: Number(process.env.MAIL_PORT),
     auth: {
-      user: "89bd4974195df1",
-      pass: "2b77ac61b0b6e6",
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
     },
   });
-  
+
+  const htmlContent = `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      <title>Email Confirmation</title>
+      <style>
+        body {
+          background-color: #e9ecef;
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+          max-width: 600px;
+          margin: auto;
+          background: #ffffff;
+          border-top: 3px solid #d4dadf;
+        }
+        h2 {
+          font-size: 32px;
+          font-weight: 700;
+          text-align: center;
+          padding: 36px 24px 0;
+        }
+        p {
+          font-size: 16px;
+          line-height: 24px;
+          padding: 24px;
+          text-align: center;
+        }
+        .button-container {
+          text-align: center;
+          padding: 12px;
+        }
+        .button {
+          background-color: #1a82e2;
+          color: #ffffff;
+          padding: 16px 36px;
+          text-decoration: none;
+          display: inline-block;
+          border-radius: 6px;
+          font-size: 16px;
+        }
+      </style>
+    </head>
+    <body>
+      <table>
+        <tr>
+          <td>
+            <h2>Confirm Your Email Address</h2>
+            <p>Please verify your email address for Eye ACT by clicking the button below.</p>
+            <div class="button-container">
+              <a href="${text}" class="button" target="_blank">Verify My Email</a>
+            </div>
+            <p>If the button does not work, please use the following link to verify your email:</p>
+            <p><a href="${text}">${text}</a></p>
+            <p>If you did not request this, please ignore this email.</p>
+          </td>
+        </tr>
+      </table>
+    </body>
+  </html>
+  `;
+
   await transporter.sendMail({
-    from: `"Your App" <xdong@calmi2.org>`,
+    from: process.env.MAIL_FROM,
     to: to,
     subject: subject,
     text: text,
-    html: "<b>This is a test email for verification.</b>",
+    html: htmlContent,
   });
 };
- 

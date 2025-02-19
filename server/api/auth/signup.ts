@@ -3,6 +3,9 @@ import { hash } from "bcrypt";
 import { nanoid } from "nanoid";
 import { sendEmail } from "../../utils/sendEmail";
 import { addMinutes } from "date-fns";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const signupSchema = z.object({
   emailAddress: z.string().email(),
@@ -61,11 +64,11 @@ export default defineEventHandler(async (event) => {
 
   // Send verification email
   // TODO: Update to real domain 
-  const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
+  const verificationLink = `${process.env.EMAIL_VERIFICATION_DOMAIN}/verify-email?token=${verificationToken}`;
   await sendEmail(
     newUser.emailAddress,
     "Verify Your Email Address",
-    `Click the link to verify your email: ${verificationLink}`
+    verificationLink
   );
 
   return { message: "Verification email sent. Please check your inbox." };
