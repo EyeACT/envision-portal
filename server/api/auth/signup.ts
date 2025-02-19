@@ -2,7 +2,7 @@ import { z } from "zod";
 import { hash } from "bcrypt";
 import { nanoid } from "nanoid";
 import { sendEmail } from "../../utils/sendEmail";
-import { addMinutes } from "date-fns";
+import dayjs from "dayjs";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
   // Create a new user
   const hashedPassword = await hash(body.data.password, 10);
   const verificationToken = nanoid();
-  const tokenExpiry = addMinutes(new Date(), 30);
+  const tokenExpiry = dayjs().add(30, "minute").toDate();
 
   const newUser = await prisma.user.create({
     data: {
@@ -63,7 +63,6 @@ export default defineEventHandler(async (event) => {
   }
 
   // Send verification email
-  // TODO: Update to real domain 
   const verificationLink = `${process.env.EMAIL_VERIFICATION_DOMAIN}/verify-email?token=${verificationToken}`;
   await sendEmail(
     newUser.emailAddress,
