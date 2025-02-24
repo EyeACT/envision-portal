@@ -4,6 +4,11 @@
 :root {
   --ui-radius: var(--radius-lg);
   --ui-container: var(--container-7xl);
+  --ui-primary: var(--ui-color-primary-500);
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-700);
 }
 
 @theme {
@@ -27,4 +32,37 @@
   --color-primary-800: var(--ui-color-primary-800);
   --color-primary-900: var(--ui-color-primary-900);
   --color-primary-950: var(--ui-color-primary-950);
+}
+
+.h0 {
+  @apply text-3xl font-bold md:text-4xl dark:text-white;
+}
+
+h1,
+.h1 {
+  @apply text-2xl font-bold md:text-3xl dark:text-white;
+}
+
+h2,
+.h2 {
+  @apply text-xl font-bold md:text-2xl dark:text-white;
+}
+
+h3,
+.h3 {
+  @apply text-lg font-bold md:text-xl dark:text-white;
+}
+
+h4,
+.h4 {
+  @apply text-base font-bold md:text-lg dark:text-white;
+}
+
+body,
+p {
+  @apply text-sm md:text-base dark:text-white;
+}
+
+pre {
+  @apply text-xs whitespace-pre-wrap;
 }

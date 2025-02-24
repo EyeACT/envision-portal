@@ -6,22 +6,28 @@ const emailVerified = computed(
   () => loggedIn.value && user.value?.emailVerified,
 );
 
-const sidebarCollapsed = ref(false);
+// Emit event setup
+const emit = defineEmits(["update:sidebar-collapsed"]);
+
+const sidebarCollapsed = ref(true);
+
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+  emit("update:sidebar-collapsed", sidebarCollapsed.value);
+};
 
 const logout = async () => {
   clear();
   await navigateTo("/login");
 };
-
-const toggleSidebar = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value;
-};
 </script>
 
 <template>
+  <!-- Dashboard Header -->
   <header
-    class="top-0 right-0 left-0 z-10 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+    class="fixed top-0 right-0 left-0 z-10 block w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
   >
+    <!-- Alert for email verification -->
     <div
       v-if="!emailVerified"
       class="flex items-center justify-center gap-2 bg-red-500 p-1 text-sm font-semibold text-white"
@@ -32,12 +38,13 @@ const toggleSidebar = () => {
     </div>
 
     <div class="mx-auto flex items-center justify-between px-4 py-2">
+      <!-- Logo -->
       <div class="flex items-center gap-1">
         <UButton
           :icon="
             sidebarCollapsed
-              ? 'tabler:layout-sidebar-left-collapse-filled'
-              : 'tabler:layout-sidebar-right-collapse-filled'
+              ? 'tabler:layout-sidebar-right-collapse-filled'
+              : 'tabler:layout-sidebar-left-collapse-filled'
           "
           variant="ghost"
           color="neutral"
@@ -50,9 +57,41 @@ const toggleSidebar = () => {
         </NuxtLink>
       </div>
 
+      <!-- User Menu (Inbox, Docs, Settings) -->
       <div class="flex items-center justify-center gap-3">
-        <AppColorModeButton />
+        <UTooltip text="Inbox">
+          <UButton
+            to="/inbox"
+            color="neutral"
+            variant="ghost"
+            icon="material-symbols:inbox-rounded"
+          />
+        </UTooltip>
 
+        <UTooltip placement="bottom" text="View Documentation">
+          <UButton
+            to="https://docs.envision.io"
+            target="_blank"
+            color="neutral"
+            variant="ghost"
+            icon="heroicons-outline:question-mark-circle"
+          />
+        </UTooltip>
+
+        <UTooltip text="View Settings">
+          <UButton
+            icon="heroicons-outline:cog"
+            color="neutral"
+            to="/settings"
+            variant="ghost"
+          />
+        </UTooltip>
+
+        <UTooltip text="Toggle Color Mode">
+          <AppColorModeButton />
+        </UTooltip>
+
+        <!-- Logged In State -->
         <AuthState>
           <UButton
             v-if="loggedIn"

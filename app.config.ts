@@ -5,7 +5,7 @@ export default defineAppConfig({
         size: "lg",
       },
       slots: {
-        base: "cursor-pointer",
+        base: "cursor-pointer rounded-lg",
       },
     },
     colors: {
