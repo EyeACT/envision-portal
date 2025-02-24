@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onClickOutside } from "@vueuse/core";
 import { z } from "zod";
-import type { Study } from "@/types/study";
+import { faker } from "@faker-js/faker";
+
 definePageMeta({
   middleware: ["auth"],
 });
@@ -14,176 +14,103 @@ const toast = useToast();
 
 // Search query and filter variables
 const searchQuery = ref("");
-const selectedFilters = ref<Record<string, string | null>>({
-  createdAfter: null,
-  permission: null,
-  updatedAfter: null,
-});
-const tempFilters = ref({ ...selectedFilters.value });
-const showDropdown = ref(false);
-const dropdownRef = ref<HTMLElement | null>(null);
-const availablePermissions = ["Owner", "Contributor", "Viewer"];
 
 // User session + study management variables
 const loading = ref(false);
-const showSidePanel = ref(false);
-const studies = ref<Study[]>([]);
 
-try {
-  const { data, error } = await useFetch<Study[]>("/api/studies", {
-    method: "GET",
-  });
-
-  if (error.value) {
-    throw new Error(error.value.message);
-  }
-
-  if (data.value) {
-    studies.value = data.value;
-  }
-} catch (error) {
-  console.error("Error fetching studies:", error);
-}
-
-// New study form schema and state
-const newStudySchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  bannerImageUrl: z.string().optional(),
-  description: z.string().optional(),
+const { data: studies, error } = await useFetch("/api/studies", {
+  method: "GET",
 });
 
+if (error.value) {
+  toast.add({
+    title: "Error fetching studies",
+    description: "Please try again later",
+    icon: "material-symbols:error",
+  });
+}
+
+const newStudyForm = useTemplateRef("newStudyForm");
+const newStudySchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
+});
 const newStudyState = reactive({
-  title: "",
-  bannerImageUrl: "",
-  description: "",
+  title: faker.commerce.productName(),
+  description: faker.lorem.sentences(3),
+  imageUrl: faker.image.url(),
 });
 
 const onSubmit = async () => {
   loading.value = true;
 
-  try {
-    await $fetch("/api/studies", {
-      body: newStudyState,
-      method: "POST",
-    }).then((response) => {
-      studies.value.unshift(response);
+  await $fetch("/api/studies", {
+    body: newStudyState,
+    method: "POST",
+  })
+    .then((response) => {
+      navigateTo(`/studies/${response.data.studyId}`);
+    })
+    .catch((error) => {
+      console.error("Error creating new study:", error);
+      toast.add({
+        title: "Error creating study",
+        color: "error",
+        description: "Please try again later",
+        icon: "material-symbols:error",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
     });
-  } catch (error) {
-    console.error("Error creating new study:", error);
-    toast.add({
-      title: "Error creating study",
-      color: "error",
-      description: "Please try again later",
-      icon: "material-symbols:error",
-    });
-  } finally {
-    loading.value = false;
-    newStudyState.title = "";
-    newStudyState.description = "";
-    newStudyState.bannerImageUrl = "";
-    toast.add({
-      title: "Study created successfully",
-      description: "You can now manage your new study",
-      icon: "material-symbols:check-circle-outline",
-    });
-  }
 };
 
-// Toggle dropdown while preventing outside click from immediately closing it (doesn't seem to work atm, vueuse is conflicting with this)
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-// Apply filters when confirmed
-const confirmFilters = () => {
-  selectedFilters.value = { ...tempFilters.value };
-  showDropdown.value = false;
-};
-
-// Reset all filters
-const clearFilters = () => {
-  selectedFilters.value = {
-    createdAfter: null,
-    permission: null,
-    updatedAfter: null,
-  };
-  tempFilters.value = { ...selectedFilters.value };
-};
-
-// Computed property to filter studies
-const filteredStudies = computed(() => {
-  return studies.value.filter((study) => {
-    const matchesSearch =
-      searchQuery.value === "" ||
-      study.title.toLowerCase().includes(searchQuery.value.toLowerCase());
-
-    const matchesPermission =
-      !selectedFilters.value.permission ||
-      selectedFilters.value.permission === study.role;
-
-    const matchesCreatedAfter =
-      !selectedFilters.value.createdAfter ||
-      new Date(study.createdOn) >= new Date(selectedFilters.value.createdAfter);
-
-    const matchesUpdatedAfter =
-      !selectedFilters.value.updatedAfter ||
-      new Date(study.updatedOn) >= new Date(selectedFilters.value.updatedAfter);
-
-    return (
-      matchesSearch &&
-      matchesPermission &&
-      matchesCreatedAfter &&
-      matchesUpdatedAfter
-    );
-  });
-});
-
-// Close dropdown when clicking outside (currently conflicts with trying to close via button click)
-onClickOutside(dropdownRef, () => {
-  showDropdown.value = false;
-});
+const dropdownItems = ref([
+  {
+    icon: "i-lucide-user",
+    label: "Profile",
+  },
+  {
+    icon: "i-lucide-credit-card",
+    label: "Billing",
+  },
+  {
+    icon: "i-lucide-cog",
+    label: "Settings",
+  },
+]);
 </script>
 
 <template>
   <div>
     <UBreadcrumb
       class="mb-4"
-      :items="[
+      :dropdown-items="[
         { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/dashboard' },
       ]"
     />
-    <!-- Side Panel for Creating New Study -->
 
-    <div class="w-full">
-      <!-- Header Section -->
+    <div class="flex w-full flex-col gap-6">
       <div
-        class="mb-8 flex flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        class="flex flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div>
-          <h1 class="text-3xl font-semibold text-gray-900 dark:text-white">
-            My Studies
-          </h1>
+          <h1>My Studies</h1>
 
-          <p class="text-gray-500 dark:text-gray-400">
-            Manage and explore your research studies
-          </p>
+          <p>Manage and explore your research studies</p>
         </div>
 
-        <!-- New Study Button -->
-        <USlideover side="left" title="Create New Study">
-          <UButton
-            color="primary"
-            size="xl"
-            class="text-white shadow-md"
-            @click="showSidePanel = !showSidePanel"
-          >
-            + New Study
+        <USlideover side="right" title="Create New Study">
+          <UButton color="primary" size="xl" icon="heroicons-outline:plus">
+            New Study
           </UButton>
 
           <template #body>
             <div>
               <UForm
+                ref="newStudyForm"
                 :schema="newStudySchema"
                 :state="newStudyState"
                 class="space-y-4"
@@ -198,9 +125,9 @@ onClickOutside(dropdownRef, () => {
                 </UFormField>
 
                 <!-- New Banner Image Field -->
-                <UFormField label="Banner Image URL" name="bannerImageUrl">
+                <UFormField label="Banner Image URL" name="imageUrl">
                   <!-- Accepts only JPEG and PNG -->
-                  <UInput v-model="newStudyState.bannerImageUrl" type="href" />
+                  <UInput v-model="newStudyState.imageUrl" type="href" />
                 </UFormField>
               </UForm>
             </div>
@@ -211,9 +138,9 @@ onClickOutside(dropdownRef, () => {
               <UButton
                 color="primary"
                 size="lg"
-                class="text-white shadow-md"
                 :loading="loading"
-                @click="onSubmit"
+                icon="heroicons-outline:plus"
+                @click="newStudyForm?.submit()"
               >
                 Create Study
               </UButton>
@@ -223,115 +150,68 @@ onClickOutside(dropdownRef, () => {
       </div>
 
       <!-- Controls & Filtering -->
-      <div
-        class="mb-8 flex flex-wrap items-center gap-4 rounded-lg bg-white p-4 shadow-sm dark:bg-gray-900"
-      >
-        <!-- Search Bar -->
-        <div class="relative flex-1">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search studies..."
-            class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-500"
-          />
-        </div>
+      <div class="flex gap-4">
+        <UInput
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search studies..."
+          size="lg"
+        />
 
-        <!-- Filter Dropdown (Needs more styling) -->
-        <div class="relative">
+        <UDropdownMenu
+          :items="dropdownItems"
+          :content="{
+            align: 'end',
+            side: 'bottom',
+            sideOffset: 8,
+          }"
+          :ui="{
+            content: 'w-48',
+          }"
+        >
           <UButton
-            class="flex items-center gap-2 rounded-lg bg-gray-100 px-5 py-3 text-gray-700 shadow-sm transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-            @click.stop="toggleDropdown"
-          >
-            <Icon name="material-symbols:filter-list" size="20" />
-            Filter
-          </UButton>
-
-          <!-- Dropdown Menu -->
-          <div
-            v-if="showDropdown"
-            ref="dropdownRef"
-            class="absolute right-0 z-50 mt-2 w-64 rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800"
-          >
-            <!-- Permission Filter -->
-            <div class="mb-4">
-              <p class="mb-2 font-medium text-gray-700 dark:text-gray-200">
-                Permission
-              </p>
-
-              <div
-                v-for="permission in availablePermissions"
-                :key="permission"
-                class="flex items-center gap-2"
-              >
-                <input
-                  :id="permission"
-                  v-model="tempFilters.permission"
-                  type="radio"
-                  :value="permission"
-                  class="form-radio text-blue-600"
-                />
-
-                <label
-                  :for="permission"
-                  class="text-gray-700 dark:text-gray-200"
-                >
-                  {{ permission }}
-                </label>
-              </div>
-            </div>
-
-            <!-- Date Filters -->
-            <div class="mb-4">
-              <p class="mb-2 font-medium text-gray-700 dark:text-gray-200">
-                Created After
-              </p>
-
-              <input
-                v-model="tempFilters.createdAfter"
-                type="date"
-                class="w-full rounded-lg border bg-gray-50 px-3 py-2 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div class="mb-4">
-              <p class="mb-2 font-medium text-gray-700 dark:text-gray-200">
-                Updated After
-              </p>
-
-              <input
-                v-model="tempFilters.updatedAfter"
-                type="date"
-                class="w-full rounded-lg border bg-gray-50 px-3 py-2 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex justify-between">
-              <button
-                class="rounded-lg bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700"
-                @click="confirmFilters"
-              >
-                Confirm Filters
-              </button>
-
-              <button
-                class="rounded-lg bg-red-500 px-4 py-2 text-white shadow hover:bg-red-600"
-                @click="clearFilters"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
+            label="Filter"
+            icon="material-symbols:filter-list"
+            color="primary"
+            variant="outline"
+          />
+        </UDropdownMenu>
       </div>
 
       <!-- Studies Grid -->
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <StudyCard
-          v-for="study in filteredStudies"
+      <div class="flex flex-col gap-3">
+        <NuxtLink
+          v-for="study in studies"
           :key="study.id"
-          :study="study"
-        />
+          :to="`/study/${study.id}`"
+          class="tranistion-all hover:shadow-md"
+        >
+          <UCard>
+            <template #header>
+              <div class="flex items-center justify-between gap-3">
+                <h2>
+                  {{ study.title }}
+                </h2>
+
+                <UAvatar :src="study.imageUrl" size="lg" class="rounded-md" />
+              </div>
+            </template>
+
+            <p>
+              {{ study.StudyDescription[0].briefSummary }}
+            </p>
+
+            <USeparator class="my-3" />
+
+            <div class="flex items-center gap-2 text-sm">
+              <p>Updated: {{ $dayjs(study.updated).fromNow() }}</p>
+
+              <USeparator orientation="vertical" class="h-3" />
+
+              <p>Created: {{ $dayjs(study.created).fromNow() }}</p>
+            </div>
+          </UCard>
+        </NuxtLink>
       </div>
     </div>
   </div>
