@@ -17,7 +17,7 @@ if (error.value) {
     icon: "material-symbols:error",
   });
 
-  await navigateTo("/dashboard");
+  await navigateTo("/");
 }
 
 if (data.value) {

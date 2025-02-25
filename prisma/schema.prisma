@@ -421,3 +421,54 @@ model StudyLocationContactList {
     updated DateTime @updatedAt
     created DateTime @default(now())
 }
+
+model Dataset {
+    id String @id @default(cuid())
+
+    title       String
+    description String
+    type        String
+    url         String
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+
+    Version Version[]
+}
+
+model Version {
+    id String @id @default(cuid())
+
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    version String
+    url     String
+    doi     String
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+}
+
+model PublishedDataset {
+    id Int @id
+
+    // These fields aren't attached because they can be deleted from the source side. 
+    studyId   String
+    datasetId String
+    versionId String
+
+    doi String
+
+    title        String
+    description  String
+    versionTitle String
+    studyTitle   String
+
+    publishedMetadata Json
+    files             Json
+    data              Json
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+}

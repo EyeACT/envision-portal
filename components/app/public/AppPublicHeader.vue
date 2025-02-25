@@ -21,8 +21,8 @@ const logout = async () => {
           Dashboard
         </NuxtLink>
 
-        <NuxtLink to="/profile" class="text-base font-medium">
-          Profile
+        <NuxtLink to="/datasets" class="text-base font-medium">
+          Datasets
         </NuxtLink>
 
         <NuxtLink to="/settings" class="text-base font-medium">
