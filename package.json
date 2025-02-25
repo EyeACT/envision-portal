@@ -18,6 +18,7 @@
     "prisma:db:push": "prisma db push",
     "prisma:db:pull": "prisma db pull",
     "postinstall": "nuxt prepare && prisma generate",
+    "reset": "rm -rf node_modules && rm -rf .nuxt && rm -rf .output && rm -rf dist && yarn install",
     "prune-branches": "git removed-branches --prune --force",
     "scripts:edit:record": "tsx ./scripts/edit-record.ts"
   },
@@ -32,7 +33,7 @@
     "@faker-js/faker": "^9.4.0",
     "@nuxt/devtools": "latest",
     "@nuxt/eslint": "0.7.5",
-    "@nuxt/ui": "^3.0.0-alpha.12",
+    "@nuxt/ui": "^3.0.0-alpha.13",
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
     "@prisma/client": "^6.3.0",
     "@stylistic/eslint-plugin-js": "^2.13.0",
@@ -61,5 +62,10 @@
   "volta": {
     "node": "20.18.1",
     "yarn": "1.22.22"
+  },
+  "resolutions": {
+    "tailwindcss": "4.0.7",
+    "@tailwindcss/postcss": "4.0.7",
+    "@tailwindcss/vite": "4.0.7"
   }
 }

@@ -6,6 +6,63 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
+const tabItems = [
+  {
+    icon: "solar:bill-list-bold",
+    label: "Metadata",
+    slot: "metadata",
+  },
+  {
+    icon: "solar:folder-with-files-line-duotone",
+    label: "Files",
+    slot: "files",
+  },
+];
+
+const treeItems = ref([
+  {
+    children: [
+      {
+        children: [
+          {
+            icon: "i-vscode-icons-file-type-typescript",
+            label: "useAuth.ts",
+          },
+          {
+            icon: "i-vscode-icons-file-type-typescript",
+            label: "useUser.ts",
+          },
+        ],
+        label: "composables/",
+      },
+      {
+        children: [
+          {
+            icon: "i-vscode-icons-file-type-vue",
+            label: "Card.vue",
+          },
+          {
+            icon: "i-vscode-icons-file-type-vue",
+            label: "Button.vue",
+          },
+        ],
+        defaultExpanded: true,
+        label: "components/",
+      },
+    ],
+    defaultExpanded: true,
+    label: "app/",
+  },
+  {
+    icon: "i-vscode-icons-file-type-vue",
+    label: "app.vue",
+  },
+  {
+    icon: "i-vscode-icons-file-type-nuxt",
+    label: "nuxt.config.ts",
+  },
+]);
+
 const { datasetid } = route.params as { datasetid: string };
 
 const { data: dataset, error } = await useFetch(`/api/datasets/${datasetid}`);
@@ -19,22 +76,122 @@ if (error.value) {
 
   await navigateTo("/datasets");
 }
+
+if (dataset.value) {
+  useSeoMeta({
+    title: dataset.value.title,
+  });
+}
 </script>
 
 <template>
   <div>
     <UContainer>
       <UBreadcrumb
-        class="mb-4"
+        class="mb-4 ml-2"
         :items="[
           { label: 'Home', to: '/' },
           { label: 'All Datasets', to: '/datasets' },
         ]"
       />
 
-      <div class="flex flex-col gap-6 pt-10"></div>
-    </UContainer>
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-1">
+          <h1>
+            {{ dataset?.title }}
+          </h1>
 
-    {{ dataset }}
+          <UBadge class="w-max" color="primary" variant="outline">
+            Version {{ dataset?.versionTitle }}
+          </UBadge>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <div
+            class="w-max border-b border-dashed border-slate-300 font-medium"
+          >
+            Description
+          </div>
+
+          <p class="text-sm text-gray-500">
+            {{
+              dataset?.metadata.studyDescription.descriptionModule
+                .detailedDescription ||
+              dataset?.metadata.studyDescription.descriptionModule
+                .briefSummary ||
+              dataset?.description
+            }}
+          </p>
+
+          <div
+            class="w-max border-b border-dashed border-slate-300 font-medium"
+          >
+            Keywords
+          </div>
+
+          <div class="flex gap-2">
+            <UBadge
+              v-for="item in dataset?.metadata?.studyDescription
+                .conditionsModule.keywordList"
+              :key="item.keywordValue"
+              color="primary"
+              size="sm"
+              variant="outline"
+            >
+              {{ item.keywordValue }}
+            </UBadge>
+          </div>
+
+          <div
+            class="w-max border-b border-dashed border-slate-300 font-medium"
+          >
+            Conditions
+          </div>
+
+          <div class="flex gap-2">
+            <UBadge
+              v-for="item in dataset?.metadata?.studyDescription
+                .conditionsModule.conditionList"
+              :key="item.conditionName"
+              color="primary"
+              size="sm"
+              variant="outline"
+            >
+              {{ item.conditionName }}
+            </UBadge>
+          </div>
+
+          <div
+            class="w-max border-b border-dashed border-slate-300 font-medium"
+          >
+            License
+          </div>
+
+          <p class="text-sm text-gray-500">
+            {{ dataset?.metadata.datasetDescription.rights[0].rightsName }}
+          </p>
+        </div>
+
+        <USeparator class="my-3" />
+
+        <div>
+          <UTabs
+            :items="tabItems"
+            orientation="horizontal"
+            class="w-full gap-4"
+            :ui="{ trigger: 'cursor-pointer' }"
+          >
+            <template #files> <UTree multiple :items="treeItems" /> </template>
+
+            <template #metadata>
+              <pre>
+              {{ dataset?.metadata }}
+            </pre
+              >
+            </template>
+          </UTabs>
+        </div>
+      </div>
+    </UContainer>
   </div>
 </template>

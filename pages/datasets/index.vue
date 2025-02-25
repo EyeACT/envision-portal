@@ -22,14 +22,14 @@ if (error.value) {
   <div>
     <UContainer>
       <UBreadcrumb
-        class="mb-4"
+        class="mb-4 ml-2"
         :items="[
           { label: 'Home', to: '/' },
           { label: 'All Datasets', to: '/datasets' },
         ]"
       />
 
-      <div class="flex flex-col gap-6 pt-10">
+      <div class="flex flex-col gap-6 pt-5">
         <NuxtLink
           v-for="dataset in datasets"
           :key="dataset.id"
@@ -56,10 +56,12 @@ if (error.value) {
 
             <template #footer>
               <div class="flex items-center justify-end gap-3">
-                <div>
+                <p class="text-sm text-gray-500">
                   Published on
-                  {{ $dayjs(dataset.created).format("MMMM D, YYYY") }}
-                </div>
+                  <time :datetime="dataset.created">
+                    {{ $dayjs(dataset.created).format("MMMM D, YYYY") }}
+                  </time>
+                </p>
               </div>
             </template>
           </UCard>

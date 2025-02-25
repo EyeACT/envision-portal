@@ -9,7 +9,7 @@
   "versionTitle": "1.0.0",
   "studyTitle": "Machine Learning for Retinal Disease Detection",
   "publishedMetadata": {
-    "study_description": {
+    "studyDescription": {
       "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
       "identificationModule": {
         "officialTitle": "Machine Learning for Retinal Disease Detection",
@@ -312,7 +312,7 @@
       }
     },
     "readme": "## title here",
-    "dataset_description": {
+    "datasetDescription": {
       "schema": "https://schema.aireadi.org/v0.1.0/dataset_description.json",
       "identifier": {
         "identifierValue": "10.60775/fairhub.2",
@@ -482,7 +482,7 @@
       ],
       "format": ["image/DICOM", "text/markdown", "table/csv"]
     },
-    "dataset_structure_description": {
+    "datasetStructureDescription": {
       "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
       "directoryList": [
         {
@@ -1596,7 +1596,7 @@
       ]
     },
     "healthsheet": {
-      "general_information": [
+      "generalInformation": [
         {
           "id": 1,
           "question": "Provide a 2 sentence summary of this dataset.",
@@ -1758,7 +1758,7 @@
           "response": "a. Interactions between demographic or historically marginalized groups and data recordings, e.g., were women patients recorded in one site, and men in another? b. Interactions between the labels and data recordings, e.g. were healthy patients recorded on one device and diseased patients on another? Uniform data collection protocols were implemented for all subjects, irrespective of their race/ethnicity, biological sex, or diabetes severity, across all study sites. The selection of study sites was intended to ensure equitable representation and minimize the potential for sampling bias."
         }
       ],
-      "demographic_information": [
+      "demographicInformation": [
         {
           "id": 1,
           "question": "Does the dataset identify any demographic sub-populations (e.g., by age, gender, sex, ethnicity)?",
@@ -2007,5 +2007,5 @@
     "fileCount": 165051,
     "viewCount": 0
   },
-  "created_at": "1731060000"
+  "created": "1731060000"
 }

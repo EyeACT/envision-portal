@@ -30,7 +30,7 @@ if (data.value) {
 <template>
   <div>
     <UBreadcrumb
-      class="mb-4"
+      class="mb-4 ml-2"
       :dropdown-items="[
         { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/dashboard' },
