@@ -3,9 +3,6 @@ import { hash } from "bcrypt";
 import { nanoid } from "nanoid";
 import { sendEmail } from "../../utils/sendEmail";
 import dayjs from "dayjs";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const signupSchema = z.object({
   emailAddress: z.string().email(),
@@ -15,6 +12,7 @@ const signupSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig();
   const body = await readValidatedBody(event, (b) => signupSchema.safeParse(b));
 
   if (!body.success) {
@@ -63,7 +61,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Send verification email
-  const verificationLink = `${process.env.EMAIL_VERIFICATION_DOMAIN}/verify-email?token=${verificationToken}`;
+  const verificationLink = `${config.emailVerificationDomain}/verify-email?token=${verificationToken}`;
   await sendEmail(
     newUser.emailAddress,
     "Verify Your Email Address",

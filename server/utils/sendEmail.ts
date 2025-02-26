@@ -1,16 +1,14 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-
-// Load environment variables from .env file
-dotenv.config(); 
 
 export const sendEmail = async (to: string, subject: string, text: string) => {
+  const config = useRuntimeConfig();
+
   const transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST,
-    port: Number(process.env.MAIL_PORT),
+    host: config.mailHost,
+    port: Number(config.mailPort),
     auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
+      user: config.mailUser,
+      pass: config.mailPass,
     },
   });
 
@@ -83,7 +81,7 @@ export const sendEmail = async (to: string, subject: string, text: string) => {
   `;
 
   await transporter.sendMail({
-    from: process.env.MAIL_FROM,
+    from: config.mailFrom,
     to: to,
     subject: subject,
     text: text,
