@@ -54,10 +54,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     .then(async () => {
       toast.add({
         title: "Account created successfully",
-        description: "You can now login",
-        icon: "material-symbols:check-circle-outline",
+        description: "Please check your email to verify your account before logging in.",
+        icon: "material-symbols:mail-outline",
+        color: "info",
       });
-      await navigateTo("/login");
     })
     .catch((error) => {
       console.error(error.data);
