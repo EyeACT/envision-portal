@@ -33,8 +33,8 @@ if (data.value) {
       class="mb-4 ml-2"
       :dropdown-items="[
         { label: 'Home', to: '/' },
-        { label: 'Dashboard', to: '/dashboard' },
-        { label: 'My Studies', to: '/dashboard/studies' },
+        { label: 'Dashboard', to: '/app/dashboard' },
+        { label: 'My Studies', to: '/app/dashboard/studies' },
       ]"
     />
 

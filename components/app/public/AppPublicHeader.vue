@@ -17,7 +17,7 @@ const logout = async () => {
       </NuxtLink>
 
       <div class="flex items-center justify-center gap-3">
-        <NuxtLink to="/dashboard" class="text-base font-medium">
+        <NuxtLink to="/app/dashboard" class="text-base font-medium">
           Dashboard
         </NuxtLink>
 

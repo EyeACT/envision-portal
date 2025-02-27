@@ -119,80 +119,116 @@ if (dataset.value) {
       />
 
       <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-1">
-          <h1>
-            {{ dataset?.title }}
-          </h1>
+        <div class="grid grid-cols-12 gap-6">
+          <div class="col-span-10">
+            <div class="flex flex-col gap-1">
+              <h1>
+                {{ dataset?.title }}
+              </h1>
 
-          <UBadge class="w-max" color="primary" variant="outline">
-            Version {{ dataset?.versionTitle }}
-          </UBadge>
-        </div>
+              <UBadge class="w-max" color="primary" variant="outline">
+                Version {{ dataset?.versionTitle }}
+              </UBadge>
+            </div>
 
-        <div class="flex flex-col gap-2">
-          <div
-            class="w-max border-b border-dashed border-slate-300 font-medium"
-          >
-            Description
+            <div class="flex flex-col gap-2">
+              <div
+                class="w-max border-b border-dashed border-slate-300 font-medium"
+              >
+                Description
+              </div>
+
+              <p class="text-sm text-gray-500">
+                {{
+                  dataset?.metadata.studyDescription.descriptionModule
+                    .detailedDescription ||
+                  dataset?.metadata.studyDescription.descriptionModule
+                    .briefSummary ||
+                  dataset?.description
+                }}
+              </p>
+
+              <div
+                class="w-max border-b border-dashed border-slate-300 font-medium"
+              >
+                Keywords
+              </div>
+
+              <div class="flex gap-2">
+                <UBadge
+                  v-for="item in dataset?.metadata?.studyDescription
+                    .conditionsModule.keywordList"
+                  :key="item.keywordValue"
+                  color="primary"
+                  size="sm"
+                  variant="outline"
+                >
+                  {{ item.keywordValue }}
+                </UBadge>
+              </div>
+
+              <div
+                class="w-max border-b border-dashed border-slate-300 font-medium"
+              >
+                Conditions
+              </div>
+
+              <div class="flex gap-2">
+                <UBadge
+                  v-for="item in dataset?.metadata?.studyDescription
+                    .conditionsModule.conditionList"
+                  :key="item.conditionName"
+                  color="primary"
+                  size="sm"
+                  variant="outline"
+                >
+                  {{ item.conditionName }}
+                </UBadge>
+              </div>
+
+              <div
+                class="w-max border-b border-dashed border-slate-300 font-medium"
+              >
+                License
+              </div>
+
+              <p class="text-sm text-gray-500">
+                {{ dataset?.metadata.datasetDescription.rights[0].rightsName }}
+              </p>
+            </div>
           </div>
 
-          <p class="text-sm text-gray-500">
-            {{
-              dataset?.metadata.studyDescription.descriptionModule
-                .detailedDescription ||
-              dataset?.metadata.studyDescription.descriptionModule
-                .briefSummary ||
-              dataset?.description
-            }}
-          </p>
+          <div class="col-span-2">
+            <div class="flex flex-col gap-2">
+              <UButton
+                label="Download"
+                icon="line-md:download-loop"
+                size="xl"
+                color="primary"
+              />
 
-          <div
-            class="w-max border-b border-dashed border-slate-300 font-medium"
-          >
-            Keywords
+              <UButton
+                label="Cite"
+                icon="flowbite:quote-solid"
+                size="xl"
+                color="neutral"
+              />
+
+              <USeparator class="my-1" />
+
+              <div class="flex items-center gap-2 pt-2">
+                <Icon name="flowbite:quote-solid" />
+
+                <span class="text-primary font-semibold">64 citations</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <Icon name="solar:eye-bold" />
+
+                <span class="text-primary font-semibold">1.1k views</span>
+              </div>
+            </div>
           </div>
-
-          <div class="flex gap-2">
-            <UBadge
-              v-for="item in dataset?.metadata?.studyDescription
-                .conditionsModule.keywordList"
-              :key="item.keywordValue"
-              color="primary"
-              size="sm"
-              variant="outline"
-            >
-              {{ item.keywordValue }}
-            </UBadge>
-          </div>
-
-          <div
-            class="w-max border-b border-dashed border-slate-300 font-medium"
-          >
-            Conditions
-          </div>
-
-          <div class="flex gap-2">
-            <UBadge
-              v-for="item in dataset?.metadata?.studyDescription
-                .conditionsModule.conditionList"
-              :key="item.conditionName"
-              color="primary"
-              size="sm"
-              variant="outline"
-            >
-              {{ item.conditionName }}
-            </UBadge>
-          </div>
-
-          <div
-            class="w-max border-b border-dashed border-slate-300 font-medium"
-          >
-            License
-          </div>
-
-          <p class="text-sm text-gray-500">
-            {{ dataset?.metadata.datasetDescription.rights[0].rightsName }}
-          </p>
         </div>
 
         <USeparator class="my-3" />

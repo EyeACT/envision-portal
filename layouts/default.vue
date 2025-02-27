@@ -53,7 +53,7 @@ watch(sidebarCollapsed, (newVal) => {
       <ul>
         <li>
           <ULink
-            to="/dashboard"
+            to="/app/dashboard"
             class="mt-2 flex items-center gap-3 rounded-lg p-2 transition-all"
             active-class="bg-gray-200 dark:bg-gray-700"
             :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"

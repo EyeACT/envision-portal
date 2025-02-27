@@ -5,7 +5,7 @@ import type { FormSubmitEvent } from "#ui/types";
 const { loggedIn } = useUserSession();
 
 if (loggedIn.value) {
-  await navigateTo("/dashboard");
+  await navigateTo("/app/dashboard");
 }
 
 definePageMeta({
@@ -52,7 +52,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         icon: "material-symbols:check-circle-outline",
       });
 
-      window.location.href = "/dashboard";
+      window.location.href = "/app/dashboard";
     })
     .catch((error) => {
       console.error(error.data);

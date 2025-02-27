@@ -30,7 +30,7 @@ definePageMeta({
           <div
             class="mb-8 flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4 lg:mb-16"
           >
-            <UButton to="/dashboard" icon="line-md:upload-loop" size="xl">
+            <UButton to="/app/dashboard" icon="line-md:upload-loop" size="xl">
               Get started
             </UButton>
 

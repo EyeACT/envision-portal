@@ -5,7 +5,7 @@ import type { FormSubmitEvent } from "#ui/types";
 const { loggedIn } = useUserSession();
 
 if (loggedIn.value) {
-  await navigateTo("/dashboard");
+  await navigateTo("/app/dashboard");
 }
 
 definePageMeta({
