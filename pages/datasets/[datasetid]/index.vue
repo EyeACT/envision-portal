@@ -6,6 +6,23 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
+const downloadDropdownItems = ref([
+  {
+    icon: "material-symbols:public",
+    label: "Download public dataset",
+    onSelect: () => {
+      navigateTo(`/datasets/${datasetid}/access/public`);
+    },
+  },
+  {
+    icon: "ri:git-repository-private-fill",
+    label: "Request access to controlled dataset",
+    onSelect: () => {
+      navigateTo(`/datasets/${datasetid}/access/controlled`);
+    },
+  },
+]);
+
 const tabItems = [
   {
     icon: "solar:bill-list-bold",
@@ -200,12 +217,24 @@ if (dataset.value) {
 
           <div class="col-span-2">
             <div class="flex flex-col gap-2">
-              <UButton
-                label="Download"
-                icon="line-md:download-loop"
-                size="xl"
-                color="primary"
-              />
+              <UDropdownMenu
+                :items="downloadDropdownItems"
+                :content="{
+                  align: 'end',
+                  side: 'bottom',
+                  sideOffset: 8,
+                }"
+                :ui="{
+                  content: 'w-max',
+                }"
+              >
+                <UButton
+                  label="Download"
+                  icon="line-md:download-loop"
+                  size="xl"
+                  color="primary"
+                />
+              </UDropdownMenu>
 
               <UButton
                 label="Cite"
