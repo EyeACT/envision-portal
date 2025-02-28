@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import HealthsheetDataset from "~/components/metadata/HealthsheetDataset.vue";
+
 definePageMeta({
   layout: "public",
 });
@@ -7,24 +9,6 @@ const route = useRoute();
 const toast = useToast();
 
 const tabItems = [
-  {
-    icon: "solar:bill-list-bold",
-    label: "Metadata",
-    slot: "metadata",
-  },
-  {
-    icon: "solar:folder-with-files-line-duotone",
-    label: "Files",
-    slot: "files",
-  },
-  {
-    icon: "solar:history-line-duotone",
-    label: "Versions",
-    slot: "versions",
-  },
-];
-
-const metadataTabItems = [
   {
     icon: "solar:bill-list-bold",
     label: "Study Metadata",
@@ -40,7 +24,19 @@ const metadataTabItems = [
     label: "Healthsheet",
     slot: "healthsheet",
   },
+  {
+    icon: "solar:folder-with-files-line-duotone",
+    label: "Files",
+    slot: "files",
+  },
+  {
+    icon: "solar:history-line-duotone",
+    label: "Versions",
+    slot: "versions",
+  },
 ];
+
+const metadataTabItems = [];
 
 const treeItems = ref([
   {
@@ -240,28 +236,25 @@ if (dataset.value) {
             class="w-full gap-4"
             :ui="{ trigger: 'cursor-pointer' }"
           >
-            <template #metadata>
-              <UTabs
-                :items="metadataTabItems"
-                variant="link"
-                orientation="horizontal"
-                class="w-full gap-4"
-                :ui="{ trigger: 'cursor-pointer' }"
-              >
-                <template #study-metadata> study-metadata </template>
+            <template #study-metadata>
+              <MetadataStudy :metadata="dataset?.metadata?.studyDescription" />
+            </template>
 
-                <template #dataset-metadata> dataset-metadata </template>
+            <template #dataset-metadata>
+              <MetadataDataset
+                :metadata="dataset?.metadata?.datasetDescription"
+              />
+            </template>
 
-                <template #healthsheet> healthsheet </template>
-              </UTabs>
-
-              <pre>
-            {{ dataset?.metadata }}
-          </pre
-              >
+            <template #healthsheet>
+              <HealthsheetDataset :metadata="dataset?.metadata?.healthsheet" />
             </template>
 
             <template #files> <UTree multiple :items="treeItems" /> </template>
+
+            <template #versions>
+              <DatasetVersions :metadata="dataset?.versionTitle" />
+            </template>
           </UTabs>
         </div>
       </div>
