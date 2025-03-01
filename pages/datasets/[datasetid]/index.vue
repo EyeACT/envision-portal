@@ -148,7 +148,7 @@ if (dataset.value) {
               </UBadge>
             </div>
 
-            <div class="flex flex-col gap-2">
+            <div class="mt-3 flex flex-col gap-2">
               <div
                 class="w-max border-b border-dashed border-slate-300 font-medium"
               >
