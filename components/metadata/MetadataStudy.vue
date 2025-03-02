@@ -8,15 +8,9 @@ const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
 </script>
 
 <template>
-  <div class="space-y-6">
-    <CardNuxtCollap title="testing" :collapse="false">
-      <div class="space-y-6">
-        <p>testing content here</p>
-      </div>
-    </CardNuxtCollap>
-
-    <CardCollapsibleContent title="Design" :collapse="false">
-      <div class="space-y-6">
+  <div class="h-auto space-y-6">
+    <CardCollapsibleContent title="Design">
+      <div class="h-auto space-y-6">
         <!-- Study Type -->
         <div>
           <p :class="sectionTitleClass">Study Type</p>
@@ -117,26 +111,23 @@ const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
       </div>
     </CardCollapsibleContent>
 
-    <CardCollapsibleContent title="Eligibility" :collapse="true">
+    <CardCollapsibleContent title="Eligibility">
       <div>testing content here</div>
     </CardCollapsibleContent>
 
-    <CardCollapsibleContent title="Identification Information" :collapse="true">
+    <CardCollapsibleContent title="Identification Information">
       <div>testing content here</div>
     </CardCollapsibleContent>
 
-    <CardCollapsibleContent title="Oversight" :collapse="true">
+    <CardCollapsibleContent title="Oversight">
       <div>testing content here</div>
     </CardCollapsibleContent>
 
-    <CardCollapsibleContent title="Sponsors and Collaborators" :collapse="true">
+    <CardCollapsibleContent title="Sponsors and Collaborators">
       <div>testing content here</div>
     </CardCollapsibleContent>
 
-    <CardCollapsibleContent
-      title="View the full study_description.json file"
-      :collapse="true"
-    >
+    <CardCollapsibleContent title="View the full study_description.json file">
       <pre>{{ props.metadata }}</pre>
     </CardCollapsibleContent>
   </div>

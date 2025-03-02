@@ -6,7 +6,10 @@ const props = defineProps<{
 </script>
 
 <template>
-  <UCollapsible class="flex w-48 flex-col gap-2">
+  <UCollapsible
+    :ui="{ root: 'w-full', content: 'bg-red' }"
+    class="flex w-48 flex-col gap-2"
+  >
     <UButton
       class="group"
       label="Open"
@@ -21,7 +24,7 @@ const props = defineProps<{
     />
 
     <template #content>
-      <Placeholder class="h-48" />
+      <slot />
     </template>
   </UCollapsible>
 </template>
