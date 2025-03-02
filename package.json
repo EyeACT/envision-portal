@@ -20,7 +20,8 @@
     "postinstall": "nuxt prepare && prisma generate",
     "reset": "rm -rf node_modules && rm -rf .nuxt && rm -rf .output && rm -rf dist && yarn install",
     "prune-branches": "git removed-branches --prune --force",
-    "scripts:edit:record": "tsx ./scripts/edit-record.ts"
+    "scripts:edit:record": "tsx ./scripts/edit-record.ts",
+    "scripts:create:record": "tsx ./scripts/create-record.ts"
   },
   "dependencies": {
     "@vueuse/core": "^12.5.0",
