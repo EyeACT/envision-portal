@@ -2001,7 +2001,143 @@
       ]
     }
   },
-  "files": [],
+  "files": [
+    {
+      "label": "retinal_oct",
+      "value": "retinal_oct",
+      "children": [
+        {
+          "label": "diabetic_retinopathy",
+          "value": "retinal_oct/diabetic_retinopathy",
+          "children": [
+            {
+              "label": "ocular",
+              "value": "retinal_oct/diabetic_retinopathy/ocular",
+              "children": [
+                {
+                  "label": "retinal_oct.dcm",
+                  "value": "retinal_oct/diabetic_retinopathy/ocular/retinal_oct.dcm",
+                  "icon": "material-symbols:image"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "ocular",
+          "value": "retinal_oct/ocular",
+          "children": [
+            {
+              "label": "retinal_oct.nii.gz",
+              "value": "retinal_oct/ocular/retinal_oct.nii.gz",
+              "icon": "flowbite:file-zip-solid"
+            }
+          ]
+        },
+        {
+          "label": "optic",
+          "value": "retinal_oct/optic",
+          "children": [
+            {
+              "value": "retinal_oct/optic/retinal_oct.nii.gz",
+              "label": "retinal_oct.nii.gz",
+              "icon": "flowbite:file-zip-solid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "retinal_octa",
+      "value": "retinal_octa",
+      "children": [
+        {
+          "label": "diabetic_retinopathy",
+          "value": "retinal_octa/diabetic_retinopathy",
+          "children": [
+            {
+              "label": "ocular",
+              "value": "retinal_octa/diabetic_retinopathy/ocular",
+              "children": [
+                {
+                  "label": "retinal_octa.dcm",
+                  "value": "retinal_octa/diabetic_retinopathy/ocular/retinal_octa.dcm",
+                  "icon": "material-symbols:image"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "ocular",
+          "value": "retinal_octa/ocular",
+          "children": [
+            {
+              "label": "retinal_octa.nii.gz",
+              "value": "retinal_octa/ocular/retinal_octa.nii.gz",
+              "icon": "flowbite:file-zip-solid"
+            }
+          ]
+        },
+        {
+          "label": "optic",
+          "value": "retinal_octa/optic",
+          "children": [
+            {
+              "value": "retinal_octa/optic/retinal_octa.nii.gz",
+              "label": "retinal_octa.nii.gz",
+              "icon": "flowbite:file-zip-solid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": "CHANGELOG.md",
+      "label": "CHANGELOG.md",
+      "icon": "bxs:file-md"
+    },
+    {
+      "label": "README.md",
+      "value": "README.md",
+      "icon": "bxs:file-md"
+    },
+    {
+      "label": "healthsheet.md",
+      "value": "healthsheet.md",
+      "icon": "bxs:file-md"
+    },
+    {
+      "label": "LICENSE.txt",
+      "value": "LICENSE.txt",
+      "icon": "bxs:file"
+    },
+    {
+      "label": "participants.tsv",
+      "value": "participants.tsv",
+      "icon": "material-symbols:tsv"
+    },
+    {
+      "label": "dataset_description.json",
+      "value": "dataset_description.json",
+      "icon": "si:json-duotone"
+    },
+    {
+      "value": "dataset_structure_description.json",
+      "label": "dataset_structure_description.json",
+      "icon": "si:json-duotone"
+    },
+    {
+      "label": "participants.json",
+      "value": "participants.json",
+      "icon": "si:json-duotone"
+    },
+    {
+      "value": "study_description.json",
+      "label": "study_description.json",
+      "icon": "si:json-duotone"
+    }
+  ],
   "data": {
     "size": 2010899452756,
     "fileCount": 165051,

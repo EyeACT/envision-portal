@@ -59,50 +59,6 @@ const metadataTabItems = [
   },
 ];
 
-const treeItems = ref([
-  {
-    children: [
-      {
-        children: [
-          {
-            icon: "i-vscode-icons-file-type-typescript",
-            label: "useAuth.ts",
-          },
-          {
-            icon: "i-vscode-icons-file-type-typescript",
-            label: "useUser.ts",
-          },
-        ],
-        label: "composables/",
-      },
-      {
-        children: [
-          {
-            icon: "i-vscode-icons-file-type-vue",
-            label: "Card.vue",
-          },
-          {
-            icon: "i-vscode-icons-file-type-vue",
-            label: "Button.vue",
-          },
-        ],
-        defaultExpanded: true,
-        label: "components/",
-      },
-    ],
-    defaultExpanded: true,
-    label: "app/",
-  },
-  {
-    icon: "i-vscode-icons-file-type-vue",
-    label: "app.vue",
-  },
-  {
-    icon: "i-vscode-icons-file-type-nuxt",
-    label: "nuxt.config.ts",
-  },
-]);
-
 const { datasetid } = route.params as { datasetid: string };
 
 const { data: dataset, error } = await useFetch(`/api/datasets/${datasetid}`);
@@ -132,6 +88,7 @@ if (dataset.value) {
         :items="[
           { label: 'Home', to: '/' },
           { label: 'All Datasets', to: '/datasets' },
+          { label: dataset?.title, to: `/datasets/${datasetid}` },
         ]"
       />
 
@@ -290,7 +247,9 @@ if (dataset.value) {
               >
             </template>
 
-            <template #files> <UTree multiple :items="treeItems" /> </template>
+            <template #files>
+              <UTree multiple :items="dataset?.files" />
+            </template>
           </UTabs>
         </div>
       </div>

@@ -58,6 +58,8 @@ const copyToClipboard = (text: string) => {
         :items="[
           { label: 'Home', to: '/' },
           { label: 'All Datasets', to: '/datasets' },
+          { label: dataset?.title, to: `/datasets/${datasetid}` },
+          { label: 'Public Access' },
         ]"
       />
 
