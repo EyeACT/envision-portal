@@ -7,7 +7,7 @@ const route = useRoute();
 const toast = useToast();
 
 const azureUri = ref(
-  "storageexplorer://v=1&accountid=/subscriptions/the_subscription_id/resourceGroups/the_resource_group_name/providers/Microsoft.Storage/storageAccounts/the_storage_account_name&subscriptionid=the_subscription_id&resourcetype=Azure.BlobContainer&resourcename=the_blob_container_name&sas=the_sas_token",
+  "DefaultEndpointsProtocol=https;AccountName=envisionportal;AccountKey=9UGBTsgoIVNVasG5h7DP5RwcfePgVLuz6sUyD/RdxE7CElVAIOwJ1xnFkQ7bCT1L/zR+zjFn0coVj6w2PY23NySMc0uOVdwFYT29X8oQEj2uifHyt+oU/6qrBTIjfClFd==;EndpointSuffix=core.windows.net",
 );
 
 const { datasetid } = route.params as { datasetid: string };
@@ -29,6 +29,25 @@ if (dataset.value) {
     title: dataset.value.title,
   });
 }
+
+const copyToClipboard = (text: string) => {
+  if (!navigator.clipboard) {
+    toast.add({
+      title: "Clipboard not supported",
+      color: "error",
+      description: "Please try again later",
+      icon: "material-symbols:error",
+    });
+  }
+
+  navigator.clipboard.writeText(text);
+
+  toast.add({
+    title: "Copied to clipboard",
+    color: "success",
+    icon: "material-symbols:content-copy",
+  });
+};
 </script>
 
 <template>
@@ -89,7 +108,8 @@ if (dataset.value) {
                 href="https://azure.microsoft.com/en-us/features/storage-explorer/"
                 target="_blank"
                 class="text-blue-500"
-                >Azure Storage Explorer</a
+              >
+                Azure Storage Explorer</a
               >.
             </li>
 
@@ -99,7 +119,24 @@ if (dataset.value) {
 
             <li>Navigate to the following URI to access the dataset:</li>
 
-            <UTextarea v-model="azureUri" class="w-full" />
+            <div class="relative">
+              <UTextarea
+                v-model="azureUri"
+                class="w-full"
+                :rows="4"
+                disabled
+                autoresize
+              />
+
+              <UButton
+                label="Copy to clipboard"
+                icon="material-symbols:content-copy"
+                size="xs"
+                variant="outline"
+                class="absolute right-0 bottom-0 z-10 m-1 p-2"
+                @click="copyToClipboard(azureUri)"
+              />
+            </div>
 
             <li>
               Open the dataset URI in Azure Storage Explorer to browse the
@@ -109,6 +146,15 @@ if (dataset.value) {
             <li>
               Select the files you wish to download and choose "Download" from
               the context menu.
+
+              <UAlert
+                color="info"
+                variant="subtle"
+                title="Heads up!"
+                description="You need to have free space on your device to download the files."
+                icon="i-lucide-terminal"
+                class="mt-2"
+              />
             </li>
           </ul>
         </div>
