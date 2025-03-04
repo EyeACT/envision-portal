@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import HealthsheetDataset from "~/components/metadata/HealthsheetDataset.vue";
-
 definePageMeta({
   layout: "public",
 });
@@ -242,12 +240,12 @@ if (dataset.value) {
 
             <template #dataset-metadata>
               <MetadataDataset
-                :metadata="dataset?.metadata?.datasetDescription"
+                :metadata="dataset!.metadata!.datasetDescription"
               />
             </template>
 
             <template #healthsheet>
-              <HealthsheetDataset :metadata="dataset?.metadata?.healthsheet" />
+              <MetadataHealthSheet :metadata="dataset?.metadata?.healthsheet" />
             </template>
 
             <template #files> <UTree multiple :items="treeItems" /> </template>

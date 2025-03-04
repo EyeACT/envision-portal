@@ -396,7 +396,10 @@ const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
       </div>
     </CardCollapsibleContent>
 
-    <CardCollapsibleContent title="View the full study_description.json file">
+    <CardCollapsibleContent
+      title="View the full study_description.json file"
+      :collapse="true"
+    >
       <pre>{{ props.metadata }}</pre>
     </CardCollapsibleContent>
   </div>
