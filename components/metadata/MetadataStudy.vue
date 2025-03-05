@@ -1,10 +1,112 @@
 <script lang="ts" setup>
+import type { TableColumn } from "@nuxt/ui";
+import { h } from "vue";
+import { NuxtLink } from "#components";
 // Define props
 const props = defineProps<{
   metadata: any;
 }>();
 
 const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
+
+const identInfoColumn: TableColumn<
+  NonNullable<
+    StudyDescription["identificationModule"]["secondaryIdInfoList"]
+  >[number]
+>[] = [
+  {
+    accessorKey: "secondaryId",
+    header: "ID",
+  },
+  {
+    accessorKey: "secondaryIdType",
+    header: "Type",
+  },
+  {
+    accessorKey: "secondaryIdLink",
+    cell: ({ row }) => {
+      const link = row.original.secondaryIdLink;
+
+      return link
+        ? h(
+            NuxtLink,
+            {
+              class: "text-blue-500 hover:text-blue-700",
+              target: "_blank",
+              to: link,
+            },
+            { default: () => `${link}` },
+          )
+        : "N/A";
+    },
+    header: "Link",
+  },
+  {
+    accessorKey: "secondaryIdDomain",
+    cell: ({ row }) => {
+      const domain = row.original?.secondaryIdDomain;
+
+      return domain || "N/A";
+    },
+    header: "Domain",
+  },
+];
+
+const collaboratorsColumns: TableColumn<
+  NonNullable<
+    StudyDescription["sponsorCollaboratorsModule"]["collaboratorList"]
+  >[number]
+>[] = [
+  {
+    accessorKey: "collaboratorName",
+    header: "Name",
+  },
+  {
+    accessorKey: "collaboratorClass",
+    header: "Class",
+  },
+  {
+    accessorKey: "collaboratorType",
+    header: "Type",
+  },
+];
+
+const responsiblePartyColumns: TableColumn<
+  NonNullable<
+    StudyDescription["sponsorCollaboratorsModule"]["responsibleParty"]
+  >
+>[] = [
+  {
+    accessorKey: "responsiblePartyInvestigatorFirstName",
+    cell: ({ row }) => {
+      const name = row.original.responsiblePartyInvestigatorFirstName;
+      const lastName = row.original.responsiblePartyInvestigatorLastName;
+
+      return `${name} ${lastName}`;
+    },
+    header: "Name",
+  },
+  {
+    accessorKey: "responsiblePartyInvestigatorTitle",
+    header: "Title",
+  },
+  {
+    accessorKey: "responsiblePartyInvestigatorAffiliation",
+    cell: ({ row }) => {
+      const affiliation = row.original.responsiblePartyInvestigatorAffiliation;
+
+      return (
+        affiliation?.responsiblePartyInvestigatorAffiliationIdentifier
+          ?.responsiblePartyInvestigatorAffiliationIdentifierValue ?? "N/A"
+      );
+    },
+    header: "Affiliation",
+  },
+  {
+    accessorKey: "responsiblePartyType",
+    header: "Type",
+  },
+];
 </script>
 
 <template>
@@ -316,6 +418,7 @@ const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
 
           <UTable
             :data="props.metadata.identificationModule.secondaryIdInfoList"
+            :columns="identInfoColumn"
             class="flex-1"
           />
         </div>
@@ -383,6 +486,7 @@ const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
 
           <UTable
             :data="props.metadata.sponsorCollaboratorsModule.collaboratorList"
+            :columns="collaboratorsColumns"
             class="flex-1"
           />
         </div>
@@ -391,7 +495,11 @@ const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
         <div>
           <p :class="sectionTitleClass">Responsible Party</p>
 
-          <UTable :data="props.metadata.responsibleParty" class="flex-1" />
+          <UTable
+            :data="props.metadata.responsibleParty"
+            :columns="responsiblePartyColumns"
+            class="flex-1"
+          />
         </div>
       </div>
     </CardCollapsibleContent>

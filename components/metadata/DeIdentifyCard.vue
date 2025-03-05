@@ -6,7 +6,7 @@ const _props = defineProps<{
 
 const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
 
-function getDeIdentType(deIdentType: string) {
+const getDeIdentType = (deIdentType: string) => {
   const deIdentTypeOptions = datasetMetadata.datasetDeIdentTypeOptions;
 
   for (const [_key, object] of Object.entries(deIdentTypeOptions)) {
@@ -14,7 +14,7 @@ function getDeIdentType(deIdentType: string) {
       return object.description;
     }
   }
-}
+};
 
 const formattedDeIdentType = getDeIdentType(_props.metadata.deIdentType);
 </script>
