@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import * as z from "zod";
+import { faker } from "@faker-js/faker";
+
 definePageMeta({
   layout: "public",
   middleware: ["auth"],
@@ -7,9 +10,7 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const azureUri = ref(
-  "DefaultEndpointsProtocol=https;AccountName=envisionportal;AccountKey=9UGBTsgoIVNVasG5h7DP5RwcfePgVLuz6sUyD/RdxE7CElVAIOwJ1xnFkQ7bCT1L/zR+zjFn0coVj6w2PY23NySMc0uOVdwFYT29X8oQEj2uifHyt+oU/6qrBTIjfClFd==;EndpointSuffix=core.windows.net",
-);
+const { user } = useUserSession();
 
 const { datasetid } = route.params as { datasetid: string };
 
@@ -31,24 +32,101 @@ if (dataset.value) {
   });
 }
 
-const copyToClipboard = (text: string) => {
-  if (!navigator.clipboard) {
-    toast.add({
-      title: "Clipboard not supported",
-      color: "error",
-      description: "Please try again later",
-      icon: "material-symbols:error",
-    });
-  }
+const tabItems = [
+  {
+    icon: "solar:folder-with-files-line-duotone",
+    label: "Files",
+    slot: "files",
+  },
+  {
+    icon: "material-symbols:data-usage",
+    label: "Data Use Agreement",
+    slot: "data-use-agreement",
+  },
+  {
+    icon: "icon-park-outline:list",
+    label: "Access Requests",
+    slot: "access-requests",
+  },
+];
 
-  navigator.clipboard.writeText(text);
+const schema = z.object({
+  affiliation: z.string().min(1, "Must be at least 1 character"),
+  email: z.string().email("Invalid email"),
+  familyName: z.string().min(1, "Must be at least 1 character"),
+  givenName: z.string().min(1, "Must be at least 1 character"),
+  reasonForAccess: z.string().min(1, "Must be at least 1 character"),
+});
 
-  toast.add({
-    title: "Copied to clipboard",
-    color: "success",
-    icon: "material-symbols:content-copy",
-  });
-};
+type Schema = z.output<typeof schema>;
+
+const state = reactive<Partial<Schema>>({
+  affiliation: undefined,
+  email: user.value?.emailAddress,
+  familyName: undefined,
+  givenName: undefined,
+  reasonForAccess: undefined,
+});
+
+const requests = ref({
+  approved: [
+    {
+      id: faker.string.nanoid(10),
+      reason: faker.lorem.sentences(3),
+      status: "approved",
+      timeChanged: faker.date.anytime(),
+      timeCreated: faker.date.anytime(),
+    },
+  ],
+  denied: [
+    {
+      id: faker.string.nanoid(10),
+      reason: faker.lorem.sentences(3),
+      status: "denied",
+      timeChanged: faker.date.anytime(),
+      timeCreated: faker.date.anytime(),
+    },
+    {
+      id: faker.string.nanoid(10),
+      reason: faker.lorem.sentences(3),
+      status: "denied",
+      timeChanged: faker.date.anytime(),
+      timeCreated: faker.date.anytime(),
+    },
+  ],
+  expired: [
+    {
+      id: faker.string.nanoid(10),
+      reason: faker.lorem.sentences(3),
+      status: "expired",
+      timeChanged: faker.date.anytime(),
+      timeCreated: faker.date.anytime(),
+    },
+    {
+      id: faker.string.nanoid(10),
+      reason: faker.lorem.sentences(3),
+      status: "expired",
+      timeChanged: faker.date.anytime(),
+      timeCreated: faker.date.anytime(),
+    },
+  ],
+  pending: [
+    {
+      id: faker.string.nanoid(10),
+      reason: faker.lorem.sentences(3),
+      status: "pending",
+      timeChanged: faker.date.anytime(),
+      timeCreated: faker.date.anytime(),
+    },
+    {
+      id: faker.string.nanoid(10),
+      reason: faker.lorem.sentences(3),
+      status: "pending",
+      timeChanged: faker.date.anytime(),
+      timeCreated: faker.date.anytime(),
+    },
+  ],
+});
 </script>
 
 <template>
@@ -100,66 +178,110 @@ const copyToClipboard = (text: string) => {
         <USeparator class="my-3" />
 
         <div class="mt-3 flex flex-col gap-4">
-          <div class="w-max">
-            <h2>How to download</h2>
-          </div>
+          <UTabs
+            :items="tabItems"
+            default-value="2"
+            orientation="horizontal"
+            class="w-full gap-4"
+            :ui="{ trigger: 'cursor-pointer' }"
+          >
+            <template #files>
+              <UTree multiple :items="dataset?.files" />
+            </template>
 
-          <ul class="flex list-inside list-decimal flex-col gap-3">
-            <li>
-              Download and install
-              <a
-                href="https://azure.microsoft.com/en-us/features/storage-explorer/"
-                target="_blank"
-                class="text-blue-500"
-              >
-                Azure Storage Explorer</a
-              >.
-            </li>
+            <template #data-use-agreement>
+              <UForm :schema="schema" :state="state" class="space-y-4">
+                <UFormField label="Given Name" name="givenName">
+                  <UInput v-model="state.givenName" />
+                </UFormField>
 
-            <li>
-              Open Azure Storage Explorer and connect to your Azure account.
-            </li>
+                <UFormField label="Family Name" name="familyName">
+                  <UInput v-model="state.familyName" />
+                </UFormField>
 
-            <li>Navigate to the following URI to access the dataset:</li>
+                <UFormField label="Affiliation" name="affiliation">
+                  <UInput v-model="state.affiliation" />
+                </UFormField>
 
-            <div class="relative">
-              <UTextarea
-                v-model="azureUri"
-                class="w-full"
-                :rows="4"
-                disabled
-                autoresize
-              />
+                <UFormField label="Email" name="email">
+                  <UInput v-model="state.email" disabled />
+                </UFormField>
 
-              <UButton
-                label="Copy to clipboard"
-                icon="material-symbols:content-copy"
-                size="xs"
-                variant="outline"
-                class="absolute right-0 bottom-0 z-10 m-1 p-2"
-                @click="copyToClipboard(azureUri)"
-              />
-            </div>
+                <UFormField label="Reason for Access" name="reasonForAccess">
+                  <UTextarea v-model="state.reasonForAccess" class="w-full" />
+                </UFormField>
 
-            <li>
-              Open the dataset URI in Azure Storage Explorer to browse the
-              contents.
-            </li>
+                <UButton type="submit"> Submit </UButton>
+              </UForm>
+            </template>
 
-            <li>
-              Select the files you wish to download and choose "Download" from
-              the context menu.
+            <template #access-requests>
+              <div class="flex flex-col gap-8">
+                <h2>All Requests</h2>
 
-              <UAlert
-                color="info"
-                variant="subtle"
-                title="Heads up!"
-                description="You need to have free space on your device to download the files."
-                icon="i-lucide-terminal"
-                class="mt-2"
-              />
-            </li>
-          </ul>
+                <UCard
+                  v-for="request in [
+                    ...requests.approved,
+                    ...requests.pending,
+                    ...requests.expired,
+                    ...requests.denied,
+                  ]"
+                  :key="request.id"
+                >
+                  <template #header>
+                    <div class="flex items-center justify-end gap-2">
+                      <span class="text-xs">
+                        {{ request.id }}
+                      </span>
+
+                      <UBadge
+                        :color="
+                          request.status === 'approved'
+                            ? 'success'
+                            : request.status === 'denied'
+                              ? 'error'
+                              : request.status === 'expired'
+                                ? 'warning'
+                                : 'neutral'
+                        "
+                        variant="outline"
+                        class="w-max"
+                      >
+                        {{ request.status }}
+                      </UBadge>
+                    </div>
+                  </template>
+
+                  <p class="text-sm">
+                    {{ request.reason }}
+                  </p>
+
+                  <template #footer>
+                    <div class="flex justify-between gap-2">
+                      <div class="flex gap-2">
+                        <span class="text-sm">
+                          Updated on
+                          <time>
+                            {{
+                              $dayjs(request.timeChanged).format("MMM D, YYYY")
+                            }}
+                          </time>
+                        </span>
+                      </div>
+
+                      <UButton
+                        v-if="request.status === 'approved'"
+                        label="View access instructions"
+                        icon="material-symbols:arrow-right"
+                        size="sm"
+                        color="primary"
+                      />
+                    </div>
+                  </template>
+                </UCard>
+              </div>
+            </template>
+          </UTabs>
         </div>
       </div>
     </UContainer>
