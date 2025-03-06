@@ -6,6 +6,23 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
+const downloadDropdownItems = ref([
+  {
+    icon: "material-symbols:public",
+    label: "Download public dataset",
+    onSelect: () => {
+      navigateTo(`/datasets/${datasetid}/access/public`);
+    },
+  },
+  {
+    icon: "ri:git-repository-private-fill",
+    label: "Request access to controlled dataset",
+    onSelect: () => {
+      navigateTo(`/datasets/${datasetid}/access/controlled`);
+    },
+  },
+]);
+
 const tabItems = [
   {
     icon: "solar:bill-list-bold",
@@ -33,8 +50,6 @@ const tabItems = [
     slot: "versions",
   },
 ];
-
-const metadataTabItems = [];
 
 const treeItems = ref([
   {
@@ -109,6 +124,7 @@ if (dataset.value) {
         :items="[
           { label: 'Home', to: '/' },
           { label: 'All Datasets', to: '/datasets' },
+          { label: dataset?.title, to: `/datasets/${datasetid}` },
         ]"
       />
 
@@ -125,7 +141,7 @@ if (dataset.value) {
               </UBadge>
             </div>
 
-            <div class="flex flex-col gap-2">
+            <div class="mt-3 flex flex-col gap-2">
               <div
                 class="w-max border-b border-dashed border-slate-300 font-medium"
               >
@@ -194,12 +210,24 @@ if (dataset.value) {
 
           <div class="col-span-2">
             <div class="flex flex-col gap-2">
-              <UButton
-                label="Download"
-                icon="line-md:download-loop"
-                size="xl"
-                color="primary"
-              />
+              <UDropdownMenu
+                :items="downloadDropdownItems"
+                :content="{
+                  align: 'end',
+                  side: 'bottom',
+                  sideOffset: 8,
+                }"
+                :ui="{
+                  content: 'w-max',
+                }"
+              >
+                <UButton
+                  label="Download"
+                  icon="line-md:download-loop"
+                  size="xl"
+                  color="primary"
+                />
+              </UDropdownMenu>
 
               <UButton
                 label="Cite"
