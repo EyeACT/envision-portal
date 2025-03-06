@@ -62,12 +62,25 @@ const collaboratorsColumns: TableColumn<
     header: "Name",
   },
   {
-    accessorKey: "collaboratorClass",
-    header: "Class",
-  },
-  {
-    accessorKey: "collaboratorType",
-    header: "Type",
+    accessorKey: "collaboratorNameIdentifier",
+    cell: ({ row }) => {
+      const link =
+        row.original?.collaboratorNameIdentifier
+          ?.collaboratorNameIdentifierValue;
+
+      return link
+        ? h(
+            NuxtLink,
+            {
+              class: "text-blue-500 hover:text-blue-700",
+              target: "_blank",
+              to: link,
+            },
+            { default: () => `${link}` },
+          )
+        : "N/A";
+    },
+    header: "Identifier",
   },
 ];
 
@@ -80,25 +93,44 @@ const responsiblePartyColumns: TableColumn<
     accessorKey: "responsiblePartyInvestigatorFirstName",
     cell: ({ row }) => {
       const name = row.original.responsiblePartyInvestigatorFirstName;
-      const lastName = row.original.responsiblePartyInvestigatorLastName;
+      const lastName = row.original?.responsiblePartyInvestigatorLastName || "";
 
-      return `${name} ${lastName}`;
+      return `${name} ${lastName}`.trim();
     },
     header: "Name",
   },
   {
     accessorKey: "responsiblePartyInvestigatorTitle",
+    cell: ({ row }) => {
+      const title = row.original?.responsiblePartyInvestigatorTitle || "N/A";
+
+      return title;
+    },
     header: "Title",
   },
   {
     accessorKey: "responsiblePartyInvestigatorAffiliation",
     cell: ({ row }) => {
-      const affiliation = row.original.responsiblePartyInvestigatorAffiliation;
+      const affiliation = row.original?.responsiblePartyInvestigatorAffiliation;
+      const identifier =
+        affiliation?.responsiblePartyInvestigatorAffiliationIdentifier;
 
-      return (
-        affiliation?.responsiblePartyInvestigatorAffiliationIdentifier
-          ?.responsiblePartyInvestigatorAffiliationIdentifierValue ?? "N/A"
-      );
+      if (!affiliation) return "N/A";
+
+      return identifier
+        ? h(
+            NuxtLink,
+            {
+              class: "text-blue-500 hover:text-blue-700",
+              target: "_blank",
+              to: identifier.responsiblePartyInvestigatorAffiliationIdentifierValue,
+            },
+            {
+              default: () =>
+                `${affiliation?.responsiblePartyInvestigatorAffiliationName}`,
+            },
+          )
+        : `${affiliation?.responsiblePartyInvestigatorAffiliationName}`;
     },
     header: "Affiliation",
   },
@@ -124,24 +156,30 @@ const responsiblePartyColumns: TableColumn<
         <div>
           <p :class="sectionTitleClass">
             Enrollment Count ({{
-              props.metadata.designModule.enrollmentType || "Type Unknown"
+              props.metadata.designModule.enrollmentInfo.enrollmentType ||
+              "Type Unknown"
             }})
           </p>
 
-          <p>{{ props.metadata.designModule.enrollmentCount || "N/A" }}</p>
+          <p>
+            {{
+              props.metadata.designModule.enrollmentInfo.enrollmentCount ||
+              "N/A"
+            }}
+          </p>
         </div>
 
         <!-- Target Duration -->
         <div v-if="props.metadata.designModule.targetDuration">
           <p :class="sectionTitleClass">Target Duration</p>
 
-          <p>{{ props.metadata.designModule.targetDuration }}</p>
+          <p>{{ props.metadata.designModule?.targetDuration || "N/A" }}</p>
         </div>
 
         <div v-if="props.metadata.designModule.numberGroupsCohorts">
           <p :class="sectionTitleClass">Number of Cohort Groups</p>
 
-          <p>{{ props.metadata.designModule.numberGroupsCohorts }}</p>
+          <p>{{ props.metadata.designModule?.numberGroupsCohorts || "N/A" }}</p>
         </div>
 
         <!-- Interventional Design Module -->
@@ -254,18 +292,27 @@ const responsiblePartyColumns: TableColumn<
           <div v-if="props.metadata.designModule.designInfo.designAllocation">
             <p :class="sectionTitleClass">Design Allocation</p>
 
-            <p>{{ props.metadata.designModule.designInfo.designAllocation }}</p>
+            <p>
+              {{
+                props.metadata.designModule.designInfo?.designAllocation ||
+                "N/A"
+              }}
+            </p>
           </div>
 
           <!-- Design Observation Model -->
           <div>
             <p :class="sectionTitleClass">Design Observation Model</p>
 
-            <div v-if="props?.metadata?.designModule.observationModelList">
+            <div
+              v-if="
+                props?.metadata.designModule.designInfo?.observationModelList
+              "
+            >
               <UBadge
-                v-for="item in props?.metadata?.designModule
-                  .observationModelList"
-                :key="item.observationModelName"
+                v-for="(item, key) in props?.metadata.designModule.designInfo
+                  ?.designObservationalModelList"
+                :key="key"
                 color="primary"
                 size="sm"
                 variant="outline"
@@ -281,11 +328,15 @@ const responsiblePartyColumns: TableColumn<
           <div>
             <p :class="sectionTitleClass">Design Time Perspective</p>
 
-            <div v-if="props?.metadata?.designModule?.designTimePerspective">
+            <div
+              v-if="
+                props?.metadata?.designModule.designInfo?.designTimePerspective
+              "
+            >
               <UBadge
-                v-for="item in props?.metadata?.designModule
-                  .designTimePerspective"
-                :key="item.designTimePerspective"
+                v-for="(item, key) in props.metadata.designModule.designInfo
+                  ?.designTimePerspective"
+                :key="key"
                 color="primary"
                 size="sm"
                 variant="outline"
@@ -298,17 +349,26 @@ const responsiblePartyColumns: TableColumn<
           </div>
 
           <!-- Biospecimens -->
-          <div v-if="props.metadata?.bioSpec?.bioSpecRetention">
+          <div v-if="props.metadata.designModule?.bioSpec?.bioSpecRetention">
             <p :class="sectionTitleClass">Biospecimens</p>
 
-            <p>{{ props.metadata.bioSpecRetention || "N/A" }}</p>
+            <p>
+              {{
+                props.metadata.designModule?.bioSpec.bioSpecDescription || "N/A"
+              }}
+            </p>
           </div>
 
           <!-- Biospecimens Description -->
           <div v-if="props.metadata.designModule?.bioSpec?.bioSpecDescription">
             <p :class="sectionTitleClass">Biospecimens Description</p>
 
-            <p>{{ props.metadata.bioSpecDescriptions || "N/A" }}</p>
+            <p>
+              {{
+                props.metadata.designModule?.bioSpec?.bioSpecDescriptions ||
+                "N/A"
+              }}
+            </p>
           </div>
         </div>
       </div>
@@ -331,7 +391,7 @@ const responsiblePartyColumns: TableColumn<
         </div>
 
         <!-- Gender Description -->
-        <div v-if="props.metadata.eligibilityModule.genderDescription">
+        <div v-if="props.metadata.eligibilityModule?.genderDescription">
           <p :class="sectionTitleClass">Gender Description</p>
 
           <p>{{ props.metadata.eligibilityModule.genderDescription }}</p>
@@ -443,7 +503,9 @@ const responsiblePartyColumns: TableColumn<
             Is this clincal study for a drug product?
           </p>
 
-          <p>{{ props.metadata.oversightModule.isFDARegulatedDrug }}</p>
+          <p>
+            {{ props.metadata.oversightModule?.isFDARegulatedDrug || "N/A" }}
+          </p>
         </div>
 
         <!-- FDA Regulated Device -->
@@ -452,7 +514,9 @@ const responsiblePartyColumns: TableColumn<
             Is this clinical study for a medical device?
           </p>
 
-          <p>{{ props.metadata.oversightModule.isFDARegulatedDevice }}</p>
+          <p>
+            {{ props.metadata.oversightModule?.isFDARegulatedDevice || "N/A" }}
+          </p>
         </div>
 
         <!-- Oversight has DMC -->
@@ -461,7 +525,7 @@ const responsiblePartyColumns: TableColumn<
             Was a data monitoring committee appointed for this study?
           </p>
 
-          <p>{{ props.metadata.oversightModule.oversightHasDMC }}</p>
+          <p>{{ props.metadata.oversightModule?.oversightHasDMC || "N/A" }}</p>
         </div>
       </div>
     </CardCollapsibleContent>
