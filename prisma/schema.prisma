@@ -83,6 +83,7 @@ model Study {
     StudyMember         StudyMember[]
     StudyInvitation     StudyInvitation[]
     DatasetRequest      DatasetRequest[]
+    Dataset             Dataset[]
 }
 
 model StudyMember {
@@ -426,6 +427,9 @@ model StudyLocationContactList {
 
 model Dataset {
     id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
 
     title       String
     description String

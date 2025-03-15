@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as z from "zod";
 import { faker } from "@faker-js/faker";
+import type { FormSubmitEvent } from "@nuxt/ui";
 
 definePageMeta({
   layout: "public",
@@ -11,6 +12,8 @@ const route = useRoute();
 const toast = useToast();
 
 const { user } = useUserSession();
+
+const loading = ref(false);
 
 const { datasetid } = route.params as { datasetid: string };
 
@@ -49,6 +52,42 @@ const state = reactive<Partial<Schema>>({
   givenName: faker.person.firstName(),
   reasonForAccess: faker.lorem.sentences(6),
 });
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  const body = {
+    affiliation: event.data.affiliation,
+    familyName: event.data.familyName,
+    givenName: event.data.givenName,
+    reasonForAccess: event.data.reasonForAccess,
+  };
+
+  loading.value = true;
+
+  await $fetch(`/api/datasets/${datasetid}/access/request`, {
+    body,
+    method: "POST",
+  })
+    .then(() => {
+      toast.add({
+        title: "Request submitted",
+        description: "Your request has been submitted",
+        icon: "material-symbols:check-circle-outline",
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+
+      toast.add({
+        title: "Error submitting request",
+        color: "error",
+        description: error.data.statusMessage,
+        icon: "material-symbols:error",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
 
 const requests = ref({
   approved: [
@@ -161,7 +200,12 @@ const requests = ref({
 
         <h2>Request access to the dataset</h2>
 
-        <UForm :schema="schema" :state="state" class="space-y-4">
+        <UForm
+          :schema="schema"
+          :state="state"
+          class="space-y-4"
+          @submit="onSubmit"
+        >
           <UFormField label="Given Name" name="givenName">
             <UInput v-model="state.givenName" />
           </UFormField>
