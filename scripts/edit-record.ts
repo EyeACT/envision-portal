@@ -22,7 +22,6 @@ const main = async () => {
       publishedMetadata: DatasetRecord.publishedMetadata,
       studyId: DatasetRecord.studyId,
       studyTitle: DatasetRecord.studyTitle,
-      versionId: DatasetRecord.versionId,
       versionTitle: DatasetRecord.versionTitle,
     },
     where: {

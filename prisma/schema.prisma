@@ -434,27 +434,15 @@ model Dataset {
     title       String
     description String
     type        String
-    url         String
+
+    canonicalId String @default(cuid()) // Used to identify different versions of the same dataset
+    version     String
+
+    doi String? // Optional since the doi is not assigned until the dataset is published
 
     updated DateTime @updatedAt
     created DateTime @default(now())
 
-    Version        Version[]
-    DatasetRequest DatasetRequest[]
-}
-
-model Version {
-    id String @id @default(cuid())
-
-    datasetId String
-    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
-
-    version String
-    url     String
-    doi     String
-
-    updated        DateTime         @updatedAt
-    created        DateTime         @default(now())
     DatasetRequest DatasetRequest[]
 }
 
@@ -464,7 +452,6 @@ model PublishedDataset {
     // These fields aren't attached because they can be deleted from the source side. 
     studyId   String
     datasetId String
-    versionId String
 
     doi String
 
@@ -492,9 +479,6 @@ model DatasetRequest {
 
     datasetId String
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
-
-    versionId String
-    version   Version @relation(fields: [versionId], references: [id], onDelete: Cascade)
 
     givenName    String
     familyName   String

@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
   // Create the new study in the database
   const newStudy = await prisma.study.create({
     data: {
+      id: "cm880mrva00000cl20uo80c7e", // todo: remove this
       title: body.data.title,
       acronym: "",
       imageUrl: body.data.imageUrl,
