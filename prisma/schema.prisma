@@ -35,6 +35,7 @@ model User {
     Notification    Notification[]
     StudyMember     StudyMember[]
     StudyInvitation StudyInvitation[]
+    DatasetRequest  DatasetRequest[]
 
     @@index([emailAddress])
 }
@@ -81,6 +82,8 @@ model Study {
     StudyLocation       StudyLocation[]
     StudyMember         StudyMember[]
     StudyInvitation     StudyInvitation[]
+    DatasetRequest      DatasetRequest[]
+    Dataset             Dataset[]
 }
 
 model StudyMember {
@@ -425,6 +428,9 @@ model StudyLocationContactList {
 model Dataset {
     id String @id @default(cuid())
 
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
     title       String
     description String
     type        String
@@ -433,7 +439,8 @@ model Dataset {
     updated DateTime @updatedAt
     created DateTime @default(now())
 
-    Version Version[]
+    Version        Version[]
+    DatasetRequest DatasetRequest[]
 }
 
 model Version {
@@ -446,8 +453,9 @@ model Version {
     url     String
     doi     String
 
-    updated DateTime @updatedAt
-    created DateTime @default(now())
+    updated        DateTime         @updatedAt
+    created        DateTime         @default(now())
+    DatasetRequest DatasetRequest[]
 }
 
 model PublishedDataset {
@@ -471,4 +479,53 @@ model PublishedDataset {
 
     updated DateTime @updatedAt
     created DateTime @default(now())
+}
+
+model DatasetRequest {
+    id String @id @default(cuid())
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    versionId String
+    version   Version @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+    givenName    String
+    familyName   String
+    emailAddress String
+    affiliation  String
+
+    reasonForAccess String
+
+    status  String @default("pending")
+    comment String @default("")
+
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+
+    DatasetRequestDetails DatasetRequestDetails[]
+}
+
+model DatasetRequestDetails {
+    id String @id @default(cuid())
+
+    datasetRequestId String
+    datasetRequest   DatasetRequest @relation(fields: [datasetRequestId], references: [id], onDelete: Cascade)
+
+    dataUseAgreementRequest String // link to data use agreement
+    signedDataUseAgreement  String? // link to signed data use agreement
+
+    status String @default("pending")
+
+    invalidatedOn DateTime? // when the data owner wants to invalidate the request
+    expiresAt     DateTime?
+
+    created DateTime @default(now())
+    updated DateTime @updatedAt
 }

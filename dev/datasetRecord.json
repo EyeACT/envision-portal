@@ -1,8 +1,8 @@
 {
   "id": "1",
-  "studyId": "f5d4172f-b0fb-48c8-b545-0192d812b329",
-  "datasetId": "d894862f-0795-4ba6-b40b-fae14eb77813",
-  "versionId": "4a5d1487-ebb6-4add-9301-cd7de32f8a63",
+  "studyId": "cm880mrva00000cl20uo80c7e",
+  "datasetId": "cm880mrva00000cl20uo80c7e",
+  "versionId": "cm880mrva00000cl20uo80c7e",
   "doi": "10.60775/envision.1",
   "title": "Advanced Retinal Imaging Dataset for AI Development",
   "description": "A dataset containing high-resolution images of the retina, including OCT scans and fundus images, designed for AI-based ophthalmology research.",

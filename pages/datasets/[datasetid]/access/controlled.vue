@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as z from "zod";
 import { faker } from "@faker-js/faker";
+import type { FormSubmitEvent } from "@nuxt/ui";
 
 definePageMeta({
   layout: "public",
@@ -11,6 +12,8 @@ const route = useRoute();
 const toast = useToast();
 
 const { user } = useUserSession();
+
+const loading = ref(false);
 
 const { datasetid } = route.params as { datasetid: string };
 
@@ -32,24 +35,6 @@ if (dataset.value) {
   });
 }
 
-const tabItems = [
-  {
-    icon: "solar:folder-with-files-line-duotone",
-    label: "Files",
-    slot: "files",
-  },
-  {
-    icon: "material-symbols:data-usage",
-    label: "Data Use Agreement",
-    slot: "data-use-agreement",
-  },
-  {
-    icon: "icon-park-outline:list",
-    label: "Access Requests",
-    slot: "access-requests",
-  },
-];
-
 const schema = z.object({
   affiliation: z.string().min(1, "Must be at least 1 character"),
   email: z.string().email("Invalid email"),
@@ -61,12 +46,48 @@ const schema = z.object({
 type Schema = z.output<typeof schema>;
 
 const state = reactive<Partial<Schema>>({
-  affiliation: undefined,
+  affiliation: faker.company.name(),
   email: user.value?.emailAddress,
-  familyName: undefined,
-  givenName: undefined,
-  reasonForAccess: undefined,
+  familyName: faker.person.lastName(),
+  givenName: faker.person.firstName(),
+  reasonForAccess: faker.lorem.sentences(6),
 });
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  const body = {
+    affiliation: event.data.affiliation,
+    familyName: event.data.familyName,
+    givenName: event.data.givenName,
+    reasonForAccess: event.data.reasonForAccess,
+  };
+
+  loading.value = true;
+
+  await $fetch(`/api/datasets/${datasetid}/access/request`, {
+    body,
+    method: "POST",
+  })
+    .then(() => {
+      toast.add({
+        title: "Request submitted",
+        description: "Your request has been submitted",
+        icon: "material-symbols:check-circle-outline",
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+
+      toast.add({
+        title: "Error submitting request",
+        color: "error",
+        description: error.data.statusMessage,
+        icon: "material-symbols:error",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
 
 const requests = ref({
   approved: [
@@ -177,111 +198,98 @@ const requests = ref({
 
         <USeparator class="my-3" />
 
-        <div class="mt-3 flex flex-col gap-4">
-          <UTabs
-            :items="tabItems"
-            default-value="2"
-            orientation="horizontal"
-            class="w-full gap-4"
-            :ui="{ trigger: 'cursor-pointer' }"
+        <h2>Request access to the dataset</h2>
+
+        <UForm
+          :schema="schema"
+          :state="state"
+          class="space-y-4"
+          @submit="onSubmit"
+        >
+          <UFormField label="Given Name" name="givenName">
+            <UInput v-model="state.givenName" />
+          </UFormField>
+
+          <UFormField label="Family Name" name="familyName">
+            <UInput v-model="state.familyName" />
+          </UFormField>
+
+          <UFormField label="Affiliation" name="affiliation">
+            <UInput v-model="state.affiliation" />
+          </UFormField>
+
+          <UFormField label="Email" name="email">
+            <UInput v-model="state.email" disabled />
+          </UFormField>
+
+          <UFormField label="Reason for Access" name="reasonForAccess">
+            <UTextarea v-model="state.reasonForAccess" class="w-full" />
+          </UFormField>
+
+          <UButton type="submit"> Submit </UButton>
+        </UForm>
+
+        <div class="flex flex-col gap-8">
+          <h2>All Requests</h2>
+
+          <UCard
+            v-for="request in [
+              ...requests.approved,
+              ...requests.pending,
+              ...requests.expired,
+              ...requests.denied,
+            ]"
+            :key="request.id"
           >
-            <template #files>
-              <UTree multiple :items="dataset?.files" />
-            </template>
+            <template #header>
+              <div class="flex items-center justify-end gap-2">
+                <span class="text-xs">
+                  {{ request.id }}
+                </span>
 
-            <template #data-use-agreement>
-              <UForm :schema="schema" :state="state" class="space-y-4">
-                <UFormField label="Given Name" name="givenName">
-                  <UInput v-model="state.givenName" />
-                </UFormField>
-
-                <UFormField label="Family Name" name="familyName">
-                  <UInput v-model="state.familyName" />
-                </UFormField>
-
-                <UFormField label="Affiliation" name="affiliation">
-                  <UInput v-model="state.affiliation" />
-                </UFormField>
-
-                <UFormField label="Email" name="email">
-                  <UInput v-model="state.email" disabled />
-                </UFormField>
-
-                <UFormField label="Reason for Access" name="reasonForAccess">
-                  <UTextarea v-model="state.reasonForAccess" class="w-full" />
-                </UFormField>
-
-                <UButton type="submit"> Submit </UButton>
-              </UForm>
-            </template>
-
-            <template #access-requests>
-              <div class="flex flex-col gap-8">
-                <h2>All Requests</h2>
-
-                <UCard
-                  v-for="request in [
-                    ...requests.approved,
-                    ...requests.pending,
-                    ...requests.expired,
-                    ...requests.denied,
-                  ]"
-                  :key="request.id"
+                <UBadge
+                  :color="
+                    request.status === 'approved'
+                      ? 'success'
+                      : request.status === 'denied'
+                        ? 'error'
+                        : request.status === 'expired'
+                          ? 'warning'
+                          : 'neutral'
+                  "
+                  variant="outline"
+                  class="w-max"
                 >
-                  <template #header>
-                    <div class="flex items-center justify-end gap-2">
-                      <span class="text-xs">
-                        {{ request.id }}
-                      </span>
-
-                      <UBadge
-                        :color="
-                          request.status === 'approved'
-                            ? 'success'
-                            : request.status === 'denied'
-                              ? 'error'
-                              : request.status === 'expired'
-                                ? 'warning'
-                                : 'neutral'
-                        "
-                        variant="outline"
-                        class="w-max"
-                      >
-                        {{ request.status }}
-                      </UBadge>
-                    </div>
-                  </template>
-
-                  <p class="text-sm">
-                    {{ request.reason }}
-                  </p>
-
-                  <template #footer>
-                    <div class="flex justify-between gap-2">
-                      <div class="flex gap-2">
-                        <span class="text-sm">
-                          Updated on
-                          <time>
-                            {{
-                              $dayjs(request.timeChanged).format("MMM D, YYYY")
-                            }}
-                          </time>
-                        </span>
-                      </div>
-
-                      <UButton
-                        v-if="request.status === 'approved'"
-                        label="View access instructions"
-                        icon="material-symbols:arrow-right"
-                        size="sm"
-                        color="primary"
-                      />
-                    </div>
-                  </template>
-                </UCard>
+                  {{ request.status }}
+                </UBadge>
               </div>
             </template>
-          </UTabs>
+
+            <p class="text-sm">
+              {{ request.reason }}
+            </p>
+
+            <template #footer>
+              <div class="flex justify-between gap-2">
+                <div class="flex gap-2">
+                  <span class="text-sm">
+                    Updated on
+                    <time>
+                      {{ $dayjs(request.timeChanged).format("MMM D, YYYY") }}
+                    </time>
+                  </span>
+                </div>
+
+                <UButton
+                  v-if="request.status === 'approved'"
+                  label="View access instructions"
+                  icon="material-symbols:arrow-right"
+                  size="sm"
+                  color="primary"
+                />
+              </div>
+            </template>
+          </UCard>
         </div>
       </div>
     </UContainer>
