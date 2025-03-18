@@ -74,13 +74,13 @@ const onSubmit = async () => {
   <div>
     <UBreadcrumb
       class="mb-4 ml-2"
-      :dropdown-items="[
+      :items="[
         { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: 'My Studies', to: '/app/dashboard/studies' },
+        { label: data?.studyTitle, to: `/app/study/${studyId}` },
         {
-          label: 'My Datasets',
-          to: `/app/dashboard/studies/${studyId}/datasets`,
+          label: 'Datasets',
+          to: `/app/study/${studyId}/datasets`,
         },
       ]"
     />

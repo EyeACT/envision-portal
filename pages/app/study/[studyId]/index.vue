@@ -31,10 +31,10 @@ if (data.value) {
   <div>
     <UBreadcrumb
       class="mb-4 ml-2"
-      :dropdown-items="[
+      :items="[
         { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: 'My Studies', to: '/app/dashboard/studies' },
+        { label: data?.title, to: `/app/study/${studyId}` },
       ]"
     />
 

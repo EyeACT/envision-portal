@@ -72,7 +72,6 @@ export default defineEventHandler(async (event) => {
       status: "pending",
       studyId: DEV_ID,
       userId,
-      versionId: DEV_ID,
     },
   });
 

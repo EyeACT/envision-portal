@@ -33,6 +33,11 @@ const studyNavItems = [
     icon: "heroicons-outline:cube",
     route: "processing",
   },
+  {
+    name: "Data Requests",
+    icon: "heroicons-outline:inbox-arrow-down",
+    route: "requests",
+  },
 ];
 
 const datasetNavItems = [
