@@ -502,7 +502,7 @@ model DatasetRequestDetails {
     datasetRequestId String
     datasetRequest   DatasetRequest @relation(fields: [datasetRequestId], references: [id], onDelete: Cascade)
 
-    dataUseAgreementRequest String // link to data use agreement
+    dataUseAgreementRequest String? // link to data use agreement
     signedDataUseAgreement  String? // link to signed data use agreement
 
     status String @default("pending")

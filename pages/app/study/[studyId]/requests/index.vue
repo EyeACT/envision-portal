@@ -56,7 +56,7 @@ if (error.value) {
         <NuxtLink
           v-for="datasetRequest in data"
           :key="datasetRequest.id"
-          :to="`/app/study/${studyId}/datasets/${datasetRequest.id}`"
+          :to="`/app/study/${studyId}/requests/${datasetRequest.id}`"
           class="tranistion-all hover:shadow-md"
         >
           <UCard>

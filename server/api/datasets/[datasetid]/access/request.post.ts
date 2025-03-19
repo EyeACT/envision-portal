@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { faker } from "@faker-js/faker";
 
 const requestSchema = z.object({
   affiliation: z.string().min(1, "Must be at least 1 character"),
@@ -65,6 +66,13 @@ export default defineEventHandler(async (event) => {
     data: {
       affiliation: body.data.affiliation,
       datasetId: DEV_ID,
+      DatasetRequestDetails: {
+        create: {
+          dataUseAgreementRequest: `https://storage.envisionportal.io/data-use-agreements/sample-data-use-agreement-${faker.string.uuid()}.pdf`,
+          signedDataUseAgreement: `https://storage.envisionportal.io/data-use-agreements/signed-data-use-agreement-${faker.string.uuid()}.pdf`,
+          status: "pending",
+        },
+      },
       emailAddress: user.emailAddress, // Might need to be removed since we are attaching the user to the dataset request
       familyName: body.data.familyName,
       givenName: body.data.givenName,
