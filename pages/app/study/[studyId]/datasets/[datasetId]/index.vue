@@ -6,9 +6,15 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId, studyId } = route.params as {
+  datasetId: string;
+  studyId: string;
+};
 
-const { data, error } = await useFetch(`/api/studies/${studyId}`, {});
+const { data, error } = await useFetch(
+  `/api/studies/${studyId}/datasets/${datasetId}`,
+  {},
+);
 
 if (error.value) {
   toast.add({
@@ -17,7 +23,7 @@ if (error.value) {
     icon: "material-symbols:error",
   });
 
-  await navigateTo("/dashboard");
+  await navigateTo("/");
 }
 
 if (data.value) {
@@ -30,11 +36,19 @@ if (data.value) {
 <template>
   <div>
     <UBreadcrumb
-      class="mb-4"
-      :dropdown-items="[
+      class="mb-4 ml-2"
+      :items="[
         { label: 'Home', to: '/' },
-        { label: 'Dashboard', to: '/dashboard' },
-        { label: 'My Studies', to: '/dashboard/studies' },
+        { label: 'Dashboard', to: '/app/dashboard' },
+        { label: data?.title, to: `/app/study/${studyId}` },
+        {
+          label: 'Datasets',
+          to: `/app/study/${studyId}/datasets`,
+        },
+        {
+          label: data?.title,
+          to: `/app/study/${studyId}/datasets/${datasetId}`,
+        },
       ]"
     />
 
@@ -46,15 +60,7 @@ if (data.value) {
           <div>
             <h1>{{ data?.title || "Untitled" }}</h1>
 
-            <p>{{ data?.StudyDescription[0].briefSummary }}</p>
-          </div>
-
-          <div class="relative">
-            <img
-              :src="data?.imageUrl"
-              alt="Study Image"
-              class="h-24 w-24 rounded-xl object-cover"
-            />
+            <p>{{ data?.description }}</p>
           </div>
         </div>
       </div>

@@ -4,8 +4,12 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const sidebarCollapsed = ref(true);
+const sidebarCollapsed = ref(false);
 const selectedStudy = computed(() => route.params.studyId || null);
+const selectedDataset = computed(() => route.params.datasetId || null);
+
+const studyNavigationIsOpen = ref(true);
+const datasetNavigationIsOpen = ref(false);
 
 // TODO: Add tooltip for each nav item
 const studyNavItems = [
@@ -29,6 +33,21 @@ const studyNavItems = [
     icon: "heroicons-outline:cube",
     route: "processing",
   },
+  {
+    name: "Data Requests",
+    icon: "heroicons-outline:inbox-arrow-down",
+    route: "requests",
+  },
+];
+
+const datasetNavItems = [
+  {
+    name: "Overview",
+    icon: "material-symbols:overview-key-rounded",
+    route: "overview",
+  },
+  { name: "Metadata", icon: "ooui:view-details-ltr", route: "metadata" },
+  { name: "Files", icon: "ph:files-fill", route: "files" },
 ];
 
 // Watch the sidebarCollapsed state in the parent if you need to trigger any other actions
@@ -53,7 +72,7 @@ watch(sidebarCollapsed, (newVal) => {
       <ul>
         <li>
           <ULink
-            to="/dashboard"
+            to="/app/dashboard"
             class="mt-2 flex items-center gap-3 rounded-lg p-2 transition-all"
             active-class="bg-gray-200 dark:bg-gray-700"
             :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
@@ -74,32 +93,84 @@ watch(sidebarCollapsed, (newVal) => {
 
       <!-- Study-Specific Navigation -->
       <template v-if="selectedStudy">
-        <div class="mt-4">
-          <p
-            class="px-2 py-1 text-xs font-semibold text-gray-600 uppercase dark:text-gray-400"
-            :class="[sidebarCollapsed ? 'hidden' : 'block']"
-          >
-            Study Navigation
-          </p>
+        <UCollapsible
+          v-model:open="studyNavigationIsOpen"
+          class="flex w-48 w-full flex-col gap-2"
+        >
+          <UButton
+            label="Study Navigation"
+            color="neutral"
+            variant="ghost"
+            block
+            class="w-full"
+            trailing-icon="i-lucide-chevron-down"
+          />
 
-          <ul class="space-y-1">
-            <li v-for="item in studyNavItems" :key="item.route">
-              <ULink
-                :to="`/study/${selectedStudy}/${item.route}`"
-                class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
-                active-class="bg-gray-200 dark:bg-gray-700"
-                inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <Icon :name="item.icon" size="20" />
+          <template #content>
+            <ul class="space-y-1">
+              <li v-for="item in studyNavItems" :key="item.route">
+                <ULink
+                  :to="`/app/study/${selectedStudy}/${item.route}`"
+                  class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                  :class="[
+                    sidebarCollapsed ? 'justify-center' : 'justify-start',
+                  ]"
+                  active-class="bg-gray-200 dark:bg-gray-700"
+                  inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <Icon :name="item.icon" size="20" />
 
-                <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-                  {{ item.name }}
-                </span>
-              </ULink>
-            </li>
-          </ul>
-        </div>
+                  <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                    {{ item.name }}
+                  </span>
+                </ULink>
+              </li>
+            </ul>
+          </template>
+        </UCollapsible>
+
+        <hr class="my-2 border-gray-200 dark:border-gray-700" />
+      </template>
+
+      <!-- Dataset-Specific Navigation -->
+      <template v-if="selectedDataset">
+        <UCollapsible
+          v-model:open="datasetNavigationIsOpen"
+          class="flex w-48 w-full flex-col gap-2"
+        >
+          <UButton
+            label="Dataset Navigation"
+            color="neutral"
+            variant="ghost"
+            block
+            class="w-full"
+            trailing-icon="i-lucide-chevron-down"
+          />
+
+          <template #content>
+            <ul class="space-y-1">
+              <li v-for="item in datasetNavItems" :key="item.route">
+                <ULink
+                  :to="`/app/study/${selectedStudy}/${item.route}`"
+                  class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                  :class="[
+                    sidebarCollapsed ? 'justify-center' : 'justify-start',
+                  ]"
+                  active-class="bg-gray-200 dark:bg-gray-700"
+                  inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <Icon :name="item.icon" size="20" />
+
+                  <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                    {{ item.name }}
+                  </span>
+                </ULink>
+              </li>
+            </ul>
+          </template>
+        </UCollapsible>
+
+        <hr class="my-2 border-gray-200 dark:border-gray-700" />
       </template>
     </aside>
 

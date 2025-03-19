@@ -61,5 +61,5 @@ export default defineEventHandler(async (event) => {
     userSessionField: "",
   });
 
-  return sendRedirect(event, "/dashboard");
+  return sendRedirect(event, "/app/dashboard");
 });

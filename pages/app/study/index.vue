@@ -3,5 +3,5 @@ definePageMeta({
   middleware: ["auth"],
 });
 
-await navigateTo("/dashboard");
+await navigateTo("/app/dashboard");
 </script>

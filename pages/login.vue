@@ -3,9 +3,14 @@ import { z } from "zod";
 import type { FormSubmitEvent } from "#ui/types";
 
 const { loggedIn } = useUserSession();
+const route = useRoute();
+
+const routeQueryParams = route.query;
+
+console.log(routeQueryParams);
 
 if (loggedIn.value) {
-  await navigateTo("/dashboard");
+  await navigateTo("/app/dashboard");
 }
 
 definePageMeta({
@@ -52,10 +57,15 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         icon: "material-symbols:check-circle-outline",
       });
 
-      window.location.href = "/dashboard";
+      if (routeQueryParams.redirect) {
+        console.log("redirecting to", routeQueryParams.redirect);
+        window.location.href = routeQueryParams.redirect as string;
+      } else {
+        window.location.href = "/app/dashboard";
+      }
     })
     .catch((error) => {
-      console.error(error.data);
+      console.error(error);
 
       toast.add({
         title: "Error logging in",

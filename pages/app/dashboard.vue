@@ -50,7 +50,7 @@ const onSubmit = async () => {
     method: "POST",
   })
     .then((response) => {
-      navigateTo(`/studies/${response.data.studyId}`);
+      navigateTo(`/app/studies/${response.data.studyId}`);
     })
     .catch((error) => {
       console.error("Error creating new study:", error);
@@ -85,10 +85,10 @@ const dropdownItems = ref([
 <template>
   <div>
     <UBreadcrumb
-      class="mb-4"
-      :dropdown-items="[
+      class="mb-4 ml-2"
+      :items="[
         { label: 'Home', to: '/' },
-        { label: 'Dashboard', to: '/dashboard' },
+        { label: 'Dashboard', to: '/app/dashboard' },
       ]"
     />
 
@@ -183,7 +183,7 @@ const dropdownItems = ref([
         <NuxtLink
           v-for="study in studies"
           :key="study.id"
-          :to="`/study/${study.id}`"
+          :to="`/app/study/${study.id}`"
           class="tranistion-all hover:shadow-md"
         >
           <UCard>
