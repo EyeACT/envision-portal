@@ -120,9 +120,16 @@
         "studyType": "Observational",
         "isPatientRegistry": "Yes",
         "designInfo": {
+          "designAllocation": "Non-Randomized",
           "designObservationalModelList": ["Case-Control"],
           "designTimePerspectiveList": ["Prospective"]
-        }
+        },
+        "enrollmentInfo": {
+          "enrollmentType": "Actual",
+          "enrollmentCount": 4000
+        },
+        "targetDuration": "4 Years",
+        "numberGroupsCohorts": 4
       },
       "armsInterventionsModule": {
         "armGroupList": [

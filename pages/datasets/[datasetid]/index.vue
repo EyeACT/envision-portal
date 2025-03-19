@@ -26,24 +26,6 @@ const downloadDropdownItems = ref([
 const tabItems = [
   {
     icon: "solar:bill-list-bold",
-    label: "Metadata",
-    slot: "metadata",
-  },
-  {
-    icon: "solar:folder-with-files-line-duotone",
-    label: "Files",
-    slot: "files",
-  },
-  {
-    icon: "solar:history-line-duotone",
-    label: "Versions",
-    slot: "versions",
-  },
-];
-
-const metadataTabItems = [
-  {
-    icon: "solar:bill-list-bold",
     label: "Study Metadata",
     slot: "study-metadata",
   },
@@ -57,7 +39,61 @@ const metadataTabItems = [
     label: "Healthsheet",
     slot: "healthsheet",
   },
+  {
+    icon: "solar:folder-with-files-line-duotone",
+    label: "Files",
+    slot: "files",
+  },
+  {
+    icon: "solar:history-line-duotone",
+    label: "Versions",
+    slot: "versions",
+  },
 ];
+
+const treeItems = ref([
+  {
+    children: [
+      {
+        children: [
+          {
+            icon: "i-vscode-icons-file-type-typescript",
+            label: "useAuth.ts",
+          },
+          {
+            icon: "i-vscode-icons-file-type-typescript",
+            label: "useUser.ts",
+          },
+        ],
+        label: "composables/",
+      },
+      {
+        children: [
+          {
+            icon: "i-vscode-icons-file-type-vue",
+            label: "Card.vue",
+          },
+          {
+            icon: "i-vscode-icons-file-type-vue",
+            label: "Button.vue",
+          },
+        ],
+        defaultExpanded: true,
+        label: "components/",
+      },
+    ],
+    defaultExpanded: true,
+    label: "app/",
+  },
+  {
+    icon: "i-vscode-icons-file-type-vue",
+    label: "app.vue",
+  },
+  {
+    icon: "i-vscode-icons-file-type-nuxt",
+    label: "nuxt.config.ts",
+  },
+]);
 
 const { datasetid } = route.params as { datasetid: string };
 
@@ -226,29 +262,24 @@ if (dataset.value) {
             class="w-full gap-4"
             :ui="{ trigger: 'cursor-pointer' }"
           >
-            <template #metadata>
-              <UTabs
-                :items="metadataTabItems"
-                variant="link"
-                orientation="horizontal"
-                class="w-full gap-4"
-                :ui="{ trigger: 'cursor-pointer' }"
-              >
-                <template #study-metadata> study-metadata </template>
-
-                <template #dataset-metadata> dataset-metadata </template>
-
-                <template #healthsheet> healthsheet </template>
-              </UTabs>
-
-              <pre>
-            {{ dataset?.metadata }}
-          </pre
-              >
+            <template #study-metadata>
+              <MetadataStudy :metadata="dataset?.metadata?.studyDescription" />
             </template>
 
-            <template #files>
-              <UTree multiple :items="dataset?.files" />
+            <template #dataset-metadata>
+              <MetadataDataset
+                :metadata="dataset!.metadata!.datasetDescription"
+              />
+            </template>
+
+            <template #healthsheet>
+              <MetadataHealthSheet :metadata="dataset?.metadata?.healthsheet" />
+            </template>
+
+            <template #files> <UTree multiple :items="treeItems" /> </template>
+
+            <template #versions>
+              <DatasetVersions :metadata="dataset?.versionTitle" />
             </template>
           </UTabs>
         </div>
