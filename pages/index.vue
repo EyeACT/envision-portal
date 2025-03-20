@@ -12,6 +12,7 @@ definePageMeta({
   <div>
     <div class="bg-wrapper relative">
       <div class="absolute inset-0 bg-black opacity-50"></div>
+
       <UContainer class="relative z-10 text-white">
         <div class="flex flex-col px-4 pt-8 sm:flex-row">
           <!-- Left side for <p> element -->
@@ -20,6 +21,7 @@ definePageMeta({
               Seeing the Future of Brain Health through a Data-Driven Eye
               Imaging Platform
             </h1>
+
             <p
               class="xl:text-10xl mt-10 text-3xl font-medium sm:mt-100 sm:-ml-40 sm:px-16 lg:text-4xl"
             >
@@ -43,6 +45,7 @@ definePageMeta({
             >
               Get started
             </UButton>
+
             <UButton
               to="https://github.com/eyeact/envision-portal"
               icon="i-simple-icons-github"
@@ -58,6 +61,7 @@ definePageMeta({
         </div>
       </UContainer>
     </div>
+
     <UContainer class="py-24">
       <div
         class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:px-8"
@@ -93,6 +97,7 @@ definePageMeta({
         </div>
       </div>
     </UContainer>
+
     <UContainer class="py-24">
       <div
         class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-3 lg:px-8"
@@ -104,6 +109,7 @@ definePageMeta({
           >
             Accurate
           </h1>
+
           <p class="mt-4 text-lg leading-relaxed text-gray-600">
             Our AI-powered data platform serves as a trusted and comprehensive
             source of truth, enabling organizations to make informed,
@@ -122,6 +128,7 @@ definePageMeta({
         </div>
       </div>
     </UContainer>
+
     <UContainer class="bg-gray-100 py-24 dark:bg-gray-400">
       <div
         class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:px-8"
@@ -141,6 +148,7 @@ definePageMeta({
           >
             Scalable
           </h1>
+
           <p class="mt-4 text-lg leading-relaxed text-gray-600">
             We process data at scale, with unparalleled speed and scalability
             across all research, delivering detailed and complete insights into
@@ -149,6 +157,7 @@ definePageMeta({
         </div>
       </div>
     </UContainer>
+
     <UContainer class="py-24">
       <div
         class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-3 lg:px-8"
@@ -160,6 +169,7 @@ definePageMeta({
           >
             Up-to-date
           </h1>
+
           <p class="mt-4 text-lg leading-relaxed text-gray-600">
             Our global partners provide the latest medical imaging and
             specialized data, which are then rapidly mined using our AI-based
@@ -178,56 +188,71 @@ definePageMeta({
         </div>
       </div>
     </UContainer>
+
     <UContainer class="bg-gray-100 py-12 dark:bg-gray-500">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="text-center">
           <h1 class="text-2xl font-bold text-gray-900">
             Snapshot of the One-Stop Solution
           </h1>
+
           <p class="mt-2 text-lg text-gray-600">
             Some key numbers from the project
           </p>
         </div>
+
         <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
             <h2 class="text-4xl font-bold text-blue-400">5,763</h2>
+
             <p class="mt-2 text-gray-700">Total participants enrolled</p>
           </div>
+
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
             <h2 class="text-4xl font-bold text-blue-400">24,000+</h2>
+
             <p class="mt-2 text-gray-700">Biennial study visits conducted</p>
           </div>
+
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
             <h2 class="text-4xl font-bold text-blue-400">2000+</h2>
+
             <p class="mt-2 text-gray-700">Cases recorded</p>
           </div>
+
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
             <h2 class="text-4xl font-bold text-blue-400">80,000+</h2>
+
             <p class="mt-2 text-gray-700">Clinic visits extracted</p>
           </div>
+
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
             <h2 class="text-4xl font-bold text-blue-400">18,000+</h2>
+
             <p class="mt-2 text-gray-700">Clinical retinal images analyzed</p>
           </div>
+
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
             <h2 class="text-4xl font-bold text-blue-400">3,000</h2>
+
             <p class="mt-2 text-gray-700">Expanded active participants</p>
           </div>
         </div>
       </div>
     </UContainer>
+
     <UContainer class="py-24">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <h2
@@ -235,6 +260,7 @@ definePageMeta({
         >
           Unlocking Eye & Brain Health Insights
         </h2>
+
         <p class="mt-4 text-center text-lg text-gray-600 dark:text-gray-300">
           Explore how AI and data-driven research are transforming ophthalmology
           and neuroscience.
@@ -250,13 +276,16 @@ definePageMeta({
               alt="Retinal & Brain Health"
               class="mb-4 h-40 w-full rounded-lg object-cover"
             />
+
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
               Linking Retinal Changes to Brain Health
             </h3>
+
             <p class="mt-2 text-gray-600 dark:text-gray-300">
               Analyzes retinal structure and vascular features to detect
               neurological risks.
             </p>
+
             <button
               class="mt-4 rounded-lg bg-[#ccffff] px-4 py-2 text-gray-900 hover:bg-[#b3e6e6]"
             >
@@ -272,13 +301,16 @@ definePageMeta({
               alt="Longitudinal Data"
               class="mb-4 h-40 w-full rounded-lg object-cover"
             />
+
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
               Leveraging Longitudinal Data
             </h3>
+
             <p class="mt-2 text-gray-600 dark:text-gray-300">
               Tracks thousands of participants over decades for deep, diverse
               insights.
             </p>
+
             <button
               class="mt-4 rounded-lg bg-[#ccffff] px-4 py-2 text-gray-900 hover:bg-[#b3e6e6]"
             >
@@ -294,12 +326,15 @@ definePageMeta({
               alt="Predictive Modeling"
               class="mb-4 h-40 w-full rounded-lg object-cover"
             />
+
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
               Advancing Predictive Modeling
             </h3>
+
             <p class="mt-2 text-gray-600 dark:text-gray-300">
               AI-driven analysis helps predict disease risks early on.
             </p>
+
             <button
               class="mt-4 rounded-lg bg-[#ccffff] px-4 py-2 text-gray-900 hover:bg-[#b3e6e6]"
             >
@@ -321,17 +356,22 @@ definePageMeta({
         <!-- Logo & Mission -->
         <div class="logoinfo">
           <h2>Envision Portal</h2>
+
           <p>Seeing the Future of Brain Health Through the Eyes</p>
 
           <div class="contact-details">
             <h1>Contact Us</h1>
+
             <ul>
               <li>
                 <div class="fa fa-phone"></div>
+
                 <a href="tel:+1234567890">+1 234 567 890</a>
               </li>
+
               <li>
                 <div class="fa fa-envelope"></div>
+
                 <a href="mailto:contact@eyeact.com">contact@eyeact.com</a>
               </li>
             </ul>
@@ -341,10 +381,14 @@ definePageMeta({
         <!-- Navigation Links -->
         <div class="com">
           <h1>Quick Links</h1>
+
           <ul>
             <li><a href="#">Home</a></li>
+
             <li><a href="#">About</a></li>
+
             <li><a href="#">Research</a></li>
+
             <li><a href="#">Contact</a></li>
           </ul>
         </div>
@@ -352,11 +396,15 @@ definePageMeta({
         <!-- Social Media -->
         <div class="info">
           <h1>Follow Us</h1>
+
           <div class="sociallogos">
             <div class="logobox">
               <a href="#" class="fa fa-instagram"></a>
+
               <a href="#" class="fa fa-linkedin"></a>
+
               <a href="#" class="fa fa-twitter"></a>
+
               <a href="#" class="fa fa-youtube-play"></a>
             </div>
           </div>

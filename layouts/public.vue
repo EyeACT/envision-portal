@@ -4,7 +4,7 @@
   <div>
     <AppPublicHeader />
 
-    <main class="my-0">
+    <main class="my-4">
       <slot />
     </main>
 

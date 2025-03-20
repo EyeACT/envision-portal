@@ -1,10 +1,12 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen">
+  <div class="flex min-h-screen items-center justify-center">
     <div class="text-center">
       <h1 class="text-2xl font-bold">
         {{ verifying ? "Verifying Email..." : successMessage || errorMessage }}
       </h1>
+
       <p v-if="errorMessage" class="text-red-500">{{ errorMessage }}</p>
+
       <p v-if="successMessage" class="text-green-500">{{ successMessage }}</p>
     </div>
   </div>
@@ -37,32 +39,33 @@ onMounted(async () => {
   if (!token) {
     verifying.value = false;
     errorMessage.value = "No verification token found.";
+
     return;
   }
 
   try {
     const response = await $fetch("/api/auth/verify-email", {
-      method: "POST",
       body: { token },
+      method: "POST",
     });
 
     successMessage.value = "Email verified successfully! Redirecting...";
     toast.add({
       title: "Email Verified",
-      description: response.message,
       color: "success",
+      description: response.message,
       icon: "material-symbols:check-circle-outline",
     });
 
     setTimeout(() => {
       navigateTo("/login");
-    }, 3000); 
+    }, 3000);
   } catch (error) {
     errorMessage.value = "Email verification failed. Please try again.";
     toast.add({
       title: "Verification Failed",
-      description: errorMessage.value,
       color: "error",
+      description: errorMessage.value,
       icon: "material-symbols:error",
     });
   } finally {

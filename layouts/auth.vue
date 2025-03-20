@@ -38,7 +38,8 @@
 
 .overlay {
   background-size: 100px 100px;
-  background-image: linear-gradient(
+  background-image:
+    linear-gradient(
       to right,
       rgb(var(--auth-color-gray-200)) 0.5px,
       transparent 0.5px
@@ -51,7 +52,8 @@
 }
 .dark {
   .overlay {
-    background-image: linear-gradient(
+    background-image:
+      linear-gradient(
         to right,
         rgb(var(--auth-color-gray-900)) 0.5px,
         transparent 0.5px
