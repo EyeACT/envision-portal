@@ -16,47 +16,40 @@ definePageMeta({
       <UContainer class="relative z-10 text-white">
         <div class="flex flex-col px-4 pt-8 sm:flex-row">
           <!-- Left side for <p> element -->
-          <div class="flex-1 text-center sm:text-left">
+          <div class="flex-1 p-3 text-center sm:text-left">
             <h1 class="custom-title -mt-10 sm:-ml-30">
-              Seeing the Future of Brain Health through a Data-Driven Eye
-              Imaging Platform
+              See the future with eye imaging data.
             </h1>
 
             <p
-              class="xl:text-10xl mt-10 text-3xl font-medium sm:mt-100 sm:-ml-40 sm:px-16 lg:text-4xl"
+              class="mt-10 text-3xl font-medium sm:mt-100 sm:-ml-40 sm:px-16 lg:text-4xl xl:text-xl"
             >
               The Envision Portal is a cutting-edge platform to revolutionize
               the process of uploading, preparing, and sharing eye imaging data.
             </p>
-          </div>
-          <!-- Right side for the buttons -->
-          <div
-            class="mt-10 flex flex-1 flex-col items-center justify-center space-y-4 sm:mt-140 sm:-ml-40 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-4"
-          >
-            <UButton
-              to="/dashboard"
-              icon="line-md:upload-loop"
-              size="xl"
-              style="
-                background-color: #ccffff;
-                border: 2px solid #ccffff;
-                color: #333333;
-              "
-            >
-              Get started
-            </UButton>
 
-            <UButton
-              to="https://github.com/eyeact/envision-portal"
-              icon="i-simple-icons-github"
-              size="xl"
-              target="_blank"
-              variant="outline"
-              color="neutral"
-              label="View on GitHub"
-            >
-              View on GitHub
-            </UButton>
+            <div class="flex items-center justify-start gap-3">
+              <UButton
+                to="/dashboard"
+                icon="line-md:upload-loop"
+                size="xl"
+                color="primary"
+              >
+                View eye imaging datasets
+              </UButton>
+
+              <UButton
+                to="https://github.com/eyeact/envision-portal"
+                icon="i-simple-icons-github"
+                size="xl"
+                target="_blank"
+                variant="outline"
+                color="neutral"
+                label="View on GitHub"
+              >
+                View on GitHub
+              </UButton>
+            </div>
           </div>
         </div>
       </UContainer>
@@ -69,15 +62,14 @@ definePageMeta({
         <!-- Left Side Content (Text and Paragraph) -->
         <div class="text-center lg:text-left">
           <h4 class="text-3xl font-extrabold text-gray-500 sm:text-4xl">
-            What we do
+            What do we do?
           </h4>
         </div>
         <!-- Right Side Content (Image and Button) -->
         <div class="flex flex-col justify-center">
           <h1 class="mt-4 text-left text-xl text-gray-700">
             We leverage AI and machine learning to provide cutting-edge insights
-            into eye and brain health through a platform that optimizes data
-            analysis.
+            via eye imaging through a platform that optimizes data publication.
           </h1>
           <!-- TODO: Add redirect link -->
           <div class="mt-6 text-left">

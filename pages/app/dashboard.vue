@@ -184,9 +184,8 @@ const dropdownItems = ref([
           v-for="study in studies"
           :key="study.id"
           :to="`/app/study/${study.id}`"
-          class="tranistion-all hover:shadow-md"
         >
-          <UCard>
+          <UCard class="transition-all hover:shadow-md">
             <template #header>
               <div class="flex items-center justify-between gap-3">
                 <h2>

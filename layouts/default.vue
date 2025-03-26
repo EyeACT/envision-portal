@@ -64,7 +64,7 @@ watch(sidebarCollapsed, (newVal) => {
     <aside
       id="sidebar"
       :class="[
-        'fixed top-20 left-0 z-10 h-full border-r border-gray-200 bg-white px-2 py-1 transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
+        'fixed top-13 left-0 z-10 h-full border-r border-gray-200 bg-white px-2 py-1 transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
         sidebarCollapsed ? 'w-15' : 'w-64',
       ]"
     >
@@ -185,7 +185,7 @@ watch(sidebarCollapsed, (newVal) => {
       <DashboardHeader @update:sidebar-collapsed="sidebarCollapsed = $event" />
 
       <!-- Page Content -->
-      <div class="mt-24 w-full px-6">
+      <div class="mt-18 w-full px-6">
         <slot />
       </div>
     </main>
