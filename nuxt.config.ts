@@ -5,11 +5,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "nuxt-auth-utils", "dayjs-nuxt"],
   runtimeConfig: {
-    emailVerificationDomain: process.env.EMAIL_VERIFICATION_DOMAIN, 
+    emailVerificationDomain: process.env.EMAIL_VERIFICATION_DOMAIN,
+    mailFrom: process.env.MAIL_FROM,
     mailHost: process.env.MAIL_HOST,
+    mailPass: process.env.MAIL_PASS,
     mailPort: process.env.MAIL_PORT,
     mailUser: process.env.MAIL_USER,
-    mailPass: process.env.MAIL_PASS,
-    mailFrom: process.env.MAIL_FROM,
   },
 });

@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import "@nuxt/ui";
+@import "tailwindcss";
 
 :root {
   --ui-radius: var(--radius-lg);
@@ -38,28 +38,23 @@
   @apply text-3xl font-bold md:text-4xl dark:text-white;
 }
 
-h1,
 .h1 {
   @apply text-2xl font-bold md:text-3xl dark:text-white;
 }
 
-h2,
 .h2 {
   @apply text-xl font-bold md:text-2xl dark:text-white;
 }
 
-h3,
 .h3 {
   @apply text-lg font-bold md:text-xl dark:text-white;
 }
 
-h4,
 .h4 {
   @apply text-base font-bold md:text-lg dark:text-white;
 }
 
-body,
-p {
+body {
   @apply text-sm md:text-base dark:text-white;
 }
 
@@ -67,23 +62,15 @@ pre {
   @apply text-xs whitespace-pre-wrap;
 }
 
-.custom-title {
-  @apply text-xl font-bold md:text-6xl dark:text-white;
-  color: #ccffff;
-}
-
 .bg-wrapper {
-  background-image: url('/public/images/background.jpg');
+  background-image: url("/public/images/background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   min-height: 90vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 20px; /* Rounded corners */
   margin: 0 15px; /* Space on left and right */
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .progress-value {
@@ -96,8 +83,12 @@ pre {
 }
 
 @keyframes load {
-  0% { width: 0; }
-  100% { width: 60%; }
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 60%;
+  }
 }
 
 .custom-button {
@@ -111,18 +102,18 @@ pre {
 }
 
 .custom-button::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   width: 0;
   height: 2px;
   background-color: #333333;
-  transition: width 0.3s ease;  /* Transition effect for the underline */
+  transition: width 0.3s ease; /* Transition effect for the underline */
 }
 
 .custom-button:hover::after {
-  width: 100%;  /* Underline expands from left to right */
+  width: 100%; /* Underline expands from left to right */
 }
 
 /* Footer Container */
@@ -131,7 +122,7 @@ pre {
   display: flex;
   justify-content: space-evenly;
   background-color: #ccffff;
-  color: #19302E;
+  color: #19302e;
 }
 
 .main-footer ul {
@@ -175,7 +166,7 @@ pre {
 
 .contact-details li a {
   text-decoration: none;
-  color: #19302E;
+  color: #19302e;
   font-weight: normal;
 }
 
@@ -191,7 +182,7 @@ pre {
 .sociallogos .logobox a {
   padding: 0 10px;
   text-decoration: none;
-  color: #19302E;
+  color: #19302e;
   font-size: 20px;
 }
 
@@ -217,4 +208,17 @@ pre {
   .com {
     padding: 20px 0;
   }
+}
+
+.font-outline-1,
+.font-outline {
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke-width: 1px;
+}
+
+.font-outline-2 {
+  -webkit-text-stroke: 2px black;
+}
+.font-outline-4 {
+  -webkit-text-stroke: 4px black;
 }

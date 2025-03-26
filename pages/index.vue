@@ -11,48 +11,47 @@ definePageMeta({
 <template>
   <div>
     <div class="bg-wrapper relative">
-      <div class="absolute inset-0 bg-black opacity-50"></div>
+      <div class="absolute inset-0 bg-black opacity-70"></div>
 
-      <UContainer class="relative z-10 text-white">
-        <div class="flex flex-col px-4 pt-8 sm:flex-row">
-          <!-- Left side for <p> element -->
-          <div class="flex-1 p-3 text-center sm:text-left">
-            <h1 class="custom-title -mt-10 sm:-ml-30">
-              See the future with eye imaging data.
-            </h1>
+      <div
+        class="absolute inset-0 z-10 grid h-full grid-cols-12 gap-3 text-white"
+      >
+        <h1 class="col-span-6 pt-10 pl-10 text-6xl font-bold">
+          See the future with eye imaging data.
+        </h1>
 
-            <p
-              class="mt-10 text-3xl font-medium sm:mt-100 sm:-ml-40 sm:px-16 lg:text-4xl xl:text-xl"
+        <div class="absolute bottom-3 flex justify-between gap-10 px-10 pb-10">
+          <p class="my-10 text-3xl font-medium">
+            The Envision Portal is your new home to help you explore the future
+            of uploading, preparing, and sharing eye imaging data.
+          </p>
+
+          <div class="flex w-max items-center justify-start gap-3">
+            <UButton
+              to="/dashboard"
+              icon="line-md:upload-loop"
+              size="xl"
+              color="primary"
+              class="w-max"
             >
-              The Envision Portal is a cutting-edge platform to revolutionize
-              the process of uploading, preparing, and sharing eye imaging data.
-            </p>
+              View eye imaging datasets
+            </UButton>
 
-            <div class="flex items-center justify-start gap-3">
-              <UButton
-                to="/dashboard"
-                icon="line-md:upload-loop"
-                size="xl"
-                color="primary"
-              >
-                View eye imaging datasets
-              </UButton>
-
-              <UButton
-                to="https://github.com/eyeact/envision-portal"
-                icon="i-simple-icons-github"
-                size="xl"
-                target="_blank"
-                variant="outline"
-                color="neutral"
-                label="View on GitHub"
-              >
-                View on GitHub
-              </UButton>
-            </div>
+            <UButton
+              to="https://github.com/eyeact/envision-portal"
+              icon="i-simple-icons-github"
+              size="xl"
+              target="_blank"
+              variant="outline"
+              class="w-max"
+              color="neutral"
+              label="View on GitHub"
+            >
+              View on GitHub
+            </UButton>
           </div>
         </div>
-      </UContainer>
+      </div>
     </div>
 
     <UContainer class="py-24">
