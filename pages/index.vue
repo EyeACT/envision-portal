@@ -156,7 +156,7 @@ definePageMeta({
               <div
                 class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"
               >
-                <Icon name="tabler:brand-github" size="20" />
+                <Icon name="rivet-icons:lock-open-solid" size="20" />
               </div>
 
               <h3 class="text-xl font-bold">Open Source</h3>
@@ -173,7 +173,7 @@ definePageMeta({
               <div
                 class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"
               >
-                <Icon name="tabler:brand-github" size="20" />
+                <Icon name="cbi:ceiling-fair" size="20" />
               </div>
 
               <h3 class="text-xl font-bold">FAIR first</h3>
@@ -191,7 +191,7 @@ definePageMeta({
               <div
                 class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"
               >
-                <Icon name="tabler:brand-github" size="20" />
+                <Icon name="file-icons:codemeta" size="20" />
               </div>
 
               <h3 class="text-xl font-bold">Metadata and standards</h3>
