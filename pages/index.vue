@@ -11,7 +11,7 @@ definePageMeta({
 <template>
   <div>
     <div class="bg-wrapper relative">
-      <div class="absolute inset-0 bg-black opacity-70"></div>
+      <div class="absolute inset-0 bg-black opacity-50"></div>
 
       <div
         class="absolute inset-0 z-10 grid h-full grid-cols-12 gap-3 text-white"
@@ -55,41 +55,158 @@ definePageMeta({
     </div>
 
     <UContainer class="py-24">
-      <div
-        class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:px-8"
-      >
-        <!-- Left Side Content (Text and Paragraph) -->
-        <div class="text-center lg:text-left">
-          <h4 class="text-3xl font-extrabold text-gray-500 sm:text-4xl">
-            What do we do?
-          </h4>
-        </div>
-        <!-- Right Side Content (Image and Button) -->
-        <div class="flex flex-col justify-center">
-          <h1 class="mt-4 text-left text-xl text-gray-700">
-            We leverage AI and machine learning to provide cutting-edge insights
-            via eye imaging through a platform that optimizes data publication.
-          </h1>
-          <!-- TODO: Add redirect link -->
-          <div class="mt-6 text-left">
-            <UButton
-              to=""
-              size="xl"
-              class="custom-button w-35"
-              style="
-                background-color: #ccffff;
-                border: 2px solid #ccffff;
-                color: #333333;
-              "
-            >
-              Learn More
-            </UButton>
-          </div>
-        </div>
+      <div class="max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400">
+        <h2 class="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
+          What are we doing?
+        </h2>
+
+        <p class="mb-4 font-light">
+          We are rethinking how you share your eye imaging data. The Envision
+          Portal is built from the ground up to provide clinical researchers
+          with a easy to use, secure, and scalable platform to share their study
+          material. We are building a platform that is designed to be easy to
+          use and accessible to all researchers, regardless of their technical
+          expertise.
+        </p>
+
+        <p class="mb-4 font-medium">
+          Our goal is to provide a seamless experience for researchers to share
+          their data and collaborate with their peers.
+        </p>
+
+        <a
+          href="#"
+          class="text-primary-600 hover:text-primary-800 dark:text-primary-500 dark:hover:text-primary-700 inline-flex items-center font-medium"
+        >
+          Try it out now
+          <svg
+            class="ml-1 h-6 w-6"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </a>
       </div>
     </UContainer>
 
+    <USeparator class="my-1" />
+
     <UContainer class="py-24">
+      <section class="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:px-8">
+        <div class="grid items-center gap-12 md:grid-cols-2">
+          <div class="space-y-4">
+            <h2
+              class="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl"
+            >
+              Built for clinicians like you
+            </h2>
+
+            <p class="text-xl text-gray-600">
+              We are a team of clinicians, researchers, and engineers who are
+              passionate about the future of eye health. We are dedicated to
+              making the most of the latest technologies and data to improve
+              patient care and outcomes.
+            </p>
+
+            <a
+              href="#"
+              class="text-primary-600 hover:text-primary-800 dark:text-primary-500 dark:hover:text-primary-700 inline-flex items-center font-medium"
+            >
+              Learn more
+              <svg
+                class="ml-1 h-6 w-6"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div class="space-y-4">
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"
+              >
+                <Icon name="fa-solid:bullseye" size="20" />
+              </div>
+
+              <h3 class="text-xl font-bold">Accuracy</h3>
+
+              <p class="text-gray-600">
+                We are committed to providing accurate and reliable data to
+                support model training and clinical decision-making. Our
+                datasets are carefully curated and validated to ensure the
+                highest quality and reliability.
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"
+              >
+                <Icon name="tabler:brand-github" size="20" />
+              </div>
+
+              <h3 class="text-xl font-bold">Open Source</h3>
+
+              <p class="text-gray-600">
+                We believe in open-source software and are committed to making
+                our code and data accessible to the community. We welcome
+                contributions from the community and strive to maintain a
+                collaborative and inclusive environment.
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"
+              >
+                <Icon name="tabler:brand-github" size="20" />
+              </div>
+
+              <h3 class="text-xl font-bold">FAIR first</h3>
+
+              <p class="text-gray-600">
+                We are committed to making our datasets and models FAIR
+                (Findable, Accessible, Interoperable, and Reusable) to ensure
+                their long-term value and sustainability. We strive to follow
+                the FAIR principles and make our datasets and models as
+                accessible as possible.
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"
+              >
+                <Icon name="tabler:brand-github" size="20" />
+              </div>
+
+              <h3 class="text-xl font-bold">Metadata and standards</h3>
+
+              <p class="text-gray-600">
+                All our datasets are curated to have all the possible metadata
+                required for training and deployment of AI models. We also have
+                a set of standards and guidelines to ensure consistency and
+                interoperability across datasets.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div
         class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-3 lg:px-8"
       >
