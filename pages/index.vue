@@ -97,17 +97,15 @@ definePageMeta({
 
     <USeparator class="my-1" />
 
-    <UContainer class="py-24">
+    <UContainer class="py-12">
       <section class="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:px-8">
         <div class="grid items-center gap-12 md:grid-cols-2">
           <div class="space-y-4">
-            <h2
-              class="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl"
-            >
+            <h2 class="text-4xl font-bold tracking-tight md:text-5xl">
               Built for clinicians like you
             </h2>
 
-            <p class="text-xl text-gray-600">
+            <p class="text-xl">
               We are a team of clinicians, researchers, and engineers who are
               passionate about the future of eye health. We are dedicated to
               making the most of the latest technologies and data to improve
@@ -144,7 +142,7 @@ definePageMeta({
 
               <h3 class="text-xl font-bold">Accuracy</h3>
 
-              <p class="text-gray-600">
+              <p class="">
                 We are committed to providing accurate and reliable data to
                 support model training and clinical decision-making. Our
                 datasets are carefully curated and validated to ensure the
@@ -161,7 +159,7 @@ definePageMeta({
 
               <h3 class="text-xl font-bold">Open Source</h3>
 
-              <p class="text-gray-600">
+              <p class="">
                 We believe in open-source software and are committed to making
                 our code and data accessible to the community. We welcome
                 contributions from the community and strive to maintain a
@@ -178,7 +176,7 @@ definePageMeta({
 
               <h3 class="text-xl font-bold">FAIR first</h3>
 
-              <p class="text-gray-600">
+              <p class="">
                 We are committed to making our datasets and models FAIR
                 (Findable, Accessible, Interoperable, and Reusable) to ensure
                 their long-term value and sustainability. We strive to follow
@@ -196,7 +194,7 @@ definePageMeta({
 
               <h3 class="text-xl font-bold">Metadata and standards</h3>
 
-              <p class="text-gray-600">
+              <p class="">
                 All our datasets are curated to have all the possible metadata
                 required for training and deployment of AI models. We also have
                 a set of standards and guidelines to ensure consistency and
@@ -206,98 +204,32 @@ definePageMeta({
           </div>
         </div>
       </section>
+    </UContainer>
 
+    <UContainer class="py-12">
       <div
-        class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-3 lg:px-8"
+        class="mx-auto flex max-w-screen-xl flex-col items-center justify-between px-4 lg:flex-row"
       >
-        <!-- Left Side Content (Text and Paragraph) -->
-        <div class="text-center lg:text-left">
-          <h1
-            class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-4xl font-extrabold text-transparent sm:text-5xl"
-          >
-            Accurate
-          </h1>
+        <div class="px-5 lg:max-w-2xl">
+          <h2 class="mb-5 text-4xl font-bold tracking-tight md:text-5xl">
+            Reinventing what it means to share data
+          </h2>
 
-          <p class="mt-4 text-lg leading-relaxed text-gray-600">
-            Our AI-powered data platform serves as a trusted and comprehensive
-            source of truth, enabling organizations to make informed,
-            data-driven decisions at scale.
+          <p class="text-lg">
+            With the rise of AI models, the data that we generate is becoming
+            more and more important. For the development of these models, we
+            need to understand the needs of model creators and users. This is
+            where the Envision Portal is changing how we share our data.
           </p>
         </div>
-        <!-- Right Side Content (Image) -->
-        <div class="flex flex-col justify-center lg:col-span-2">
-          <div class="mt-6 text-left">
-            <img
-              src="public/images/brain.jpg"
-              alt="Brain and Eye Health"
-              class="h-auto w-full max-w-2xl transform rounded-lg shadow-xl transition-all duration-300 hover:scale-105"
-            />
-          </div>
+
+        <div class="flex w-full items-center justify-center px-5 py-5">
+          <img class="rounded-lg" src="public/images/brain.jpg" alt="mockup" />
         </div>
       </div>
     </UContainer>
 
-    <UContainer class="bg-gray-100 py-24 dark:bg-gray-400">
-      <div
-        class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:px-8"
-      >
-        <!-- Left Side Content (Image) -->
-        <div class="flex justify-center lg:justify-end">
-          <img
-            src="public/images/ai-eye.jpg"
-            alt="AI Eye"
-            class="w-full max-w-lg transform rounded-lg shadow-xl transition-all duration-300 hover:scale-105"
-          />
-        </div>
-        <!-- Right Side Content (Text) -->
-        <div class="text-center lg:text-left">
-          <h1
-            class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-4xl font-extrabold text-transparent sm:text-5xl"
-          >
-            Scalable
-          </h1>
-
-          <p class="mt-4 text-lg leading-relaxed text-gray-600">
-            We process data at scale, with unparalleled speed and scalability
-            across all research, delivering detailed and complete insights into
-            the real world.
-          </p>
-        </div>
-      </div>
-    </UContainer>
-
-    <UContainer class="py-24">
-      <div
-        class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-3 lg:px-8"
-      >
-        <!-- Left Side Content (Text) -->
-        <div class="text-center lg:text-left">
-          <h1
-            class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-4xl font-extrabold text-transparent sm:text-5xl"
-          >
-            Up-to-date
-          </h1>
-
-          <p class="mt-4 text-lg leading-relaxed text-gray-600">
-            Our global partners provide the latest medical imaging and
-            specialized data, which are then rapidly mined using our AI-based
-            systems to create and maintain a current representation of reality.
-          </p>
-        </div>
-        <!-- Right Side Content (Image) -->
-        <div class="flex flex-col justify-center lg:col-span-2">
-          <div class="mt-6 text-left">
-            <img
-              src="public/images/ai-brain.jpg"
-              alt="AI Brain"
-              class="w-full max-w-2xl transform rounded-lg shadow-xl transition-all duration-300 hover:scale-105"
-            />
-          </div>
-        </div>
-      </div>
-    </UContainer>
-
-    <UContainer class="bg-gray-100 py-12 dark:bg-gray-500">
+    <UContainer class="py-12">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="text-center">
           <h1 class="text-2xl font-bold text-gray-900">
@@ -313,55 +245,211 @@ definePageMeta({
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
-            <h2 class="text-4xl font-bold text-blue-400">5,763</h2>
+            <h2 class="text-4xl font-bold text-blue-400">150+</h2>
 
-            <p class="mt-2 text-gray-700">Total participants enrolled</p>
+            <p class="mt-2 text-gray-700">Eye Imaging Datasets</p>
           </div>
 
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
-            <h2 class="text-4xl font-bold text-blue-400">24,000+</h2>
+            <h2 class="text-4xl font-bold text-blue-400">1.2+ Million</h2>
 
-            <p class="mt-2 text-gray-700">Biennial study visits conducted</p>
+            <p class="mt-2 text-gray-700">Eye Images Curated</p>
           </div>
 
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
-            <h2 class="text-4xl font-bold text-blue-400">2000+</h2>
+            <h2 class="text-4xl font-bold text-blue-400">100+</h2>
 
-            <p class="mt-2 text-gray-700">Cases recorded</p>
+            <p class="mt-2 text-gray-700">Universities & Research Centers</p>
           </div>
 
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
-            <h2 class="text-4xl font-bold text-blue-400">80,000+</h2>
+            <h2 class="text-4xl font-bold text-blue-400">800,000+</h2>
 
-            <p class="mt-2 text-gray-700">Clinic visits extracted</p>
+            <p class="mt-2 text-gray-700">Dataset Downloads</p>
           </div>
 
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
-            <h2 class="text-4xl font-bold text-blue-400">18,000+</h2>
+            <h2 class="text-4xl font-bold text-blue-400">1800,000+</h2>
 
-            <p class="mt-2 text-gray-700">Clinical retinal images analyzed</p>
+            <p class="mt-2 text-gray-700">API Requests</p>
           </div>
 
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
-            <h2 class="text-4xl font-bold text-blue-400">3,000</h2>
+            <h2 class="text-4xl font-bold text-blue-400">200+</h2>
 
-            <p class="mt-2 text-gray-700">Expanded active participants</p>
+            <p class="mt-2 text-gray-700">Research Papers Ciring our Data</p>
           </div>
         </div>
       </div>
     </UContainer>
 
     <UContainer class="py-24">
+      <div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
+        <div class="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
+          <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">Our Blog</h2>
+
+          <p class="sm:text-xl">
+            Learn about updates to the platform and other news regarding the
+            FAIRification of eye imaging data.
+          </p>
+        </div>
+
+        <div class="grid gap-8 lg:grid-cols-2">
+          <article
+            class="rounded-lg border border-gray-200 bg-white p-6 shadow-md"
+          >
+            <div class="mb-5 flex items-center justify-between">
+              <span
+                class="bg-primary-100 text-primary-800 inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium"
+              >
+                <svg
+                  class="mr-1 h-3 w-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z"
+                    clip-rule="evenodd"
+                  ></path>
+
+                  <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"></path>
+                </svg>
+                Article
+              </span>
+
+              <span class="text-sm">14 days ago</span>
+            </div>
+
+            <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">
+              <a href="#">Linking Retinal Changes to Brain Health</a>
+            </h2>
+
+            <p class="mb-5 text-gray-500">
+              Researchers are using eye imaging data to track changes in retinal
+              structure and vascular features to detect neurological risks. The
+              Anderson Lab at the University of California, San Francisco, is
+              using this data to study the effects of aging on a population of
+              mice.
+            </p>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4 text-gray-500">
+                <img
+                  class="h-7 w-7 rounded-full"
+                  src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/jese-leos.png"
+                  alt="Jese Leos avatar"
+                />
+
+                <span class="font-medium"> Fujibayashi Naoue </span>
+              </div>
+
+              <a
+                href="#"
+                class="text-primary-600 inline-flex items-center font-medium hover:underline"
+              >
+                Read more
+                <svg
+                  class="ml-2 h-4 w-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article
+            class="rounded-lg border border-gray-200 bg-white p-6 shadow-md"
+          >
+            <div class="mb-5 flex items-center justify-between text-gray-500">
+              <span
+                class="bg-primary-100 text-primary-800 inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium"
+              >
+                <svg
+                  class="mr-1 h-3 w-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z"
+                    clip-rule="evenodd"
+                  ></path>
+
+                  <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"></path>
+                </svg>
+                Article
+              </span>
+
+              <span class="text-sm">20 days ago</span>
+            </div>
+
+            <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">
+              <a href="#"> Updates to the Envision Portal </a>
+            </h2>
+
+            <p class="mb-5 font-light text-gray-500">
+              We recently updated the Envision Portal to include new features
+              and improved functionality. The new features include the ability
+              to upload and manage multiple datasets, as well as the ability to
+              view and analyze data from multiple studies.
+            </p>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4 text-gray-500">
+                <img
+                  class="h-7 w-7 rounded-full"
+                  src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
+                  alt="Bonnie Green avatar"
+                />
+
+                <span class="font-medium"> Bonnie Green </span>
+              </div>
+
+              <a
+                href="#"
+                class="text-primary-600 inline-flex items-center font-medium hover:underline"
+              >
+                Read more
+                <svg
+                  class="ml-2 h-4 w-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </UContainer>
+
+    <UContainer class="hidden py-24">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <h2
           class="text-center text-4xl font-bold text-gray-900 dark:text-gray-200"
@@ -452,72 +540,5 @@ definePageMeta({
         </div>
       </div>
     </UContainer>
-
-    <section id="footer">
-      <img
-        src="public/images/footer.jpg"
-        alt="Predictive Modeling"
-        class="h-150 w-full object-cover"
-      />
-
-      <div class="main-footer">
-        <!-- Logo & Mission -->
-        <div class="logoinfo">
-          <h2>Envision Portal</h2>
-
-          <p>Seeing the Future of Brain Health Through the Eyes</p>
-
-          <div class="contact-details">
-            <h1>Contact Us</h1>
-
-            <ul>
-              <li>
-                <div class="fa fa-phone"></div>
-
-                <a href="tel:+1234567890">+1 234 567 890</a>
-              </li>
-
-              <li>
-                <div class="fa fa-envelope"></div>
-
-                <a href="mailto:contact@eyeact.com">contact@eyeact.com</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Navigation Links -->
-        <div class="com">
-          <h1>Quick Links</h1>
-
-          <ul>
-            <li><a href="#">Home</a></li>
-
-            <li><a href="#">About</a></li>
-
-            <li><a href="#">Research</a></li>
-
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </div>
-
-        <!-- Social Media -->
-        <div class="info">
-          <h1>Follow Us</h1>
-
-          <div class="sociallogos">
-            <div class="logobox">
-              <a href="#" class="fa fa-instagram"></a>
-
-              <a href="#" class="fa fa-linkedin"></a>
-
-              <a href="#" class="fa fa-twitter"></a>
-
-              <a href="#" class="fa fa-youtube-play"></a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 </template>
