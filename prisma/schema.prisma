@@ -464,6 +464,12 @@ model PublishedDataset {
     files             Json
     data              Json
 
+    keywords        String[] // Array of keywords
+    contributors    Int?
+    labelingMethod  String?
+    validationInfo  String?
+    license         String?
+
     updated DateTime @updatedAt
     created DateTime @default(now())
 }
