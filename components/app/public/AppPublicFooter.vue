@@ -3,7 +3,7 @@
 <template>
   <footer class="border-t border-gray-200 pt-6 dark:border-gray-800">
     <div class="mx-auto max-w-screen-xl">
-      <div class="md:flex md:justify-between">
+      <div class="px-10 md:flex md:justify-between">
         <div class="mb-6 md:mb-0">
           <h2 class="text-2xl font-bold">Envision Portal</h2>
           <p class="text-lg">See the future with eye imaging data</p>

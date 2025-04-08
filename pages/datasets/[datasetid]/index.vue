@@ -128,11 +128,11 @@ if (dataset.value) {
         ]"
       />
 
-      <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-6 pt-4">
         <div class="grid grid-cols-12 gap-6">
           <div class="col-span-10">
             <div class="flex flex-col gap-1">
-              <h1>
+              <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
                 {{ dataset?.title }}
               </h1>
 
@@ -210,7 +210,21 @@ if (dataset.value) {
 
           <div class="col-span-2">
             <div class="flex flex-col gap-2">
+              <NuxtLink
+                v-if="dataset?.external"
+                :to="dataset?.externalUrl"
+                target="_blank"
+              >
+                <UButton
+                  label="Access Dataset"
+                  icon="mingcute:external-link-fill"
+                  size="xl"
+                  color="primary"
+                />
+              </NuxtLink>
+
               <UDropdownMenu
+                v-else
                 :items="downloadDropdownItems"
                 :content="{
                   align: 'end',
@@ -230,6 +244,7 @@ if (dataset.value) {
               </UDropdownMenu>
 
               <UButton
+                v-if="!dataset?.external"
                 label="Cite"
                 icon="flowbite:quote-solid"
                 size="xl"

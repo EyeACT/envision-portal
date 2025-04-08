@@ -28,6 +28,8 @@ export default defineEventHandler(async (event) => {
     data: datasetAdditionalData,
     description: publishedDataset.description,
     doi: publishedDataset.doi,
+    external: publishedDataset.external,
+    externalUrl: publishedDataset.externalUrl,
     files: datasetFiles,
     metadata: {
       datasetDescription: datasetMetadata.datasetDescription,
