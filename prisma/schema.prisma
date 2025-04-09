@@ -464,6 +464,9 @@ model PublishedDataset {
     files             Json
     data              Json
 
+    external    Boolean @default(false)
+    externalUrl String?
+
     updated DateTime @updatedAt
     created DateTime @default(now())
 }

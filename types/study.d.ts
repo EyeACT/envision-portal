@@ -502,6 +502,8 @@ interface Dataset {
   metadata: Metadata;
   files: FolderStructure[];
   data: AdditionalData;
+  external: boolean;
+  externalUrl: string | null;
   created: Date;
 }
 
