@@ -12,18 +12,18 @@
         <div class="grid grid-cols-2 gap-6">
           <div>
             <h2
-              class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white"
+              class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white"
             >
               Resources
             </h2>
-            <ul class="flex flex-col gap-1 text-gray-600 dark:text-gray-400">
-              <li class="">
+            <ul class="flex flex-col gap-1">
+              <li>
                 <a href="/" class="hover:underline"> About the project </a>
               </li>
               <li>
                 <a href="/" class="hover:underline"> How to upload files </a>
               </li>
-              <li class="">
+              <li>
                 <a href="/" class="hover:underline"> Contact us </a>
               </li>
             </ul>
@@ -31,12 +31,12 @@
 
           <div>
             <h2
-              class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white"
+              class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white"
             >
               Legal
             </h2>
-            <ul class="text-gray-600 dark:text-gray-400">
-              <li class="mb-4">
+            <ul class="flex flex-col gap-1">
+              <li>
                 <a href="#" class="hover:underline">Privacy Policy</a>
               </li>
               <li>

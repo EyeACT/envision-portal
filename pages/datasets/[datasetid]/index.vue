@@ -215,12 +215,22 @@ if (dataset.value) {
                 :to="dataset?.externalUrl"
                 target="_blank"
               >
-                <UButton
-                  label="Access Dataset"
-                  icon="mingcute:external-link-fill"
-                  size="xl"
-                  color="primary"
-                />
+                <UPopover mode="hover" arrow>
+                  <UButton
+                    label="Access Dataset"
+                    icon="mingcute:external-link-fill"
+                    size="xl"
+                    variant="subtle"
+                    color="warning"
+                  />
+
+                  <template #content>
+                    <p class="max-w-sm p-2 text-sm">
+                      This dataset is hosted on an external platform. Visit the
+                      link to get the dataset access details.
+                    </p>
+                  </template>
+                </UPopover>
               </NuxtLink>
 
               <UDropdownMenu

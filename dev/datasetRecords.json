@@ -2159,65 +2159,65 @@
     "studyId": "cm880mrva00000cl20uo80c7f",
     "datasetId": "cm880mrva00000cl20uo80c7f",
     "doi": "10.60775/envision.2",
-    "title": "Advanced Retinal Imaging Dataset for AI Development - External",
-    "description": "A dataset containing high-resolution images of the retina, including OCT scans and fundus images, designed for AI-based ophthalmology research.",
+    "title": "Large Dataset of Labeled Optical Coherence Tomography (OCT) and Chest X-Ray Images",
+    "description": "This dataset contains thousands of validated OCT and Chest X-Ray images  described and analyzed in 'Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning'. The images are split into a training set and a testing set of independent patients. Images are labeled as (disease)-(randomized patient ID)-(image number by this patient) and split into 4 directories: CNV, DME, DRUSEN, and NORMAL.",
     "versionTitle": "1.0.0",
     "studyTitle": "Machine Learning for Retinal Disease Detection",
     "publishedMetadata": {
       "studyDescription": {
         "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
         "identificationModule": {
-          "officialTitle": "Machine Learning for Retinal Disease Detection",
-          "acronym": "ML-RDD",
+          "officialTitle": "Deep Learning for Diagnosis from OCT and Chest X-Ray Imaging",
+          "acronym": "DL-OCT-CXR",
           "orgStudyIdInfo": {
-            "orgStudyId": "EYE2026002",
-            "orgStudyIdType": "National Eye Institute (NEI) Grant",
-            "orgStudyIdLink": "https://nei.nih.gov/grants/EYE2026002"
+            "orgStudyId": "IMG2025001",
+            "orgStudyIdType": "NIH Biomedical Imaging Grant",
+            "orgStudyIdLink": "https://report.nih.gov/project-details/IMG2025001"
           },
           "secondaryIdInfoList": [
             {
-              "secondaryId": "NCT87654321",
+              "secondaryId": "NCT12349876",
               "secondaryIdType": "ClinicalTrials.gov",
-              "secondaryIdLink": "https://clinicaltrials.gov/show/NCT87654321"
+              "secondaryIdLink": "https://clinicaltrials.gov/show/NCT12349876"
             }
           ]
         },
         "statusModule": {
-          "overallStatus": "Recruiting",
+          "overallStatus": "Completed",
           "startDateStruct": {
-            "startDate": "2026-05-20",
+            "startDate": "2022-01-10",
             "startDateType": "Actual"
           },
           "completionDateStruct": {
-            "completionDate": "2030-12-15",
-            "completionDateType": "Anticipated"
+            "completionDate": "2024-08-30",
+            "completionDateType": "Actual"
           }
         },
         "sponsorCollaboratorsModule": {
           "leadSponsor": {
-            "leadSponsorName": "Stanford University",
+            "leadSponsorName": "University of California, San Diego",
             "leadSponsorIdentifier": {
-              "leadSponsorIdentifierValue": "https://ror.org/00f54p054",
+              "leadSponsorIdentifierValue": "https://ror.org/01an7q238",
               "leadSponsorIdentifierScheme": "ROR",
               "schemeURI": "https://ror.org/"
             }
           },
           "responsibleParty": {
             "responsiblePartyType": "Principal Investigator",
-            "responsiblePartyInvestigatorFirstName": "Elena",
-            "responsiblePartyInvestigatorLastName": "Martinez",
-            "responsiblePartyInvestigatorTitle": "Professor of Ophthalmology",
+            "responsiblePartyInvestigatorFirstName": "Rajiv",
+            "responsiblePartyInvestigatorLastName": "Patel",
+            "responsiblePartyInvestigatorTitle": "Professor of Biomedical Imaging",
             "responsiblePartyInvestigatorIdentifier": [
               {
-                "responsiblePartyInvestigatorIdentifierValue": "https://orcid.org/0000-0003-5678-1234",
+                "responsiblePartyInvestigatorIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
                 "responsiblePartyInvestigatorIdentifierScheme": "ORCID",
                 "schemeURI": "https://orcid.org/"
               }
             ],
             "responsiblePartyInvestigatorAffiliation": {
-              "responsiblePartyInvestigatorAffiliationName": "Harvard Medical School",
+              "responsiblePartyInvestigatorAffiliationName": "University of California, San Diego",
               "responsiblePartyInvestigatorAffiliationIdentifier": {
-                "responsiblePartyInvestigatorAffiliationIdentifierValue": "https://ror.org/03dfjh294",
+                "responsiblePartyInvestigatorAffiliationIdentifierValue": "https://ror.org/01an7q238",
                 "responsiblePartyInvestigatorAffiliationIdentifierScheme": "ROR",
                 "schemeURI": "https://ror.org/"
               }
@@ -2225,17 +2225,17 @@
           },
           "collaboratorList": [
             {
-              "collaboratorName": "National Institutes of Health",
+              "collaboratorName": "National Eye Institute",
               "collaboratorNameIdentifier": {
-                "collaboratorNameIdentifierValue": "https://ror.org/01cwqze88",
+                "collaboratorNameIdentifierValue": "https://ror.org/02v7yja52",
                 "collaboratorNameIdentifierScheme": "ROR",
                 "schemeURI": "https://ror.org/"
               }
             },
             {
-              "collaboratorName": "Harvard Medical School",
+              "collaboratorName": "Massachusetts General Hospital",
               "collaboratorNameIdentifier": {
-                "collaboratorNameIdentifierValue": "https://ror.org/03dfjh294",
+                "collaboratorNameIdentifierValue": "https://ror.org/05p7s8t03",
                 "collaboratorNameIdentifierScheme": "ROR",
                 "schemeURI": "https://ror.org/"
               }
@@ -2245,258 +2245,224 @@
         "oversightModule": {
           "isFDARegulatedDrug": "No",
           "isFDARegulatedDevice": "No",
-          "humanSubjectReviewStatus": "Submitted, approved",
-          "oversightHasDMC": "No"
+          "humanSubjectReviewStatus": "Approved by Institutional Review Board (IRB)",
+          "oversightHasDMC": "Not Applicable"
         },
         "descriptionModule": {
-          "briefSummary": "This study gathers diverse retinal imaging data to train AI models for detecting conditions such as diabetic retinopathy, glaucoma, and age-related macular degeneration (AMD).",
-          "detailedDescription": "The ML-RDD study aims to create a high-quality dataset for developing AI-based diagnostic tools in ophthalmology. The dataset includes OCT scans, fundus images, and angiography data collected from a diverse population, with the goal of improving AI-driven early disease detection."
+          "briefSummary": "This study compiles a large dataset of Optical Coherence Tomography (OCT) and Chest X-Ray images labeled for various conditions, supporting the development of deep learning models for medical diagnosis.",
+          "detailedDescription": "This dataset was designed to support research in AI-based medical image analysis, particularly focusing on retinal and pulmonary conditions. It includes thousands of expertly labeled OCT and Chest X-Ray images sourced from independent patients and categorized into four classes: CNV, DME, DRUSEN, and NORMAL. The dataset mirrors the imaging data described in the publication 'Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning', and is structured to facilitate reproducibility and benchmarking in deep learning workflows."
         },
         "conditionsModule": {
           "conditionList": [
             {
-              "conditionName": "Glaucoma",
+              "conditionName": "Choroidal Neovascularization",
               "conditionIdentifier": {
-                "conditionClassificationCode": "D005901",
+                "conditionClassificationCode": "D015812",
                 "conditionScheme": "Medical Subject Headings (MeSH)",
                 "schemeURI": "https://meshb.nlm.nih.gov/",
-                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D005901"
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D015812"
+              }
+            },
+            {
+              "conditionName": "Diabetic Macular Edema",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D003920",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D003920"
+              }
+            },
+            {
+              "conditionName": "Drusen",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D017240",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D017240"
+              }
+            },
+            {
+              "conditionName": "Pneumonia",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D011014",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D011014"
               }
             }
           ],
           "keywordList": [
-            { "keywordValue": "Retinal OCT Imaging" },
-            { "keywordValue": "Deep Learning in Ophthalmology" },
-            { "keywordValue": "AI-based Eye Disease Prediction" },
-            { "keywordValue": "Fundus Photography Analysis" },
-            { "keywordValue": "Automated Glaucoma Detection" }
+            {
+              "keywordValue": "OCT Imaging"
+            },
+            {
+              "keywordValue": "Chest X-Ray"
+            },
+            {
+              "keywordValue": "AI in Medical Imaging"
+            },
+            {
+              "keywordValue": "Retinal Disease Classification"
+            },
+            {
+              "keywordValue": "Pneumonia Detection"
+            }
           ]
         },
         "designModule": {
           "studyType": "Observational",
-          "isPatientRegistry": "Yes",
+          "isPatientRegistry": "No",
           "designInfo": {
             "designAllocation": "Non-Randomized",
-            "designObservationalModelList": ["Case-Control"],
-            "designTimePerspectiveList": ["Prospective"]
+            "designObservationalModelList": ["Cohort"],
+            "designTimePerspectiveList": ["Retrospective"]
           },
           "enrollmentInfo": {
             "enrollmentType": "Actual",
-            "enrollmentCount": 4000
+            "enrollmentCount": 10800
           },
-          "targetDuration": "4 Years",
+          "targetDuration": "2 Years",
           "numberGroupsCohorts": 4
         },
         "armsInterventionsModule": {
           "armGroupList": [
             {
-              "armGroupLabel": "Healthy Controls",
-              "armGroupDescription": "Participants with no diagnosed eye diseases or vision impairments.",
+              "armGroupLabel": "CNV",
+              "armGroupDescription": "Participants diagnosed with Choroidal Neovascularization based on OCT imaging.",
               "armGroupInterventionList": ["OCT Imaging Protocol"]
             },
             {
-              "armGroupLabel": "Glaucoma",
-              "armGroupDescription": "Participants diagnosed with early, moderate, or advanced glaucoma.",
+              "armGroupLabel": "DME",
+              "armGroupDescription": "Participants diagnosed with Diabetic Macular Edema confirmed through OCT scans.",
               "armGroupInterventionList": ["OCT Imaging Protocol"]
             },
             {
-              "armGroupLabel": "Age-Related Macular Degeneration (AMD)",
-              "armGroupDescription": "Participants diagnosed with early, intermediate, or advanced AMD.",
+              "armGroupLabel": "DRUSEN",
+              "armGroupDescription": "Participants showing signs of drusen deposits consistent with early age-related macular degeneration.",
               "armGroupInterventionList": ["OCT Imaging Protocol"]
             },
             {
-              "armGroupLabel": "Other Retinal Disorders",
-              "armGroupDescription": "Participants with other retinal conditions such as retinal vein occlusion, central serous retinopathy, or inherited retinal diseases.",
-              "armGroupInterventionList": ["OCT Imaging Protocol"]
+              "armGroupLabel": "NORMAL",
+              "armGroupDescription": "Participants with no pathological findings in OCT or chest X-ray images.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol",
+                "Chest X-Ray Imaging Protocol"
+              ]
             }
           ],
           "interventionList": [
             {
               "interventionType": "Diagnostic Test",
               "interventionName": "OCT Imaging Protocol",
-              "interventionDescription": "Optical Coherence Tomography (OCT) imaging performed according to a standardized protocol to assess retinal and macular structures."
+              "interventionDescription": "Optical Coherence Tomography (OCT) performed under standardized imaging conditions for retinal evaluation."
+            },
+            {
+              "interventionType": "Diagnostic Test",
+              "interventionName": "Chest X-Ray Imaging Protocol",
+              "interventionDescription": "Posterior-anterior chest radiography acquired using a standard protocol for pulmonary condition screening."
             }
           ]
         },
         "eligibilityModule": {
           "sex": "All",
           "genderBased": "No",
-          "minimumAge": "40 Years",
-          "maximumAge": "85 Years",
+          "minimumAge": "18 Years",
+          "maximumAge": "90 Years",
           "healthyVolunteers": "Yes",
           "eligibilityCriteria": {
             "eligibilityCriteriaInclusion": [
-              "Adults (≥ 40 years old)",
-              "Patients with and without diagnosed eye conditions",
-              "Able to provide consent",
-              "Must be able to read and speak English"
+              "Adults aged 18 years or older",
+              "Individuals with and without diagnosed retinal or pulmonary conditions",
+              "Able to provide informed consent",
+              "Willing and able to undergo OCT and/or chest X-ray imaging"
             ],
             "eligibilityCriteriaExclusion": [
-              "Adults older than 85 years of age",
-              "Pregnancy",
-              "History of ocular surgery within the last 6 months",
-              "Severe visual impairment preventing participation in imaging procedures"
+              "Individuals over 90 years of age",
+              "Pregnant individuals (due to X-ray imaging exposure)",
+              "History of retinal or thoracic surgery within the last 6 months",
+              "Any condition that prevents safe participation in imaging procedures"
             ]
           },
-          "studyPopulation": "Adult participants will be recruited into one of four groups: 1) healthy controls with no diagnosed eye conditions, 2) patients with early-stage eye diseases such as glaucoma or age-related macular degeneration (AMD), 3) patients with moderate to advanced eye diseases requiring regular monitoring, or 4) patients with severe vision impairment due to retinal or optic nerve disorders. The investigators aim to recruit approximately 1000 participants into each of the four groups. Participants will be recruited from leading ophthalmology research centers. The study aims to recruit 1,000 subjects from each of the following racial and ethnic groups: White, Asian, Hispanic, and Black. Subjects will be age- and sex-matched within and between groups.",
+          "studyPopulation": "Participants will be categorized into four diagnostic groups based on OCT and chest X-ray imaging: 1) CNV, 2) DME, 3) DRUSEN, and 4) NORMAL. The dataset includes patients from diverse ethnic backgrounds across multiple clinical centers. Subjects include both healthy individuals and patients with retinal diseases or lung abnormalities. The population is stratified by age, sex, and ethnicity to ensure balanced representation for deep learning model training and validation.",
           "samplingMethod": "Non-Probability Sample"
         },
         "contactsLocationsModule": {
           "centralContactList": [
             {
-              "centralContactFirstName": "Emily",
-              "centralContactLastName": "Chen",
-              "centralContactDegree": "MD",
+              "centralContactFirstName": "Rajiv",
+              "centralContactLastName": "Patel",
+              "centralContactDegree": "MD, PhD",
               "centralContactIdentifier": [
                 {
-                  "centralContactIdentifierValue": "https://orcid.org/0000-0001-2345-6789",
+                  "centralContactIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
                   "centralContactIdentifierScheme": "ORCID",
                   "schemeURI": "https://orcid.org"
                 }
               ],
               "centralContactAffiliation": {
-                "centralContactAffiliationName": "Harvard Medical School",
+                "centralContactAffiliationName": "University of California, San Diego",
                 "centralContactAffiliationIdentifier": {
-                  "centralContactAffiliationIdentifierValue": "https://ror.org/01bj3ab67",
+                  "centralContactAffiliationIdentifierValue": "https://ror.org/01an7q238",
                   "centralContactAffiliationScheme": "ROR",
                   "schemeURI": "https://ror.org"
                 }
               },
-              "centralContactEMail": "contact@visionstudy.org"
+              "centralContactEMail": "contact@ucsdvisionstudy.org"
             }
           ],
           "overallOfficialList": [
             {
-              "overallOfficialFirstName": "Emily",
-              "overallOfficialLastName": "Chen",
-              "overallOfficialDegree": "MD",
+              "overallOfficialFirstName": "Rajiv",
+              "overallOfficialLastName": "Patel",
+              "overallOfficialDegree": "MD, PhD",
               "overallOfficialIdentifier": [
                 {
-                  "overallOfficialIdentifierValue": "https://orcid.org/0000-0001-2345-6789",
+                  "overallOfficialIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
                   "overallOfficialIdentifierScheme": "ORCID",
                   "schemeURI": "https://orcid.org"
                 }
               ],
               "overallOfficialAffiliation": {
-                "overallOfficialAffiliationName": "Harvard Medical School",
+                "overallOfficialAffiliationName": "University of California, San Diego",
                 "overallOfficialAffiliationIdentifier": {
-                  "overallOfficialAffiliationIdentifierValue": "https://ror.org/01bj3ab67",
+                  "overallOfficialAffiliationIdentifierValue": "https://ror.org/01an7q238",
                   "overallOfficialAffiliationScheme": "ROR",
                   "schemeURI": "https://ror.org"
                 }
               },
               "overallOfficialRole": "Study Principal Investigator"
-            },
-            {
-              "overallOfficialFirstName": "Daniel",
-              "overallOfficialLastName": "Garcia",
-              "overallOfficialDegree": "PhD",
-              "overallOfficialIdentifier": [
-                {
-                  "overallOfficialIdentifierValue": "https://orcid.org/0000-0002-9876-5432",
-                  "overallOfficialIdentifierScheme": "ORCID",
-                  "schemeURI": "https://orcid.org"
-                }
-              ],
-              "overallOfficialAffiliation": {
-                "overallOfficialAffiliationName": "University of Pennsylvania",
-                "overallOfficialAffiliationIdentifier": {
-                  "overallOfficialAffiliationIdentifierValue": "https://ror.org/03m8v6t10",
-                  "overallOfficialAffiliationScheme": "ROR",
-                  "schemeURI": "https://ror.org"
-                }
-              },
-              "overallOfficialRole": "Study Co-Investigator"
-            },
-            {
-              "overallOfficialFirstName": "Sophia",
-              "overallOfficialLastName": "Nguyen",
-              "overallOfficialDegree": "MD, MPH",
-              "overallOfficialIdentifier": [
-                {
-                  "overallOfficialIdentifierValue": "https://orcid.org/0000-0003-5678-1234",
-                  "overallOfficialIdentifierScheme": "ORCID",
-                  "schemeURI": "https://orcid.org"
-                }
-              ],
-              "overallOfficialAffiliation": {
-                "overallOfficialAffiliationName": "Mayo Clinic",
-                "overallOfficialAffiliationIdentifier": {
-                  "overallOfficialAffiliationIdentifierValue": "https://ror.org/05dxps055",
-                  "overallOfficialAffiliationScheme": "ROR",
-                  "schemeURI": "https://ror.org"
-                }
-              },
-              "overallOfficialRole": "Study Principal Investigator"
-            }
-          ],
-          "locationList": [
-            {
-              "locationFacility": "Harvard Medical School",
-              "locationStatus": "Enrolling by invitation",
-              "locationCity": "Boston",
-              "locationZip": "02115",
-              "locationState": "Massachusetts",
-              "locationCountry": "United States",
-              "locationIdentifier": {
-                "locationIdentifierValue": "https://ror.org/01bj3ab67",
-                "locationIdentifierScheme": "ROR",
-                "schemeURI": "https://ror.org/"
-              }
-            },
-            {
-              "locationFacility": "Mayo Clinic",
-              "locationStatus": "Enrolling by invitation",
-              "locationCity": "Rochester",
-              "locationZip": "55905",
-              "locationState": "Minnesota",
-              "locationCountry": "United States",
-              "locationIdentifier": {
-                "locationIdentifierValue": "https://ror.org/05dxps055",
-                "locationIdentifierScheme": "ROR",
-                "schemeURI": "https://ror.org/"
-              }
-            },
-            {
-              "locationFacility": "University of Pennsylvania",
-              "locationStatus": "Enrolling by invitation",
-              "locationCity": "Philadelphia",
-              "locationZip": "19104",
-              "locationState": "Pennsylvania",
-              "locationCountry": "United States",
-              "locationIdentifier": {
-                "locationIdentifierValue": "https://ror.org/03m8v6t10",
-                "locationIdentifierScheme": "ROR",
-                "schemeURI": "https://ror.org/"
-              }
             }
           ]
         }
       },
       "readme": "## title here",
       "datasetDescription": {
-        "schema": "https://schema.aireadi.org/v0.1.0/dataset_description.json",
+        "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
         "identifier": {
-          "identifierValue": "10.60775/fairhub.2",
+          "identifierValue": "10.17632/rscbjbr9sj.3",
           "identifierType": "DOI"
         },
         "title": [
           {
-            "titleValue": "Flagship Dataset of Type 2 Diabetes from the AI-READI Project"
-          },
-          {
-            "titleValue": "AI-READI dataset",
-            "titleType": "AlternativeTitle"
+            "titleValue": "Large Dataset of Labeled Optical Coherence Tomography (OCT) and Chest X-Ray Images"
           }
         ],
-        "version": "2.0.0",
+        "version": "1.0.0",
         "creator": [
           {
-            "creatorName": "AI-READI Consortium",
-            "nameType": "Organizational"
+            "creatorName": "Daniel Kermany",
+            "nameType": "Personal"
+          },
+          {
+            "creatorName": "Kang Zhang",
+            "nameType": "Personal"
+          },
+          {
+            "creatorName": "Michael Goldbaum",
+            "nameType": "Personal"
           }
         ],
-        "publicationYear": "2024",
+        "publicationYear": "2018",
         "date": [
           {
             "dateValue": "2024-11-08",
@@ -2510,7 +2476,7 @@
           }
         ],
         "resourceType": {
-          "resourceTypeValue": "Type 2 Diabetes",
+          "resourceTypeValue": "OCT and Chest X-Ray Imaging Dataset",
           "resourceTypeGeneral": "Dataset"
         },
         "datasetDeIdentLevel": {
@@ -2533,7 +2499,7 @@
         },
         "description": [
           {
-            "descriptionValue": "This dataset contains data from 1067 participants that was collected between from July 19, 2023 and July, 31 2024. Data from multiple modalities are included. The data in this dataset contain no protected health information (PHI). Information related to the sex and race/ethnicity of the participants as well as medication used has also been removed. A detailed description of the dataset is available in the AI-READI documentation for v2.0.0 of the dataset at https://docs.aireadi.org",
+            "descriptionValue": "This dataset contains data from 10,800 participants collected between January 1, 2024, and December 31, 2025. The dataset includes data from multiple imaging modalities, primarily Optical Coherence Tomography (OCT) and Chest X-rays, with a focus on diseases such as Choroidal Neovascularization (CNV), Diabetic Macular Edema (DME), Drusen, and normal controls. The data is anonymized, with all protected health information (PHI) removed. Information related to the participants' sex, race/ethnicity, and medication use has also been excluded.",
             "descriptionType": "Abstract"
           }
         ],
@@ -2619,12 +2585,16 @@
         },
         "rights": [
           {
-            "rightsName": "AI-READI custom license v1.0",
-            "rightsURI": "https://doi.org/10.5281/zenodo.10642459"
+            "rightsName": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": {
+              "rightsIdentifierValue": "https://creativecommons.org/licenses/by/4.0/",
+              "rightsIdentifierScheme": "CC BY 4.0",
+              "schemeURI": "https://creativecommons.org/licenses/by/4.0/"
+            }
           }
         ],
         "publisher": {
-          "publisherName": "FAIRhub"
+          "publisherName": "Mendeley Data"
         },
         "size": ["2.01 TB", "165,051 files"],
         "fundingReference": [
@@ -2637,9 +2607,9 @@
             },
             "awardNumber": {
               "awardNumberValue": "OT2OD032644",
-              "awardURI": "https://reporter.nih.gov/search/yatARMM-qUyKAhnQgsCTAQ/project-details/10885481"
+              "awardURI": "https://reporter.nih.gov/search/WSgGyJuAo0iMD_lYjQq7-Q/project-details/3643675"
             },
-            "awardTitle": "Bridge2AI: Salutogenesis Data Generation Project"
+            "awardTitle": "NIH BIDS-funded Biomedical Research and Development"
           }
         ],
         "format": ["image/DICOM", "text/markdown", "table/csv"]
@@ -4306,7 +4276,7 @@
       "viewCount": 0
     },
     "external": true,
-    "externalUrl": "https://www.mendeley.com/catalogue/547af398-40c8-31c7-bcbd-26cb1003d630/",
+    "externalUrl": "https://data.mendeley.com/datasets/rscbjbr9sj/3",
     "created": "1731860000"
   }
 ]

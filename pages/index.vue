@@ -20,7 +20,9 @@ definePageMeta({
           See the future with eye imaging data.
         </h1>
 
-        <div class="absolute bottom-3 flex justify-between gap-10 px-10 pb-10">
+        <div
+          class="absolute bottom-3 flex w-full justify-between gap-10 px-10 pb-10"
+        >
           <p class="my-10 text-3xl font-medium">
             The Envision Portal is your new home to help you explore the future
             of uploading, preparing, and sharing eye imaging data.
