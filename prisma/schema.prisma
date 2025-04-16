@@ -467,11 +467,8 @@ model PublishedDataset {
     external    Boolean @default(false)
     externalUrl String?
 
-    keywords        String[]
-    contributors    Int?
     labelingMethod  String?
     validationInfo  String?
-    license         String?
 
     updated DateTime @updatedAt
     created DateTime @default(now())

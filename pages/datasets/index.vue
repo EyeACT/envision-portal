@@ -45,7 +45,7 @@
                   v1.2
                 </UBadge>
               </div>
-              <p class="text-xxs text-gray-500 mt-1">
+              <p class="text-xs text-gray-500 mt-1">
                 Published by <span class="font-medium">Clami2</span> on
                 <time datetime="2024-03-12">March 12, 2024</time>
                 (10 days ago)
@@ -59,16 +59,21 @@
               <div>
                 <h3 class="text-md font-semibold text-gray-500">Keywords:</h3>
                 <div class="flex gap-2">
-                  <UBadge v-for="keyword in dataset.keywords" :key="keyword" variant="outline" class="text-xs">
+                  <UBadge 
+                    v-for="keyword in dataset.publishedMetadata.keywords" 
+                    :key="keyword" 
+                    variant="outline" 
+                    class="text-xs"
+                  >
                     {{ keyword }}
                   </UBadge>
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-4 text-xxs text-gray-700">
-                <p class="flex items-center gap-1"><Icon name="charm:person" size="15" />Contributors: {{ dataset.contributors }}</p>
+                <p class="flex items-center gap-1"><Icon name="charm:person" size="15" />Contributors: {{ dataset.publishedMetadata.contributors }}</p>
                 <p class="flex items-center gap-1"><Icon name="mdi:label" size="15" />Labeling Method: {{ dataset.labelingMethod }}</p>
                 <p class="flex items-center gap-1"><Icon name="mdi:check-circle" size="15" />Validation Info: {{ dataset.validationInfo }}</p>
-                <p class="flex items-center gap-1"><Icon name="mdi:file-document" size="15" />License: {{ dataset.license }}</p>
+                <p class="flex items-center gap-1"><Icon name="mdi:file-document" size="15" />License: {{ dataset.publishedMetadata.license }}</p>
               </div>
             </div>
           </UCard>

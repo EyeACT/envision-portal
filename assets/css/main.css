@@ -58,10 +58,6 @@ body {
   @apply text-sm md:text-base dark:text-white;
 }
 
-.text-xxs {
-  font-size: 0.9rem; /* equivalent to 10px */
-}
-
 pre {
   @apply text-xs whitespace-pre-wrap;
 }
