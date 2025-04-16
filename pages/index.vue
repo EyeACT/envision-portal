@@ -24,8 +24,12 @@ definePageMeta({
           class="absolute bottom-3 flex w-full justify-between gap-10 px-10 pb-10"
         >
           <p class="my-10 text-3xl font-medium">
-            The Envision Portal is your new home to help you explore the future
-            of uploading, preparing, and sharing eye imaging data.
+            The Envision Portal is more than just a platform—it's your launchpad
+            for preparing, sharing, and scaling eye imaging data for advanced AI
+            research. With rich context and MLCommons Croissant compatibility,
+            it supports seamless integration with TensorFlow, JAX, and
+            PyTorch—enabling powerful analysis and sharing on platforms like
+            Kaggle and HuggingFace.
           </p>
 
           <div class="flex w-max items-center justify-start gap-3">
@@ -63,12 +67,12 @@ definePageMeta({
         </h2>
 
         <p class="mb-4 font-light">
-          We are rethinking how you share your eye imaging data. The Envision
-          Portal is built from the ground up to provide clinical researchers
-          with a easy to use, secure, and scalable platform to share their study
-          material. We are building a platform that is designed to be easy to
-          use and accessible to all researchers, regardless of their technical
-          expertise.
+          We are redefining the way clinical researchers share and collaborate
+          on eye imaging data. The Envision Portal is a next-generation platform
+          engineered to deliver a secure, user-friendly, and highly scalable
+          solution for data sharing. It is thoughtfully designed to support
+          researchers at every level, enabling efficient collaboration without
+          technical barriers.
         </p>
 
         <p class="mb-4 font-medium">
@@ -104,7 +108,7 @@ definePageMeta({
         <div class="grid items-center gap-12 md:grid-cols-2">
           <div class="space-y-4">
             <h2 class="text-4xl font-bold tracking-tight md:text-5xl">
-              Built for clinicians like you
+              Built for clinicians, data scientists and AI developers like you
             </h2>
 
             <p class="text-xl">
@@ -145,10 +149,11 @@ definePageMeta({
               <h3 class="text-xl font-bold">Accuracy</h3>
 
               <p class="">
-                We are committed to providing accurate and reliable data to
-                support model training and clinical decision-making. Our
-                datasets are carefully curated and validated to ensure the
-                highest quality and reliability.
+                At Envision, we are committed to providing accurate,
+                high-quality medical imaging data to support model training,
+                clinical research, and informed decision-making. Our datasets
+                are meticulously curated and validated to ensure maximum
+                reliability and utility.
               </p>
             </div>
 
@@ -162,10 +167,11 @@ definePageMeta({
               <h3 class="text-xl font-bold">Open Source</h3>
 
               <p class="">
-                We believe in open-source software and are committed to making
-                our code and data accessible to the community. We welcome
-                contributions from the community and strive to maintain a
-                collaborative and inclusive environment.
+                Envision is built on open-source principles. We are committed to
+                transparency and collaboration, making our tools, code, and
+                imaging datasets openly available to the community. We encourage
+                contributions and aim to foster an inclusive, innovative
+                ecosystem.
               </p>
             </div>
 
@@ -179,11 +185,12 @@ definePageMeta({
               <h3 class="text-xl font-bold">FAIR first</h3>
 
               <p class="">
-                We are committed to making our datasets and models FAIR
-                (Findable, Accessible, Interoperable, and Reusable) to ensure
-                their long-term value and sustainability. We strive to follow
-                the FAIR principles and make our datasets and models as
-                accessible as possible.
+                We prioritize FAIR principles (<strong
+                  >Findable, Accessible, Interoperable, and Reusable</strong
+                >) to ensure the long-term value and usability of medical image
+                data and AI models. Envision is designed to make sharing and
+                discovery effortless and compliant with these foundational
+                standards.
               </p>
             </div>
 
@@ -218,10 +225,13 @@ definePageMeta({
           </h2>
 
           <p class="text-lg">
-            With the rise of AI models, the data that we generate is becoming
-            more and more important. For the development of these models, we
-            need to understand the needs of model creators and users. This is
-            where the Envision Portal is changing how we share our data.
+            Transforming the Future of Data Sharing in the era of AI, data is
+            not just a byproduct—it's a foundational asset. To develop AI models
+            that truly make an impact, we must prioritize how data is accessed,
+            shared, and understood. The Envision Portal is pioneering a new
+            standard in data collaboration—bridging the gap between data
+            contributors and AI developers to accelerate innovation and
+            discovery.
           </p>
         </div>
 
@@ -295,7 +305,7 @@ definePageMeta({
       </div>
     </UContainer>
 
-    <UContainer class="py-24">
+    <UContainer class="py-18">
       <div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
         <div class="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
           <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">Our Blog</h2>
@@ -448,6 +458,158 @@ definePageMeta({
             </div>
           </article>
         </div>
+      </div>
+    </UContainer>
+
+    <UContainer class="py-18">
+      <div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
+        <div class="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
+          <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">
+            Development Timeline
+          </h2>
+
+          <p class="sm:text-xl">
+            Our development timeline is designed to align with the needs of our
+            users and ensure a smooth transition from prototype to production.
+          </p>
+        </div>
+
+        <ol class="relative border-s border-gray-200 dark:border-gray-700">
+          <li class="ms-6 mb-10">
+            <span
+              class="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900"
+            >
+              <svg
+                class="h-2.5 w-2.5 text-blue-800 dark:text-blue-300"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+                />
+              </svg>
+            </span>
+
+            <h3
+              class="mb-1 flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white"
+            >
+              Envision Portal v0.3.0
+              <span
+                class="rounded-sm bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+              >
+                Latest
+              </span>
+            </h3>
+
+            <time
+              class="mb-2 block text-sm leading-none font-normal text-gray-400 dark:text-gray-500"
+            >
+              Released on December 13th, 2025
+            </time>
+
+            <p
+              class="mb-4 text-base font-normal text-gray-500 dark:text-gray-400"
+            >
+              Added a new uploading tool that allows users to upload their own
+              datasets. The uploading tool includes a drag-and-drop interface, a
+              progress bar, and a file preview. It also includes a documentation
+              page that provides detailed instructions on how to upload
+              datasets.
+            </p>
+
+            <UButton
+              to="/"
+              icon="line-md:upload-loop"
+              size="xl"
+              color="primary"
+              variant="outline"
+            >
+              Upload Dataset
+            </UButton>
+          </li>
+
+          <li class="ms-6 mb-10">
+            <span
+              class="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900"
+            >
+              <svg
+                class="h-2.5 w-2.5 text-blue-800 dark:text-blue-300"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+                />
+              </svg>
+            </span>
+
+            <h3
+              class="mb-1 text-lg font-semibold text-gray-900 dark:text-white"
+            >
+              Envision Portal v0.2.0
+            </h3>
+
+            <time
+              class="mb-2 block text-sm leading-none font-normal text-gray-400 dark:text-gray-500"
+            >
+              Released on July 7th, 2025
+            </time>
+
+            <p class="text-base font-normal text-gray-500 dark:text-gray-400">
+              The Envision Portal v0.2.0 is a significant update that includes
+              new features, improved usability, and enhanced security. The
+              dashboard has been redesigned to provide a more intuitive and
+              user-friendly interface. The data explorer has been updated to
+              include new features and improved functionality. The visualization
+              tool has been improved to provide more customization options and
+              better integration with other tools.
+            </p>
+          </li>
+
+          <li class="ms-6">
+            <span
+              class="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900"
+            >
+              <svg
+                class="h-2.5 w-2.5 text-blue-800 dark:text-blue-300"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+                />
+              </svg>
+            </span>
+
+            <h3
+              class="mb-1 text-lg font-semibold text-gray-900 dark:text-white"
+            >
+              Envision Portal v0.1.0
+            </h3>
+
+            <time
+              class="mb-2 block text-sm leading-none font-normal text-gray-400 dark:text-gray-500"
+            >
+              Released on May 2nd, 2025
+            </time>
+
+            <p class="text-base font-normal text-gray-500 dark:text-gray-400">
+              The first version of the Envision Portal is now available for
+              testing. It includes a dashboard, a data explorer, and a
+              visualization tool. The dashboard allows users to view and analyze
+              their data, while the data explorer provides a user-friendly
+              interface for uploading, managing, and sharing datasets. The
+              visualization tool enables users to create and share
+              visualizations of their data.
+            </p>
+          </li>
+        </ol>
       </div>
     </UContainer>
 
