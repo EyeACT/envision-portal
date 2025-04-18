@@ -25,6 +25,11 @@ const downloadDropdownItems = ref([
 
 const tabItems = [
   {
+    icon: "ri:information-line",
+    label: "About",
+    slot: "about",
+  },
+  {
     icon: "solar:bill-list-bold",
     label: "Study Metadata",
     slot: "study-metadata",
@@ -212,7 +217,7 @@ if (dataset.value) {
             <div class="flex flex-col gap-2">
               <NuxtLink
                 v-if="dataset?.external"
-                :to="dataset?.externalUrl"
+                :to="dataset?.externalUrl || '#'"
                 target="_blank"
               >
                 <UPopover mode="hover" arrow>
@@ -287,6 +292,13 @@ if (dataset.value) {
             class="w-full gap-4"
             :ui="{ trigger: 'cursor-pointer' }"
           >
+            <template #about>
+              <MarkdownRenderer
+                :content="dataset?.metadata?.readme"
+                class="pb-5"
+              />
+            </template>
+
             <template #study-metadata>
               <MetadataStudy :metadata="dataset?.metadata?.studyDescription" />
             </template>
