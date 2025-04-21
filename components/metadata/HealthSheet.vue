@@ -7,7 +7,7 @@ const props = defineProps<{
 const healthsheetData = [
   {
     title: "General Information",
-    data: props.metadata.general_information,
+    data: props.metadata.generalInformation,
   },
   {
     title: "Dataset versioning",
@@ -27,7 +27,7 @@ const healthsheetData = [
   },
   {
     title: "Challenge in tests and confounding factors",
-    data: props.metadata.demographic_information,
+    data: props.metadata.demographicInformation,
   },
   {
     title: "Pre-processing / De-Identification",

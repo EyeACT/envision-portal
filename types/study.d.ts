@@ -463,13 +463,13 @@ interface HealthsheetRecord {
 }
 
 interface HealthsheetRecords {
-  general_information: HealthsheetRecord[];
+  generalInformation: HealthsheetRecord[];
   versioning: HealthsheetRecord[];
   motivation: HealthsheetRecord[];
   composition: HealthsheetRecord[];
   devices: HealthsheetRecord[];
   challenge: HealthsheetRecord[];
-  demographic_information: HealthsheetRecord[];
+  demographicInformation: HealthsheetRecord[];
   preprocessing: HealthsheetRecord[];
   labeling: HealthsheetRecord[];
   collection: HealthsheetRecord[];
