@@ -44,9 +44,13 @@ if (data.value) {
       >
         <div class="flex w-full items-center justify-between gap-3">
           <div>
-            <h1>{{ data?.title || "Untitled" }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              {{ data?.title || "Untitled" }}
+            </h1>
 
-            <p>{{ data?.StudyDescription[0].briefSummary }}</p>
+            <p class="text-lg font-normal">
+              {{ data?.StudyDescription[0].briefSummary }}
+            </p>
           </div>
 
           <div class="relative">

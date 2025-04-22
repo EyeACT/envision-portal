@@ -45,9 +45,11 @@ if (error.value) {
       >
         <div class="flex items-center justify-between gap-3">
           <div>
-            <h1>Requests for datasets</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Requests for Datasets
+            </h1>
 
-            <p>Manage your dataset requests</p>
+            <p class="text-lg font-normal">Manage your dataset requests</p>
           </div>
         </div>
       </div>
@@ -62,7 +64,7 @@ if (error.value) {
           <UCard>
             <template #header>
               <div class="flex items-center justify-between gap-3">
-                <h2>
+                <h2 class="text-lg font-medium">
                   {{ datasetRequest.dataset.title }}
                 </h2>
 
