@@ -198,7 +198,7 @@ const requests = ref({
 
         <USeparator class="my-3" />
 
-        <h2>Request access to the dataset</h2>
+        <h2 class="text-lg font-medium">Request access to the dataset</h2>
 
         <UForm
           :schema="schema"
@@ -233,7 +233,7 @@ const requests = ref({
 
         <UCollapsible class="mb-3 flex flex-col gap-2">
           <UButton
-            color="neutral"
+            color="info"
             variant="ghost"
             trailing-icon="i-lucide-chevron-down"
             block

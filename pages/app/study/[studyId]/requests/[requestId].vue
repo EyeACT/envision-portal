@@ -27,6 +27,11 @@ const items = [
     slot: "review-data-use-agreement",
   },
   {
+    icon: "maki:racetrack",
+    label: "Finalize Data Use Agreement",
+    slot: "finalize-data-use-agreement",
+  },
+  {
     disabled: true,
     icon: "material-symbols:folder-managed-rounded",
     label: "Manage Request",
@@ -38,6 +43,10 @@ const { requestId, studyId } = route.params as {
   requestId: string;
   studyId: string;
 };
+
+const unsignedDUA = ref("");
+const requesterSignedDUA = ref("");
+const submitterSignedDUA = ref("");
 
 const { data, error } = await useFetch(
   `/api/studies/${studyId}/dataset-requests/${requestId}`,
@@ -52,6 +61,13 @@ if (error.value) {
   });
 
   await navigateTo("/");
+}
+
+if (data.value) {
+  unsignedDUA.value =
+    data.value.DatasetRequestDetails[0].unsignedDataUseAgreement;
+  requesterSignedDUA.value =
+    data.value.DatasetRequestDetails[0].requesterSignedDataUseAgreement;
 }
 </script>
 
@@ -117,6 +133,7 @@ if (error.value) {
           orientation="horizontal"
           variant="link"
           class="w-full gap-4"
+          default-value="2"
           :ui="{ trigger: 'cursor-pointer' }"
         >
           <template #overview>
@@ -147,22 +164,41 @@ if (error.value) {
               </p>
 
               <div class="flex gap-3">
-                <UInput type="file" accept=".pdf,.doc,.docx" />
+                <UInput
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  :disabled="unsignedDUA"
+                />
 
                 <UButton
                   label="Upload Data Use Agreement"
                   icon="material-symbols:file-upload"
                   color="primary"
+                  :disabled="unsignedDUA"
                 />
               </div>
+
+              <client-only>
+                <div>
+                  <USeparator class="my-3" />
+
+                  <p class="mb-5">
+                    A data use agreement was provided to the requesting user.
+                    View the document below.
+                  </p>
+
+                  <embed :src="unsignedDUA" width="1440px" height="900px" />
+                </div>
+              </client-only>
             </div>
           </template>
 
           <template #review-data-use-agreement>
             <div class="flex flex-col gap-3">
               <p>
-                The user has provided a signed data use agreement. Please review
-                the document and confirm that it is acceptable.
+                A signed data use agreement was provided by the requesting user.
+                Please review the document and confirm that it is acceptable. If
+                it looks good, please add your signature to the document.
               </p>
 
               <div class="flex gap-3">
@@ -176,6 +212,54 @@ if (error.value) {
                   {{ data?.DatasetRequestDetails[0].signedDataUseAgreement }}
                 </ULink>
               </div>
+
+              <embed
+                :src="data?.DatasetRequestDetails[0].signedDataUseAgreement"
+                width="1440px"
+                height="900px"
+              />
+            </div>
+          </template>
+
+          <template #finalize-data-use-agreement>
+            <div class="flex flex-col gap-3">
+              <p>
+                The user has provided a signed data use agreement. Please review
+                the document and confirm that it is acceptable. If it looks
+                good, please add your signature to the document.
+              </p>
+
+              <div class="flex gap-3">
+                <UInput
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  :disabled="unsignedDUA"
+                />
+
+                <UButton
+                  label="Upload Data Use Agreement"
+                  icon="material-symbols:file-upload"
+                  color="primary"
+                  :disabled="unsignedDUA"
+                />
+              </div>
+
+              <client-only>
+                <div>
+                  <USeparator class="my-3" />
+
+                  <p class="mb-5">
+                    We have sent the requester a signed data use agreement. View
+                    the document below.
+                  </p>
+
+                  <embed
+                    :src="requesterSignedDUA"
+                    width="1440px"
+                    height="900px"
+                  />
+                </div>
+              </client-only>
             </div>
           </template>
 

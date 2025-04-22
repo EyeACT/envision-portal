@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     studyId: string;
   };
 
-  const datasetRequest = await prisma.datasetRequest.findFirst({
+  const datasetRequest = await prisma.datasetRequest.findUnique({
     include: {
       dataset: true,
       DatasetRequestDetails: true,
