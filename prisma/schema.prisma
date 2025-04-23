@@ -467,9 +467,6 @@ model PublishedDataset {
     external    Boolean @default(false)
     externalUrl String?
 
-    labelingMethod String?
-    validationInfo String?
-
     updated DateTime @updatedAt
     created DateTime @default(now())
 }

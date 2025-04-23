@@ -31,7 +31,12 @@ export default defineEventHandler(async (event) => {
     external: publishedDataset.external,
     externalUrl: publishedDataset.externalUrl,
     files: datasetFiles,
+    labelingMethod: publishedDataset.labelingMethod,
+    validationInfo: publishedDataset.validationInfo,
+    license: publishedDataset.license,
     metadata: {
+      contributors: datasetMetadata.contributors,
+      keywords: datasetMetadata.keywords,
       datasetDescription: datasetMetadata.datasetDescription,
       datasetStructureDescription: datasetMetadata.datasetStructureDescription,
       healthsheet: datasetMetadata.healthsheet,
