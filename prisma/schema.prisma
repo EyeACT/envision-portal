@@ -469,6 +469,7 @@ model PublishedDataset {
 
     labelingMethod  String?
     validationInfo  String?
+    license String?
 
     updated DateTime @updatedAt
     created DateTime @default(now())

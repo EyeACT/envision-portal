@@ -2152,7 +2152,10 @@
     },
     "external": false,
     "externalUrl": null,
-    "created": "1731060000"
+    "created": "1731060000",
+    "labelingMethod": "automated",
+    "validationInfo": "gold labels used",
+    "license": "MIT"
   },
   {
     "id": "2",
@@ -4277,6 +4280,9 @@
     },
     "external": true,
     "externalUrl": "https://data.mendeley.com/datasets/rscbjbr9sj/3",
-    "created": "1731860000"
+    "created": "1731860000",
+    "labelingMethod": "semi-automated",
+    "validationInfo": "QA complete",
+    "license": "MIT"
   }
 ]

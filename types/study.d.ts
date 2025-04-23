@@ -485,6 +485,8 @@ interface Metadata {
   datasetDescription: DatasetDescription;
   datasetStructureDescription: DatasetStructureDescription;
   healthsheet: HealthsheetRecords;
+  keywords: string[];
+  contributors: number;
 }
 
 interface AdditionalData {
@@ -505,6 +507,9 @@ interface Dataset {
   external: boolean;
   externalUrl: string | null;
   created: Date;
+  labelingMethod: string;
+  validationInfo: string;
+  license: string;
 }
 
 interface DatasetArray extends Array<Dataset> {}

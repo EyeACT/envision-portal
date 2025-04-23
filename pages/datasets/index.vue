@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
+import type { AccordionItem } from "@nuxt/ui";
 
 definePageMeta({
   layout: "public",
@@ -19,9 +20,62 @@ if (error.value) {
 
 const getDaysAgo = (date: string): string => {
   const daysAgo = dayjs().diff(dayjs(date), "day");
-
   return daysAgo === 0 ? "Today" : `${daysAgo} days ago`;
 };
+
+const selectedKeyword = ref("");
+const selectedLabelingMethod = ref("");
+const selectedValidationInfo = ref("");
+
+const keywords = computed(() => {
+  const allKeywords = (datasets.value || []).flatMap(
+    (ds) => ds.publishedMetadata?.keywords || []
+  );
+  return Array.from(new Set(allKeywords));
+});
+
+const labelingMethods = computed(() => {
+  return Array.from(
+    new Set((datasets.value || []).map(ds => ds.labelingMethod).filter(Boolean))
+  );
+});
+
+const validationInfos = computed(() => {
+  return Array.from(
+    new Set((datasets.value || []).map(ds => ds.validationInfo).filter(Boolean))
+  );
+});
+
+const items = ref<AccordionItem[]>([
+  { label: "Keywords", content: "" },
+  { label: "Method", content: "" },
+  { label: "Validation", content: "" },
+]);
+
+const filteredDatasets = computed(() => {
+  let list = datasets.value || [];
+  if (selectedKeyword.value) {
+    list = list.filter(dataset =>
+      dataset.publishedMetadata?.keywords?.some(
+        (keyword: string) => keyword.toLowerCase() === selectedKeyword.value
+      )
+    );
+  }
+
+  if (selectedLabelingMethod.value) {
+    list = list.filter(
+      (dataset) => dataset.labelingMethod === selectedLabelingMethod.value
+    );
+  }
+
+  if (selectedValidationInfo.value) {
+    list = list.filter(
+      (dataset) => dataset.validationInfo === selectedValidationInfo.value
+    );
+  }
+
+  return list;
+});
 </script>
 
 <template>
@@ -35,79 +89,119 @@ const getDaysAgo = (date: string): string => {
         ]"
       />
 
-      <div class="flex flex-col gap-4 pt-2">
-        <NuxtLink
-          v-for="dataset in datasets"
-          :key="dataset.id"
-          :to="`/datasets/${dataset.id}`"
-        >
-          <UCard
-            class="rounded-lg border border-gray-200 bg-white p-2 transition-all hover:shadow-lg"
-          >
-            <template #header>
-              <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold text-blue-400">
-                  Brain MRI Dataset
-                </h2>
-
-                <UBadge color="primary" variant="outline"> v1.2 </UBadge>
+      <div class="flex flex-col md:flex-row gap-6 pt-2">
+        <!-- Left: Accordion Filters -->
+        <div class="w-full md:w-1/5">
+          <UAccordion :items="items">
+            <template #content="{ item }">
+              <!-- Keyword Filter -->
+              <div v-if="item.label === 'Keywords'" class="flex flex-wrap gap-2 p-2">
+                <UBadge
+                  v-for="keyword in keywords"
+                  :key="keyword"
+                  variant="soft"
+                  class="cursor-pointer hover:bg-blue-100 transition-all"
+                  :color="keyword === selectedKeyword ? 'primary' : 'gray'"
+                  @click="selectedKeyword = keyword === selectedKeyword ? '' : keyword"
+                >
+                  {{ keyword }}
+                </UBadge>
               </div>
 
-              <p class="mt-1 text-xs text-gray-500">
-                Published by <span class="font-medium">Clami2</span>
-                on
-                <time datetime="2024-03-12">March 12, 2024</time>
-                (10 days ago)
-              </p>
+              <!-- Labeling Method Filter -->
+              <div v-else-if="item.label === 'Method'" class="flex flex-wrap gap-2 p-2">
+                <UBadge
+                  v-for="method in labelingMethods"
+                  :key="method"
+                  variant="soft"
+                  class="cursor-pointer hover:bg-blue-100 transition-all"
+                  :color="method === selectedLabelingMethod ? 'primary' : 'gray'"
+                  @click="selectedLabelingMethod = method === selectedLabelingMethod ? '' : method"
+                >
+                  {{ method }}
+                </UBadge>
+              </div>
+
+              <!-- Validation Info Filter -->
+              <div v-else-if="item.label === 'Validation'" class="flex flex-wrap gap-2 p-2">
+                <UBadge
+                  v-for="info in validationInfos"
+                  :key="info"
+                  variant="soft"
+                  class="cursor-pointer hover:bg-blue-100 transition-all"
+                  :color="info === selectedValidationInfo ? 'primary' : 'gray'"
+                  @click="selectedValidationInfo = info === selectedValidationInfo ? '' : info"
+                >
+                  {{ info }}
+                </UBadge>
+              </div>
             </template>
+          </UAccordion>
+        </div>
 
-            <div class="space-y-4">
-              <p class="text-sm text-gray-500">
-                A dataset containing brain MRI scans for pain detection
-                research.
-              </p>
+        <!-- Right: Dataset Cards -->
+        <div class="w-full md:w-4/5 flex flex-col gap-4">
+          <NuxtLink
+            v-for="dataset in filteredDatasets"
+            :key="dataset.id"
+            :to="`/datasets/${dataset.id}`"
+          >
+            <UCard class="rounded-lg border border-gray-200 bg-white p-2 transition-all hover:shadow-lg">
+              <template #header>
+                <div class="flex items-center justify-between">
+                  <h2 class="text-xl font-semibold text-blue-400">
+                    {{ dataset.title }}
+                  </h2>
+                  <UBadge color="primary" variant="outline">v1.2</UBadge>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">
+                  Published on
+                  <time :datetime="dataset.created">{{ dayjs(dataset.created).format('MMMM D, YYYY') }}</time>
+                  ({{ getDaysAgo(dataset.created) }})
+                </p>
+              </template>
 
-              <div>
-                <h3 class="text-md font-semibold text-gray-500">Keywords:</h3>
+              <div class="space-y-4">
+                <p class="text-sm text-gray-500">
+                  {{ dataset.description }}
+                </p>
 
-                <div class="flex gap-2">
-                  <UBadge
-                    v-for="keyword in dataset.publishedMetadata.keywords"
-                    :key="keyword"
-                    variant="outline"
-                    class="text-xs"
-                  >
-                    {{ keyword }}
-                  </UBadge>
+                <div>
+                  <h3 class="text-md font-semibold text-gray-500">Keywords:</h3>
+                  <div class="flex gap-2">
+                    <UBadge
+                      v-for="keyword in dataset.publishedMetadata?.keywords"
+                      :key="keyword"
+                      variant="outline"
+                      class="text-xs"
+                    >
+                      {{ keyword }}
+                    </UBadge>
+                  </div>
+                </div>
+
+                <div class="text-xxs flex flex-wrap items-center gap-4 text-gray-700">
+                  <p class="flex items-center gap-1">
+                    <Icon name="charm:person" size="15" />
+                    Contributors: {{ dataset.contributors }}
+                  </p>
+                  <p class="flex items-center gap-1">
+                    <Icon name="mdi:label" size="15" />
+                    Labeling Method: {{ dataset.labelingMethod }}
+                  </p>
+                  <p class="flex items-center gap-1">
+                    <Icon name="mdi:check-circle" size="15" />
+                    Validation Info: {{ dataset.validationInfo }}
+                  </p>
+                  <p class="flex items-center gap-1">
+                    <Icon name="mdi:file-document" size="15" />
+                    License: {{ dataset.publishedMetadata?.license }}
+                  </p>
                 </div>
               </div>
-
-              <div
-                class="text-xxs flex flex-wrap items-center gap-4 text-gray-700"
-              >
-                <p class="flex items-center gap-1">
-                  <Icon name="charm:person" size="15" />Contributors:
-                  {{ dataset.publishedMetadata.contributors }}
-                </p>
-
-                <p class="flex items-center gap-1">
-                  <Icon name="mdi:label" size="15" />Labeling Method:
-                  {{ dataset.labelingMethod }}
-                </p>
-
-                <p class="flex items-center gap-1">
-                  <Icon name="mdi:check-circle" size="15" />Validation Info:
-                  {{ dataset.validationInfo }}
-                </p>
-
-                <p class="flex items-center gap-1">
-                  <Icon name="mdi:file-document" size="15" />License:
-                  {{ dataset.publishedMetadata.license }}
-                </p>
-              </div>
-            </div>
-          </UCard>
-        </NuxtLink>
+            </UCard>
+          </NuxtLink>
+        </div>
       </div>
     </UContainer>
   </div>
