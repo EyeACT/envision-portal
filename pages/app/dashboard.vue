@@ -97,9 +97,13 @@ const dropdownItems = ref([
         class="flex flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div>
-          <h1>My Studies</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            My Studies
+          </h1>
 
-          <p>Manage and explore your research studies</p>
+          <p class="text-lg font-normal">
+            Manage and explore your research studies
+          </p>
         </div>
 
         <USlideover side="right" title="Create New Study">

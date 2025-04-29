@@ -163,11 +163,11 @@ const requests = ref({
         ]"
       />
 
-      <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-6 pt-4">
         <div class="grid grid-cols-12 gap-6">
           <div class="col-span-11">
             <div class="flex flex-col gap-1">
-              <h1>
+              <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
                 {{ dataset?.title }}
               </h1>
 
@@ -198,7 +198,7 @@ const requests = ref({
 
         <USeparator class="my-3" />
 
-        <h2>Request access to the dataset</h2>
+        <h2 class="text-lg font-medium">Request access to the dataset</h2>
 
         <UForm
           :schema="schema"
@@ -229,68 +229,83 @@ const requests = ref({
           <UButton type="submit"> Submit </UButton>
         </UForm>
 
-        <div class="flex flex-col gap-8">
-          <h2>All Requests</h2>
+        <USeparator class="my-3" />
 
-          <UCard
-            v-for="request in [
-              ...requests.approved,
-              ...requests.pending,
-              ...requests.expired,
-              ...requests.denied,
-            ]"
-            :key="request.id"
+        <UCollapsible class="mb-3 flex flex-col gap-2">
+          <UButton
+            color="info"
+            variant="ghost"
+            trailing-icon="i-lucide-chevron-down"
+            block
           >
-            <template #header>
-              <div class="flex items-center justify-end gap-2">
-                <span class="text-xs">
-                  {{ request.id }}
-                </span>
+            <h2>View all requests to access this dataset</h2>
+          </UButton>
 
-                <UBadge
-                  :color="
-                    request.status === 'approved'
-                      ? 'success'
-                      : request.status === 'denied'
-                        ? 'error'
-                        : request.status === 'expired'
-                          ? 'warning'
-                          : 'neutral'
-                  "
-                  variant="outline"
-                  class="w-max"
-                >
-                  {{ request.status }}
-                </UBadge>
-              </div>
-            </template>
+          <template #content>
+            <div class="flex flex-col gap-8 p-2">
+              <UCard
+                v-for="request in [
+                  ...requests.approved,
+                  ...requests.pending,
+                  ...requests.expired,
+                  ...requests.denied,
+                ]"
+                :key="request.id"
+              >
+                <template #header>
+                  <div class="flex items-center justify-between gap-2">
+                    <UBadge
+                      :color="
+                        request.status === 'approved'
+                          ? 'success'
+                          : request.status === 'denied'
+                            ? 'error'
+                            : request.status === 'expired'
+                              ? 'warning'
+                              : 'neutral'
+                      "
+                      variant="outline"
+                      class="w-max"
+                    >
+                      {{ request.status }}
+                    </UBadge>
 
-            <p class="text-sm">
-              {{ request.reason }}
-            </p>
+                    <span class="text-xs text-gray-500">
+                      {{ request.id }}
+                    </span>
+                  </div>
+                </template>
 
-            <template #footer>
-              <div class="flex justify-between gap-2">
-                <div class="flex gap-2">
-                  <span class="text-sm">
-                    Updated on
-                    <time>
-                      {{ $dayjs(request.timeChanged).format("MMM D, YYYY") }}
-                    </time>
-                  </span>
-                </div>
+                <p class="text-sm">
+                  {{ request.reason }}
+                </p>
 
-                <UButton
-                  v-if="request.status === 'approved'"
-                  label="View access instructions"
-                  icon="material-symbols:arrow-right"
-                  size="sm"
-                  color="primary"
-                />
-              </div>
-            </template>
-          </UCard>
-        </div>
+                <template #footer>
+                  <div class="flex justify-between gap-2">
+                    <div class="flex gap-2">
+                      <span class="text-sm">
+                        Updated on
+                        <time>
+                          {{
+                            $dayjs(request.timeChanged).format("MMM D, YYYY")
+                          }}
+                        </time>
+                      </span>
+                    </div>
+
+                    <UButton
+                      v-if="request.status === 'approved'"
+                      label="View access instructions"
+                      icon="material-symbols:arrow-right"
+                      size="sm"
+                      color="primary"
+                    />
+                  </div>
+                </template>
+              </UCard>
+            </div>
+          </template>
+        </UCollapsible>
       </div>
     </UContainer>
   </div>

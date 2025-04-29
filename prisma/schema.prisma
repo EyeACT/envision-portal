@@ -467,8 +467,8 @@ model PublishedDataset {
     external    Boolean @default(false)
     externalUrl String?
 
-    labelingMethod  String?
-    validationInfo  String?
+    labelingMethod String?
+    validationInfo String?
 
     updated DateTime @updatedAt
     created DateTime @default(now())
@@ -508,8 +508,10 @@ model DatasetRequestDetails {
     datasetRequestId String
     datasetRequest   DatasetRequest @relation(fields: [datasetRequestId], references: [id], onDelete: Cascade)
 
-    dataUseAgreementRequest String? // link to data use agreement
-    signedDataUseAgreement  String? // link to signed data use agreement
+    unsignedDataUseAgreement        String? // link to unsigned data use agreement
+    requesterSignedDataUseAgreement String? // link to requester signed data use agreement
+    submitterSignedDataUseAgreement String? // link to submitter signed data use agreement
+    signedDataUseAgreement          String? // link to signed data use agreement
 
     status String @default("pending")
 
