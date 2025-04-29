@@ -65,9 +65,11 @@ if (error.value) {
 
 if (data.value) {
   unsignedDUA.value =
-    data.value.DatasetRequestDetails[0].unsignedDataUseAgreement;
+    data.value.DatasetRequestDetails[0].unsignedDataUseAgreement ?? "";
   requesterSignedDUA.value =
-    data.value.DatasetRequestDetails[0].requesterSignedDataUseAgreement;
+    data.value.DatasetRequestDetails[0].requesterSignedDataUseAgreement ?? "";
+  submitterSignedDUA.value =
+    data.value.DatasetRequestDetails[0].submitterSignedDataUseAgreement ?? "";
 }
 </script>
 
@@ -167,14 +169,14 @@ if (data.value) {
                 <UInput
                   type="file"
                   accept=".pdf,.doc,.docx"
-                  :disabled="unsignedDUA"
+                  :disabled="!!unsignedDUA"
                 />
 
                 <UButton
                   label="Upload Data Use Agreement"
                   icon="material-symbols:file-upload"
                   color="primary"
-                  :disabled="unsignedDUA"
+                  :disabled="!!unsignedDUA"
                 />
               </div>
 
@@ -214,6 +216,7 @@ if (data.value) {
               </div>
 
               <embed
+                v-if="data?.DatasetRequestDetails[0].signedDataUseAgreement"
                 :src="data?.DatasetRequestDetails[0].signedDataUseAgreement"
                 width="1440px"
                 height="900px"
@@ -233,14 +236,14 @@ if (data.value) {
                 <UInput
                   type="file"
                   accept=".pdf,.doc,.docx"
-                  :disabled="unsignedDUA"
+                  :disabled="!!unsignedDUA"
                 />
 
                 <UButton
                   label="Upload Data Use Agreement"
                   icon="material-symbols:file-upload"
                   color="primary"
-                  :disabled="unsignedDUA"
+                  :disabled="!!unsignedDUA"
                 />
               </div>
 

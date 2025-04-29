@@ -16,7 +16,7 @@ const studyNavItems = [
   {
     name: "Overview",
     icon: "material-symbols:overview-key-rounded",
-    route: "overview",
+    route: "",
   },
   { name: "Metadata", icon: "ooui:view-details-ltr", route: "metadata" },
   { name: "Files", icon: "ph:files-fill", route: "files" },
