@@ -40,7 +40,7 @@ definePageMeta({
               color="primary"
               class="w-max"
             >
-              View Eye Imaging Datasets
+              View dataset
             </UButton>
 
             <UButton
@@ -52,7 +52,7 @@ definePageMeta({
               class="w-max"
               color="neutral"
             >
-              Upload Your Dataset
+              Upload dataset
             </UButton>
           </div>
         </div>
