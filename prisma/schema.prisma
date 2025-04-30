@@ -66,7 +66,7 @@ model Study {
     updated DateTime @updatedAt
     created DateTime @default(now())
 
-    StudyDescription    StudyDescription[]
+    StudyDescription    StudyDescription?
     StudyStatus         StudyStatus[]
     StudySponsors       StudySponsors[]
     StudyOversight      StudyOversight[]
@@ -444,6 +444,37 @@ model Dataset {
     created DateTime @default(now())
 
     DatasetRequest DatasetRequest[]
+
+    DatasetAccess              DatasetAccess?
+    DatasetAlternateIdentifier DatasetAlternateIdentifier[]
+}
+
+model DatasetAccess {
+    id String @id @default(cuid())
+
+    datasetId String  @unique
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    type           String
+    description    String
+    url            String
+    urlLastChecked DateTime
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+}
+
+model DatasetAlternateIdentifier {
+    id String @id @default(cuid())
+
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    identifier String
+    type       String
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model PublishedDataset {
@@ -467,9 +498,9 @@ model PublishedDataset {
     external    Boolean @default(false)
     externalUrl String?
 
-    labelingMethod  String?
-    validationInfo  String?
-    license String?
+    labelingMethod String?
+    validationInfo String?
+    license        String?
 
     updated DateTime @updatedAt
     created DateTime @default(now())
