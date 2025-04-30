@@ -1,81 +1,86 @@
 <script setup lang="ts">
-import dayjs from "dayjs";
-import type { AccordionItem } from "@nuxt/ui";
+  import dayjs from "dayjs";
+  import type { AccordionItem } from "@nuxt/ui";
 
-definePageMeta({
-  layout: "public",
-});
-
-const toast = useToast();
-
-const { data: datasets, error } = await useFetch(`/api/datasets`);
-
-if (error.value) {
-  toast.add({
-    title: "Error fetching datasets",
-    description: "Please try again later",
-    icon: "material-symbols:error",
+  definePageMeta({
+    layout: "public",
   });
-}
 
-const getDaysAgo = (date: string): string => {
-  const daysAgo = dayjs().diff(dayjs(date), "day");
-  return daysAgo === 0 ? "Today" : `${daysAgo} days ago`;
-};
+  const toast = useToast();
 
-const selectedKeyword = ref("");
-const selectedLabelingMethod = ref("");
-const selectedValidationInfo = ref("");
+  const { data: datasets, error } = await useFetch(`/api/datasets`);
 
-const keywords = computed(() => {
-  const allKeywords = (datasets.value || []).flatMap(
-    (ds) => ds.publishedMetadata?.keywords || []
-  );
-  return Array.from(new Set(allKeywords));
-});
-
-const labelingMethods = computed(() => {
-  return Array.from(
-    new Set((datasets.value || []).map(ds => ds.labelingMethod).filter(Boolean))
-  );
-});
-
-const validationInfos = computed(() => {
-  return Array.from(
-    new Set((datasets.value || []).map(ds => ds.validationInfo).filter(Boolean))
-  );
-});
-
-const items = ref<AccordionItem[]>([
-  { label: "Keywords", content: "" },
-  { label: "Method", content: "" },
-  { label: "Validation", content: "" },
-]);
-
-const filteredDatasets = computed(() => {
-  let list = datasets.value || [];
-  if (selectedKeyword.value) {
-    list = list.filter(dataset =>
-      dataset.publishedMetadata?.keywords?.some(
-        (keyword: string) => keyword.toLowerCase() === selectedKeyword.value
-      )
-    );
+  if (error.value) {
+    toast.add({
+      title: "Error fetching datasets",
+      description: "Please try again later",
+      icon: "material-symbols:error",
+    });
   }
 
-  if (selectedLabelingMethod.value) {
-    list = list.filter(
-      (dataset) => dataset.labelingMethod === selectedLabelingMethod.value
-    );
-  }
+  const getDaysAgo = (date: string): string => {
+    const daysAgo = dayjs().diff(dayjs(date), "day");
+    return daysAgo === 0 ? "Today" : `${daysAgo} days ago`;
+  };
 
-  if (selectedValidationInfo.value) {
-    list = list.filter(
-      (dataset) => dataset.validationInfo === selectedValidationInfo.value
-    );
-  }
+  const selectedKeyword = ref("");
+  const selectedLabelingMethod = ref("");
+  const selectedValidationInfo = ref("");
 
-  return list;
-});
+  const keywords = computed(() => {
+    const allKeywords = (datasets.value || []).flatMap(
+      (ds) =>
+        ds.publishedMetadata?.studyDescription?.conditionsModule?.keywordList?.map(
+          (kw: { keywordValue: string }) => kw.keywordValue
+        ) || []
+    );
+    return Array.from(new Set(allKeywords));
+  });
+
+  const labelingMethods = computed(() => {
+    return Array.from(
+      new Set((datasets.value || []).map(ds => ds.labelingMethod).filter(Boolean))
+    );
+  });
+
+  const validationInfos = computed(() => {
+    return Array.from(
+      new Set((datasets.value || []).map(ds => ds.validationInfo).filter(Boolean))
+    );
+  });
+
+  const items = ref<AccordionItem[]>([
+    { label: "Keywords", content: "" },
+    { label: "Method", content: "" },
+    { label: "Validation", content: "" },
+  ]);
+
+  const filteredDatasets = computed(() => {
+    let list = datasets.value || [];
+
+    if (selectedKeyword.value) {
+      list = list.filter(dataset =>
+        dataset.publishedMetadata?.studyDescription?.conditionsModule?.keywordList?.some(
+          (keyword: { keywordValue: string }) =>
+            keyword.keywordValue.toLowerCase() === selectedKeyword.value.toLowerCase()
+        )
+      );
+    }
+
+    if (selectedLabelingMethod.value) {
+      list = list.filter(
+        (dataset) => dataset.labelingMethod === selectedLabelingMethod.value
+      );
+    }
+
+    if (selectedValidationInfo.value) {
+      list = list.filter(
+        (dataset) => dataset.validationInfo === selectedValidationInfo.value
+      );
+    }
+
+    return list;
+  });
 </script>
 
 <template>
@@ -90,46 +95,41 @@ const filteredDatasets = computed(() => {
       />
 
       <div class="flex flex-col md:flex-row gap-6 pt-2">
-        <!-- Left: Accordion Filters -->
         <div class="w-full md:w-1/5">
-          <UAccordion :items="items">
+          <UAccordion type="multiple" :items="items">
             <template #content="{ item }">
-              <!-- Keyword Filter -->
               <div v-if="item.label === 'Keywords'" class="flex flex-wrap gap-2 p-2">
                 <UBadge
                   v-for="keyword in keywords"
                   :key="keyword"
                   variant="soft"
                   class="cursor-pointer hover:bg-blue-100 transition-all"
-                  :color="keyword === selectedKeyword ? 'primary' : 'gray'"
+                  :color="keyword === selectedKeyword ? 'primary' : 'neutral'"
                   @click="selectedKeyword = keyword === selectedKeyword ? '' : keyword"
                 >
                   {{ keyword }}
                 </UBadge>
               </div>
 
-              <!-- Labeling Method Filter -->
               <div v-else-if="item.label === 'Method'" class="flex flex-wrap gap-2 p-2">
                 <UBadge
                   v-for="method in labelingMethods"
                   :key="method"
                   variant="soft"
                   class="cursor-pointer hover:bg-blue-100 transition-all"
-                  :color="method === selectedLabelingMethod ? 'primary' : 'gray'"
+                  :color="method === selectedLabelingMethod ? 'primary' : 'neutral'"
                   @click="selectedLabelingMethod = method === selectedLabelingMethod ? '' : method"
                 >
                   {{ method }}
                 </UBadge>
               </div>
-
-              <!-- Validation Info Filter -->
               <div v-else-if="item.label === 'Validation'" class="flex flex-wrap gap-2 p-2">
                 <UBadge
                   v-for="info in validationInfos"
                   :key="info"
                   variant="soft"
                   class="cursor-pointer hover:bg-blue-100 transition-all"
-                  :color="info === selectedValidationInfo ? 'primary' : 'gray'"
+                  :color="info === selectedValidationInfo ? 'primary' : 'neutral'"
                   @click="selectedValidationInfo = info === selectedValidationInfo ? '' : info"
                 >
                   {{ info }}
@@ -139,13 +139,8 @@ const filteredDatasets = computed(() => {
           </UAccordion>
         </div>
 
-        <!-- Right: Dataset Cards -->
         <div class="w-full md:w-4/5 flex flex-col gap-4">
-          <NuxtLink
-            v-for="dataset in filteredDatasets"
-            :key="dataset.id"
-            :to="`/datasets/${dataset.id}`"
-          >
+          <NuxtLink v-for="dataset in filteredDatasets" :key="dataset.id" :to="`/datasets/${dataset.id}`">
             <UCard class="rounded-lg border border-gray-200 bg-white p-2 transition-all hover:shadow-lg">
               <template #header>
                 <div class="flex items-center justify-between">
@@ -169,13 +164,8 @@ const filteredDatasets = computed(() => {
                 <div>
                   <h3 class="text-md font-semibold text-gray-500">Keywords:</h3>
                   <div class="flex gap-2">
-                    <UBadge
-                      v-for="keyword in dataset.publishedMetadata?.keywords"
-                      :key="keyword"
-                      variant="outline"
-                      class="text-xs"
-                    >
-                      {{ keyword }}
+                    <UBadge v-for="keyword in dataset.publishedMetadata?.studyDescription.conditionsModule.keywordList" :key="keyword.keywordValue" variant="outline" class="text-xs">
+                      {{ keyword.keywordValue }}
                     </UBadge>
                   </div>
                 </div>
@@ -183,7 +173,7 @@ const filteredDatasets = computed(() => {
                 <div class="text-xxs flex flex-wrap items-center gap-4 text-gray-700">
                   <p class="flex items-center gap-1">
                     <Icon name="charm:person" size="15" />
-                    Contributors: {{ dataset.contributors }}
+                    Contributors: {{ dataset.publishedMetadata.datasetDescription.publisher.publisherName }}
                   </p>
                   <p class="flex items-center gap-1">
                     <Icon name="mdi:label" size="15" />
@@ -195,7 +185,7 @@ const filteredDatasets = computed(() => {
                   </p>
                   <p class="flex items-center gap-1">
                     <Icon name="mdi:file-document" size="15" />
-                    License: {{ dataset.publishedMetadata?.license }}
+                    License: {{ dataset.license }}
                   </p>
                 </div>
               </div>
