@@ -21,9 +21,9 @@ definePageMeta({
         </h1>
 
         <div
-          class="absolute bottom-3 flex w-full justify-between gap-10 px-10 pb-10"
+          class="absolute bottom-3 flex w-full flex-col justify-between gap-8 px-10 pb-10"
         >
-          <p class="my-10 text-3xl font-medium">
+          <p class="my-3 text-3xl font-medium">
             The Envision Portal is more than just a platform—it's your launchpad
             for preparing, sharing, and scaling eye imaging data for advanced AI
             research. With rich context and MLCommons Croissant compatibility,
@@ -35,25 +35,24 @@ definePageMeta({
           <div class="flex w-max items-center justify-start gap-3">
             <UButton
               to="/dashboard"
-              icon="line-md:upload-loop"
+              icon="ri-eye-line"
               size="xl"
               color="primary"
               class="w-max"
             >
-              View eye imaging datasets
+              View Eye Imaging Datasets
             </UButton>
 
             <UButton
-              to="https://github.com/eyeact/envision-portal"
-              icon="i-simple-icons-github"
+              to="/upload"
+              icon="ri-upload-cloud-line"
               size="xl"
               target="_blank"
               variant="outline"
               class="w-max"
               color="neutral"
-              label="View on GitHub"
             >
-              View on GitHub
+              Upload Your Dataset
             </UButton>
           </div>
         </div>
