@@ -531,4 +531,43 @@ interface VersionArrayItem {
   doi: string;
 }
 
+interface Keyword {
+  keywordValue: string;
+}
+
+interface ConditionsModule {
+  keywordList?: Keyword[];
+}
+
+interface StudyDescription {
+  conditionsModule?: ConditionsModule;
+}
+
+interface DatasetDescription {
+  publisher: {
+    publisherName: string;
+  };
+}
+
+interface Creator {
+  creatorName: string;
+  nameType: string;
+}
+
+interface PublishedMetadata {
+  studyDescription?: StudyDescription;
+  datasetDescription: DatasetDescription;
+}
+
+interface Dataset {
+  id: string;
+  title: string;
+  description: string;
+  created: string;
+  license: string;
+  labelingMethod?: string;
+  validationInfo?: string;
+  publishedMetadata?: PublishedMetadata;
+}
+
 interface VersionArray extends Array<VersionArrayItem> {}
