@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import type { NavigationMenuItem } from "@nuxt/ui";
 
 const route = useRoute();
 
@@ -12,133 +11,15 @@ const selectedDataset = computed(() => route.params.datasetId || null);
 const studyNavigationIsOpen = ref(true);
 const datasetNavigationIsOpen = ref(false);
 
-const items = ref<NavigationMenuItem[][]>([
-  [
-    {
-      label: "Links",
-      type: "label",
-    },
-    {
-      children: [
-        {
-          description: "Fully styled and customizable components for Nuxt.",
-          icon: "i-lucide-house",
-          label: "Introduction",
-        },
-        {
-          description:
-            "Learn how to install and configure Nuxt UI in your application.",
-          icon: "i-lucide-cloud-download",
-          label: "Installation",
-        },
-        {
-          description:
-            "You have nothing to do, @nuxt/icon will handle it automatically.",
-          icon: "i-lucide-smile",
-          label: "Icons",
-        },
-        {
-          description:
-            "Choose a primary and a neutral color from your Tailwind CSS theme.",
-          icon: "i-lucide-swatch-book",
-          label: "Colors",
-        },
-        {
-          description:
-            "You can customize components by using the `class` / `ui` props or in your app.config.ts.",
-          icon: "i-lucide-cog",
-          label: "Theme",
-        },
-      ],
-      icon: "i-lucide-book-open",
-      label: "Guide",
-    },
-    {
-      children: [
-        {
-          description: "Define shortcuts for your application.",
-          icon: "i-lucide-file-text",
-          label: "defineShortcuts",
-          to: "/composables/define-shortcuts",
-        },
-        {
-          description: "Display a modal/slideover within your application.",
-          icon: "i-lucide-file-text",
-          label: "useOverlay",
-          to: "/composables/use-overlay",
-        },
-        {
-          description: "Display a toast within your application.",
-          icon: "i-lucide-file-text",
-          label: "useToast",
-          to: "/composables/use-toast",
-        },
-      ],
-      icon: "i-lucide-database",
-      label: "Composables",
-    },
-    {
-      active: true,
-      children: [
-        {
-          description: "Use NuxtLink with superpowers.",
-          icon: "i-lucide-file-text",
-          label: "Link",
-          to: "/components/link",
-        },
-        {
-          description: "Display a modal within your application.",
-          icon: "i-lucide-file-text",
-          label: "Modal",
-          to: "/components/modal",
-        },
-        {
-          description: "Display a list of links.",
-          icon: "i-lucide-file-text",
-          label: "NavigationMenu",
-          to: "/components/navigation-menu",
-        },
-        {
-          description: "Display a list of pages.",
-          icon: "i-lucide-file-text",
-          label: "Pagination",
-          to: "/components/pagination",
-        },
-        {
-          description:
-            "Display a non-modal dialog that floats around a trigger element.",
-          icon: "i-lucide-file-text",
-          label: "Popover",
-          to: "/components/popover",
-        },
-        {
-          description: "Show a horizontal bar to indicate task progression.",
-          icon: "i-lucide-file-text",
-          label: "Progress",
-          to: "/components/progress",
-        },
-      ],
-      defaultOpen: true,
-      icon: "i-lucide-box",
-      label: "Components",
-      to: "/components",
-    },
-  ],
-  [
-    {
-      badge: "3.8k",
-      icon: "i-simple-icons-github",
-      label: "GitHub",
-      target: "_blank",
-      to: "https://github.com/nuxt/ui",
-    },
-    {
-      disabled: true,
-      icon: "i-lucide-circle-help",
-      label: "Help",
-    },
-  ],
-]);
+const inStudyMetadata = computed(() => {
+  return route.path.includes(`${selectedStudy.value}/metadata`);
+});
+
+const inDatasetMetadata = computed(() => {
+  return route.path.includes(
+    `${selectedStudy.value}/datasets/${selectedDataset.value}/metadata`,
+  );
+});
 
 // TODO: Add tooltip for each nav item
 const studyNavItems = [
@@ -147,7 +28,59 @@ const studyNavItems = [
     icon: "material-symbols:overview-key-rounded",
     route: "overview",
   },
-  { name: "Metadata", icon: "ooui:view-details-ltr", route: "metadata" },
+  {
+    name: "Metadata",
+    children: [
+      {
+        name: "About",
+        icon: "material-symbols:description",
+        route: "metadata/about",
+      },
+      {
+        name: "Oversight",
+        icon: "material-symbols:admin-panel-settings",
+        route: "metadata/oversight",
+      },
+      {
+        name: "Status",
+        icon: "hugeicons:status",
+        route: "metadata/status",
+      },
+      { name: "Team", icon: "material-symbols:group", route: "metadata/team" },
+      {
+        name: "Design",
+        icon: "material-symbols:architecture",
+        route: "metadata/design",
+      },
+      {
+        name: "Eligibility",
+        icon: "material-symbols:checklist",
+        route: "metadata/eligibility",
+      },
+      {
+        name: "Arms",
+        icon: "material-symbols:science",
+        route: "metadata/arms",
+      },
+      {
+        name: "Central Contacts",
+        icon: "material-symbols:contact-phone",
+        route: "metadata/central-contacts",
+      },
+      {
+        name: "Overall Officials",
+        icon: "material-symbols:badge",
+        route: "metadata/overall-officials",
+      },
+      {
+        name: "Locations",
+        icon: "material-symbols:location-on",
+        route: "metadata/locations",
+      },
+    ],
+    icon: "ooui:view-details-ltr",
+    route: "metadata",
+  },
   { name: "Files", icon: "ph:files-fill", route: "files" },
   { name: "Datasets", icon: "material-symbols:dataset", route: "datasets" },
   {
@@ -193,119 +126,185 @@ watch(sidebarCollapsed, (newVal) => {
     <aside
       id="sidebar"
       :class="[
-        'fixed top-13 left-0 z-10 h-full border-r border-gray-200 bg-white px-2 py-1 transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
+        'fixed top-13 left-0 z-10 h-[calc(100vh-3.25rem)] border-r border-gray-200 bg-white px-2 py-1 transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
         sidebarCollapsed ? 'w-15' : 'w-64',
       ]"
     >
-      <UNavigationMenu
-        orientation="vertical"
-        :items="items"
-        class="data-[orientation=vertical]:w-48"
-      />
-      <!-- Global Navigation -->
-      <ul>
-        <li>
-          <ULink
-            to="/app/dashboard"
-            class="mt-2 flex items-center gap-3 rounded-lg p-2 transition-all"
-            active-class="bg-gray-200 dark:bg-gray-700"
-            :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
-            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Icon name="tabler:home-2" size="20" />
-
-            <span
-              :class="[sidebarCollapsed ? 'hidden opacity-0' : 'opacity-100']"
+      <div class="flex h-full flex-col">
+        <!-- Global Navigation -->
+        <ul class="flex-none">
+          <li>
+            <ULink
+              to="/app/dashboard"
+              class="mt-2 flex items-center gap-3 rounded-lg p-2 transition-all"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              My Studies
-            </span>
-          </ULink>
-        </li>
+              <Icon name="tabler:home-2" size="20" />
 
-        <hr class="my-2 border-gray-200 dark:border-gray-700" />
-      </ul>
+              <span
+                :class="[sidebarCollapsed ? 'hidden opacity-0' : 'opacity-100']"
+              >
+                My Studies
+              </span>
+            </ULink>
+          </li>
 
-      <!-- Study-Specific Navigation -->
-      <template v-if="selectedStudy">
-        <UCollapsible
-          v-model:open="studyNavigationIsOpen"
-          class="flex w-48 w-full flex-col gap-2"
-        >
-          <UButton
-            label="Study Navigation"
-            color="neutral"
-            variant="ghost"
-            block
-            class="w-full"
-            trailing-icon="i-lucide-chevron-down"
-          />
+          <hr class="my-2 border-gray-200 dark:border-gray-700" />
+        </ul>
 
-          <template #content>
-            <ul class="space-y-1">
-              <li v-for="item in studyNavItems" :key="item.route">
-                <ULink
-                  :to="`/app/study/${selectedStudy}/${item.route}`"
-                  class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                  :class="[
-                    sidebarCollapsed ? 'justify-center' : 'justify-start',
-                  ]"
-                  active-class="bg-gray-200 dark:bg-gray-700"
-                  inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <Icon :name="item.icon" size="20" />
+        <!-- Scrollable Navigation Section -->
+        <div class="flex-1 overflow-y-auto">
+          <!-- Study-Specific Navigation -->
+          <template v-if="selectedStudy">
+            <UCollapsible
+              v-model:open="inStudyMetadata"
+              class="flex w-48 w-full flex-col gap-2"
+            >
+              <UButton
+                label="Study Navigation"
+                color="neutral"
+                variant="ghost"
+                block
+                class="w-full"
+                trailing-icon="i-lucide-chevron-down"
+              />
 
-                  <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-                    {{ item.name }}
-                  </span>
-                </ULink>
-              </li>
-            </ul>
+              <template #content>
+                <ul class="space-y-1">
+                  <li v-for="item in studyNavItems" :key="item.route">
+                    <template v-if="item.children">
+                      <UCollapsible
+                        class="flex w-full flex-col gap-2"
+                        default-open
+                      >
+                        <UButton
+                          color="neutral"
+                          variant="ghost"
+                          class="flex w-full items-center gap-2 rounded-lg p-2 text-sm"
+                          :class="[
+                            sidebarCollapsed
+                              ? 'justify-center'
+                              : 'justify-start',
+                          ]"
+                        >
+                          <Icon :name="item.icon" size="20" />
+
+                          <span
+                            :class="[sidebarCollapsed ? 'hidden' : 'block']"
+                          >
+                            {{ item.name }}
+                          </span>
+
+                          <Icon
+                            v-if="!sidebarCollapsed"
+                            name="i-lucide-chevron-down"
+                            size="16"
+                            class="ml-auto"
+                          />
+                        </UButton>
+
+                        <template #content>
+                          <ul class="ml-6 space-y-1">
+                            <li
+                              v-for="child in item.children"
+                              :key="child.route"
+                            >
+                              <ULink
+                                :to="`/app/study/${selectedStudy}/${child.route}`"
+                                class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                                :class="[
+                                  sidebarCollapsed
+                                    ? 'justify-center'
+                                    : 'justify-start',
+                                ]"
+                                active-class="bg-gray-200 dark:bg-gray-700"
+                                inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                              >
+                                <Icon :name="child.icon" size="18" />
+
+                                <span
+                                  :class="[
+                                    sidebarCollapsed ? 'hidden' : 'block',
+                                  ]"
+                                >
+                                  {{ child.name }}
+                                </span>
+                              </ULink>
+                            </li>
+                          </ul>
+                        </template>
+                      </UCollapsible>
+                    </template>
+
+                    <template v-else>
+                      <ULink
+                        :to="`/app/study/${selectedStudy}/${item.route}`"
+                        class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                        :class="[
+                          sidebarCollapsed ? 'justify-center' : 'justify-start',
+                        ]"
+                        active-class="bg-gray-200 dark:bg-gray-700"
+                        inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <Icon :name="item.icon" size="20" />
+
+                        <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                          {{ item.name }}
+                        </span>
+                      </ULink>
+                    </template>
+                  </li>
+                </ul>
+              </template>
+            </UCollapsible>
+
+            <hr class="my-2 border-gray-200 dark:border-gray-700" />
           </template>
-        </UCollapsible>
 
-        <hr class="my-2 border-gray-200 dark:border-gray-700" />
-      </template>
+          <!-- Dataset-Specific Navigation -->
+          <template v-if="selectedDataset">
+            <UCollapsible
+              v-model:open="datasetNavigationIsOpen"
+              class="flex w-48 w-full flex-col gap-2"
+            >
+              <UButton
+                label="Dataset Navigation"
+                color="neutral"
+                variant="ghost"
+                block
+                class="w-full"
+                trailing-icon="i-lucide-chevron-down"
+              />
 
-      <!-- Dataset-Specific Navigation -->
-      <template v-if="selectedDataset">
-        <UCollapsible
-          v-model:open="datasetNavigationIsOpen"
-          class="flex w-48 w-full flex-col gap-2"
-        >
-          <UButton
-            label="Dataset Navigation"
-            color="neutral"
-            variant="ghost"
-            block
-            class="w-full"
-            trailing-icon="i-lucide-chevron-down"
-          />
+              <template #content>
+                <ul class="space-y-1">
+                  <li v-for="item in datasetNavItems" :key="item.route">
+                    <ULink
+                      :to="`/app/study/${selectedStudy}/${item.route}`"
+                      class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                      :class="[
+                        sidebarCollapsed ? 'justify-center' : 'justify-start',
+                      ]"
+                      active-class="bg-gray-200 dark:bg-gray-700"
+                      inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      <Icon :name="item.icon" size="20" />
 
-          <template #content>
-            <ul class="space-y-1">
-              <li v-for="item in datasetNavItems" :key="item.route">
-                <ULink
-                  :to="`/app/study/${selectedStudy}/${item.route}`"
-                  class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                  :class="[
-                    sidebarCollapsed ? 'justify-center' : 'justify-start',
-                  ]"
-                  active-class="bg-gray-200 dark:bg-gray-700"
-                  inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <Icon :name="item.icon" size="20" />
+                      <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                        {{ item.name }}
+                      </span>
+                    </ULink>
+                  </li>
+                </ul>
+              </template>
+            </UCollapsible>
 
-                  <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-                    {{ item.name }}
-                  </span>
-                </ULink>
-              </li>
-            </ul>
+            <hr class="my-2 border-gray-200 dark:border-gray-700" />
           </template>
-        </UCollapsible>
-
-        <hr class="my-2 border-gray-200 dark:border-gray-700" />
-      </template>
+        </div>
+      </div>
     </aside>
 
     <!-- Main Content -->
