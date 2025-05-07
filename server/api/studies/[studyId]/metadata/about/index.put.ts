@@ -2,9 +2,27 @@ import { z } from "zod";
 
 const StudyMetadataAboutSchema = z.object({
   briefSummary: z.string().min(1),
-  conditions: z.array(z.string()).min(1),
+  conditions: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      classificationCode: z.string(),
+      conditionUri: z.string(),
+      scheme: z.string(),
+      schemeUri: z.string(),
+    }),
+  ),
   detailedDescription: z.string().min(1),
-  keywords: z.array(z.string()).min(1),
+  keywords: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      classificationCode: z.string(),
+      keywordUri: z.string(),
+      scheme: z.string(),
+      schemeUri: z.string(),
+    }),
+  ),
 });
 
 export default defineEventHandler(async (event) => {

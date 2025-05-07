@@ -13,9 +13,27 @@ const { studyId } = route.params as { studyId: string };
 
 const schema = z.object({
   briefSummary: z.string().min(1, "Brief summary is required"),
-  conditions: z.array(z.string()).min(1, "Conditions are required"),
+  conditions: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      classificationCode: z.string(),
+      conditionUri: z.string(),
+      scheme: z.string(),
+      schemeUri: z.string(),
+    }),
+  ),
   detailedDescription: z.string().min(1, "Detailed description is required"),
-  keywords: z.array(z.string()).min(1, "Keywords are required"),
+  keywords: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      classificationCode: z.string(),
+      keywordUri: z.string(),
+      scheme: z.string(),
+      schemeUri: z.string(),
+    }),
+  ),
 });
 
 type Schema = z.output<typeof schema>;
@@ -24,7 +42,16 @@ const state = reactive<Schema>({
   briefSummary: "",
   conditions: [],
   detailedDescription: "",
-  keywords: [],
+  keywords: [
+    {
+      id: 1,
+      name: "Keyword 1",
+      classificationCode: "NCT",
+      keywordUri: "https://www.clinicaltrials.gov/keyword/1",
+      scheme: "NCT",
+      schemeUri: "https://www.clinicaltrials.gov",
+    },
+  ],
 });
 
 const { data, error } = await useFetch(
@@ -57,7 +84,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   await console.log(event.data);
 }
 const addKeyword = () => {
-  state.keywords.push("");
+  state.keywords.push({
+    id: state.keywords.length + 1,
+    name: "",
+    classificationCode: "",
+    keywordUri: "",
+    scheme: "",
+    schemeUri: "",
+  });
 };
 
 const removeKeyword = (index: number) => {
@@ -65,7 +99,14 @@ const removeKeyword = (index: number) => {
 };
 
 const addCondition = () => {
-  state.conditions.push("");
+  state.conditions.push({
+    id: state.conditions.length + 1,
+    name: "",
+    classificationCode: "",
+    conditionUri: "",
+    scheme: "",
+    schemeUri: "",
+  });
 };
 
 const removeCondition = (index: number) => {
@@ -153,34 +194,65 @@ const removeCondition = (index: number) => {
               </p>
             </div>
 
-            <UFormField label="Keywords" name="keywords">
-              <div class="flex flex-col gap-2">
-                <div
-                  v-for="(_keyword, index) in state.keywords"
-                  v-show="state.keywords.length > 0"
-                  :key="index"
-                  class="flex items-center gap-2"
-                >
-                  <UInput v-model="state.keywords[index]" />
-
-                  <UButton
-                    icon="i-lucide-trash"
-                    variant="outline"
-                    color="error"
-                    size="sm"
-                    @click="removeKeyword(index)"
-                  />
-                </div>
-
+            <CardCollapsible
+              v-for="(item, index) in state.keywords"
+              :key="item.id"
+              class="shadow-none"
+              :title="item.name || `Keyword ${index + 1}`"
+              bordered
+            >
+              <template #header-extra>
                 <UButton
-                  icon="i-lucide-plus"
-                  variant="outline"
-                  color="primary"
-                  label="Add Keyword"
-                  @click="addKeyword"
+                  icon="i-lucide-trash"
+                  label="Remove keyword"
+                  variant="soft"
+                  color="error"
+                  @click="removeKeyword(index)"
                 />
+              </template>
+
+              <div class="flex flex-col gap-3">
+                <UFormField label="Name" name="name">
+                  <UInput
+                    v-model="item.name"
+                    placeholder="Artifical Intelligence"
+                  />
+                </UFormField>
+
+                <UFormField label="Identifier" name="classificationCode">
+                  <UInput
+                    v-model="item.classificationCode"
+                    placeholder="D001185"
+                  />
+                </UFormField>
+
+                <UFormField label="Identifier Scheme" name="scheme">
+                  <UInput v-model="item.scheme" placeholder="MeSH" />
+                </UFormField>
+
+                <UFormField label="Scheme URI" name="schemeUri">
+                  <UInput
+                    v-model="item.schemeUri"
+                    placeholder="https://meshb.nlm.nih.gov/"
+                  />
+                </UFormField>
+
+                <UFormField label="Keyword URI" name="keywordUri">
+                  <UInput
+                    v-model="item.keywordUri"
+                    placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                  />
+                </UFormField>
               </div>
-            </UFormField>
+            </CardCollapsible>
+
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Keyword"
+              @click="addKeyword"
+            />
           </div>
         </div>
 
@@ -200,34 +272,62 @@ const removeCondition = (index: number) => {
               </p>
             </div>
 
-            <UFormField label="Conditions" name="conditions">
-              <div class="flex flex-col gap-2">
-                <div
-                  v-for="(_condition, index) in state.conditions"
-                  v-show="state.conditions.length > 0"
-                  :key="index"
-                  class="flex items-center gap-2"
-                >
-                  <UInput v-model="state.conditions[index]" />
-
-                  <UButton
-                    icon="i-lucide-trash"
-                    variant="outline"
-                    color="error"
-                    size="sm"
-                    @click="removeCondition(index)"
-                  />
-                </div>
-
+            <CardCollapsible
+              v-for="(item, index) in state.conditions"
+              :key="item.id"
+              class="shadow-none"
+              :title="item.name || `Condition ${index + 1}`"
+              bordered
+            >
+              <template #header-extra>
                 <UButton
-                  icon="i-lucide-plus"
-                  variant="outline"
-                  color="primary"
-                  label="Add Condition"
-                  @click="addCondition"
+                  icon="i-lucide-trash"
+                  label="Remove condition"
+                  variant="soft"
+                  color="error"
+                  @click="removeCondition(index)"
                 />
+              </template>
+
+              <div class="flex flex-col gap-3">
+                <UFormField label="Name" name="name">
+                  <UInput v-model="item.name" placeholder="Glaucoma" />
+                </UFormField>
+
+                <UFormField label="Identifier" name="classificationCode">
+                  <UInput
+                    v-model="item.classificationCode"
+                    placeholder="D001185"
+                  />
+                </UFormField>
+
+                <UFormField label="Identifier Scheme" name="scheme">
+                  <UInput v-model="item.scheme" placeholder="MeSH" />
+                </UFormField>
+
+                <UFormField label="Scheme URI" name="schemeUri">
+                  <UInput
+                    v-model="item.schemeUri"
+                    placeholder="https://meshb.nlm.nih.gov/"
+                  />
+                </UFormField>
+
+                <UFormField label="Keyword URI" name="keywordUri">
+                  <UInput
+                    v-model="item.conditionUri"
+                    placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                  />
+                </UFormField>
               </div>
-            </UFormField>
+            </CardCollapsible>
+
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Condition"
+              @click="addCondition"
+            />
           </div>
         </div>
 
