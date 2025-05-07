@@ -201,7 +201,7 @@ const dropdownItems = ref([
             </template>
 
             <p>
-              {{ study.StudyDescription[0].briefSummary }}
+              {{ study.StudyDescription?.briefSummary }}
             </p>
 
             <USeparator class="my-3" />

@@ -485,12 +485,16 @@ interface Metadata {
   datasetDescription: DatasetDescription;
   datasetStructureDescription: DatasetStructureDescription;
   healthsheet: HealthsheetRecords;
+  keywords: string[];
+  contributors: number;
 }
 
 interface AdditionalData {
   size: number;
   fileCount: number;
   viewCount: number;
+  labelingMethod: string;
+  validationInfo: string;
 }
 
 interface Dataset {
@@ -505,6 +509,9 @@ interface Dataset {
   external: boolean;
   externalUrl: string | null;
   created: Date;
+  labelingMethod: string;
+  validationInfo: string;
+  license: string;
 }
 
 interface DatasetArray extends Array<Dataset> {}
@@ -524,6 +531,45 @@ interface VersionArrayItem {
   createdAt: number;
   title: string;
   doi: string;
+}
+
+interface Keyword {
+  keywordValue: string;
+}
+
+interface ConditionsModule {
+  keywordList?: Keyword[];
+}
+
+interface StudyDescription {
+  conditionsModule?: ConditionsModule;
+}
+
+interface DatasetDescription {
+  publisher: {
+    publisherName: string;
+  };
+}
+
+interface Creator {
+  creatorName: string;
+  nameType: string;
+}
+
+interface PublishedMetadata {
+  studyDescription?: StudyDescription;
+  datasetDescription: DatasetDescription;
+}
+
+interface Dataset {
+  id: string;
+  title: string;
+  description: string;
+  created: string;
+  license: string;
+  labelingMethod?: string;
+  validationInfo?: string;
+  publishedMetadata?: PublishedMetadata;
 }
 
 interface VersionArray extends Array<VersionArrayItem> {}

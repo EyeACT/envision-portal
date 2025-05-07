@@ -2148,7 +2148,9 @@
     "data": {
       "size": 2010899452756,
       "fileCount": 165051,
-      "viewCount": 0
+      "viewCount": 0,
+      "labelingMethod": "automated",
+      "validationInfo": "gold labels used"
     },
     "external": false,
     "externalUrl": null,
@@ -4273,7 +4275,9 @@
     "data": {
       "size": 20199452756,
       "fileCount": 16551,
-      "viewCount": 0
+      "viewCount": 0,
+      "labelingMethod": "semi-automated",
+      "validationInfo": "QA complete"
     },
     "external": true,
     "externalUrl": "https://data.mendeley.com/datasets/rscbjbr9sj/3",
