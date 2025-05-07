@@ -493,6 +493,8 @@ interface AdditionalData {
   size: number;
   fileCount: number;
   viewCount: number;
+  labelingMethod: string;
+  validationInfo: string;
 }
 
 interface Dataset {

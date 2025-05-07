@@ -33,9 +33,6 @@ const main = async () => {
         studyId: DatasetRecord.studyId,
         studyTitle: DatasetRecord.studyTitle,
         versionTitle: DatasetRecord.versionTitle,
-        labelingMethod: DatasetRecord.labelingMethod,
-        validationInfo: DatasetRecord.validationInfo,
-        license: DatasetRecord.license,
       },
     });
   }

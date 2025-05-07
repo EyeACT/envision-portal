@@ -2148,14 +2148,13 @@
     "data": {
       "size": 2010899452756,
       "fileCount": 165051,
-      "viewCount": 0
+      "viewCount": 0,
+      "labelingMethod": "automated",
+      "validationInfo": "gold labels used"
     },
     "external": false,
     "externalUrl": null,
-    "created": "1731060000",
-    "labelingMethod": "automated",
-    "validationInfo": "gold labels used",
-    "license": "MIT"
+    "created": "1731060000"
   },
   {
     "id": "2",
@@ -4276,13 +4275,12 @@
     "data": {
       "size": 20199452756,
       "fileCount": 16551,
-      "viewCount": 0
+      "viewCount": 0,
+      "labelingMethod": "semi-automated",
+      "validationInfo": "QA complete"
     },
     "external": true,
     "externalUrl": "https://data.mendeley.com/datasets/rscbjbr9sj/3",
-    "created": "1731860000",
-    "labelingMethod": "semi-automated",
-    "validationInfo": "QA complete",
-    "license": "MIT"
+    "created": "1731860000"
   }
 ]
