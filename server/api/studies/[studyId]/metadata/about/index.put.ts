@@ -4,7 +4,7 @@ const StudyMetadataAboutSchema = z.object({
   briefSummary: z.string().min(1),
   conditions: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().optional(),
       name: z.string(),
       classificationCode: z.string(),
       conditionUri: z.string(),
@@ -15,7 +15,7 @@ const StudyMetadataAboutSchema = z.object({
   detailedDescription: z.string().min(1),
   keywords: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().optional(),
       name: z.string(),
       classificationCode: z.string(),
       keywordUri: z.string(),
@@ -57,17 +57,73 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const updatedStudyKeywords = await prisma.studyKeywords.createMany({
-    data: keywords.map((keyword) => ({ keyword })),
-  });
+  // update the keywords
+  // Get the keywords that already have an id and update them
+  const keywordsToUpdate = keywords.filter((keyword) => keyword.id);
 
-  const updatedStudyConditions = await prisma.studyConditions.createMany({
-    data: conditions.map((condition) => ({ condition })),
-  });
+  for (const keyword of keywordsToUpdate) {
+    await prisma.studyKeywords.update({
+      data: {
+        name: keyword.name,
+        classificationCode: keyword.classificationCode,
+        keywordUri: keyword.keywordUri,
+        scheme: keyword.scheme,
+        schemeUri: keyword.schemeUri,
+      },
+      where: { id: keyword.id },
+    });
+  }
+
+  // Get the keywords that don't have an id and create them
+  const keywordsToCreate = keywords.filter((keyword) => !keyword.id);
+
+  for (const keyword of keywordsToCreate) {
+    await prisma.studyKeywords.create({
+      data: {
+        name: keyword.name,
+        classificationCode: keyword.classificationCode,
+        keywordUri: keyword.keywordUri,
+        scheme: keyword.scheme,
+        schemeUri: keyword.schemeUri,
+        studyId,
+      },
+    });
+  }
+
+  // update the conditions
+  // Get the conditions that already have an id and update them
+  const conditionsToUpdate = conditions.filter((condition) => condition.id);
+
+  for (const condition of conditionsToUpdate) {
+    await prisma.studyConditions.update({
+      data: {
+        name: condition.name,
+        classificationCode: condition.classificationCode,
+        conditionUri: condition.conditionUri,
+        scheme: condition.scheme,
+        schemeUri: condition.schemeUri,
+      },
+      where: { id: condition.id },
+    });
+  }
+
+  // Get the conditions that don't have an id and create them
+  const conditionsToCreate = conditions.filter((condition) => !condition.id);
+
+  for (const condition of conditionsToCreate) {
+    await prisma.studyConditions.create({
+      data: {
+        name: condition.name,
+        classificationCode: condition.classificationCode,
+        conditionUri: condition.conditionUri,
+        scheme: condition.scheme,
+        schemeUri: condition.schemeUri,
+        studyId,
+      },
+    });
+  }
 
   return {
-    updatedStudyConditions,
     updatedStudyDescription,
-    updatedStudyKeywords,
   };
 });

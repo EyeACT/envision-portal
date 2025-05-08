@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as z from "zod";
-import type { FormSubmitEvent } from "@nuxt/ui";
+import type { FormSubmitEvent, FormError } from "@nuxt/ui";
+import { nanoid } from "nanoid";
 
 definePageMeta({
   middleware: ["auth"],
@@ -15,10 +16,11 @@ const schema = z.object({
   briefSummary: z.string().min(1, "Brief summary is required"),
   conditions: z.array(
     z.object({
-      id: z.number(),
+      id: z.string(),
       name: z.string(),
       classificationCode: z.string(),
       conditionUri: z.string(),
+      local: z.boolean(),
       scheme: z.string(),
       schemeUri: z.string(),
     }),
@@ -26,10 +28,11 @@ const schema = z.object({
   detailedDescription: z.string().min(1, "Detailed description is required"),
   keywords: z.array(
     z.object({
-      id: z.number(),
+      id: z.string(),
       name: z.string(),
       classificationCode: z.string(),
       keywordUri: z.string(),
+      local: z.boolean(),
       scheme: z.string(),
       schemeUri: z.string(),
     }),
@@ -42,16 +45,7 @@ const state = reactive<Schema>({
   briefSummary: "",
   conditions: [],
   detailedDescription: "",
-  keywords: [
-    {
-      id: 1,
-      name: "Keyword 1",
-      classificationCode: "NCT",
-      keywordUri: "https://www.clinicaltrials.gov/keyword/1",
-      scheme: "NCT",
-      schemeUri: "https://www.clinicaltrials.gov",
-    },
-  ],
+  keywords: [],
 });
 
 const { data, error } = await useFetch(
@@ -73,22 +67,39 @@ if (data.value) {
   useSeoMeta({
     title: data.value.title,
   });
+
+  state.briefSummary = data.value.StudyDescription[0].briefSummary;
+  state.detailedDescription =
+    data.value.StudyDescription[0].detailedDescription;
+
+  state.keywords = data.value.StudyKeywords.map((keyword) => ({
+    id: keyword.id,
+    name: keyword.name,
+    classificationCode: keyword.classificationCode,
+    keywordUri: keyword.keywordUri,
+    local: false,
+    scheme: keyword.scheme,
+    schemeUri: keyword.schemeUri,
+  }));
+
+  state.conditions = data.value.StudyConditions.map((condition) => ({
+    id: condition.id,
+    name: condition.name,
+    classificationCode: condition.classificationCode,
+    conditionUri: condition.conditionUri,
+    local: false,
+    scheme: condition.scheme,
+    schemeUri: condition.schemeUri,
+  }));
 }
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  toast.add({
-    title: "Success",
-    color: "success",
-    description: "The form has been submitted.",
-  });
-  await console.log(event.data);
-}
 const addKeyword = () => {
   state.keywords.push({
-    id: state.keywords.length + 1,
+    id: nanoid(),
     name: "",
     classificationCode: "",
     keywordUri: "",
+    local: true,
     scheme: "",
     schemeUri: "",
   });
@@ -100,10 +111,11 @@ const removeKeyword = (index: number) => {
 
 const addCondition = () => {
   state.conditions.push({
-    id: state.conditions.length + 1,
+    id: nanoid(),
     name: "",
     classificationCode: "",
     conditionUri: "",
+    local: true,
     scheme: "",
     schemeUri: "",
   });
@@ -112,6 +124,74 @@ const addCondition = () => {
 const removeCondition = (index: number) => {
   state.conditions.splice(index, 1);
 };
+
+const validate = (state: any): FormError[] => {
+  const errors = [];
+
+  if (!state.briefSummary) {
+    errors.push({ name: "briefSummary", message: "Required" });
+  }
+
+  if (!state.detailedDescription) {
+    errors.push({ name: "detailedDescription", message: "Required" });
+  }
+
+  if (state.keywords.length === 0) {
+    errors.push({
+      name: "keywords",
+      message: "At least one keyword is required",
+    });
+  } else {
+    state.keywords.forEach((keyword: any) => {
+      if (!keyword.name) {
+        errors.push({ name: "keywords", message: "Required" });
+      }
+
+      // if classificationCode or scheme is provided, the other is also required
+      if (keyword.classificationCode && !keyword.scheme) {
+        errors.push({ name: "keywords", message: "Required" });
+      }
+
+      if (keyword.scheme && !keyword.classificationCode) {
+        errors.push({ name: "keywords", message: "Required" });
+      }
+    });
+  }
+
+  if (state.conditions.length === 0) {
+    errors.push({
+      name: "conditions",
+      message: "At least one condition is required",
+    });
+  } else {
+    state.conditions.forEach((condition: any) => {
+      if (!condition.name) {
+        errors.push({ name: "conditions", message: "Required" });
+      }
+    });
+
+    state.conditions.forEach((condition: any) => {
+      if (condition.classificationCode && !condition.scheme) {
+        errors.push({ name: "conditions", message: "Required" });
+      }
+
+      if (condition.scheme && !condition.classificationCode) {
+        errors.push({ name: "conditions", message: "Required" });
+      }
+    });
+  }
+
+  return errors;
+};
+
+async function onSubmit(event: FormSubmitEvent<typeof state>) {
+  toast.add({
+    title: "Success",
+    color: "success",
+    description: "The form has been submitted.",
+  });
+  await console.log(event.data);
+}
 </script>
 
 <template>
@@ -148,7 +228,7 @@ const removeCondition = (index: number) => {
       </div>
 
       <UForm
-        :schema="schema"
+        :valide="validate"
         :state="state"
         class="space-y-4"
         @submit="onSubmit"
@@ -341,6 +421,8 @@ const removeCondition = (index: number) => {
       </UForm>
 
       <div>
+        <pre>{{ validate(state) }}</pre>
+
         <pre>{{ data }}</pre>
 
         <pre>{{ state }}</pre>
