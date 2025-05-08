@@ -8,6 +8,7 @@ const StudyMetadataAboutSchema = z.object({
       name: z.string(),
       classificationCode: z.string(),
       conditionUri: z.string(),
+      deleted: z.boolean().optional(),
       scheme: z.string(),
       schemeUri: z.string(),
     }),
@@ -18,6 +19,7 @@ const StudyMetadataAboutSchema = z.object({
       id: z.string().optional(),
       name: z.string(),
       classificationCode: z.string(),
+      deleted: z.boolean().optional(),
       keywordUri: z.string(),
       scheme: z.string(),
       schemeUri: z.string(),
@@ -90,6 +92,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Get the keywords that are deleted and delete them
+  const keywordsToDelete = keywords.filter((keyword) => keyword.deleted);
+
+  for (const keyword of keywordsToDelete) {
+    await prisma.studyKeywords.delete({
+      where: { id: keyword.id },
+    });
+  }
+
   // update the conditions
   // Get the conditions that already have an id and update them
   const conditionsToUpdate = conditions.filter((condition) => condition.id);
@@ -120,6 +131,17 @@ export default defineEventHandler(async (event) => {
         schemeUri: condition.schemeUri,
         studyId,
       },
+    });
+  }
+
+  // Get the conditions that are deleted and delete them
+  const conditionsToDelete = conditions.filter(
+    (condition) => condition.deleted,
+  );
+
+  for (const condition of conditionsToDelete) {
+    await prisma.studyConditions.delete({
+      where: { id: condition.id },
     });
   }
 

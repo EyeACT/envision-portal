@@ -20,6 +20,7 @@ const schema = z.object({
       name: z.string(),
       classificationCode: z.string(),
       conditionUri: z.string(),
+      deleted: z.boolean(),
       local: z.boolean(),
       scheme: z.string(),
       schemeUri: z.string(),
@@ -31,6 +32,7 @@ const schema = z.object({
       id: z.string(),
       name: z.string(),
       classificationCode: z.string(),
+      deleted: z.boolean(),
       keywordUri: z.string(),
       local: z.boolean(),
       scheme: z.string(),
@@ -76,6 +78,7 @@ if (data.value) {
     id: keyword.id,
     name: keyword.name,
     classificationCode: keyword.classificationCode,
+    deleted: false,
     keywordUri: keyword.keywordUri,
     local: false,
     scheme: keyword.scheme,
@@ -87,6 +90,7 @@ if (data.value) {
     name: condition.name,
     classificationCode: condition.classificationCode,
     conditionUri: condition.conditionUri,
+    deleted: false,
     local: false,
     scheme: condition.scheme,
     schemeUri: condition.schemeUri,
@@ -98,6 +102,7 @@ const addKeyword = () => {
     id: nanoid(),
     name: "",
     classificationCode: "",
+    deleted: false,
     keywordUri: "",
     local: true,
     scheme: "",
@@ -106,7 +111,13 @@ const addKeyword = () => {
 };
 
 const removeKeyword = (index: number) => {
-  state.keywords.splice(index, 1);
+  const keyword = state.keywords[index];
+
+  if (keyword.local) {
+    state.keywords.splice(index, 1);
+  } else {
+    keyword.deleted = true;
+  }
 };
 
 const addCondition = () => {
@@ -115,6 +126,7 @@ const addCondition = () => {
     name: "",
     classificationCode: "",
     conditionUri: "",
+    deleted: false,
     local: true,
     scheme: "",
     schemeUri: "",
@@ -122,7 +134,13 @@ const addCondition = () => {
 };
 
 const removeCondition = (index: number) => {
-  state.conditions.splice(index, 1);
+  const condition = state.conditions[index];
+
+  if (condition.local) {
+    state.conditions.splice(index, 1);
+  } else {
+    condition.deleted = true;
+  }
 };
 
 const validate = (state: any): FormError[] => {
@@ -144,16 +162,24 @@ const validate = (state: any): FormError[] => {
   } else {
     state.keywords.forEach((keyword: any) => {
       if (!keyword.name) {
-        errors.push({ name: "keywords", message: "Required" });
+        errors.push({ name: "keywords", message: "A name is required" });
       }
 
       // if classificationCode or scheme is provided, the other is also required
       if (keyword.classificationCode && !keyword.scheme) {
-        errors.push({ name: "keywords", message: "Required" });
+        errors.push({
+          name: "keywords",
+          message:
+            "Both identifier and scheme are required if either is provided ",
+        });
       }
 
       if (keyword.scheme && !keyword.classificationCode) {
-        errors.push({ name: "keywords", message: "Required" });
+        errors.push({
+          name: "keywords",
+          message:
+            "Both identifier and scheme are required if either is provided",
+        });
       }
     });
   }
@@ -228,7 +254,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </div>
 
       <UForm
-        :valide="validate"
+        :validate="validate"
         :state="state"
         class="space-y-4"
         @submit="onSubmit"
@@ -274,57 +300,59 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <CardCollapsible
-              v-for="(item, index) in state.keywords"
-              :key="item.id"
-              class="shadow-none"
-              :title="item.name || `Keyword ${index + 1}`"
-              bordered
-            >
-              <template #header-extra>
-                <UButton
-                  icon="i-lucide-trash"
-                  label="Remove keyword"
-                  variant="soft"
-                  color="error"
-                  @click="removeKeyword(index)"
-                />
-              </template>
-
-              <div class="flex flex-col gap-3">
-                <UFormField label="Name" name="name">
-                  <UInput
-                    v-model="item.name"
-                    placeholder="Artifical Intelligence"
+            <UFormField name="keywords">
+              <CardCollapsible
+                v-for="(item, index) in state.keywords"
+                :key="item.id"
+                class="shadow-none"
+                :title="item.name || `Keyword ${index + 1}`"
+                bordered
+              >
+                <template #header-extra>
+                  <UButton
+                    icon="i-lucide-trash"
+                    label="Remove keyword"
+                    variant="soft"
+                    color="error"
+                    @click="removeKeyword(index)"
                   />
-                </UFormField>
+                </template>
 
-                <UFormField label="Identifier" name="classificationCode">
-                  <UInput
-                    v-model="item.classificationCode"
-                    placeholder="D001185"
-                  />
-                </UFormField>
+                <div class="flex flex-col gap-3">
+                  <UFormField label="Name" name="name">
+                    <UInput
+                      v-model="item.name"
+                      placeholder="Artifical Intelligence"
+                    />
+                  </UFormField>
 
-                <UFormField label="Identifier Scheme" name="scheme">
-                  <UInput v-model="item.scheme" placeholder="MeSH" />
-                </UFormField>
+                  <UFormField label="Identifier" name="classificationCode">
+                    <UInput
+                      v-model="item.classificationCode"
+                      placeholder="D001185"
+                    />
+                  </UFormField>
 
-                <UFormField label="Scheme URI" name="schemeUri">
-                  <UInput
-                    v-model="item.schemeUri"
-                    placeholder="https://meshb.nlm.nih.gov/"
-                  />
-                </UFormField>
+                  <UFormField label="Identifier Scheme" name="scheme">
+                    <UInput v-model="item.scheme" placeholder="MeSH" />
+                  </UFormField>
 
-                <UFormField label="Keyword URI" name="keywordUri">
-                  <UInput
-                    v-model="item.keywordUri"
-                    placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
-                  />
-                </UFormField>
-              </div>
-            </CardCollapsible>
+                  <UFormField label="Scheme URI" name="schemeUri">
+                    <UInput
+                      v-model="item.schemeUri"
+                      placeholder="https://meshb.nlm.nih.gov/"
+                    />
+                  </UFormField>
+
+                  <UFormField label="Keyword URI" name="keywordUri">
+                    <UInput
+                      v-model="item.keywordUri"
+                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                    />
+                  </UFormField>
+                </div>
+              </CardCollapsible>
+            </UFormField>
 
             <UButton
               icon="i-lucide-plus"
@@ -352,54 +380,56 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <CardCollapsible
-              v-for="(item, index) in state.conditions"
-              :key="item.id"
-              class="shadow-none"
-              :title="item.name || `Condition ${index + 1}`"
-              bordered
-            >
-              <template #header-extra>
-                <UButton
-                  icon="i-lucide-trash"
-                  label="Remove condition"
-                  variant="soft"
-                  color="error"
-                  @click="removeCondition(index)"
-                />
-              </template>
-
-              <div class="flex flex-col gap-3">
-                <UFormField label="Name" name="name">
-                  <UInput v-model="item.name" placeholder="Glaucoma" />
-                </UFormField>
-
-                <UFormField label="Identifier" name="classificationCode">
-                  <UInput
-                    v-model="item.classificationCode"
-                    placeholder="D001185"
+            <UFormField name="conditions">
+              <CardCollapsible
+                v-for="(item, index) in state.conditions"
+                :key="item.id"
+                class="shadow-none"
+                :title="item.name || `Condition ${index + 1}`"
+                bordered
+              >
+                <template #header-extra>
+                  <UButton
+                    icon="i-lucide-trash"
+                    label="Remove condition"
+                    variant="soft"
+                    color="error"
+                    @click="removeCondition(index)"
                   />
-                </UFormField>
+                </template>
 
-                <UFormField label="Identifier Scheme" name="scheme">
-                  <UInput v-model="item.scheme" placeholder="MeSH" />
-                </UFormField>
+                <div class="flex flex-col gap-3">
+                  <UFormField label="Name" name="name">
+                    <UInput v-model="item.name" placeholder="Glaucoma" />
+                  </UFormField>
 
-                <UFormField label="Scheme URI" name="schemeUri">
-                  <UInput
-                    v-model="item.schemeUri"
-                    placeholder="https://meshb.nlm.nih.gov/"
-                  />
-                </UFormField>
+                  <UFormField label="Identifier" name="classificationCode">
+                    <UInput
+                      v-model="item.classificationCode"
+                      placeholder="D001185"
+                    />
+                  </UFormField>
 
-                <UFormField label="Keyword URI" name="keywordUri">
-                  <UInput
-                    v-model="item.conditionUri"
-                    placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
-                  />
-                </UFormField>
-              </div>
-            </CardCollapsible>
+                  <UFormField label="Identifier Scheme" name="scheme">
+                    <UInput v-model="item.scheme" placeholder="MeSH" />
+                  </UFormField>
+
+                  <UFormField label="Scheme URI" name="schemeUri">
+                    <UInput
+                      v-model="item.schemeUri"
+                      placeholder="https://meshb.nlm.nih.gov/"
+                    />
+                  </UFormField>
+
+                  <UFormField label="Keyword URI" name="keywordUri">
+                    <UInput
+                      v-model="item.conditionUri"
+                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                    />
+                  </UFormField>
+                </div>
+              </CardCollapsible>
+            </UFormField>
 
             <UButton
               icon="i-lucide-plus"
@@ -421,8 +451,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
 
       <div>
-        <pre>{{ validate(state) }}</pre>
-
         <pre>{{ data }}</pre>
 
         <pre>{{ state }}</pre>
