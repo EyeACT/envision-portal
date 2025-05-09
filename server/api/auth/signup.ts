@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { hash } from "bcrypt";
 import { nanoid } from "nanoid";
-import { sendEmail } from "../../utils/sendEmail";
 import dayjs from "dayjs";
+import { sendEmail } from "../../utils/sendEmail";
 
 const signupSchema = z.object({
   emailAddress: z.string().email(),
@@ -44,12 +44,12 @@ export default defineEventHandler(async (event) => {
   const newUser = await prisma.user.create({
     data: {
       emailAddress: body.data.emailAddress,
+      emailVerificationToken: verificationToken,
+      emailVerificationTokenExpires: tokenExpiry,
+      emailVerified: false,
       familyName: body.data.familyName,
       givenName: body.data.givenName,
       password: hashedPassword,
-      emailVerified: false,
-      emailVerificationToken: verificationToken,
-      emailVerificationTokenExpires: tokenExpiry,
     },
   });
 
@@ -62,10 +62,11 @@ export default defineEventHandler(async (event) => {
 
   // Send verification email
   const verificationLink = `${config.emailVerificationDomain}/verify-email?token=${verificationToken}`;
+
   await sendEmail(
     newUser.emailAddress,
     "Verify Your Email Address",
-    verificationLink
+    verificationLink,
   );
 
   return { message: "Verification email sent. Please check your inbox." };

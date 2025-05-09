@@ -11,6 +11,16 @@ const selectedDataset = computed(() => route.params.datasetId || null);
 const studyNavigationIsOpen = ref(true);
 const datasetNavigationIsOpen = ref(false);
 
+const inStudyMetadata = computed(() => {
+  return route.path.includes(`${selectedStudy.value}/metadata`);
+});
+
+const inDatasetMetadata = computed(() => {
+  return route.path.includes(
+    `${selectedStudy.value}/datasets/${selectedDataset.value}/metadata`,
+  );
+});
+
 // TODO: Add tooltip for each nav item
 const studyNavItems = [
   {
@@ -18,7 +28,59 @@ const studyNavItems = [
     icon: "material-symbols:overview-key-rounded",
     route: "",
   },
-  { name: "Metadata", icon: "ooui:view-details-ltr", route: "metadata" },
+  {
+    name: "Metadata",
+    children: [
+      {
+        name: "About",
+        icon: "material-symbols:description",
+        route: "metadata/about",
+      },
+      {
+        name: "Oversight",
+        icon: "material-symbols:admin-panel-settings",
+        route: "metadata/oversight",
+      },
+      {
+        name: "Status",
+        icon: "hugeicons:status",
+        route: "metadata/status",
+      },
+      { name: "Team", icon: "material-symbols:group", route: "metadata/team" },
+      {
+        name: "Design",
+        icon: "material-symbols:architecture",
+        route: "metadata/design",
+      },
+      {
+        name: "Eligibility",
+        icon: "material-symbols:checklist",
+        route: "metadata/eligibility",
+      },
+      {
+        name: "Arms",
+        icon: "material-symbols:science",
+        route: "metadata/arms",
+      },
+      {
+        name: "Central Contacts",
+        icon: "material-symbols:contact-phone",
+        route: "metadata/central-contacts",
+      },
+      {
+        name: "Overall Officials",
+        icon: "material-symbols:badge",
+        route: "metadata/overall-officials",
+      },
+      {
+        name: "Locations",
+        icon: "material-symbols:location-on",
+        route: "metadata/locations",
+      },
+    ],
+    icon: "ooui:view-details-ltr",
+    route: "metadata",
+  },
   { name: "Files", icon: "ph:files-fill", route: "files" },
   { name: "Datasets", icon: "material-symbols:dataset", route: "datasets" },
   {
@@ -64,114 +126,185 @@ watch(sidebarCollapsed, (newVal) => {
     <aside
       id="sidebar"
       :class="[
-        'fixed top-13 left-0 z-10 h-full border-r border-gray-200 bg-white px-2 py-1 transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
+        'fixed top-13 left-0 z-10 h-[calc(100vh-3.25rem)] border-r border-gray-200 bg-white px-2 py-1 transition-all duration-300 dark:border-gray-700 dark:bg-gray-900',
         sidebarCollapsed ? 'w-15' : 'w-64',
       ]"
     >
-      <!-- Global Navigation -->
-      <ul>
-        <li>
-          <ULink
-            to="/app/dashboard"
-            class="mt-2 flex items-center gap-3 rounded-lg p-2 transition-all"
-            active-class="bg-gray-200 dark:bg-gray-700"
-            :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
-            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Icon name="tabler:home-2" size="20" />
-
-            <span
-              :class="[sidebarCollapsed ? 'hidden opacity-0' : 'opacity-100']"
+      <div class="flex h-full flex-col">
+        <!-- Global Navigation -->
+        <ul class="flex-none">
+          <li>
+            <ULink
+              to="/app/dashboard"
+              class="mt-2 flex items-center gap-3 rounded-lg p-2 transition-all"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              My Studies
-            </span>
-          </ULink>
-        </li>
+              <Icon name="tabler:home-2" size="20" />
 
-        <hr class="my-2 border-gray-200 dark:border-gray-700" />
-      </ul>
+              <span
+                :class="[sidebarCollapsed ? 'hidden opacity-0' : 'opacity-100']"
+              >
+                My Studies
+              </span>
+            </ULink>
+          </li>
 
-      <!-- Study-Specific Navigation -->
-      <template v-if="selectedStudy">
-        <UCollapsible
-          v-model:open="studyNavigationIsOpen"
-          class="flex w-48 w-full flex-col gap-2"
-        >
-          <UButton
-            label="Study Navigation"
-            color="neutral"
-            variant="ghost"
-            block
-            class="w-full"
-            trailing-icon="i-lucide-chevron-down"
-          />
+          <hr class="my-2 border-gray-200 dark:border-gray-700" />
+        </ul>
 
-          <template #content>
-            <ul class="space-y-1">
-              <li v-for="item in studyNavItems" :key="item.route">
-                <ULink
-                  :to="`/app/study/${selectedStudy}/${item.route}`"
-                  class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                  :class="[
-                    sidebarCollapsed ? 'justify-center' : 'justify-start',
-                  ]"
-                  active-class="bg-gray-200 dark:bg-gray-700"
-                  inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <Icon :name="item.icon" size="20" />
+        <!-- Scrollable Navigation Section -->
+        <div class="flex-1 overflow-y-auto">
+          <!-- Study-Specific Navigation -->
+          <template v-if="selectedStudy">
+            <UCollapsible
+              v-model:open="inStudyMetadata"
+              class="flex w-48 w-full flex-col gap-2"
+            >
+              <UButton
+                label="Study Navigation"
+                color="neutral"
+                variant="ghost"
+                block
+                class="w-full"
+                trailing-icon="i-lucide-chevron-down"
+              />
 
-                  <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-                    {{ item.name }}
-                  </span>
-                </ULink>
-              </li>
-            </ul>
+              <template #content>
+                <ul class="space-y-1">
+                  <li v-for="item in studyNavItems" :key="item.route">
+                    <template v-if="item.children">
+                      <UCollapsible
+                        class="flex w-full flex-col gap-2"
+                        default-open
+                      >
+                        <UButton
+                          color="neutral"
+                          variant="ghost"
+                          class="flex w-full items-center gap-2 rounded-lg p-2 text-sm"
+                          :class="[
+                            sidebarCollapsed
+                              ? 'justify-center'
+                              : 'justify-start',
+                          ]"
+                        >
+                          <Icon :name="item.icon" size="20" />
+
+                          <span
+                            :class="[sidebarCollapsed ? 'hidden' : 'block']"
+                          >
+                            {{ item.name }}
+                          </span>
+
+                          <Icon
+                            v-if="!sidebarCollapsed"
+                            name="i-lucide-chevron-down"
+                            size="16"
+                            class="ml-auto"
+                          />
+                        </UButton>
+
+                        <template #content>
+                          <ul class="ml-6 space-y-1">
+                            <li
+                              v-for="child in item.children"
+                              :key="child.route"
+                            >
+                              <ULink
+                                :to="`/app/study/${selectedStudy}/${child.route}`"
+                                class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                                :class="[
+                                  sidebarCollapsed
+                                    ? 'justify-center'
+                                    : 'justify-start',
+                                ]"
+                                active-class="bg-gray-200 dark:bg-gray-700"
+                                inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                              >
+                                <Icon :name="child.icon" size="18" />
+
+                                <span
+                                  :class="[
+                                    sidebarCollapsed ? 'hidden' : 'block',
+                                  ]"
+                                >
+                                  {{ child.name }}
+                                </span>
+                              </ULink>
+                            </li>
+                          </ul>
+                        </template>
+                      </UCollapsible>
+                    </template>
+
+                    <template v-else>
+                      <ULink
+                        :to="`/app/study/${selectedStudy}/${item.route}`"
+                        class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                        :class="[
+                          sidebarCollapsed ? 'justify-center' : 'justify-start',
+                        ]"
+                        active-class="bg-gray-200 dark:bg-gray-700"
+                        inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <Icon :name="item.icon" size="20" />
+
+                        <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                          {{ item.name }}
+                        </span>
+                      </ULink>
+                    </template>
+                  </li>
+                </ul>
+              </template>
+            </UCollapsible>
+
+            <hr class="my-2 border-gray-200 dark:border-gray-700" />
           </template>
-        </UCollapsible>
 
-        <hr class="my-2 border-gray-200 dark:border-gray-700" />
-      </template>
+          <!-- Dataset-Specific Navigation -->
+          <template v-if="selectedDataset">
+            <UCollapsible
+              v-model:open="datasetNavigationIsOpen"
+              class="flex w-48 w-full flex-col gap-2"
+            >
+              <UButton
+                label="Dataset Navigation"
+                color="neutral"
+                variant="ghost"
+                block
+                class="w-full"
+                trailing-icon="i-lucide-chevron-down"
+              />
 
-      <!-- Dataset-Specific Navigation -->
-      <template v-if="selectedDataset">
-        <UCollapsible
-          v-model:open="datasetNavigationIsOpen"
-          class="flex w-48 w-full flex-col gap-2"
-        >
-          <UButton
-            label="Dataset Navigation"
-            color="neutral"
-            variant="ghost"
-            block
-            class="w-full"
-            trailing-icon="i-lucide-chevron-down"
-          />
+              <template #content>
+                <ul class="space-y-1">
+                  <li v-for="item in datasetNavItems" :key="item.route">
+                    <ULink
+                      :to="`/app/study/${selectedStudy}/${item.route}`"
+                      class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                      :class="[
+                        sidebarCollapsed ? 'justify-center' : 'justify-start',
+                      ]"
+                      active-class="bg-gray-200 dark:bg-gray-700"
+                      inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      <Icon :name="item.icon" size="20" />
 
-          <template #content>
-            <ul class="space-y-1">
-              <li v-for="item in datasetNavItems" :key="item.route">
-                <ULink
-                  :to="`/app/study/${selectedStudy}/${item.route}`"
-                  class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                  :class="[
-                    sidebarCollapsed ? 'justify-center' : 'justify-start',
-                  ]"
-                  active-class="bg-gray-200 dark:bg-gray-700"
-                  inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <Icon :name="item.icon" size="20" />
+                      <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                        {{ item.name }}
+                      </span>
+                    </ULink>
+                  </li>
+                </ul>
+              </template>
+            </UCollapsible>
 
-                  <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-                    {{ item.name }}
-                  </span>
-                </ULink>
-              </li>
-            </ul>
+            <hr class="my-2 border-gray-200 dark:border-gray-700" />
           </template>
-        </UCollapsible>
-
-        <hr class="my-2 border-gray-200 dark:border-gray-700" />
-      </template>
+        </div>
+      </div>
     </aside>
 
     <!-- Main Content -->
