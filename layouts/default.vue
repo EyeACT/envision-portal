@@ -11,6 +11,8 @@ const selectedDataset = computed(() => route.params.datasetId || null);
 const studyNavigationIsOpen = ref(true);
 const datasetNavigationIsOpen = ref(false);
 
+const inStudy = ref(!!selectedStudy.value);
+
 const inStudyMetadata = computed(() => {
   return route.path.includes(`${selectedStudy.value}/metadata`);
 });
@@ -159,7 +161,7 @@ watch(sidebarCollapsed, (newVal) => {
           <!-- Study-Specific Navigation -->
           <template v-if="selectedStudy">
             <UCollapsible
-              v-model:open="inStudyMetadata"
+              v-model:open="inStudy"
               class="flex w-48 w-full flex-col gap-2"
             >
               <UButton
@@ -176,8 +178,8 @@ watch(sidebarCollapsed, (newVal) => {
                   <li v-for="item in studyNavItems" :key="item.route">
                     <template v-if="item.children">
                       <UCollapsible
+                        :default-open="inStudyMetadata"
                         class="flex w-full flex-col gap-2"
-                        default-open
                       >
                         <UButton
                           color="neutral"

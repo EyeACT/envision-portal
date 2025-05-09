@@ -172,7 +172,7 @@ if (dataset.value) {
               <div class="flex gap-2">
                 <UBadge
                   v-for="item in dataset?.metadata?.studyDescription
-                    .conditionsModule.keywordList"
+                    ?.conditionsModule?.keywordList"
                   :key="item.keywordValue"
                   color="primary"
                   size="sm"
@@ -191,7 +191,7 @@ if (dataset.value) {
               <div class="flex gap-2">
                 <UBadge
                   v-for="item in dataset?.metadata?.studyDescription
-                    .conditionsModule.conditionList"
+                    .conditionsModule?.conditionList"
                   :key="item.conditionName"
                   color="primary"
                   size="sm"

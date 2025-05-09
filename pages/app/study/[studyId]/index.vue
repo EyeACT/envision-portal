@@ -49,7 +49,7 @@ if (data.value) {
             </h1>
 
             <p class="text-lg font-normal">
-              {{ data?.StudyDescription[0].briefSummary }}
+              {{ data?.StudyDescription?.briefSummary || "No summary" }}
             </p>
           </div>
 

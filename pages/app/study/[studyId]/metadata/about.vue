@@ -70,9 +70,9 @@ if (data.value) {
     title: data.value.title,
   });
 
-  state.briefSummary = data.value.StudyDescription[0].briefSummary;
+  state.briefSummary = data.value.StudyDescription?.briefSummary || "";
   state.detailedDescription =
-    data.value.StudyDescription[0].detailedDescription;
+    data.value.StudyDescription?.detailedDescription || "";
 
   state.keywords = data.value.StudyKeywords.map((keyword) => ({
     id: keyword.id,
