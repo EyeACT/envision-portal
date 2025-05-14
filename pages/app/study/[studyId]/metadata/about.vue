@@ -368,6 +368,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         color: "success",
         description: "The form has been submitted.",
       });
+
+      // refresh the page
+      window.location.reload();
     })
     .catch((err) => {
       console.log(err);
@@ -375,13 +378,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       toast.add({
         title: "Error",
         color: "error",
-        description: "The form has been submitted.",
+        description: "Something went wrong.",
       });
     })
     .finally(() => {
-      // refresh the page
-      window.location.reload();
-
       saveLoading.value = false;
     });
 }

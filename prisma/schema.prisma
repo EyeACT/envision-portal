@@ -67,7 +67,7 @@ model Study {
     created DateTime @default(now())
 
     StudyDescription    StudyDescription?
-    StudyStatus         StudyStatus[]
+    StudyStatus         StudyStatus?
     StudySponsors       StudySponsors[]
     StudyOversight      StudyOversight[]
     StudyDesign         StudyDesign[]
