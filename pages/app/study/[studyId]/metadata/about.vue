@@ -2,6 +2,7 @@
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
+import FORM_JSON from "~/assets/data/form.json";
 
 definePageMeta({
   middleware: ["auth"],
@@ -11,6 +12,8 @@ const route = useRoute();
 const toast = useToast();
 
 const { studyId } = route.params as { studyId: string };
+
+const saveLoading = ref(false);
 
 const schema = z.object({
   briefSummary: z.string().min(1, "Brief summary is required"),
@@ -26,7 +29,7 @@ const schema = z.object({
       schemeUri: z.string(),
     }),
   ),
-  detailedDescription: z.string().min(1, "Detailed description is required"),
+  detailedDescription: z.string(),
   keywords: z.array(
     z.object({
       id: z.string(),
@@ -39,6 +42,23 @@ const schema = z.object({
       schemeUri: z.string(),
     }),
   ),
+  primaryIdentifier: z.object({
+    domain: z.string(),
+    identifier: z.string(),
+    link: z.string(),
+    type: z.string().min(1, "Type is required"),
+  }),
+  secondaryIdentifiers: z.array(
+    z.object({
+      id: z.string(),
+      deleted: z.boolean(),
+      domain: z.string(),
+      identifier: z.string(),
+      link: z.string(),
+      local: z.boolean(),
+      type: z.string(),
+    }),
+  ),
 });
 
 type Schema = z.output<typeof schema>;
@@ -48,6 +68,13 @@ const state = reactive<Schema>({
   conditions: [],
   detailedDescription: "",
   keywords: [],
+  primaryIdentifier: {
+    domain: "",
+    identifier: "",
+    link: "",
+    type: "",
+  },
+  secondaryIdentifiers: [],
 });
 
 const { data, error } = await useFetch(
@@ -95,8 +122,48 @@ if (data.value) {
     scheme: condition.scheme,
     schemeUri: condition.schemeUri,
   }));
+
+  state.primaryIdentifier = {
+    domain: data.value.primaryIdentifier?.identifierDomain || "",
+    identifier: data.value.primaryIdentifier?.identifier || "",
+    link: data.value.primaryIdentifier?.identifierLink || "",
+    type: data.value.primaryIdentifier?.identifierType || "",
+  };
+
+  state.secondaryIdentifiers = data.value.secondaryIdentifiers.map(
+    (identifier) => ({
+      id: identifier.id,
+      deleted: false,
+      domain: identifier.identifierDomain || "",
+      identifier: identifier.identifier,
+      link: identifier.identifierLink || "",
+      local: false,
+      type: identifier.identifierType || "",
+    }),
+  );
 }
 
+const addSecondaryIdentifier = () => {
+  state.secondaryIdentifiers.push({
+    id: nanoid(),
+    deleted: false,
+    domain: "",
+    identifier: "",
+    link: "",
+    local: true,
+    type: "",
+  });
+};
+
+const removeSecondaryIdentifier = (index: number) => {
+  const secondaryIdentifier = state.secondaryIdentifiers[index];
+
+  if (secondaryIdentifier.local) {
+    state.secondaryIdentifiers.splice(index, 1);
+  } else {
+    secondaryIdentifier.deleted = true;
+  }
+};
 const addKeyword = () => {
   state.keywords.push({
     id: nanoid(),
@@ -207,16 +274,116 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  if (!state.primaryIdentifier.identifier) {
+    errors.push({
+      name: "primaryIdentifier.identifier",
+      message: "This field is required",
+    });
+  }
+
+  if (!state.primaryIdentifier.type) {
+    errors.push({
+      name: "primaryIdentifier.type",
+      message: "This field is required",
+    });
+  }
+
+  state.secondaryIdentifiers.forEach((identifier: any) => {
+    if (!identifier.identifier) {
+      errors.push({
+        name: "secondaryIdentifiers",
+        message: "This field is required",
+      });
+    }
+
+    if (!identifier.type) {
+      errors.push({
+        name: "secondaryIdentifiers",
+        message: "This field is required",
+      });
+    }
+  });
+
   return errors;
 };
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
-  toast.add({
-    title: "Success",
-    color: "success",
-    description: "The form has been submitted.",
-  });
-  await console.log(event.data);
+  saveLoading.value = true;
+
+  const formData = event.data;
+
+  const b = {
+    briefSummary: formData.briefSummary,
+    conditions: formData.conditions.map((condition: any) => {
+      const c = condition;
+
+      if (c.local) {
+        delete c.id;
+      }
+      if (!c.deleted) {
+        delete c.deleted;
+      }
+
+      return c;
+    }),
+    detailedDescription: formData.detailedDescription,
+    keywords: formData.keywords.map((keyword: any) => {
+      const k = keyword;
+
+      if (k.local) {
+        delete k.id;
+      }
+      if (!k.deleted) {
+        delete k.deleted;
+      }
+
+      return k;
+    }),
+    primaryIdentifier: formData.primaryIdentifier,
+    secondaryIdentifiers: formData.secondaryIdentifiers.map(
+      (identifier: any) => {
+        const i = identifier;
+
+        if (i.local) {
+          delete i.id;
+        }
+        if (!i.deleted) {
+          delete i.deleted;
+        }
+
+        return i;
+      },
+    ),
+  };
+
+  await $fetch(`/api/studies/${studyId}/metadata/about`, {
+    body: b,
+    method: "PUT",
+  })
+    .then((res) => {
+      console.log(res);
+
+      toast.add({
+        title: "Success",
+        color: "success",
+        description: "The form has been submitted.",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+
+      toast.add({
+        title: "Error",
+        color: "error",
+        description: "The form has been submitted.",
+      });
+    })
+    .finally(() => {
+      // refresh the page
+      window.location.reload();
+
+      saveLoading.value = false;
+    });
 }
 </script>
 
@@ -238,7 +405,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       ]"
     />
 
-    <div class="flex w-full flex-col gap-6">
+    <div class="flex w-full flex-col gap-6 pb-5">
       <div
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
@@ -303,8 +470,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField name="keywords">
               <CardCollapsible
                 v-for="(item, index) in state.keywords"
+                v-show="!item.deleted"
                 :key="item.id"
-                class="shadow-none"
+                class="my-1 shadow-none"
                 :title="item.name || `Keyword ${index + 1}`"
                 bordered
               >
@@ -383,8 +551,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField name="conditions">
               <CardCollapsible
                 v-for="(item, index) in state.conditions"
+                v-show="!item.deleted"
                 :key="item.id"
-                class="shadow-none"
+                class="my-1 shadow-none"
                 :title="item.name || `Condition ${index + 1}`"
                 bordered
               >
@@ -441,20 +610,143 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Primary Identifier
+            </h2>
+
+            <UFormField label="Identifier" name="primaryIdentifier.identifier">
+              <UInput
+                v-model="state.primaryIdentifier.identifier"
+                class="w-full"
+                placeholder="10.1234/1234567890"
+              />
+            </UFormField>
+
+            <UFormField label="Identifier Type" name="primaryIdentifier.type">
+              <USelect
+                v-model="state.primaryIdentifier.type"
+                class="w-full"
+                placeholder="NIH Grant Number"
+                :items="
+                  FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions
+                "
+              />
+            </UFormField>
+
+            <UFormField
+              label="Identifier Domain"
+              name="primaryIdentifier.domain"
+            >
+              <UInput
+                v-model="state.primaryIdentifier.domain"
+                placeholder="https://doi.org"
+              />
+            </UFormField>
+
+            <UFormField label="Identifier Link" name="primaryIdentifier.link">
+              <UInput
+                v-model="state.primaryIdentifier.link"
+                placeholder="https://doi.org/10.1234/1234567890"
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Alternative Identifiers
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Please add some secondary identifiers that describe the study.
+                These are usually any other identifiers that are not the primary
+                identifier.
+              </p>
+            </div>
+
+            <UFormField name="secondaryIdentifiers">
+              <CardCollapsible
+                v-for="(item, index) in state.secondaryIdentifiers"
+                v-show="!item.deleted"
+                :key="item.id"
+                class="my-1 shadow-none"
+                :title="item.identifier || `Identifier ${index + 1}`"
+                bordered
+              >
+                <template #header-extra>
+                  <UButton
+                    icon="i-lucide-trash"
+                    label="Remove identifier"
+                    variant="soft"
+                    color="error"
+                    @click="removeSecondaryIdentifier(index)"
+                  />
+                </template>
+
+                <div class="flex flex-col gap-3">
+                  <UFormField label="Identifier" name="identifier">
+                    <UInput
+                      v-model="item.identifier"
+                      placeholder="10.1234/1234567890"
+                    />
+                  </UFormField>
+
+                  <UFormField label="Identifier Type" name="type">
+                    <USelect
+                      v-model="item.type"
+                      class="w-full"
+                      placeholder="NIH Grant Number"
+                      :items="
+                        FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions
+                      "
+                    />
+                  </UFormField>
+
+                  <UFormField label="Identifier Domain" name="domain">
+                    <UInput
+                      v-model="item.domain"
+                      placeholder="https://doi.org"
+                    />
+                  </UFormField>
+
+                  <UFormField label="Identifier Link" name="link">
+                    <UInput
+                      v-model="item.link"
+                      placeholder="https://doi.org/10.1234/1234567890"
+                    />
+                  </UFormField>
+                </div>
+              </CardCollapsible>
+            </UFormField>
+
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Alternative Identifier"
+              @click="addSecondaryIdentifier"
+            />
+          </div>
+        </div>
+
         <UButton
           type="submit"
+          :disabled="saveLoading"
+          :loading="saveLoading"
           class="w-full"
           size="lg"
           label="Save Metadata"
           icon="i-lucide-save"
         />
       </UForm>
-
-      <div>
-        <pre>{{ data }}</pre>
-
-        <pre>{{ state }}</pre>
-      </div>
     </div>
   </div>
 </template>

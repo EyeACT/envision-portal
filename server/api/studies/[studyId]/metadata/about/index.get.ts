@@ -32,5 +32,17 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return study;
+  const primaryIdentifier = study.StudyIdentification.find(
+    (identifier) => identifier.isSecondary === false,
+  );
+
+  const secondaryIdentifiers = study.StudyIdentification.filter(
+    (identifier) => identifier.isSecondary === true,
+  );
+
+  return {
+    primaryIdentifier,
+    secondaryIdentifiers,
+    ...study,
+  };
 });

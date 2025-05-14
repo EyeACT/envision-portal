@@ -25,6 +25,22 @@ const StudyMetadataAboutSchema = z.object({
       schemeUri: z.string(),
     }),
   ),
+  primaryIdentifier: z.object({
+    domain: z.string().optional(),
+    identifier: z.string(),
+    link: z.string().optional(),
+    type: z.string(),
+  }),
+  secondaryIdentifiers: z.array(
+    z.object({
+      id: z.string().optional(),
+      deleted: z.boolean().optional(),
+      domain: z.string().optional(),
+      identifier: z.string(),
+      link: z.string().optional(),
+      type: z.string(),
+    }),
+  ),
 });
 
 export default defineEventHandler(async (event) => {
@@ -47,7 +63,14 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { briefSummary, conditions, detailedDescription, keywords } = body.data;
+  const {
+    briefSummary,
+    conditions,
+    detailedDescription,
+    keywords,
+    primaryIdentifier,
+    secondaryIdentifiers,
+  } = body.data;
 
   const updatedStudyDescription = await prisma.studyDescription.update({
     data: {
@@ -58,6 +81,80 @@ export default defineEventHandler(async (event) => {
       studyId,
     },
   });
+
+  // update the primary identifier
+  // Get the id of the primary identifier
+  const primaryIdentifierId = await prisma.studyIdentification.findFirst({
+    where: {
+      isSecondary: false,
+      studyId,
+    },
+  });
+
+  if (primaryIdentifierId) {
+    await prisma.studyIdentification.update({
+      data: {
+        identifier: primaryIdentifier.identifier,
+        identifierDomain: primaryIdentifier.domain,
+        identifierLink: primaryIdentifier.link,
+        identifierType: primaryIdentifier.type,
+      },
+      where: { id: primaryIdentifierId.id },
+    });
+  } else {
+    await prisma.studyIdentification.create({
+      data: {
+        identifier: primaryIdentifier.identifier,
+        identifierDomain: primaryIdentifier.domain ?? "",
+        identifierLink: primaryIdentifier.link ?? "",
+        identifierType: primaryIdentifier.type,
+        isSecondary: false,
+        studyId,
+      },
+    });
+  }
+
+  // update the secondary identifiers
+  // Get the secondary identifiers that already have an id and update them
+  const secondaryIdentifiersToUpdate = secondaryIdentifiers.filter(
+    (identifier) => identifier.id,
+  );
+
+  for (const identifier of secondaryIdentifiersToUpdate) {
+    await prisma.studyIdentification.update({
+      data: identifier,
+      where: { id: identifier.id },
+    });
+  }
+
+  // Get the secondary identifiers that don't have an id and create them
+  const secondaryIdentifiersToCreate = secondaryIdentifiers.filter(
+    (identifier) => !identifier.id,
+  );
+
+  for (const identifier of secondaryIdentifiersToCreate) {
+    await prisma.studyIdentification.create({
+      data: {
+        identifier: identifier.identifier,
+        identifierDomain: identifier.domain ?? "",
+        identifierLink: identifier.link ?? "",
+        identifierType: identifier.type,
+        isSecondary: true,
+        studyId,
+      },
+    });
+  }
+
+  // Get the secondary identifiers that are deleted and delete them
+  const secondaryIdentifiersToDelete = secondaryIdentifiers.filter(
+    (identifier) => identifier.deleted,
+  );
+
+  for (const identifier of secondaryIdentifiersToDelete) {
+    await prisma.studyIdentification.delete({
+      where: { id: identifier.id },
+    });
+  }
 
   // update the keywords
   // Get the keywords that already have an id and update them
