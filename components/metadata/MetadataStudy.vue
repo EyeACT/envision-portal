@@ -2,9 +2,12 @@
 import type { TableColumn } from "@nuxt/ui";
 import { h } from "vue";
 import { NuxtLink } from "#components";
+import StudyOversight from "./oversight/StudyOversight.vue";
+
 // Define props
 const props = defineProps<{
   metadata: any;
+  studyId: any;
 }>();
 
 const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
@@ -486,48 +489,7 @@ const responsiblePartyColumns: TableColumn<
     </CardCollapsibleContent>
 
     <CardCollapsibleContent title="Oversight">
-      <div class="space-y-6">
-        <!-- Human Subject Review Status -->
-        <div>
-          <p :class="sectionTitleClass">
-            Has the clinical study been reviewed and approved by at least one
-            human subjects protection review board?
-          </p>
-
-          <p>{{ props.metadata.oversightModule.humanSubjectReviewStatus }}</p>
-        </div>
-
-        <!-- FDA Regulated Drug -->
-        <div>
-          <p :class="sectionTitleClass">
-            Is this clincal study for a drug product?
-          </p>
-
-          <p>
-            {{ props.metadata.oversightModule?.isFDARegulatedDrug || "N/A" }}
-          </p>
-        </div>
-
-        <!-- FDA Regulated Device -->
-        <div>
-          <p :class="sectionTitleClass">
-            Is this clinical study for a medical device?
-          </p>
-
-          <p>
-            {{ props.metadata.oversightModule?.isFDARegulatedDevice || "N/A" }}
-          </p>
-        </div>
-
-        <!-- Oversight has DMC -->
-        <div>
-          <p :class="sectionTitleClass">
-            Was a data monitoring committee appointed for this study?
-          </p>
-
-          <p>{{ props.metadata.oversightModule?.oversightHasDMC || "N/A" }}</p>
-        </div>
-      </div>
+      <StudyOversight :studyId = "props.studyId"></StudyOversight>
     </CardCollapsibleContent>
 
     <CardCollapsibleContent title="Sponsors and Collaborators">

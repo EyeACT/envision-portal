@@ -300,7 +300,10 @@ if (dataset.value) {
             </template>
 
             <template #study-metadata>
-              <MetadataStudy :metadata="dataset?.metadata?.studyDescription" />
+              <MetadataStudy 
+                :metadata="dataset?.metadata?.studyDescription" 
+                :studyId="dataset?.studyId"
+              />
             </template>
 
             <template #dataset-metadata>
