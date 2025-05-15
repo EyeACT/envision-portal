@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, onBeforeMount } from 'vue'
 
+const route = useRoute();
 const toast = useToast()
+
+const { studyId } = route.params as { studyId: string };
+ 
 const props = defineProps({
   studyId: {
     type: String,
@@ -37,7 +41,7 @@ function normalize(value: string | null | undefined): string {
 
 async function fetchData() {
   try {
-    const res = await fetch(`/api/studies/${props.studyId}/metadata/oversight`)
+    const res = await fetch(`/api/studies/${studyId}/metadata/oversight`)
     if (!res.ok) throw new Error('Failed to fetch metadata')
     const data = await res.json()
 
@@ -54,7 +58,7 @@ async function fetchData() {
 async function onSubmit() {
   loading.value = true
   try {
-    const res = await fetch(`/api/studies/${props.studyId}/metadata/oversight`, {
+    const res = await fetch(`/api/studies/${studyId}/metadata/oversight`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -95,6 +99,7 @@ onBeforeMount(() => {
         v-model="state.human_subject_review_status"
         :items="reviewStatusOptions"
         placeholder="Request not yet submitted"
+        class="w-50"
       />
     </UFormField>
 
@@ -125,7 +130,7 @@ onBeforeMount(() => {
       />
     </UFormField>
 
-    <UButton type="submit" :loading="loading" class="w-1/9 text-center">
+    <UButton type="submit" :loading="loading" class="w-1/10 text-center">
       <template #icon>
         <UIcon name="i-heroicons-check-circle" />
       </template>
