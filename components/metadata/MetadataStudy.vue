@@ -2,6 +2,7 @@
 import type { TableColumn } from "@nuxt/ui";
 import { h } from "vue";
 import { NuxtLink } from "#components";
+
 // Define props
 const props = defineProps<{
   metadata: any;

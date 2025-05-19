@@ -499,6 +499,7 @@ interface AdditionalData {
 
 interface Dataset {
   id: string;
+  studyId: string;
   doi: string;
   title: string;
   description: string;
@@ -512,6 +513,7 @@ interface Dataset {
   labelingMethod: string;
   validationInfo: string;
   license: string;
+  publishedMetadata?: PublishedMetadata;
 }
 
 interface DatasetArray extends Array<Dataset> {}
@@ -559,17 +561,6 @@ interface Creator {
 interface PublishedMetadata {
   studyDescription?: StudyDescription;
   datasetDescription: DatasetDescription;
-}
-
-interface Dataset {
-  id: string;
-  title: string;
-  description: string;
-  created: string;
-  license: string;
-  labelingMethod?: string;
-  validationInfo?: string;
-  publishedMetadata?: PublishedMetadata;
 }
 
 interface VersionArray extends Array<VersionArrayItem> {}

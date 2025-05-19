@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
 
   const dataset: Dataset = {
     id: datasetid,
+    studyId: publishedDataset.studyId,
     title: publishedDataset.title,
     created: publishedDataset.created,
     data: datasetAdditionalData,
