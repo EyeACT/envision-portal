@@ -50,7 +50,7 @@ const onSubmit = async () => {
     method: "POST",
   })
     .then((response) => {
-      navigateTo(`/app/studies/${response.data.studyId}`);
+      navigateTo(`/app/study/${response.data.studyId}`);
     })
     .catch((error) => {
       console.error("Error creating new study:", error);

@@ -70,7 +70,7 @@ model Study {
     StudyStatus         StudyStatus[]
     StudySponsors       StudySponsors[]
     StudyOversight      StudyOversight[]
-    StudyDesign         StudyDesign[]
+    StudyDesign         StudyDesign?
     StudyEligibilty     StudyEligibilty[]
     StudyIdentification StudyIdentification[]
     StudyCollaborators  StudyCollaborators[]
