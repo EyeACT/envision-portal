@@ -920,6 +920,54 @@
       "value": "Sponsor-Investigator"
     }
   ],
+  "studyMetadataMaskingOptions": [
+    {
+      "label": "None (Open Label)",
+      "value": "None (Open Label)"
+    },
+    {
+      "label": "Blinded (no details)",
+      "value": "Blinded (no details)"
+    },
+    {
+      "label": "Single",
+      "value": "Single"
+    },
+    {
+      "label": "Double",
+      "value": "Double"
+    },
+    {
+      "label": "Triple",
+      "value": "Triple"
+    },
+    {
+      "label": "Quadruple",
+      "value": "Quadruple"
+    },
+    {
+      "label": "N/A",
+      "value": "N/A"
+    }
+  ],
+  "studyMetadataWhoMaskedOptions": [
+    {
+      "label": "Participant",
+      "value": "Participant"
+    },
+    {
+      "label": "Care Provider",
+      "value": "Care Provider"
+    },
+    {
+      "label": "Investigator",
+      "value": "Investigator"
+    },
+    {
+      "label": "Outcomes Assessor",
+      "value": "Outcomes Assessor"
+    }
+  ],
   "studyMetadataStudyTypeOptions": [
     {
       "description": "A clinical trial. Participants are assigned prospectively to an intervention or interventions according to a protocol to evaluate the effect of the intervention(s) on biomedical or other health related outcomes.",
@@ -1196,6 +1244,28 @@
     {
       "label": "Other",
       "value": "Other"
+    }
+  ],
+  "studyMetadataTargetDurationUnitOptions": [
+    {
+      "label": "Hours",
+      "value": "Hours"
+    },
+    {
+      "label": "Days",
+      "value": "Days"
+    },
+    {
+      "label": "Weeks",
+      "value": "Weeks"
+    },
+    {
+      "label": "Months",
+      "value": "Months"
+    },
+    {
+      "label": "Years",
+      "value": "Years"
     }
   ],
   "studyMetadataArmsTypeOptions": [

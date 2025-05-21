@@ -15,12 +15,61 @@ const { studyId } = route.params as { studyId: string };
 const saveLoading = ref(false);
 
 const schema = z.object({
+  allocation: z.string(),
+  bioSpecDescription: z.string(),
+  bioSpecRetention: z.string(),
+  enrollmentCount: z.number(),
+  enrollmentType: z.string(),
+  interventionModel: z.string(),
+  interventionModelDescription: z.string(),
+  isPatientRegistry: z.string(),
+  masking: z.string(),
+  maskingDescription: z.string(),
+  numberOfArms: z.number(),
+  oberservationalModelList: z.array(z.string()),
+  phaseList: z.array(z.string()),
+  primaryPurpose: z.string(),
   studyType: z.string(),
+  targetDuration: z.number(),
+  targetDurationUnit: z.string(),
+  timePerspectiveList: z.array(z.string()),
+  whoMaskedList: z.array(z.string()),
 });
 
 type Schema = z.output<typeof schema>;
 
-const state = reactive<Schema>({ studyType: "" });
+const state = reactive<Schema>({
+  allocation: "",
+  bioSpecDescription: "",
+  bioSpecRetention: "",
+  enrollmentCount: 0,
+  enrollmentType: "",
+  interventionModel: "",
+  interventionModelDescription: "",
+  isPatientRegistry: "",
+  masking: "",
+  maskingDescription: "",
+  numberOfArms: 0,
+  oberservationalModelList: [],
+  phaseList: [],
+  primaryPurpose: "",
+  studyType: "",
+  targetDuration: 0,
+  targetDurationUnit: "",
+  timePerspectiveList: [],
+  whoMaskedList: [],
+});
+
+const selectOptions = [
+  {
+    label: "Yes",
+    value: "Yes",
+  },
+  {
+    label: "No",
+    value: "No",
+  },
+];
 
 const { data, error } = await useFetch(
   `/api/studies/${studyId}/metadata/design`,
@@ -41,6 +90,29 @@ if (data.value) {
   useSeoMeta({
     title: data.value.title,
   });
+
+  state.studyType = data.value.StudyDesign?.studyType ?? "";
+  state.isPatientRegistry = data.value.StudyDesign?.isPatientRegistry ?? "";
+
+  state.enrollmentCount = data.value.StudyDesign?.enrollmentCount ?? 0;
+  state.enrollmentType = data.value.StudyDesign?.enrollmentType ?? "";
+
+  state.allocation = data.value.StudyDesign?.allocation ?? "";
+  state.interventionModel = data.value.StudyDesign?.interventionModel ?? "";
+  state.interventionModelDescription =
+    data.value.StudyDesign?.interventionModelDescription ?? "";
+  state.primaryPurpose = data.value.StudyDesign?.primaryPurpose ?? "";
+
+  state.masking = data.value.StudyDesign?.masking ?? "";
+  state.maskingDescription = data.value.StudyDesign?.maskingDescription ?? "";
+  state.whoMaskedList = data.value.StudyDesign?.whoMaskedList ?? [];
+
+  state.numberOfArms = data.value.StudyDesign?.numberOfArms ?? 0;
+  state.phaseList = data.value.StudyDesign?.phaseList ?? [];
+
+  state.oberservationalModelList =
+    data.value.StudyDesign?.oberservationalModelList ?? [];
+  state.timePerspectiveList = data.value.StudyDesign?.timePerspectiveList ?? [];
 }
 
 const validate = (state: any): FormError[] => {
@@ -50,6 +122,108 @@ const validate = (state: any): FormError[] => {
     errors.push({
       message: "Study type is required",
       path: "studyType",
+    });
+  }
+
+  if (state.studyType === "Observational") {
+    if (!state.isPatientRegistry) {
+      errors.push({
+        message: "Is patient registry is required",
+        path: "isPatientRegistry",
+      });
+    }
+
+    if (!state.oberservationalModelList.length) {
+      errors.push({
+        message: "Observational model is required",
+        path: "oberservationalModelList",
+      });
+    }
+
+    if (!state.timePerspectiveList.length) {
+      errors.push({
+        message: "Time perspective is required",
+        path: "timePerspectiveList",
+      });
+    }
+
+    if (!state.bioSpecRetention) {
+      errors.push({
+        message: "Bio specification retention is required",
+        path: "bioSpecRetention",
+      });
+    }
+
+    if (!state.bioSpecDescription) {
+      errors.push({
+        message: "Bio specification description is required",
+        path: "bioSpecDescription",
+      });
+    }
+  }
+
+  if (state.studyType === "Interventional") {
+    if (!state.allocation) {
+      errors.push({
+        message: "Allocation is required",
+        path: "allocation",
+      });
+    }
+
+    if (!state.interventionModel) {
+      errors.push({
+        message: "Intervention model is required",
+        path: "interventionModel",
+      });
+    }
+
+    if (!state.primaryPurpose) {
+      errors.push({
+        message: "Primary purpose is required",
+        path: "primaryPurpose",
+      });
+    }
+
+    if (!state.masking) {
+      errors.push({
+        message: "Masking is required",
+        path: "masking",
+      });
+    }
+
+    if (!state.whoMaskedList.length) {
+      errors.push({
+        message: "Who masked is required",
+        path: "whoMaskedList",
+      });
+    }
+
+    if (!state.phaseList.length) {
+      errors.push({
+        message: "Phase is required",
+        path: "phaseList",
+      });
+    }
+
+    if (!state.enrollmentCount) {
+      errors.push({
+        message: "Enrollment count is required",
+        path: "enrollmentCount",
+      });
+    }
+
+    if (!state.numberOfArms) {
+      errors.push({
+        message: "Number of arms is required",
+        path: "numberOfArms",
+      });
+    }
+  }
+
+  if (!state.enrollmentType) {
+    errors.push({
+      message: "Enrollment type is required",
+      path: "enrollmentType",
     });
   }
 
@@ -106,8 +280,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           label: 'Metadata',
         },
         {
-          label: 'About',
-          to: `/app/study/${studyId}/metadata/about`,
+          label: 'Design',
+          to: `/app/study/${studyId}/metadata/design`,
         },
       ]"
     />
@@ -137,9 +311,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-              Study Type
-            </h2>
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Study Type
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Quisquam, quos.
+              </p>
+            </div>
 
             <UFormField label="What is the study type?" name="studyType">
               <USelect
@@ -149,10 +330,314 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 :items="FORM_JSON.studyMetadataStudyTypeOptions"
               />
             </UFormField>
+
+            <UFormField
+              v-show="state.studyType === 'Observational'"
+              label="Is this study a Patient Registry?"
+              name="isPatientRegistry"
+            >
+              <USelect
+                v-model="state.isPatientRegistry"
+                class="w-full"
+                placeholder="No"
+                :items="selectOptions"
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div
+          v-show="
+            state.studyType === 'Interventional' ||
+            state.studyType === 'Observational'
+          "
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Design Information
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Quisquam, quos.
+              </p>
+            </div>
+
+            <UFormField
+              v-show="state.studyType === 'Interventional'"
+              label="Allocation"
+              name="allocation"
+            >
+              <USelect
+                v-model="state.allocation"
+                class="w-full"
+                placeholder="Randomized"
+                :items="FORM_JSON.studyMetadataAllocationOptions"
+              />
+            </UFormField>
+
+            <UFormField
+              v-show="state.studyType === 'Interventional'"
+              label="Intervention Model"
+              name="interventionModel"
+            >
+              <USelect
+                v-model="state.interventionModel"
+                class="w-full"
+                placeholder="Prevention"
+                :items="FORM_JSON.studyMetadataInterventionModelOptions"
+              />
+            </UFormField>
+
+            <UFormField
+              v-show="state.studyType === 'Interventional'"
+              label="Intervention Model Description"
+              name="interventionModelDescription"
+            >
+              <UInput
+                v-model="state.interventionModelDescription"
+                class="w-full"
+                placeholder="Intervention model description"
+              />
+            </UFormField>
+
+            <UFormField
+              v-show="state.studyType === 'Interventional'"
+              label="Primary Purpose"
+              name="primaryPurpose"
+            >
+              <USelect
+                v-model="state.primaryPurpose"
+                class="w-full"
+                placeholder="Single Group Assignment"
+                :items="FORM_JSON.studyMetadataPrimaryPurposeOptions"
+              />
+            </UFormField>
+
+            <UFormField
+              v-show="state.studyType === 'Observational'"
+              label="Observational Models"
+              name="oberservationalModelList"
+            >
+              <USelect
+                v-model="state.oberservationalModelList"
+                class="w-full"
+                multiple
+                placeholder="Observational Models"
+                :items="FORM_JSON.studyMetadataObservationalModelsOptions"
+              />
+            </UFormField>
+
+            <UFormField
+              v-show="state.studyType === 'Observational'"
+              label="Time Perspective"
+              name="timePerspectiveList"
+            >
+              <USelect
+                v-model="state.timePerspectiveList"
+                class="w-full"
+                multiple
+                placeholder="Retrospective"
+                :items="FORM_JSON.studyMetadataTimePerspectiveOptions"
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div
+          v-show="state.studyType === 'Interventional'"
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Masking
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Quisquam, quos.
+              </p>
+            </div>
+
+            <UFormField label="Masking" name="masking">
+              <USelect
+                v-model="state.masking"
+                class="w-full"
+                placeholder="Blind"
+                :items="FORM_JSON.studyMetadataMaskingOptions"
+              />
+            </UFormField>
+
+            <UFormField label="Masking Description" name="maskingDescription">
+              <UTextarea
+                v-model="state.maskingDescription"
+                class="w-full"
+                placeholder="Lorem ipsum dolor sit amet"
+              />
+            </UFormField>
+
+            <UFormField label="Who Masked?" name="whoMaskedList">
+              <USelect
+                v-model="state.whoMaskedList"
+                class="w-full"
+                multiple
+                placeholder="Single Group Assignment"
+                :items="FORM_JSON.studyMetadataWhoMaskedOptions"
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div
+          v-show="state.studyType === 'Interventional'"
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Phase
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Quisquam, quos.
+              </p>
+            </div>
+
+            <UFormField label="Phase" name="phaseList">
+              <USelect
+                v-model="state.phaseList"
+                class="w-full"
+                multiple
+                placeholder="Phase 1"
+                :items="FORM_JSON.studyMetadataPhaseOptions"
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div
+          v-show="state.studyType === 'Observational'"
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Bio Specification
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Quisquam, quos.
+              </p>
+            </div>
+
+            <UFormField label="Retention" name="bioSpecRetention">
+              <USelect
+                v-model="state.bioSpecRetention"
+                class="w-full"
+                placeholder="None Retained"
+                :items="FORM_JSON.studyMetadataBioSpecRetentionOptions"
+              />
+            </UFormField>
+
+            <UFormField label="Description" name="bioSpecDescription">
+              <UTextarea
+                v-model="state.bioSpecDescription"
+                class="w-full"
+                placeholder="Lorem ipsum dolor sit amet"
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Enrollment Information
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Quisquam, quos.
+              </p>
+            </div>
+
+            <UFormField
+              label="Total number of participants to be enrolled"
+              name="enrollmentCount"
+            >
+              <UInput
+                v-model="state.enrollmentCount"
+                class="w-full"
+                placeholder="100"
+                type="number"
+              />
+            </UFormField>
+
+            <UFormField label="Type of enrollment" name="enrollmentType">
+              <USelect
+                v-model="state.enrollmentType"
+                class="w-full"
+                placeholder="Anticipated"
+                :items="FORM_JSON.studyMetadataEnrollmentTypeOptions"
+              />
+            </UFormField>
+
+            <UFormField
+              v-show="state.studyType === 'Interventional'"
+              label="Number of Arms"
+              name="numberOfArms"
+            >
+              <UInput
+                v-model="state.numberOfArms"
+                class="w-full"
+                placeholder="1"
+                type="number"
+              />
+            </UFormField>
+
+            <div
+              v-show="state.studyType === 'Observational'"
+              class="flex w-full gap-4"
+            >
+              <UFormField
+                v-show="state.studyType === 'Observational'"
+                label="Target duration value"
+                name="targetDuration"
+                class="w-full"
+              >
+                <UInput
+                  v-model="state.targetDuration"
+                  class="w-full"
+                  placeholder="1"
+                />
+              </UFormField>
+
+              <UFormField
+                label="Target duration unit"
+                name="targetDurationUnit"
+                class="w-full"
+              >
+                <USelect
+                  v-model="state.targetDurationUnit"
+                  class="w-full"
+                  placeholder="Days"
+                  :items="FORM_JSON.studyMetadataTargetDurationUnitOptions"
+                />
+              </UFormField>
+            </div>
           </div>
         </div>
 
         <UButton
+          :validate="validate"
           type="submit"
           :disabled="saveLoading"
           :loading="saveLoading"
@@ -165,6 +650,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
       <pre>
         {{ data }}
+        {{ state }}
       </pre>
     </div>
   </div>

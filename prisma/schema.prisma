@@ -203,12 +203,13 @@ model StudyDesign {
 
     studyType String?
 
-    designAllocation         String?
-    designInterventionModel  String?
-    designPrimaryPurpose     String?
-    designMasking            String?
-    designMaskingDescription String?
-    designWhoMaskedList      String[]
+    allocation                   String?
+    interventionModel            String?
+    interventionModelDescription String?
+    primaryPurpose               String?
+    masking                      String?
+    maskingDescription           String?
+    whoMaskedList                String[]
 
     phaseList String[]
 
@@ -217,8 +218,8 @@ model StudyDesign {
 
     numberOfArms Int?
 
-    designOberservationalModelList String[]
-    designTimePerspectiveList      String[]
+    oberservationalModelList String[]
+    timePerspectiveList      String[]
 
     bioSpecRetention   String?
     bioSpecDescription String?
