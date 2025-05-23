@@ -67,10 +67,10 @@ model Study {
     created DateTime @default(now())
 
     StudyDescription    StudyDescription?
-    StudyStatus         StudyStatus[]
+    StudyStatus         StudyStatus?
     StudySponsors       StudySponsors[]
     StudyOversight      StudyOversight[]
-    StudyDesign         StudyDesign[]
+    StudyDesign         StudyDesign?
     StudyEligibilty     StudyEligibilty[]
     StudyIdentification StudyIdentification[]
     StudyCollaborators  StudyCollaborators[]
@@ -203,12 +203,13 @@ model StudyDesign {
 
     studyType String?
 
-    designAllocation         String?
-    designInterventionModel  String?
-    designPrimaryPurpose     String?
-    designMasking            String?
-    designMaskingDescription String?
-    designWhoMaskedList      String[]
+    allocation                   String?
+    interventionModel            String?
+    interventionModelDescription String?
+    primaryPurpose               String?
+    masking                      String?
+    maskingDescription           String?
+    whoMaskedList                String[]
 
     phaseList String[]
 
@@ -217,13 +218,15 @@ model StudyDesign {
 
     numberOfArms Int?
 
-    designOberservationalModelList String[]
-    designTimePerspectiveList      String[]
+    oberservationalModelList String[]
+    timePerspectiveList      String[]
 
     bioSpecRetention   String?
     bioSpecDescription String?
 
-    targetDuration    String?
+    targetDuration     Int?
+    targetDurationUnit String?
+
     isPatientRegistry String?
 
     updated DateTime @updatedAt
