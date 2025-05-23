@@ -113,6 +113,12 @@ if (data.value) {
   state.oberservationalModelList =
     data.value.StudyDesign?.oberservationalModelList ?? [];
   state.timePerspectiveList = data.value.StudyDesign?.timePerspectiveList ?? [];
+
+  state.targetDuration = data.value.StudyDesign?.targetDuration ?? 0;
+  state.targetDurationUnit = data.value.StudyDesign?.targetDurationUnit ?? "";
+
+  state.bioSpecRetention = data.value.StudyDesign?.bioSpecRetention ?? "";
+  state.bioSpecDescription = data.value.StudyDesign?.bioSpecDescription ?? "";
 }
 
 const validate = (state: any): FormError[] => {
@@ -120,44 +126,44 @@ const validate = (state: any): FormError[] => {
 
   if (!state.studyType) {
     errors.push({
+      name: "studyType",
       message: "Study type is required",
-      path: "studyType",
     });
   }
 
   if (state.studyType === "Observational") {
     if (!state.isPatientRegistry) {
       errors.push({
+        name: "isPatientRegistry",
         message: "Is patient registry is required",
-        path: "isPatientRegistry",
       });
     }
 
     if (!state.oberservationalModelList.length) {
       errors.push({
+        name: "oberservationalModelList",
         message: "Observational model is required",
-        path: "oberservationalModelList",
       });
     }
 
     if (!state.timePerspectiveList.length) {
       errors.push({
+        name: "timePerspectiveList",
         message: "Time perspective is required",
-        path: "timePerspectiveList",
       });
     }
 
     if (!state.bioSpecRetention) {
       errors.push({
+        name: "bioSpecRetention",
         message: "Bio specification retention is required",
-        path: "bioSpecRetention",
       });
     }
 
     if (!state.bioSpecDescription) {
       errors.push({
+        name: "bioSpecDescription",
         message: "Bio specification description is required",
-        path: "bioSpecDescription",
       });
     }
   }
@@ -165,67 +171,69 @@ const validate = (state: any): FormError[] => {
   if (state.studyType === "Interventional") {
     if (!state.allocation) {
       errors.push({
+        name: "allocation",
         message: "Allocation is required",
-        path: "allocation",
       });
     }
 
     if (!state.interventionModel) {
       errors.push({
+        name: "interventionModel",
         message: "Intervention model is required",
-        path: "interventionModel",
       });
     }
 
     if (!state.primaryPurpose) {
       errors.push({
+        name: "primaryPurpose",
         message: "Primary purpose is required",
-        path: "primaryPurpose",
       });
     }
 
     if (!state.masking) {
       errors.push({
+        name: "masking",
         message: "Masking is required",
-        path: "masking",
       });
     }
 
     if (!state.whoMaskedList.length) {
       errors.push({
+        name: "whoMaskedList",
         message: "Who masked is required",
-        path: "whoMaskedList",
       });
     }
 
     if (!state.phaseList.length) {
       errors.push({
+        name: "phaseList",
         message: "Phase is required",
-        path: "phaseList",
       });
     }
 
     if (!state.enrollmentCount) {
       errors.push({
+        name: "enrollmentCount",
         message: "Enrollment count is required",
-        path: "enrollmentCount",
       });
     }
 
     if (!state.numberOfArms) {
       errors.push({
+        name: "numberOfArms",
         message: "Number of arms is required",
-        path: "numberOfArms",
       });
     }
   }
 
   if (!state.enrollmentType) {
     errors.push({
+      name: "enrollmentType",
       message: "Enrollment type is required",
-      path: "enrollmentType",
     });
   }
+
+  console.log(errors);
 
   return errors;
 };
@@ -235,7 +243,27 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
   const formData = event.data;
 
-  const b = {};
+  const b = {
+    allocation: formData.allocation,
+    bioSpecDescription: formData.bioSpecDescription,
+    bioSpecRetention: formData.bioSpecRetention,
+    enrollmentCount: formData.enrollmentCount,
+    enrollmentType: formData.enrollmentType,
+    interventionModel: formData.interventionModel,
+    interventionModelDescription: formData.interventionModelDescription,
+    isPatientRegistry: formData.isPatientRegistry,
+    masking: formData.masking,
+    maskingDescription: formData.maskingDescription,
+    numberOfArms: formData.numberOfArms,
+    oberservationalModelList: formData.oberservationalModelList,
+    phaseList: formData.phaseList,
+    primaryPurpose: formData.primaryPurpose,
+    studyType: formData.studyType,
+    targetDuration: formData.targetDuration,
+    targetDurationUnit: formData.targetDurationUnit,
+    timePerspectiveList: formData.timePerspectiveList,
+    whoMaskedList: formData.whoMaskedList,
+  };
 
   await $fetch(`/api/studies/${studyId}/metadata/design`, {
     body: b,
@@ -616,6 +644,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 <UInput
                   v-model="state.targetDuration"
                   class="w-full"
+                  type="number"
                   placeholder="1"
                 />
               </UFormField>
@@ -637,7 +666,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         </div>
 
         <UButton
-          :validate="validate"
           type="submit"
           :disabled="saveLoading"
           :loading="saveLoading"
@@ -647,11 +675,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           icon="i-lucide-save"
         />
       </UForm>
-
-      <pre>
-        {{ data }}
-        {{ state }}
-      </pre>
     </div>
   </div>
 </template>
