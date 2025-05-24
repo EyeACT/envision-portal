@@ -71,6 +71,22 @@ export default defineEventHandler(async (event) => {
           whoMaskedList: [],
         },
       },
+      StudyEligibilty: {
+        create: {
+          exclusionCriteria: [],
+          genderBased: null,
+          genderDescription: null,
+          healthyVolunteers: null,
+          inclusionCriteria: [],
+          maximumAgeUnit: null,
+          maximumAgeValue: null,
+          minimumAgeUnit: null,
+          minimumAgeValue: null,
+          samplingMethod: null,
+          sex: null,
+          studyPopulation: "",
+        },
+      },
       StudyMember: {
         create: {
           owner: true,

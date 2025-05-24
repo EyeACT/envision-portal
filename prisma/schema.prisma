@@ -71,7 +71,7 @@ model Study {
     StudySponsors       StudySponsors[]
     StudyOversight      StudyOversight[]
     StudyDesign         StudyDesign?
-    StudyEligibilty     StudyEligibilty[]
+    StudyEligibilty     StudyEligibilty?
     StudyIdentification StudyIdentification[]
     StudyCollaborators  StudyCollaborators[]
     StudyConditions     StudyConditions[]
@@ -243,10 +243,10 @@ model StudyEligibilty {
     genderBased       String?
     genderDescription String?
 
-    minimumAgeValue String?
+    minimumAgeValue Int?
     minimumAgeUnit  String?
 
-    maximumAgeValue String?
+    maximumAgeValue Int?
     maximumAgeUnit  String?
 
     healthyVolunteers String?
