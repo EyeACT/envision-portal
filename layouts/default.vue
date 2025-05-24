@@ -65,8 +65,13 @@ const studyNavItems = [
         route: "metadata/arms",
       },
       {
+        name: "Interventions",
+        icon: "material-symbols:syringe-sharp",
+        route: "metadata/interventions",
+      },
+      {
         name: "Central Contacts",
-        icon: "material-symbols:contact-phone",
+        icon: "mdi:contact",
         route: "metadata/central-contacts",
       },
       {
