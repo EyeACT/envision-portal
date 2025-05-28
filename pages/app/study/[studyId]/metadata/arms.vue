@@ -15,41 +15,26 @@ const { studyId } = route.params as { studyId: string };
 const saveLoading = ref(false);
 
 const schema = z.object({
-  exclusionCriteria: z.array(z.string()),
-  genderBased: z.string(),
-  genderDescription: z.string(),
-  healthyVolunteers: z.string(),
-  inclusionCriteria: z.array(z.string()),
-  maximumAgeUnit: z.string(),
-  maximumAgeValue: z.number(),
-  minimumAgeUnit: z.string(),
-  minimumAgeValue: z.number(),
-  samplingMethod: z.string(),
-  sex: z.string(),
-  studyPopulation: z.string(),
+  studyArms: z.array(
+    z.object({
+      description: z.string(),
+      interventionList: z.array(z.string()),
+      label: z.string(),
+      type: z.string().nullable(),
+    }),
+  ),
   studyType: z.string(),
 });
 
 type Schema = z.output<typeof schema>;
 
 const state = reactive<Schema>({
-  exclusionCriteria: [],
-  genderBased: "",
-  genderDescription: "",
-  healthyVolunteers: "",
-  inclusionCriteria: [],
-  maximumAgeUnit: "",
-  maximumAgeValue: 0,
-  minimumAgeUnit: "",
-  minimumAgeValue: 0,
-  samplingMethod: "",
-  sex: "",
-  studyPopulation: "",
+  studyArms: [],
   studyType: "",
 });
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/metadata/eligibility`,
+  `/api/studies/${studyId}/metadata/arms`,
   {},
 );
 
@@ -68,19 +53,8 @@ if (data.value) {
     title: data.value.title,
   });
 
-  state.studyType = data.value.studyType ?? "";
-  state.sex = data.value.StudyEligibilty?.sex ?? "";
-  state.studyPopulation = data.value.StudyEligibilty?.studyPopulation ?? "";
-  state.samplingMethod = data.value.StudyEligibilty?.samplingMethod ?? "";
-  state.exclusionCriteria = data.value.StudyEligibilty?.exclusionCriteria ?? [];
-  state.inclusionCriteria = ["as", "asd"]; // data.value.StudyEligibilty?.inclusionCriteria ??;
-  state.genderBased = data.value.StudyEligibilty?.genderBased ?? "";
-  state.genderDescription = data.value.StudyEligibilty?.genderDescription ?? "";
-  state.healthyVolunteers = data.value.StudyEligibilty?.healthyVolunteers ?? "";
-  state.maximumAgeValue = data.value.StudyEligibilty?.maximumAgeValue ?? 0;
-  state.maximumAgeUnit = data.value.StudyEligibilty?.maximumAgeUnit ?? "";
-  state.minimumAgeValue = data.value.StudyEligibilty?.minimumAgeValue ?? 0;
-  state.minimumAgeUnit = data.value.StudyEligibilty?.minimumAgeUnit ?? "";
+  state.studyArms = data.value.StudyArm ?? [];
+  state.studyType = data.value.StudyDesign?.studyType ?? "";
 }
 
 const validate = (state: any): FormError[] => {
@@ -162,7 +136,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     studyPopulation: formData.studyPopulation,
   };
 
-  await $fetch(`/api/studies/${studyId}/metadata/eligibility`, {
+  await $fetch(`/api/studies/${studyId}/metadata/arms`, {
     body: b,
     method: "PUT",
   })
@@ -496,6 +470,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           icon="i-lucide-save"
         />
       </UForm>
+
+      <pre>{{ data }}</pre>
+
+      <pre>{{ state }}</pre>
     </div>
   </div>
 </template>
