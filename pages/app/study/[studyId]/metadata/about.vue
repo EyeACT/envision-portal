@@ -164,6 +164,7 @@ const removeSecondaryIdentifier = (index: number) => {
     secondaryIdentifier.deleted = true;
   }
 };
+
 const addKeyword = () => {
   state.keywords.push({
     id: nanoid(),

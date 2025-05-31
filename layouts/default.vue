@@ -72,12 +72,12 @@ const studyNavItems = [
       {
         name: "Central Contacts",
         icon: "mdi:contact",
-        route: "metadata/central-contacts",
+        route: "metadata/contacts",
       },
       {
         name: "Overall Officials",
         icon: "material-symbols:badge",
-        route: "metadata/overall-officials",
+        route: "metadata/officials",
       },
       {
         name: "Locations",

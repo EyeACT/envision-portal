@@ -227,6 +227,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </div>
 
       <UAlert
+        v-show="!state.studyType"
         title="Missing Study Type"
         description="Some information is missing from the study. Please add a study type to continue."
         color="error"

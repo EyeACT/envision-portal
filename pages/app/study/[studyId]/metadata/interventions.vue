@@ -16,29 +16,27 @@ const { studyId } = route.params as { studyId: string };
 const saveLoading = ref(false);
 
 const schema = z.object({
-  studyArms: z.array(
+  studyInterventions: z.array(
     z.object({
       id: z.string(),
+      name: z.string(),
       deleted: z.boolean(),
       description: z.string(),
-      interventionList: z.array(z.string()),
-      label: z.string(),
       local: z.boolean(),
+      otherNameList: z.array(z.string()),
       type: z.string().nullable(),
     }),
   ),
-  studyType: z.string(),
 });
 
 type Schema = z.output<typeof schema>;
 
 const state = reactive<Schema>({
-  studyArms: [],
-  studyType: "",
+  studyInterventions: [],
 });
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/metadata/arms`,
+  `/api/studies/${studyId}/metadata/interventions`,
   {},
 );
 
@@ -57,64 +55,65 @@ if (data.value) {
     title: data.value.title,
   });
 
-  state.studyArms = data.value.StudyArm.map((arm) => ({
-    ...arm,
-    deleted: false,
-    local: false,
-  }));
-  state.studyType = data.value.StudyDesign?.studyType ?? "";
+  state.studyInterventions = data.value.StudyIntervention.map(
+    (intervention) => ({
+      ...intervention,
+      deleted: false,
+      local: false,
+    }),
+  );
 }
 
-const addArm = () => {
-  state.studyArms.push({
+const addIntervention = () => {
+  state.studyInterventions.push({
     id: nanoid(),
+    name: "",
     deleted: false,
     description: "",
-    interventionList: [],
-    label: "",
     local: true,
+    otherNameList: [],
     type: null,
   });
 };
 
-const removeArm = (index: number) => {
-  const arm = state.studyArms[index];
+const removeIntervention = (index: number) => {
+  const intervention = state.studyInterventions[index];
 
-  if (arm.local) {
-    state.studyArms.splice(index, 1);
+  if (intervention.local) {
+    state.studyInterventions.splice(index, 1);
   } else {
-    arm.deleted = true;
+    intervention.deleted = true;
   }
 };
 
 const validate = (state: any): FormError[] => {
   const errors = [];
 
-  if (state.studyArms.length === 0) {
+  if (state.studyInterventions.length === 0) {
     errors.push({
-      name: "studyArms",
-      message: "At least one study arm is required",
+      name: "studyInterventions",
+      message: "At least one study intervention is required",
     });
   }
 
-  state.studyArms.forEach((arm: any) => {
-    if (arm.label.trim() === "") {
+  state.studyInterventions.forEach((intervention: any) => {
+    if (intervention.name.trim() === "") {
       errors.push({
-        name: "studyArms",
-        message: "Label is required",
+        name: "studyInterventions",
+        message: "Name is required",
       });
     }
 
-    if (arm.description.trim() === "") {
+    if (intervention.description.trim() === "") {
       errors.push({
-        name: "studyArms",
+        name: "studyInterventions",
         message: "Description is required",
       });
     }
 
-    if (arm.type === null) {
+    if (intervention.type === null) {
       errors.push({
-        name: "studyArms",
+        name: "studyInterventions",
         message: "Type is required",
       });
     }
@@ -129,8 +128,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   const formData = event.data;
 
   const b = {
-    studyArms: formData.studyArms.map((arm: any) => {
-      const s = arm;
+    studyInterventions: formData.studyInterventions.map((intervention: any) => {
+      const s = intervention;
 
       if (s.local) {
         delete s.id;
@@ -143,7 +142,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
   };
 
-  await $fetch(`/api/studies/${studyId}/metadata/arms`, {
+  await $fetch(`/api/studies/${studyId}/metadata/interventions`, {
     body: b,
     method: "PUT",
   })
@@ -186,8 +185,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           label: 'Metadata',
         },
         {
-          label: 'Arms',
-          to: `/app/study/${studyId}/metadata/arms`,
+          label: 'Interventions',
+          to: `/app/study/${studyId}/metadata/interventions`,
         },
       ]"
     />
@@ -197,7 +196,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full items-center justify-between gap-3">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Arms</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Interventions
+          </h1>
         </div>
 
         <p class="text-gray-500 dark:text-gray-400">
@@ -205,27 +206,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         </p>
       </div>
 
-      <UAlert
-        v-show="!state.studyType"
-        title="Missing Study Type"
-        description="Some information is missing from the study. Please add a study type to continue."
-        color="error"
-        variant="soft"
-        orientation="horizontal"
-        :actions="[
-          {
-            label: 'Add a study type',
-            to: '/app/study/' + studyId + '/metadata/design',
-            color: 'warning',
-          },
-        ]"
-      />
-
       <UForm
         :validate="validate"
         :state="state"
         class="space-y-4"
-        :disabled="!state.studyType"
         @submit="onSubmit"
       >
         <div
@@ -234,7 +218,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Arms
+                Interventions
               </h2>
 
               <p class="text-gray-500 dark:text-gray-400">
@@ -243,13 +227,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField name="studyArms">
+            <UFormField name="studyInterventions">
               <CardCollapsible
-                v-for="(item, index) in state.studyArms"
+                v-for="(item, index) in state.studyInterventions"
                 v-show="!item.deleted"
                 :key="item.id"
                 class="my-1 shadow-none"
-                :title="item.label || `Arm ${index + 1}`"
+                :title="item.name || `Intervention ${index + 1}`"
                 bordered
               >
                 <template #header-extra>
@@ -258,13 +242,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     label="Remove identifier"
                     variant="soft"
                     color="error"
-                    @click="removeArm(index)"
+                    @click="removeIntervention(index)"
                   />
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Label" name="label">
-                    <UInput v-model="item.label" placeholder="Arm 1" />
+                  <UFormField label="Type" name="type">
+                    <USelect
+                      v-model="item.type as string"
+                      placeholder="Type"
+                      :items="FORM_JSON.studyMetadataInterventionsTypeOptions"
+                      class="w-full"
+                    />
+                  </UFormField>
+
+                  <UFormField label="Name" name="name">
+                    <UInput v-model="item.name" placeholder="Intervention 1" />
                   </UFormField>
 
                   <UFormField label="Description" name="description">
@@ -275,26 +268,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Type" name="type">
-                    <USelect
-                      v-model="item.type as string"
-                      placeholder="Type"
-                      :items="FORM_JSON.studyMetadataArmsTypeOptions"
-                      class="w-full"
-                    />
-                  </UFormField>
-
-                  <UFormField label="Intervention List" name="interventionList">
-                    <div v-if="item.interventionList.length > 0">
+                  <UFormField label="Other Names" name="otherNameList">
+                    <div v-if="item.otherNameList.length > 0">
                       <div
-                        v-for="(intervention, index) in item.interventionList"
+                        v-for="(otherName, index) in item.otherNameList"
                         :key="index"
                         class="mb-2 flex gap-2"
                       >
                         <UInput
-                          v-model="item.interventionList[index]"
+                          v-model="item.otherNameList[index]"
                           class="w-full"
-                          placeholder="Intervention"
+                          placeholder="Other Name"
                         />
 
                         <UButton
@@ -302,7 +286,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           color="error"
                           variant="outline"
                           icon="i-lucide-trash"
-                          @click="item.interventionList.splice(index, 1)"
+                          @click="item.otherNameList.splice(index, 1)"
                         />
 
                         <UButton
@@ -310,23 +294,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           color="success"
                           variant="outline"
                           icon="i-lucide-plus"
-                          @click="
-                            item.interventionList.splice(index + 1, 0, '')
-                          "
+                          @click="item.otherNameList.splice(index + 1, 0, '')"
                         />
                       </div>
                     </div>
 
                     <div v-else>
                       <UButton
-                        :disabled="!state.studyType"
                         size="sm"
                         class="w-full"
                         color="success"
                         variant="outline"
-                        label="Add Intervention"
+                        label="Add Other Name"
                         icon="i-lucide-plus"
-                        @click="item.interventionList.push('')"
+                        @click="item.otherNameList.push('')"
                       />
                     </div>
                   </UFormField>
@@ -338,15 +319,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               icon="i-lucide-plus"
               variant="outline"
               color="primary"
-              label="Add Arm"
-              @click="addArm"
+              label="Add Intervention"
+              @click="addIntervention"
             />
           </div>
         </div>
 
         <UButton
           type="submit"
-          :disabled="saveLoading || !state.studyType"
+          :disabled="saveLoading"
           :loading="saveLoading"
           class="w-full"
           size="lg"

@@ -1,18 +1,16 @@
 import { z } from "zod";
 
-const StudyMetadataEligibilitySchema = z.object({
-  exclusionCriteria: z.array(z.string()),
-  genderBased: z.string(),
-  genderDescription: z.string(),
-  healthyVolunteers: z.string(),
-  inclusionCriteria: z.array(z.string()),
-  maximumAgeUnit: z.string(),
-  maximumAgeValue: z.number(),
-  minimumAgeUnit: z.string(),
-  minimumAgeValue: z.number(),
-  samplingMethod: z.string(),
-  sex: z.string(),
-  studyPopulation: z.string(),
+const StudyMetadataArmsSchema = z.object({
+  studyArms: z.array(
+    z.object({
+      id: z.string().optional(),
+      deleted: z.boolean().optional(),
+      description: z.string(),
+      interventionList: z.array(z.string()),
+      label: z.string(),
+      type: z.string(),
+    }),
+  ),
 });
 
 export default defineEventHandler(async (event) => {
@@ -25,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
   // Validate the request body
   const body = await readValidatedBody(event, (b) =>
-    StudyMetadataEligibilitySchema.safeParse(b),
+    StudyMetadataArmsSchema.safeParse(b),
   );
 
   if (!body.success) {
@@ -35,40 +33,45 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const {
-    exclusionCriteria,
-    genderBased,
-    genderDescription,
-    healthyVolunteers,
-    inclusionCriteria,
-    maximumAgeUnit,
-    maximumAgeValue,
-    minimumAgeUnit,
-    minimumAgeValue,
-    samplingMethod,
-    sex,
-    studyPopulation,
-  } = body.data;
+  const { studyArms } = body.data;
 
-  const updatedStudyEligibility = await prisma.studyEligibilty.update({
-    data: {
-      exclusionCriteria: exclusionCriteria.filter((item) => item.trim() !== ""),
-      genderBased,
-      genderDescription,
-      healthyVolunteers,
-      inclusionCriteria: inclusionCriteria.filter((item) => item.trim() !== ""),
-      maximumAgeUnit,
-      maximumAgeValue,
-      minimumAgeUnit,
-      minimumAgeValue,
-      samplingMethod,
-      sex,
-      studyPopulation,
-    },
-    where: { studyId },
-  });
+  const studyArmsToUpdate = studyArms.filter((arm) => arm.id);
+
+  for (const arm of studyArmsToUpdate) {
+    await prisma.studyArm.update({
+      data: {
+        description: arm.description,
+        interventionList: arm.interventionList,
+        label: arm.label,
+        type: arm.type,
+      },
+      where: { id: arm.id },
+    });
+  }
+
+  const studyArmsToCreate = studyArms.filter((arm) => !arm.id);
+
+  for (const arm of studyArmsToCreate) {
+    await prisma.studyArm.create({
+      data: {
+        description: arm.description,
+        interventionList: arm.interventionList,
+        label: arm.label,
+        studyId,
+        type: arm.type,
+      },
+    });
+  }
+
+  const studyArmsToDelete = studyArms.filter((arm) => arm.deleted);
+
+  for (const arm of studyArmsToDelete) {
+    await prisma.studyArm.delete({
+      where: { id: arm.id },
+    });
+  }
 
   return {
-    updatedStudyEligibility,
+    studyArms: studyArms.filter((item) => !item.deleted),
   };
 });
