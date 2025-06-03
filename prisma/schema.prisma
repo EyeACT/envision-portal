@@ -66,24 +66,25 @@ model Study {
     updated DateTime @updatedAt
     created DateTime @default(now())
 
-    StudyDescription    StudyDescription?
-    StudyStatus         StudyStatus?
-    StudySponsors       StudySponsors[]
-    StudyOversight      StudyOversight[]
-    StudyDesign         StudyDesign?
-    StudyEligibilty     StudyEligibilty[]
-    StudyIdentification StudyIdentification[]
-    StudyCollaborators  StudyCollaborators[]
-    StudyConditions     StudyConditions[]
-    StudyKeywords       StudyKeywords[]
-    StudyArm            StudyArm[]
-    StudyIntervention   StudyIntervention[]
-    StudyCentralContact StudyCentralContact[]
-    StudyLocation       StudyLocation[]
-    StudyMember         StudyMember[]
-    StudyInvitation     StudyInvitation[]
-    DatasetRequest      DatasetRequest[]
-    Dataset             Dataset[]
+    StudyDescription      StudyDescription?
+    StudyStatus           StudyStatus?
+    StudySponsors         StudySponsors[]
+    StudyOversight        StudyOversight[]
+    StudyDesign           StudyDesign?
+    StudyEligibilty       StudyEligibilty?
+    StudyIdentification   StudyIdentification[]
+    StudyCollaborators    StudyCollaborators[]
+    StudyConditions       StudyConditions[]
+    StudyKeywords         StudyKeywords[]
+    StudyArm              StudyArm[]
+    StudyIntervention     StudyIntervention[]
+    StudyCentralContact   StudyCentralContact[]
+    StudyOverallOfficials StudyOverallOfficials[]
+    StudyLocation         StudyLocation[]
+    StudyMember           StudyMember[]
+    StudyInvitation       StudyInvitation[]
+    DatasetRequest        DatasetRequest[]
+    Dataset               Dataset[]
 }
 
 model StudyMember {
@@ -243,10 +244,10 @@ model StudyEligibilty {
     genderBased       String?
     genderDescription String?
 
-    minimumAgeValue String?
+    minimumAgeValue Int?
     minimumAgeUnit  String?
 
-    maximumAgeValue String?
+    maximumAgeValue Int?
     maximumAgeUnit  String?
 
     healthyVolunteers String?
@@ -367,17 +368,43 @@ model StudyCentralContact {
 
     degree String
 
-    identifier       String
-    identifierScheme String
+    identifier          String
+    identifierScheme    String
+    identifierSchemeUri String
 
-    affiliation                 String
-    affiliationIdentifier       String
-    affiliationIdentifierScheme String
+    affiliation                    String
+    affiliationIdentifier          String
+    affiliationIdentifierScheme    String
+    affiliationIdentifierSchemeUri String
 
     phone    String
     phoneExt String
 
     emailAddress String
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+}
+
+model StudyOverallOfficials {
+    id String @id @default(cuid())
+
+    studyId String
+    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    givenName  String
+    familyName String
+
+    role String
+
+    identifier          String
+    identifierScheme    String
+    identifierSchemeUri String
+
+    affiliation                    String
+    affiliationIdentifier          String
+    affiliationIdentifierScheme    String
+    affiliationIdentifierSchemeUri String
 
     updated DateTime @updatedAt
     created DateTime @default(now())

@@ -35,17 +35,6 @@ const state = reactive<Schema>({
   whyStopped: "",
 });
 
-const selectOptions = [
-  {
-    label: "Yes",
-    value: "Yes",
-  },
-  {
-    label: "No",
-    value: "No",
-  },
-];
-
 const { data, error } = await useFetch(
   `/api/studies/${studyId}/metadata/status`,
   {},
@@ -309,10 +298,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           icon="i-lucide-save"
         />
       </UForm>
-
-      <pre>{{ data }}</pre>
-
-      <pre>{{ state }}</pre>
     </div>
   </div>
 </template>
