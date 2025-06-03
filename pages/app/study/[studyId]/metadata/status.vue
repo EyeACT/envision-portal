@@ -2,7 +2,6 @@
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
-import { UTextarea } from "#components";
 
 definePageMeta({
   middleware: ["auth"],

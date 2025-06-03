@@ -54,13 +54,17 @@ if (data.value) {
 
     <div class="flex w-full flex-col gap-6">
       <div
-        class="flex flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex w-full items-center justify-between gap-3">
           <div>
-            <h1>{{ data?.title || "Untitled" }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              {{ data?.title || "Untitled" }}
+            </h1>
 
-            <p>{{ data?.description }}</p>
+            <p class="text-lg font-normal">
+              {{ data?.description }}
+            </p>
           </div>
         </div>
       </div>
