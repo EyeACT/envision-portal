@@ -2,7 +2,6 @@
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
-import { UTextarea } from "#components";
 
 definePageMeta({
   middleware: ["auth"],
@@ -10,6 +9,7 @@ definePageMeta({
 
 const route = useRoute();
 const toast = useToast();
+const dayjs = useDayjs();
 
 const { studyId } = route.params as { studyId: string };
 
@@ -56,9 +56,13 @@ if (data.value) {
   });
 
   state.overallStatus = data.value.StudyStatus?.overallStatus ?? "";
-  state.startDate = data.value.StudyStatus?.startDate ?? "";
+  state.startDate = data.value.StudyStatus?.startDate
+    ? dayjs(data.value.StudyStatus?.startDate).format("YYYY-MM-DD")
+    : "";
   state.startDateType = data.value.StudyStatus?.startDateType ?? "";
-  state.completionDate = data.value.StudyStatus?.completionDate ?? "";
+  state.completionDate = data.value.StudyStatus?.completionDate
+    ? dayjs(data.value.StudyStatus?.completionDate).format("YYYY-MM-DD")
+    : "";
   state.completionDateType = data.value.StudyStatus?.completionDateType ?? "";
   state.whyStopped = data.value.StudyStatus?.whyStopped ?? "";
 }
@@ -132,7 +136,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     whyStopped: formData.whyStopped,
   };
 
-  await $fetch(`/api/studies/${studyId}/metadata/design`, {
+  await $fetch(`/api/studies/${studyId}/metadata/status`, {
     body: b,
     method: "PUT",
   })
@@ -144,6 +148,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         color: "success",
         description: "The form has been submitted.",
       });
+
+      // refresh the page
+      window.location.reload();
     })
     .catch((err) => {
       console.log(err);
@@ -155,9 +162,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       });
     })
     .finally(() => {
-      // refresh the page
-      window.location.reload();
-
       saveLoading.value = false;
     });
 }

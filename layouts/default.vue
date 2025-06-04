@@ -12,6 +12,7 @@ const studyNavigationIsOpen = ref(true);
 const datasetNavigationIsOpen = ref(false);
 
 const inStudy = ref(!!selectedStudy.value);
+const inDataset = ref(!!selectedDataset.value);
 
 const inStudyMetadata = computed(() => {
   return route.path.includes(`${selectedStudy.value}/metadata`);
@@ -115,7 +116,90 @@ const datasetNavItems = [
     icon: "material-symbols:overview-key-rounded",
     route: "overview",
   },
-  { name: "Metadata", icon: "ooui:view-details-ltr", route: "metadata" },
+  {
+    name: "Metadata",
+    children: [
+      {
+        name: "General Information",
+        icon: "material-symbols:description",
+        route: "metadata/general-information",
+      },
+      {
+        name: "Identifiers",
+        icon: "ph:files-fill",
+        route: "metadata/identifiers",
+      },
+      {
+        name: "Team",
+        icon: "ph:files-fill",
+        route: "metadata/team",
+      },
+      {
+        name: "Data Management",
+        icon: "ph:files-fill",
+        route: "metadata/data-management",
+      },
+      {
+        name: "Access & Rights",
+        icon: "ph:files-fill",
+        route: "metadata/access-rights",
+      },
+      {
+        name: "Related Identifiers",
+        icon: "ph:files-fill",
+        route: "metadata/related-identifiers",
+      },
+      {
+        name: "About",
+        icon: "ph:files-fill",
+        route: "metadata/about",
+      },
+    ],
+    icon: "ooui:view-details-ltr",
+    route: "metadata",
+  },
+  {
+    name: "Healthsheet",
+    children: [
+      {
+        name: "Motivation",
+        icon: "material-symbols:description",
+        route: "healthsheet/motivation",
+      },
+      {
+        name: "Composition",
+        icon: "material-symbols:architecture",
+        route: "healthsheet/composition",
+      },
+      {
+        name: "Collection",
+        icon: "material-symbols:architecture",
+        route: "healthsheet/collection",
+      },
+      {
+        name: "Preprocessing",
+        icon: "material-symbols:architecture",
+        route: "healthsheet/preprocessing",
+      },
+      {
+        name: "Uses",
+        icon: "material-symbols:architecture",
+        route: "healthsheet/uses",
+      },
+      {
+        name: "Distribution",
+        icon: "material-symbols:architecture",
+        route: "healthsheet/distribution",
+      },
+      {
+        name: "Maintenance",
+        icon: "material-symbols:architecture",
+        route: "healthsheet/maintenance",
+      },
+    ],
+    icon: "ooui:view-details-ltr",
+    route: "healthsheet",
+  },
   { name: "Files", icon: "ph:files-fill", route: "files" },
 ];
 
@@ -273,7 +357,7 @@ watch(sidebarCollapsed, (newVal) => {
           <!-- Dataset-Specific Navigation -->
           <template v-if="selectedDataset">
             <UCollapsible
-              v-model:open="datasetNavigationIsOpen"
+              v-model:open="inDataset"
               class="flex w-48 w-full flex-col gap-2"
             >
               <UButton
@@ -288,21 +372,87 @@ watch(sidebarCollapsed, (newVal) => {
               <template #content>
                 <ul class="space-y-1">
                   <li v-for="item in datasetNavItems" :key="item.route">
-                    <ULink
-                      :to="`/app/study/${selectedStudy}/${item.route}`"
-                      class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                      :class="[
-                        sidebarCollapsed ? 'justify-center' : 'justify-start',
-                      ]"
-                      active-class="bg-gray-200 dark:bg-gray-700"
-                      inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <Icon :name="item.icon" size="20" />
+                    <template v-if="item.children">
+                      <UCollapsible
+                        :default-open="inDatasetMetadata"
+                        class="flex w-full flex-col gap-2"
+                      >
+                        <UButton
+                          color="neutral"
+                          variant="ghost"
+                          class="flex w-full items-center gap-2 rounded-lg p-2 text-sm"
+                          :class="[
+                            sidebarCollapsed
+                              ? 'justify-center'
+                              : 'justify-start',
+                          ]"
+                        >
+                          <Icon :name="item.icon" size="20" />
 
-                      <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-                        {{ item.name }}
-                      </span>
-                    </ULink>
+                          <span
+                            :class="[sidebarCollapsed ? 'hidden' : 'block']"
+                          >
+                            {{ item.name }}
+                          </span>
+
+                          <Icon
+                            v-if="!sidebarCollapsed"
+                            name="i-lucide-chevron-down"
+                            size="16"
+                            class="ml-auto"
+                          />
+                        </UButton>
+
+                        <template #content>
+                          <ul class="ml-6 space-y-1">
+                            <li
+                              v-for="child in item.children"
+                              :key="child.route"
+                            >
+                              <ULink
+                                :to="`/app/study/${selectedStudy}/datasets/${selectedDataset}/${child.route}`"
+                                class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                                :class="[
+                                  sidebarCollapsed
+                                    ? 'justify-center'
+                                    : 'justify-start',
+                                ]"
+                                active-class="bg-gray-200 dark:bg-gray-700"
+                                inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                              >
+                                <Icon :name="child.icon" size="18" />
+
+                                <span
+                                  :class="[
+                                    sidebarCollapsed ? 'hidden' : 'block',
+                                  ]"
+                                >
+                                  {{ child.name }}
+                                </span>
+                              </ULink>
+                            </li>
+                          </ul>
+                        </template>
+                      </UCollapsible>
+                    </template>
+
+                    <template v-else>
+                      <ULink
+                        :to="`/app/study/${selectedStudy}/datasets/${selectedDataset}/${item.route}`"
+                        class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                        :class="[
+                          sidebarCollapsed ? 'justify-center' : 'justify-start',
+                        ]"
+                        active-class="bg-gray-200 dark:bg-gray-700"
+                        inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <Icon :name="item.icon" size="20" />
+
+                        <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                          {{ item.name }}
+                        </span>
+                      </ULink>
+                    </template>
                   </li>
                 </ul>
               </template>

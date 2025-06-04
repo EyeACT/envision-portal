@@ -26,10 +26,34 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // TODO: remove this
+  // delete the dataset if it already exists
+  try {
+    await prisma.dataset.delete({
+      where: {
+        id: "cm880mrva00000cl20uo80c7e",
+      },
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
   const newDataset = await prisma.dataset.create({
     data: {
       id: "cm880mrva00000cl20uo80c7e", // todo: remove this
       title: body.data.title,
+      DatasetDescription: {
+        create: {
+          description: body.data.description,
+          type: "Abstract",
+        },
+      },
+      DatasetTitle: {
+        create: {
+          title: body.data.title,
+          type: "MainTitle",
+        },
+      },
       description: body.data.description,
       studyId,
       type: body.data.type,

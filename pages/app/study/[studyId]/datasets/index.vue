@@ -9,11 +9,16 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
+// Search query and filter variables
+const searchQuery = ref("");
+
 const { studyId } = route.params as { studyId: string };
 
 const loading = ref(false);
 
-const { data, error } = await useFetch(`/api/studies/${studyId}/datasets`, {});
+const { data, error } = await useFetch(`/api/studies/${studyId}/datasets`, {
+  method: "GET",
+});
 
 if (error.value) {
   toast.add({
@@ -90,9 +95,13 @@ const onSubmit = async () => {
         class="flex flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div>
-          <h1>Datasets</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Datasets
+          </h1>
 
-          <p>Manage your datasets</p>
+          <p class="text-lg font-normal">
+            Manage and explore your research datasets
+          </p>
         </div>
 
         <USlideover side="right" title="Create New Dataset">
@@ -144,14 +153,24 @@ const onSubmit = async () => {
         </USlideover>
       </div>
 
+      <!-- Controls & Filtering -->
+      <div class="flex gap-4">
+        <UInput
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search datasets..."
+          size="lg"
+        />
+      </div>
+
+      <!-- Datasets Grid -->
       <div class="flex flex-col gap-3">
         <NuxtLink
           v-for="dataset in data?.datasets"
           :key="dataset.id"
           :to="`/app/study/${studyId}/datasets/${dataset.id}`"
-          class="tranistion-all hover:shadow-md"
         >
-          <UCard>
+          <UCard class="transition-all hover:shadow-md">
             <template #header>
               <div class="flex items-center justify-between gap-3">
                 <h2>
@@ -175,8 +194,6 @@ const onSubmit = async () => {
             </div>
           </UCard>
         </NuxtLink>
-
-        <pre>{{ data }}</pre>
       </div>
     </div>
   </div>

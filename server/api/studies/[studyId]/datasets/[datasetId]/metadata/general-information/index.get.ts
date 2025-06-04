@@ -1,20 +1,31 @@
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
 
-  // todo: add permissions check
+  const { user } = session;
+  const userId = user.id;
 
-  const { datasetid, studyId } = event.context.params as {
-    datasetid: string;
+  const { datasetId, studyId } = event.context.params as {
+    datasetId: string;
     studyId: string;
   };
 
   // Get the dataset from the database
   const dataset = await prisma.dataset.findUnique({
     include: {
+      DatasetDate: true,
+      DatasetDescription: true,
+      DatasetTitle: true,
       study: true,
     },
     where: {
-      id: datasetid,
+      id: datasetId,
+      study: {
+        StudyMember: {
+          some: {
+            userId,
+          },
+        },
+      },
       studyId,
     },
   });
@@ -27,5 +38,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return dataset;
+  return {
+    ...dataset,
+  };
 });

@@ -395,7 +395,8 @@ model StudyOverallOfficials {
     givenName  String
     familyName String
 
-    role String
+    degree String
+    role   String
 
     identifier          String
     identifierScheme    String
@@ -481,7 +482,7 @@ model Dataset {
     DatasetContributor          DatasetContributor[]
     DatasetDate                 DatasetDate[]
     DatasetDeIdentLevel         DatasetDeIdentLevel?
-    DatasetDescription          DatasetDescription?
+    DatasetDescription          DatasetDescription[]
     DatasetFunder               DatasetFunder[]
     DatasetHealthsheet          DatasetHealthsheet?
     DatasetManagingOrganization DatasetManagingOrganization[]
@@ -596,7 +597,7 @@ model DatasetDeIdentLevel {
 model DatasetDescription {
     id String @id @default(cuid())
 
-    datasetId String  @unique
+    datasetId String
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     description String
