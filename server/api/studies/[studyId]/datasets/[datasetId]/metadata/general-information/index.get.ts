@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
       DatasetDate: true,
       DatasetDescription: true,
       DatasetTitle: true,
+      study: true,
     },
     where: {
       id: datasetId,

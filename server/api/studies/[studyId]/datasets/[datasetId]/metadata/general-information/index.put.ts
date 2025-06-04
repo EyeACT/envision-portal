@@ -1,43 +1,28 @@
 import { z } from "zod";
 
 const StudyMetadataAboutSchema = z.object({
-  briefSummary: z.string().min(1),
-  conditions: z.array(
+  DatasetDate: z.array(
     z.object({
       id: z.string().optional(),
-      name: z.string(),
-      classificationCode: z.string(),
-      conditionUri: z.string(),
+      date: z.string(),
       deleted: z.boolean().optional(),
-      scheme: z.string(),
-      schemeUri: z.string(),
+      information: z.string(),
+      type: z.string(),
     }),
   ),
-  detailedDescription: z.string().min(1),
-  keywords: z.array(
+  DatasetDescription: z.array(
     z.object({
       id: z.string().optional(),
-      name: z.string(),
-      classificationCode: z.string(),
       deleted: z.boolean().optional(),
-      keywordUri: z.string(),
-      scheme: z.string(),
-      schemeUri: z.string(),
+      description: z.string(),
+      type: z.string(),
     }),
   ),
-  primaryIdentifier: z.object({
-    domain: z.string().optional(),
-    identifier: z.string(),
-    link: z.string().optional(),
-    type: z.string(),
-  }),
-  secondaryIdentifiers: z.array(
+  DatasetTitle: z.array(
     z.object({
       id: z.string().optional(),
+      title: z.string(),
       deleted: z.boolean().optional(),
-      domain: z.string().optional(),
-      identifier: z.string(),
-      link: z.string().optional(),
       type: z.string(),
     }),
   ),
@@ -49,7 +34,10 @@ export default defineEventHandler(async (event) => {
   const { user } = session;
   const userId = user.id;
 
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId, studyId } = event.context.params as {
+    datasetId: string;
+    studyId: string;
+  };
 
   // Validate the request body
   const body = await readValidatedBody(event, (b) =>
@@ -63,186 +51,122 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const {
-    briefSummary,
-    conditions,
-    detailedDescription,
-    keywords,
-    primaryIdentifier,
-    secondaryIdentifiers,
-  } = body.data;
+  const { DatasetDate, DatasetDescription, DatasetTitle } = body.data;
 
-  const updatedStudyDescription = await prisma.studyDescription.update({
-    data: {
-      briefSummary,
-      detailedDescription,
-    },
-    where: {
-      studyId,
-    },
-  });
+  // get the titles that already have an id and update them
+  const titlesToUpdate = DatasetTitle.filter((title) => title.id);
 
-  // update the primary identifier
-  // Get the id of the primary identifier
-  const primaryIdentifierId = await prisma.studyIdentification.findFirst({
-    where: {
-      isSecondary: false,
-      studyId,
-    },
-  });
-
-  if (primaryIdentifierId) {
-    await prisma.studyIdentification.update({
+  for (const title of titlesToUpdate) {
+    await prisma.datasetTitle.update({
       data: {
-        identifier: primaryIdentifier.identifier,
-        identifierDomain: primaryIdentifier.domain,
-        identifierLink: primaryIdentifier.link,
-        identifierType: primaryIdentifier.type,
+        title: title.title,
+        type: title.type,
       },
-      where: { id: primaryIdentifierId.id },
+      where: { id: title.id },
     });
-  } else {
-    await prisma.studyIdentification.create({
+  }
+
+  // get the titles that don't have an id and create them
+  const titlesToCreate = DatasetTitle.filter((title) => !title.id);
+
+  for (const title of titlesToCreate) {
+    await prisma.datasetTitle.create({
       data: {
-        identifier: primaryIdentifier.identifier,
-        identifierDomain: primaryIdentifier.domain ?? "",
-        identifierLink: primaryIdentifier.link ?? "",
-        identifierType: primaryIdentifier.type,
-        isSecondary: false,
-        studyId,
+        title: title.title,
+        datasetId,
+        type: title.type,
       },
     });
   }
 
-  // update the secondary identifiers
-  // Get the secondary identifiers that already have an id and update them
-  const secondaryIdentifiersToUpdate = secondaryIdentifiers.filter(
-    (identifier) => identifier.id,
+  // get the titles that are deleted and delete them
+  const titlesToDelete = DatasetTitle.filter((title) => title.deleted);
+
+  for (const title of titlesToDelete) {
+    await prisma.datasetTitle.delete({
+      where: { id: title.id },
+    });
+  }
+
+  // get the descriptions that already have an id and update them
+  const descriptionsToUpdate = DatasetDescription.filter(
+    (description) => description.id,
   );
 
-  for (const identifier of secondaryIdentifiersToUpdate) {
-    await prisma.studyIdentification.update({
-      data: identifier,
-      where: { id: identifier.id },
+  for (const description of descriptionsToUpdate) {
+    await prisma.datasetDescription.update({
+      data: {
+        description: description.description,
+        type: description.type,
+      },
+      where: { id: description.id },
     });
   }
 
-  // Get the secondary identifiers that don't have an id and create them
-  const secondaryIdentifiersToCreate = secondaryIdentifiers.filter(
-    (identifier) => !identifier.id,
+  // get the descriptions that don't have an id and create them
+  const descriptionsToCreate = DatasetDescription.filter(
+    (description) => !description.id,
   );
 
-  for (const identifier of secondaryIdentifiersToCreate) {
-    await prisma.studyIdentification.create({
+  for (const description of descriptionsToCreate) {
+    await prisma.datasetDescription.create({
       data: {
-        identifier: identifier.identifier,
-        identifierDomain: identifier.domain ?? "",
-        identifierLink: identifier.link ?? "",
-        identifierType: identifier.type,
-        isSecondary: true,
-        studyId,
+        datasetId,
+        description: description.description,
+        type: description.type,
       },
     });
   }
 
-  // Get the secondary identifiers that are deleted and delete them
-  const secondaryIdentifiersToDelete = secondaryIdentifiers.filter(
-    (identifier) => identifier.deleted,
+  // get the descriptions that are deleted and delete them
+  const descriptionsToDelete = DatasetDescription.filter(
+    (description) => description.deleted,
   );
 
-  for (const identifier of secondaryIdentifiersToDelete) {
-    await prisma.studyIdentification.delete({
-      where: { id: identifier.id },
+  for (const description of descriptionsToDelete) {
+    await prisma.datasetDescription.delete({
+      where: { id: description.id },
     });
   }
 
-  // update the keywords
-  // Get the keywords that already have an id and update them
-  const keywordsToUpdate = keywords.filter((keyword) => keyword.id);
+  // get the dates that already have an id and update them
+  const datesToUpdate = DatasetDate.filter((date) => date.id);
 
-  for (const keyword of keywordsToUpdate) {
-    await prisma.studyKeywords.update({
+  for (const date of datesToUpdate) {
+    await prisma.datasetDate.update({
       data: {
-        name: keyword.name,
-        classificationCode: keyword.classificationCode,
-        keywordUri: keyword.keywordUri,
-        scheme: keyword.scheme,
-        schemeUri: keyword.schemeUri,
+        date: date.date,
+        information: date.information,
+        type: date.type,
       },
-      where: { id: keyword.id },
+      where: { id: date.id },
     });
   }
 
-  // Get the keywords that don't have an id and create them
-  const keywordsToCreate = keywords.filter((keyword) => !keyword.id);
+  // get the dates that don't have an id and create them
+  const datesToCreate = DatasetDate.filter((date) => !date.id);
 
-  for (const keyword of keywordsToCreate) {
-    await prisma.studyKeywords.create({
+  for (const date of datesToCreate) {
+    await prisma.datasetDate.create({
       data: {
-        name: keyword.name,
-        classificationCode: keyword.classificationCode,
-        keywordUri: keyword.keywordUri,
-        scheme: keyword.scheme,
-        schemeUri: keyword.schemeUri,
-        studyId,
+        datasetId,
+        date: date.date ? new Date(date.date) : null,
+        information: date.information,
+        type: date.type,
       },
     });
   }
 
-  // Get the keywords that are deleted and delete them
-  const keywordsToDelete = keywords.filter((keyword) => keyword.deleted);
+  // get the dates that are deleted and delete them
+  const datesToDelete = DatasetDate.filter((date) => date.deleted);
 
-  for (const keyword of keywordsToDelete) {
-    await prisma.studyKeywords.delete({
-      where: { id: keyword.id },
-    });
-  }
-
-  // update the conditions
-  // Get the conditions that already have an id and update them
-  const conditionsToUpdate = conditions.filter((condition) => condition.id);
-
-  for (const condition of conditionsToUpdate) {
-    await prisma.studyConditions.update({
-      data: {
-        name: condition.name,
-        classificationCode: condition.classificationCode,
-        conditionUri: condition.conditionUri,
-        scheme: condition.scheme,
-        schemeUri: condition.schemeUri,
-      },
-      where: { id: condition.id },
-    });
-  }
-
-  // Get the conditions that don't have an id and create them
-  const conditionsToCreate = conditions.filter((condition) => !condition.id);
-
-  for (const condition of conditionsToCreate) {
-    await prisma.studyConditions.create({
-      data: {
-        name: condition.name,
-        classificationCode: condition.classificationCode,
-        conditionUri: condition.conditionUri,
-        scheme: condition.scheme,
-        schemeUri: condition.schemeUri,
-        studyId,
-      },
-    });
-  }
-
-  // Get the conditions that are deleted and delete them
-  const conditionsToDelete = conditions.filter(
-    (condition) => condition.deleted,
-  );
-
-  for (const condition of conditionsToDelete) {
-    await prisma.studyConditions.delete({
-      where: { id: condition.id },
+  for (const date of datesToDelete) {
+    await prisma.datasetDate.delete({
+      where: { id: date.id },
     });
   }
 
   return {
-    updatedStudyDescription,
+    success: true,
   };
 });

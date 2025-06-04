@@ -395,7 +395,8 @@ model StudyOverallOfficials {
     givenName  String
     familyName String
 
-    role String
+    degree String
+    role   String
 
     identifier          String
     identifierScheme    String

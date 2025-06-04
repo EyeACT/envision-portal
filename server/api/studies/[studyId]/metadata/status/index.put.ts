@@ -40,10 +40,10 @@ export default defineEventHandler(async (event) => {
 
   const updatedStudyStatus = await prisma.studyStatus.update({
     data: {
-      completionDate,
+      completionDate: completionDate ? new Date(completionDate) : null,
       completionDateType,
       overallStatus,
-      startDate,
+      startDate: startDate ? new Date(startDate) : null,
       startDateType,
       whyStopped,
     },

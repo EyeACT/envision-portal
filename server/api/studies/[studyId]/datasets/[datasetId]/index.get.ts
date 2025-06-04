@@ -3,8 +3,8 @@ export default defineEventHandler(async (event) => {
 
   // todo: add permissions check
 
-  const { datasetid, studyId } = event.context.params as {
-    datasetid: string;
+  const { datasetId, studyId } = event.context.params as {
+    datasetId: string;
     studyId: string;
   };
 
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
       study: true,
     },
     where: {
-      id: datasetid,
+      id: datasetId,
       studyId,
     },
   });
