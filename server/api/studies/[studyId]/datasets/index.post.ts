@@ -48,6 +48,14 @@ export default defineEventHandler(async (event) => {
           type: "Abstract",
         },
       },
+      DatasetManagingOrganization: {
+        create: {
+          name: "",
+          identifier: "",
+          identifierScheme: "",
+          identifierSchemeUri: "",
+        },
+      },
       DatasetTitle: {
         create: {
           title: body.data.title,

@@ -325,6 +325,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     label="Remove title"
                     variant="soft"
                     color="error"
+                    :disabled="item.type === 'MainTitle'"
                     @click="removeTitle(index)"
                   />
                 </template>
@@ -389,6 +390,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     label="Remove description"
                     variant="soft"
                     color="error"
+                    :disabled="item.type === 'Abstract'"
                     @click="removeDescription(index)"
                   />
                 </template>
