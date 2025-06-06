@@ -502,7 +502,7 @@ model DatasetAccess {
     type           String
     description    String
     url            String
-    urlLastChecked DateTime
+    urlLastChecked DateTime?
 
     updated DateTime @updatedAt
     created DateTime @default(now())

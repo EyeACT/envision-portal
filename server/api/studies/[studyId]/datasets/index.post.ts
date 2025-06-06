@@ -42,6 +42,36 @@ export default defineEventHandler(async (event) => {
     data: {
       id: "cm880mrva00000cl20uo80c7e", // todo: remove this
       title: body.data.title,
+      DatasetAccess: {
+        create: {
+          description: "",
+          type: "Access",
+          url: "",
+          urlLastChecked: new Date(),
+        },
+      },
+      DatasetConsent: {
+        create: {
+          details: "",
+          geneticOnly: false,
+          geogRestrict: false,
+          noMethods: false,
+          noncommercial: false,
+          researchType: false,
+          type: "Consent",
+        },
+      },
+      DatasetDeIdentLevel: {
+        create: {
+          dates: false,
+          details: "",
+          direct: false,
+          hipaa: false,
+          kAnon: false,
+          nonarr: false,
+          type: "DeIdentLevel",
+        },
+      },
       DatasetDescription: {
         create: {
           description: body.data.description,
@@ -54,6 +84,16 @@ export default defineEventHandler(async (event) => {
           identifier: "",
           identifierScheme: "",
           identifierSchemeUri: "",
+        },
+      },
+      DatasetRights: {
+        create: {
+          identifier: "",
+          identifierScheme: "",
+          identifierSchemeUri: "",
+          licenseText: "",
+          rights: "",
+          uri: "",
         },
       },
       DatasetTitle: {

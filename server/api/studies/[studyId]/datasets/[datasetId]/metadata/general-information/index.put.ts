@@ -135,7 +135,7 @@ export default defineEventHandler(async (event) => {
   for (const date of datesToUpdate) {
     await prisma.datasetDate.update({
       data: {
-        date: date.date,
+        date: date.date ? new Date(date.date) : null,
         information: date.information,
         type: date.type,
       },
