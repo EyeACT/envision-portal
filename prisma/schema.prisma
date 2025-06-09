@@ -665,10 +665,11 @@ model DatasetOther {
     datasetId String  @unique
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
+    resourceTypeName  String
     resourceType      String
     language          String?
     size              String[]
-    format            String?
+    format            String[]
     standardsFollowed String
     acknowledgement   String
 

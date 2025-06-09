@@ -154,12 +154,14 @@ if (data.value) {
     identifier: item.identifier,
     identifierSchemeUri: item.identifierSchemeUri,
     identifierType: item.identifierType,
+    local: false,
   }));
   state.managingOrganization = {
-    name: data.value.managingOrganization.name,
-    identifier: data.value.managingOrganization.identifier,
-    identifierScheme: data.value.managingOrganization.identifierScheme,
-    identifierSchemeUri: data.value.managingOrganization.identifierSchemeUri,
+    name: data.value.managingOrganization?.name ?? "",
+    identifier: data.value.managingOrganization?.identifier ?? "",
+    identifierScheme: data.value.managingOrganization?.identifierScheme ?? "",
+    identifierSchemeUri:
+      data.value.managingOrganization?.identifierSchemeUri ?? "",
   };
 }
 

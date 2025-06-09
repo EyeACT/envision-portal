@@ -86,6 +86,19 @@ export default defineEventHandler(async (event) => {
           identifierSchemeUri: "",
         },
       },
+      DatasetOther: {
+        create: {
+          acknowledgement: "",
+          format: [],
+          labelingMethod: "",
+          language: "",
+          resourceType: "Dataset",
+          resourceTypeName: "",
+          size: [],
+          standardsFollowed: "",
+          validationInfo: "",
+        },
+      },
       DatasetRights: {
         create: {
           identifier: "",
