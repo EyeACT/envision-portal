@@ -485,7 +485,7 @@ model Dataset {
     DatasetDescription          DatasetDescription[]
     DatasetFunder               DatasetFunder[]
     DatasetHealthsheet          DatasetHealthsheet?
-    DatasetManagingOrganization DatasetManagingOrganization[]
+    DatasetManagingOrganization DatasetManagingOrganization?
     DatasetOther                DatasetOther?
     DatasetRelatedIdentifier    DatasetRelatedIdentifier[]
     DatasetRights               DatasetRights?
@@ -502,7 +502,7 @@ model DatasetAccess {
     type           String
     description    String
     url            String
-    urlLastChecked DateTime
+    urlLastChecked DateTime?
 
     updated DateTime @updatedAt
     created DateTime @default(now())
@@ -647,7 +647,7 @@ model DatasetHealthsheet {
 model DatasetManagingOrganization {
     id String @id @default(cuid())
 
-    datasetId String
+    datasetId String  @unique
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     name                String
@@ -665,10 +665,11 @@ model DatasetOther {
     datasetId String  @unique
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
+    resourceTypeName  String
     resourceType      String
     language          String?
     size              String[]
-    format            String?
+    format            String[]
     standardsFollowed String
     acknowledgement   String
 
