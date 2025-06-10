@@ -78,6 +78,38 @@ export default defineEventHandler(async (event) => {
           type: "Abstract",
         },
       },
+      DatasetHealthsheet: {
+        create: {
+          collection: JSON.stringify({
+            records: [],
+            version: 1,
+          }),
+          composition: JSON.stringify({
+            records: [],
+            version: 1,
+          }),
+          distribution: JSON.stringify({
+            records: [],
+            version: 1,
+          }),
+          maintenance: JSON.stringify({
+            records: [],
+            version: 1,
+          }),
+          motivation: JSON.stringify({
+            records: [],
+            version: 1,
+          }),
+          preprocessing: JSON.stringify({
+            records: [],
+            version: 1,
+          }),
+          uses: JSON.stringify({
+            records: [],
+            version: 1,
+          }),
+        },
+      },
       DatasetManagingOrganization: {
         create: {
           name: "",
