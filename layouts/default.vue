@@ -126,32 +126,32 @@ const datasetNavItems = [
       },
       {
         name: "Identifiers",
-        icon: "ph:files-fill",
+        icon: "mdi:identifier",
         route: "metadata/identifiers",
       },
       {
         name: "Team",
-        icon: "ph:files-fill",
+        icon: "ri:team-line",
         route: "metadata/team",
       },
       {
         name: "Data Management",
-        icon: "ph:files-fill",
+        icon: "tdesign:data-search",
         route: "metadata/data-management",
       },
       {
         name: "Access & Rights",
-        icon: "ph:files-fill",
+        icon: "streamline-logos:open-access-logo-block",
         route: "metadata/access-rights",
       },
       {
         name: "Related Identifiers",
-        icon: "ph:files-fill",
+        icon: "streamline-sharp:share-link",
         route: "metadata/related-identifiers",
       },
       {
         name: "About",
-        icon: "ph:files-fill",
+        icon: "jam:task-list",
         route: "metadata/about",
       },
     ],
@@ -163,37 +163,37 @@ const datasetNavItems = [
     children: [
       {
         name: "Motivation",
-        icon: "material-symbols:description",
+        icon: "material-symbols-light:motion-photos-on-rounded",
         route: "healthsheet/motivation",
       },
       {
         name: "Composition",
-        icon: "material-symbols:architecture",
+        icon: "ph:compass-tool-duotone",
         route: "healthsheet/composition",
       },
       {
         name: "Collection",
-        icon: "material-symbols:architecture",
+        icon: "fluent:collections-add-24-filled",
         route: "healthsheet/collection",
       },
       {
         name: "Preprocessing",
-        icon: "material-symbols:architecture",
+        icon: "carbon:process",
         route: "healthsheet/preprocessing",
       },
       {
         name: "Uses",
-        icon: "material-symbols:architecture",
+        icon: "icon-park-twotone:data-user",
         route: "healthsheet/uses",
       },
       {
         name: "Distribution",
-        icon: "material-symbols:architecture",
+        icon: "fluent-mdl2:distribute-down",
         route: "healthsheet/distribution",
       },
       {
         name: "Maintenance",
-        icon: "material-symbols:architecture",
+        icon: "pajamas:issue-type-maintenance",
         route: "healthsheet/maintenance",
       },
     ],

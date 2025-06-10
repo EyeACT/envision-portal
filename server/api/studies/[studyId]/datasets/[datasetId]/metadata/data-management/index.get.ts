@@ -37,7 +37,6 @@ export default defineEventHandler(async (event) => {
       statusMessage: "Dataset not found",
     });
   }
-  console.log(dataset);
 
   return {
     ...dataset,

@@ -37,8 +37,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  console.log(dataset);
-
   return {
     ...dataset,
   };
