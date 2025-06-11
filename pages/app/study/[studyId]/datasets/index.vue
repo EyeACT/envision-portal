@@ -186,11 +186,11 @@ const onSubmit = async () => {
             <USeparator class="my-3" />
 
             <div class="flex items-center gap-2 text-sm">
-              <p>Updated: {{ $dayjs(dataset.updated).fromNow() }}</p>
+              <p>Updated: {{ displayDateDifference(dataset.updated) }} ago</p>
 
               <USeparator orientation="vertical" class="h-3" />
 
-              <p>Created: {{ $dayjs(dataset.created).fromNow() }}</p>
+              <p>Created: {{ displayDateDifference(dataset.created) }} ago</p>
             </div>
           </UCard>
         </NuxtLink>

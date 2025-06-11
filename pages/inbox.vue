@@ -141,7 +141,7 @@ const deleteNotification = async (notificationId: string) => {
                 :datetime="$dayjs('2023-01-01').utc().toString()"
                 class="text-sm text-gray-500"
               >
-                {{ $dayjs(notification.created).fromNow() }}
+                {{ displayDateDifference(notification.created) }} ago
               </time>
             </div>
           </template>

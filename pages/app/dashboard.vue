@@ -207,11 +207,14 @@ const dropdownItems = ref([
             <USeparator class="my-3" />
 
             <div class="flex items-center gap-2 text-sm">
-              <p>Updated: {{ $dayjs(study.updated).fromNow() }}</p>
+              <p>
+                Updated:
+                {{ displayDateDifference(study.updated) }} ago
+              </p>
 
               <USeparator orientation="vertical" class="h-3" />
 
-              <p>Created: {{ $dayjs(study.created).fromNow() }}</p>
+              <p>Created: {{ displayDateDifference(study.created) }} ago</p>
             </div>
           </UCard>
         </NuxtLink>

@@ -86,11 +86,17 @@ if (error.value) {
 
             <div class="flex items-center justify-between gap-2 text-sm">
               <div class="flex items-center gap-2">
-                <p>Submitted: {{ $dayjs(datasetRequest.created).fromNow() }}</p>
+                <p>
+                  Submitted:
+                  {{ displayDateDifference(datasetRequest.created) }} ago
+                </p>
 
                 <USeparator orientation="vertical" class="h-3" />
 
-                <p>Updated: {{ $dayjs(datasetRequest.updated).fromNow() }}</p>
+                <p>
+                  Updated:
+                  {{ displayDateDifference(datasetRequest.updated) }} ago
+                </p>
               </div>
 
               <div class="flex items-center gap-2">
