@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const { clear, loggedIn, user } = useUserSession();
 
+const route = useRoute();
+
 // Showing an alert for now but can redirect to a verification page later if needed
 const emailVerified = computed(
   () => loggedIn.value && user.value?.emailVerified,
@@ -10,6 +12,8 @@ const emailVerified = computed(
 const emit = defineEmits(["update:sidebar-collapsed"]);
 
 const sidebarCollapsed = ref(true);
+
+const inApp = computed(() => route.path.includes("/app"));
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -52,7 +56,10 @@ const logout = async () => {
           @click="toggleSidebar"
         />
 
-        <NuxtLink to="/" class="flex text-2xl font-bold">
+        <NuxtLink
+          :to="inApp ? '/app/dashboard' : '/'"
+          class="flex text-2xl font-bold"
+        >
           Envision Portal
         </NuxtLink>
       </div>

@@ -94,7 +94,7 @@ const studyNavItems = [
   {
     name: "Permissions",
     icon: "mdi:account-group-outline",
-    route: "collaborators",
+    route: "permissions",
   },
   { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
   { name: "Data Upload", icon: "heroicons-outline:upload", route: "upload" },

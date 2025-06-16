@@ -127,7 +127,6 @@ if (dataset.value) {
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
-          { label: 'Home', to: '/' },
           { label: 'All Datasets', to: '/datasets' },
           { label: dataset?.title, to: `/datasets/${datasetid}` },
         ]"
@@ -300,9 +299,7 @@ if (dataset.value) {
             </template>
 
             <template #study-metadata>
-              <MetadataStudy 
-                :metadata="dataset?.metadata?.studyDescription" 
-              />
+              <MetadataStudy :metadata="dataset?.metadata?.studyDescription" />
             </template>
 
             <template #dataset-metadata>

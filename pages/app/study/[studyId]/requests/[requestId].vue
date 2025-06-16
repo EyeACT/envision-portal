@@ -78,7 +78,6 @@ if (data.value) {
     <UBreadcrumb
       class="mb-4 ml-2"
       :items="[
-        { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/app/dashboard' },
         { label: 'My Studies', to: '/app/dashboard/studies' },
       ]"

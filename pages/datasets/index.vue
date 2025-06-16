@@ -102,10 +102,7 @@ const filteredDatasets = computed(() => {
     <UContainer>
       <UBreadcrumb
         class="mb-4 ml-2"
-        :items="[
-          { label: 'Home', to: '/' },
-          { label: 'All Datasets', to: '/datasets' },
-        ]"
+        :items="[{ label: 'All Datasets', to: '/datasets' }]"
       />
 
       <div class="flex flex-col gap-6 pt-2 md:flex-row">

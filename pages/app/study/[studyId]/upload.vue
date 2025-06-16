@@ -48,7 +48,6 @@ const copyToClipboard = async (text: string) => {
     <UBreadcrumb
       class="mb-4 ml-2"
       :items="[
-        { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/app/dashboard' },
         { label: data?.title, to: `/app/study/${studyId}` },
         { label: 'Upload Data', to: `/app/study/${studyId}/upload` },

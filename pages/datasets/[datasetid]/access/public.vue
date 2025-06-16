@@ -56,7 +56,6 @@ const copyToClipboard = (text: string) => {
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
-          { label: 'Home', to: '/' },
           { label: 'All Datasets', to: '/datasets' },
           { label: dataset?.title, to: `/datasets/${datasetid}` },
           { label: 'Public Access' },

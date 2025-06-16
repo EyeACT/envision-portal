@@ -488,7 +488,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     <UBreadcrumb
       class="mb-4 ml-2"
       :items="[
-        { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/app/dashboard' },
         { label: data?.study.title, to: `/app/study/${studyId}` },
         {

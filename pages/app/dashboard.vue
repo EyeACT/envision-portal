@@ -84,14 +84,6 @@ const dropdownItems = ref([
 
 <template>
   <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Home', to: '/' },
-        { label: 'Dashboard', to: '/app/dashboard' },
-      ]"
-    />
-
     <div class="flex w-full flex-col gap-6">
       <div
         class="flex flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"

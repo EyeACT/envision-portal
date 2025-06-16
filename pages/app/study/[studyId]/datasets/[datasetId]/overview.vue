@@ -6,9 +6,15 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId, studyId } = route.params as {
+  datasetId: string;
+  studyId: string;
+};
 
-const { data, error } = await useFetch(`/api/studies/${studyId}`, {});
+const { data, error } = await useFetch(
+  `/api/studies/${studyId}/datasets/${datasetId}`,
+  {},
+);
 
 if (error.value) {
   toast.add({
@@ -34,6 +40,18 @@ if (data.value) {
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
         { label: data?.title, to: `/app/study/${studyId}` },
+        {
+          label: 'Datasets',
+          to: `/app/study/${studyId}/datasets`,
+        },
+        {
+          label: data?.title,
+          to: `/app/study/${studyId}/datasets/${datasetId}`,
+        },
+        {
+          label: 'Overview',
+          to: `/app/study/${studyId}/datasets/${datasetId}/overview`,
+        },
       ]"
     />
 
@@ -48,22 +66,19 @@ if (data.value) {
             </h1>
 
             <p class="text-lg font-normal">
-              {{ data?.StudyDescription?.briefSummary || "No summary" }}
+              {{ data?.description }}
             </p>
-          </div>
-
-          <div class="relative">
-            <img
-              :src="data?.imageUrl"
-              alt="Study Image"
-              class="h-24 w-24 rounded-xl object-cover"
-            />
           </div>
         </div>
       </div>
 
       <div>
-        <pre>{{ data }}</pre>
+        <AppPlaceholder>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
+            quos.
+          </p>
+        </AppPlaceholder>
       </div>
     </div>
   </div>

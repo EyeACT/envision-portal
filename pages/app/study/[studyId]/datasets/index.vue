@@ -80,7 +80,6 @@ const onSubmit = async () => {
     <UBreadcrumb
       class="mb-4 ml-2"
       :items="[
-        { label: 'Home', to: '/' },
         { label: 'Dashboard', to: '/app/dashboard' },
         { label: data?.studyTitle, to: `/app/study/${studyId}` },
         {
