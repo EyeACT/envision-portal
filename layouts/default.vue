@@ -201,6 +201,11 @@ const datasetNavItems = [
     route: "healthsheet",
   },
   { name: "Files", icon: "ph:files-fill", route: "files" },
+  {
+    name: "Publish",
+    icon: "material-symbols:publish",
+    route: "publish",
+  },
 ];
 
 // Watch the sidebarCollapsed state in the parent if you need to trigger any other actions

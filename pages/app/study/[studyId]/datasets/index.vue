@@ -183,6 +183,7 @@ const onSubmit = async () => {
                   icon="heroicons-outline:arrow-up-tray"
                   label="Publish this dataset"
                   variant="outline"
+                  :to="`/app/study/${studyId}/datasets/${dataset.id}/publish`"
                 />
               </div>
             </template>
