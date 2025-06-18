@@ -31,6 +31,110 @@ if (data.value) {
     title: data.value.title,
   });
 }
+
+const items = ref([
+  {
+    children: [
+      {
+        children: [
+          {
+            icon: "i-vscode-icons-file-type-csv",
+            label: "participant_001.csv",
+            trailingIcon: "i-heroicons-arrow-down-tray",
+          },
+          {
+            icon: "i-vscode-icons-file-type-csv",
+            label: "participant_002.csv",
+            trailingIcon: "i-heroicons-arrow-down-tray",
+          },
+        ],
+        icon: "i-heroicons-user-group",
+        label: "participants/",
+      },
+      {
+        children: [
+          {
+            icon: "i-vscode-icons-file-type-json",
+            label: "baseline_survey.json",
+            trailingIcon: "i-heroicons-arrow-down-tray",
+          },
+          {
+            icon: "i-vscode-icons-file-type-json",
+            label: "followup_survey.json",
+            trailingIcon: "i-heroicons-arrow-down-tray",
+          },
+        ],
+        defaultExpanded: true,
+        icon: "i-heroicons-clipboard-document-list",
+        label: "surveys/",
+      },
+    ],
+    defaultExpanded: true,
+    icon: "i-heroicons-folder",
+    label: "raw_data/",
+  },
+  {
+    children: [
+      {
+        icon: "i-vscode-icons-file-type-excel",
+        label: "analysis_results.xlsx",
+        trailingIcon: "i-heroicons-arrow-down-tray",
+      },
+      {
+        icon: "i-vscode-icons-file-type-csv",
+        label: "summary_stats.csv",
+        trailingIcon: "i-heroicons-arrow-down-tray",
+      },
+    ],
+    icon: "i-heroicons-cog-6-tooth",
+    label: "processed/",
+  },
+  {
+    icon: "i-heroicons-document-text",
+    label: "README.md",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+  {
+    icon: "i-heroicons-shield-check",
+    label: "LICENSE.txt",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+  {
+    icon: "i-heroicons-clock",
+    label: "CHANGELOG.md",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+  {
+    icon: "i-heroicons-heart",
+    label: "healthsheet.md",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+  {
+    icon: "i-vscode-icons-file-type-json",
+    label: "study_description.json",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+  {
+    icon: "i-vscode-icons-file-type-json",
+    label: "dataset_description.json",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+  {
+    icon: "i-vscode-icons-file-type-csv",
+    label: "participants.tsv",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+  {
+    icon: "i-vscode-icons-file-type-json",
+    label: "participants.json",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+  {
+    icon: "i-vscode-icons-file-type-json",
+    label: "dataset_structure_description.json",
+    trailingIcon: "i-heroicons-arrow-down-tray",
+  },
+]);
 </script>
 
 <template>
@@ -72,13 +176,8 @@ if (data.value) {
         </div>
       </div>
 
-      <div>
-        <AppPlaceholder>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-            quos.
-          </p>
-        </AppPlaceholder>
+      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <UTree :items="items" />
       </div>
     </div>
   </div>

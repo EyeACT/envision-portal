@@ -45,14 +45,14 @@ definePageMeta({
 
             <UButton
               to="/upload"
-              icon="ri-upload-cloud-line"
+              icon="ri-upload-cloud-line  "
               size="xl"
               target="_blank"
               variant="outline"
               class="w-max"
               color="neutral"
             >
-              Upload dataset
+              Share dataset
             </UButton>
           </div>
         </div>
