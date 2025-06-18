@@ -171,10 +171,19 @@ const onSubmit = async () => {
         >
           <UCard class="transition-all hover:shadow-md">
             <template #header>
-              <div class="flex items-center justify-between gap-3">
-                <h2>
-                  {{ dataset.title }}
-                </h2>
+              <div class="flex w-full items-center justify-between gap-3">
+                <div class="flex w-full flex-col gap-2">
+                  <h2>
+                    {{ dataset.title }}
+                  </h2>
+                </div>
+
+                <UButton
+                  color="primary"
+                  icon="heroicons-outline:arrow-up-tray"
+                  label="Publish this dataset"
+                  variant="outline"
+                />
               </div>
             </template>
 
@@ -184,12 +193,24 @@ const onSubmit = async () => {
 
             <USeparator class="my-3" />
 
-            <div class="flex items-center gap-2 text-sm">
-              <p>Updated: {{ displayDateDifference(dataset.updated) }} ago</p>
+            <div class="flex w-full items-center justify-between gap-2 text-sm">
+              <div class="flex items-center gap-2 text-sm">
+                <p>Updated: {{ displayDateDifference(dataset.updated) }} ago</p>
 
-              <USeparator orientation="vertical" class="h-3" />
+                <USeparator orientation="vertical" class="h-3" />
 
-              <p>Created: {{ displayDateDifference(dataset.created) }} ago</p>
+                <p>Created: {{ displayDateDifference(dataset.created) }} ago</p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <UBadge color="primary" size="sm" variant="subtle">
+                  In Progress
+                </UBadge>
+
+                <UBadge color="success" size="sm" variant="subtle">
+                  Published
+                </UBadge>
+              </div>
             </div>
           </UCard>
         </NuxtLink>

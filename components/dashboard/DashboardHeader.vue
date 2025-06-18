@@ -13,7 +13,9 @@ const emit = defineEmits(["update:sidebar-collapsed"]);
 
 const sidebarCollapsed = ref(true);
 
-const inApp = computed(() => route.path.includes("/app"));
+const inApp = computed(() => {
+  return route.path.includes("/app") && route.path !== "/app/dashboard";
+});
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
