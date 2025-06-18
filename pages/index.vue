@@ -34,18 +34,18 @@ definePageMeta({
 
           <div class="flex w-max items-center justify-start gap-3">
             <UButton
-              to="/dashboard"
+              to="/datasets"
               icon="ri-eye-line"
               size="xl"
               color="primary"
               class="w-max"
             >
-              View dataset
+              View datasets
             </UButton>
 
             <UButton
-              to="/upload"
-              icon="ri-upload-cloud-line  "
+              to="/app/dashboard"
+              icon="ri-upload-cloud-line"
               size="xl"
               target="_blank"
               variant="outline"
