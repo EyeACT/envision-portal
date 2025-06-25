@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount } from "vue";
+import { ref, reactive } from "vue";
+import * as z from "zod";
+import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
 
 const route = useRoute();
@@ -7,7 +9,16 @@ const toast = useToast();
 
 const { studyId } = route.params as { studyId: string };
 
-const state = reactive({
+const schema = z.object({
+  fda_regulated_device: z.string(),
+  fda_regulated_drug: z.string(),
+  has_dmc: z.string(),
+  human_subject_review_status: z.string(),
+});
+
+type Schema = z.output<typeof schema>;
+
+const state = reactive<Schema>({
   fda_regulated_device: "",
   fda_regulated_drug: "",
   has_dmc: "",
@@ -29,43 +40,79 @@ function normalize(value: string | null | undefined): string {
   );
 }
 
-async function fetchData() {
-  try {
-    const res = await fetch(`/api/studies/${studyId}/metadata/oversight`);
+const { data, error } = await useFetch(
+  `/api/studies/${studyId}/metadata/oversight`,
+  {},
+);
 
-    if (!res.ok) throw new Error("Failed to fetch metadata");
-    const data = await res.json();
+if (error.value) {
+  toast.add({
+    title: "Error fetching study",
+    description: "Please try again later",
+    icon: "material-symbols:error",
+  });
 
-    state.human_subject_review_status = normalize(
-      data.humanSubjectReviewStatus,
-    );
-    state.fda_regulated_drug = normalize(data.fdaRegulatedDrug);
-    state.fda_regulated_device = normalize(data.fdaRegulatedDevice);
-    state.has_dmc = normalize(data.hasDmc);
-  } catch (err) {
-    console.error(err);
-    toast.add({ title: "Error", description: "Failed to fetch metadata." });
-  }
+  await navigateTo("/");
 }
 
-async function onSubmit() {
+if (data.value) {
+  state.human_subject_review_status = normalize(
+    data.value.humanSubjectReviewStatus,
+  );
+  state.fda_regulated_drug = normalize(data.value.fdaRegulatedDrug);
+  state.fda_regulated_device = normalize(data.value.fdaRegulatedDevice);
+  state.has_dmc = normalize(data.value.hasDmc);
+}
+
+const validate = (state: any): FormError[] => {
+  const errors = [];
+  const enumValues = FORM_JSON.studyMetadataHumanSubjectReviewStatusOptions.map(
+    (option) => option.value,
+  );
+
+  if (!state.human_subject_review_status) {
+    errors.push({
+      field: "human_subject_review_status",
+      message: "Human Subject Review Status is required.",
+    });
+  }
+
+  if (
+    state.human_subject_review_status &&
+    !enumValues.includes(state.human_subject_review_status)
+  ) {
+    errors.push({
+      field: "human_subject_review_status",
+      message: "Invalid Human Subject Review Status.",
+    });
+  }
+
+  return errors;
+};
+
+async function onSubmit(event: FormSubmitEvent<typeof state>) {
   loading.value = true;
+
+  const formData = event.data;
+  const body = {
+    humanSubjectReviewStatus: formData.human_subject_review_status,
+    isFDARegulatedDevice: formData.fda_regulated_device,
+    isFDARegulatedDrug: formData.fda_regulated_drug,
+    oversightHasDMC: formData.has_dmc,
+  };
+
   try {
     const res = await fetch(`/api/studies/${studyId}/metadata/oversight`, {
-      body: JSON.stringify({
-        humanSubjectReviewStatus: state.human_subject_review_status,
-        isFDARegulatedDevice: state.fda_regulated_device,
-        isFDARegulatedDrug: state.fda_regulated_drug,
-        oversightHasDMC: state.has_dmc,
-      }),
+      body: JSON.stringify(body),
       headers: { "Content-Type": "application/json" },
       method: "PUT",
     });
 
-    if (!res.ok)
+    if (!res.ok) {
       throw new Error(
         `[PUT] "/api/studies/${studyId}/metadata/oversight": ${res.statusText}`,
       );
+    }
 
     toast.add({
       title: "Success",
@@ -79,9 +126,7 @@ async function onSubmit() {
   }
 }
 
-onBeforeMount(() => {
-  fetchData();
-});
+// const validate = (state: any): Form
 </script>
 
 <template>
@@ -117,6 +162,7 @@ onBeforeMount(() => {
       </div>
 
       <UForm
+        :validate="validate"
         :state="state"
         class="flex flex-col gap-6"
         @submit.prevent="onSubmit"
