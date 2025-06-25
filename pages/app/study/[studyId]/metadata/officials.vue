@@ -102,6 +102,9 @@ const removeOfficial = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const enumValues = FORM_JSON.studyMetadataContactsOverallOfficialRole.map(
+    (option) => option.value,
+  );
 
   if (state.studyOverallOfficials.length === 0) {
     errors.push({
@@ -129,6 +132,44 @@ const validate = (state: any): FormError[] => {
       errors.push({
         name: "studyOverallOfficials",
         message: "Affiliation is required",
+      });
+    }
+
+    // If affiliation identifier is provided, scheme and scheme URI must also be provided
+    if (
+      official.affiliationIdentifier.trim() !== "" &&
+      (official.affiliationIdentifierScheme.trim() === "" ||
+        official.affiliationIdentifierSchemeUri.trim() === "")
+    ) {
+      errors.push({
+        name: "studyOverallOfficials",
+        message:
+          "If affiliation identifier is provided, scheme and scheme URI must also be provided",
+      });
+    }
+
+    // If either official identifier or identifier scheme is provided, both must be provided
+    if (
+      (official.identifier.trim() !== "" &&
+        official.identifierScheme.trim() === "") ||
+      (official.identifier.trim() === "" &&
+        official.identifierScheme.trim() !== "")
+    ) {
+      errors.push({
+        name: "studyOverallOfficials",
+        message:
+          "If either identifier or identifier scheme is provided, both must be provided",
+      });
+    }
+
+    // Official role must be one of the predefined options
+    if (
+      official.role.trim() !== "" &&
+      !enumValues.includes(official.role.trim())
+    ) {
+      errors.push({
+        name: "studyOverallOfficials",
+        message: `Role must be one of the following: ${enumValues.join(", ")}`,
       });
     }
 
