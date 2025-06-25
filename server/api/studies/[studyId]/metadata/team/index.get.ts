@@ -15,24 +15,23 @@ export default defineEventHandler(async (event) => {
 
   return (
     sponsor ?? {
-      studyId,
-      responsiblePartyType: null,
-      responsiblePartyInvestigatorGivenName: null,
-      responsiblePartyInvestigatorFamilyName: null,
-      responsiblePartyInvestigatorTitle: null,
-      responsiblePartyInvestigatorIdentifierScheme: null,
-      responsiblePartyInvestigatorIdentifierValue: null,
-      responsiblePartyInvestigatorAffiliationName: null,
-      responsiblePartyInvestigatorAffiliationIdentifier: null,
-      responsiblePartyInvestigatorAffiliationIdentifierScheme: null,
-      responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: null,
-      leadSponsorName: null,
+      created: null,
       leadSponsorIdentifier: null,
       leadSponsorIdentifierScheme: null,
       leadSponsorIdentifierSchemeUri: null,
-      created: null,
+      leadSponsorName: null,
+      responsiblePartyInvestigatorAffiliationIdentifier: null,
+      responsiblePartyInvestigatorAffiliationIdentifierScheme: null,
+      responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: null,
+      responsiblePartyInvestigatorAffiliationName: null,
+      responsiblePartyInvestigatorFamilyName: null,
+      responsiblePartyInvestigatorGivenName: null,
+      responsiblePartyInvestigatorIdentifierScheme: null,
+      responsiblePartyInvestigatorIdentifierValue: null,
+      responsiblePartyInvestigatorTitle: null,
+      responsiblePartyType: null,
+      studyId,
       updated: null,
     }
   );
 });
-

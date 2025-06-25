@@ -68,8 +68,8 @@ model Study {
 
     StudyDescription      StudyDescription?
     StudyStatus           StudyStatus?
-    StudySponsors         StudySponsors[]
-    StudyOversight        StudyOversight[]
+    StudySponsors         StudySponsors?
+    StudyOversight        StudyOversight?
     StudyDesign           StudyDesign?
     StudyEligibilty       StudyEligibilty?
     StudyIdentification   StudyIdentification[]

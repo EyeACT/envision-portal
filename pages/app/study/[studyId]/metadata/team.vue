@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { 
-  UInput, USelect, UFormField, UButton, UIcon, UBreadcrumb, UForm 
-} from "#components";
 import { ref, reactive, onBeforeMount, computed } from "vue";
+import { UInput, USelect, UFormField, UButton, UForm } from "#components";
 import { useRoute, useToast } from "#imports";
 import FORM_JSON from "~/assets/data/form.json";
 
@@ -13,50 +11,50 @@ const { studyId } = route.params as { studyId: string };
 const loading = ref(false);
 
 const state = reactive({
-  responsiblePartyType: "",
-  responsiblePartyInvestigatorGivenName: "",
-  responsiblePartyInvestigatorFamilyName: "",
-  responsiblePartyInvestigatorTitle: "",
-  responsiblePartyInvestigatorIdentifierScheme: "",
-  responsiblePartyInvestigatorIdentifierValue: "",
-  responsiblePartyInvestigatorAffiliationName: "",
-  responsiblePartyInvestigatorAffiliationIdentifier: "",
-  responsiblePartyInvestigatorAffiliationIdentifierScheme: "",
-  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: "",
-  leadSponsorName: "",
-  leadSponsorIdentifier: "",
-  leadSponsorIdentifierScheme: "",
-  leadSponsorIdentifierSchemeUri: "",
-
   collaborators: [
     {
       id: crypto.randomUUID(),
-      name: '',
-      identifier: '',
-      scheme: '',
-      schemeUri: '',
+      name: "",
       deleted: false,
+      identifier: "",
+      scheme: "",
+      schemeUri: "",
     },
   ],
+  leadSponsorIdentifier: "",
+  leadSponsorIdentifierScheme: "",
+  leadSponsorIdentifierSchemeUri: "",
+  leadSponsorName: "",
+  responsiblePartyInvestigatorAffiliationIdentifier: "",
+  responsiblePartyInvestigatorAffiliationIdentifierScheme: "",
+  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: "",
+  responsiblePartyInvestigatorAffiliationName: "",
+  responsiblePartyInvestigatorFamilyName: "",
+  responsiblePartyInvestigatorGivenName: "",
+  responsiblePartyInvestigatorIdentifierScheme: "",
+  responsiblePartyInvestigatorIdentifierValue: "",
+  responsiblePartyInvestigatorTitle: "",
+  responsiblePartyType: "",
 });
 
 const visibleCollaborators = computed(() =>
-  state.collaborators.filter(c => !c.deleted)
+  state.collaborators.filter((c) => !c.deleted),
 );
 
 function addCollaborator() {
   state.collaborators.push({
     id: crypto.randomUUID(),
     name: "",
+    deleted: false,
     identifier: "",
     scheme: "",
     schemeUri: "",
-    deleted: false,
   });
 }
 
 function removeCollaboratorById(id: string) {
-  const collaborator = state.collaborators.find(c => c.id === id);
+  const collaborator = state.collaborators.find((c) => c.id === id);
+
   if (collaborator) {
     collaborator.deleted = true;
   }
@@ -65,6 +63,7 @@ function removeCollaboratorById(id: string) {
 async function fetchStudySponsor() {
   try {
     const res = await fetch(`/api/studies/${studyId}/metadata/team`);
+
     if (!res.ok) throw new Error("Failed to fetch sponsor data");
     const data = await res.json();
 
@@ -89,11 +88,16 @@ async function fetchStudySponsor() {
 async function onSubmit() {
   if (!state.responsiblePartyType) {
     toast.add({ title: "Validation Error", description: "Type is required." });
+
     return;
   }
 
   if (!state.leadSponsorName.trim()) {
-    toast.add({ title: "Validation Error", description: "Lead Sponsor Name is required." });
+    toast.add({
+      title: "Validation Error",
+      description: "Lead Sponsor Name is required.",
+    });
+
     return;
   }
 
@@ -101,16 +105,21 @@ async function onSubmit() {
 
   try {
     const res = await fetch(`/api/studies/${studyId}/metadata/team`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ studyId, ...state }),
+      headers: { "Content-Type": "application/json" },
+      method: "PUT",
     });
 
     if (!res.ok) {
-      throw new Error(`[PUT] "/api/studies/${studyId}/metadata/team": ${res.statusText}`);
+      throw new Error(
+        `[PUT] "/api/studies/${studyId}/metadata/team": ${res.statusText}`,
+      );
     }
 
-    toast.add({ title: "Success", description: "Sponsor data saved successfully." });
+    toast.add({
+      title: "Success",
+      description: "Sponsor data saved successfully.",
+    });
   } catch (err) {
     console.error(err);
     toast.add({ title: "Error", description: "Failed to save sponsor data." });
@@ -124,22 +133,29 @@ onBeforeMount(fetchStudySponsor);
 
 <template>
   <div>
-    <UForm :state="state" class="flex flex-col gap-6" @submit.prevent="onSubmit">
+    <UForm
+      :state="state"
+      class="flex flex-col gap-6"
+      @submit.prevent="onSubmit"
+    >
       <div
         class="flex w-full flex-wrap items-start rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-4">
-          <h2 class="text-xl font-semibold mb-4">Responsible Party</h2>
+          <h2 class="mb-4 text-xl font-semibold">Responsible Party</h2>
 
           <UFormField>
             <template #label>
-              Type <span class="text-red-500 mr-1">*</span>
+              Type <span class="mr-1 text-red-500">*</span>
             </template>
+
             <USelect
               v-model="state.responsiblePartyType"
               class="w-full"
               placeholder="Principal Investigator"
-              :items="FORM_JSON.studyMetadataSponsorsResponsiblePartyTypeOptions"
+              :items="
+                FORM_JSON.studyMetadataSponsorsResponsiblePartyTypeOptions
+              "
             />
           </UFormField>
 
@@ -180,7 +196,9 @@ onBeforeMount(fetchStudySponsor);
 
             <UFormField label="Affiliation Identifier" class="w-1/2">
               <UInput
-                v-model="state.responsiblePartyInvestigatorAffiliationIdentifier"
+                v-model="
+                  state.responsiblePartyInvestigatorAffiliationIdentifier
+                "
                 placeholder="0156zyn36"
                 class="w-full"
               />
@@ -190,7 +208,9 @@ onBeforeMount(fetchStudySponsor);
           <div class="flex gap-4">
             <UFormField label="Affiliation Identifier Scheme" class="w-1/2">
               <UInput
-                v-model="state.responsiblePartyInvestigatorAffiliationIdentifierScheme"
+                v-model="
+                  state.responsiblePartyInvestigatorAffiliationIdentifierScheme
+                "
                 placeholder="ROR"
                 class="w-full"
               />
@@ -198,7 +218,9 @@ onBeforeMount(fetchStudySponsor);
 
             <UFormField label="Affiliation Identifier Scheme URI" class="w-1/2">
               <UInput
-                v-model="state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri"
+                v-model="
+                  state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri
+                "
                 placeholder="https://ror.org"
                 class="w-full"
               />
@@ -223,12 +245,13 @@ onBeforeMount(fetchStudySponsor);
             </UFormField>
           </div>
 
-          <h2 class="text-xl font-semibold mt-6 mb-4">Lead Sponsor</h2>
+          <h2 class="mt-6 mb-4 text-xl font-semibold">Lead Sponsor</h2>
 
           <UFormField>
             <template #label>
-              Name <span class="text-red-500 mr-1">*</span>
+              Name <span class="mr-1 text-red-500">*</span>
             </template>
+
             <UInput
               v-model="state.leadSponsorName"
               placeholder="Willy Tybur"
@@ -274,7 +297,8 @@ onBeforeMount(fetchStudySponsor);
             </h2>
 
             <p class="text-gray-500 dark:text-gray-400">
-              Add collaborators involved in the study with their identifiers and schemes.
+              Add collaborators involved in the study with their identifiers and
+              schemes.
             </p>
           </div>
 
@@ -310,7 +334,10 @@ onBeforeMount(fetchStudySponsor);
                 </UFormField>
 
                 <UFormField label="Scheme URI" name="schemeUri">
-                  <UInput v-model="item.schemeUri" placeholder="https://scheme.uri" />
+                  <UInput
+                    v-model="item.schemeUri"
+                    placeholder="https://scheme.uri"
+                  />
                 </UFormField>
               </div>
             </CardCollapsible>
