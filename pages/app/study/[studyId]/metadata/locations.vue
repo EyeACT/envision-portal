@@ -96,6 +96,9 @@ const removeLocation = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const enumValues = FORM_JSON.studyMetadataStatusOptions.map(
+    (option) => option.value,
+  );
 
   if (state.studyLocations.length === 0) {
     errors.push({
@@ -116,6 +119,16 @@ const validate = (state: any): FormError[] => {
       errors.push({
         name: "studyLocations",
         message: "Status is required",
+      });
+    }
+
+    if (
+      location.status.trim() !== "" &&
+      !enumValues.includes(location.status)
+    ) {
+      errors.push({
+        name: "studyLocations",
+        message: "Status must be a valid option",
       });
     }
 
