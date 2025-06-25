@@ -124,7 +124,7 @@ const validate = (state: any): FormError[] => {
 
     if (
       location.status.trim() !== "" &&
-      !enumValues.includes(location.status)
+      !enumValues.includes(location.status.trim())
     ) {
       errors.push({
         name: "studyLocations",

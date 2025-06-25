@@ -88,6 +88,9 @@ const removeIntervention = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const enumValues = FORM_JSON.studyMetadataInterventionsTypeOptions.map(
+    (option) => option.value,
+  );
 
   if (state.studyInterventions.length === 0) {
     errors.push({
@@ -115,6 +118,13 @@ const validate = (state: any): FormError[] => {
       errors.push({
         name: "studyInterventions",
         message: "Type is required",
+      });
+    }
+
+    if (intervention.type && !enumValues.includes(intervention.type.trim())) {
+      errors.push({
+        name: "studyInterventions",
+        message: "Type must be a valid option",
       });
     }
   });
