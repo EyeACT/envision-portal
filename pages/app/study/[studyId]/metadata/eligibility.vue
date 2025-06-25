@@ -85,53 +85,138 @@ if (data.value) {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const sexEnumValues = FORM_JSON.studyMetadataEligibilityGenderOptions.map(
+    (option) => option.value,
+  );
+  const genderEnumValues =
+    FORM_JSON.studyMetadataEligibilityGenderBasedOptions.map(
+      (option) => option.value,
+    );
 
-  if (!state.overallStatus) {
+  const ageUnitEnumValues =
+    FORM_JSON.studyMetadataEligibilityAgeUnitOptions.map(
+      (option) => option.value,
+    );
+
+  const healthyVolunteersEnumValues =
+    FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions.map(
+      (option) => option.value,
+    );
+
+  console.log(state);
+  console.log(state.sex.trim());
+  console.log(state.sex.trim() === "");
+  if (state.sex.trim() === "") {
     errors.push({
-      name: "overallStatus",
-      message: "Overall status is required",
+      name: "sex",
+      message: "Sex is required",
+    });
+  }
+
+  if (state.sex.trim() !== "" && !sexEnumValues.includes(state.sex.trim())) {
+    errors.push({
+      name: "sex",
+      message: `Sex must be one of the following: ${sexEnumValues.join(", ")}`,
+    });
+  }
+
+  if (state.genderBased.trim() === "") {
+    errors.push({
+      name: "genderBased",
+      message: "Gender based is required",
     });
   }
 
   if (
-    state.overallStatus === "Suspended" ||
-    state.overallStatus === "Terminated" ||
-    state.overallStatus === "Withdrawn"
+    state.genderBased.trim() !== "" &&
+    !genderEnumValues.includes(state.genderBased.trim())
   ) {
-    if (!state.whyStopped) {
-      errors.push({
-        name: "whyStopped",
-        message:
-          "A valid reason is required when the study is suspended, terminated or withdrawn",
-      });
-    }
-  }
-
-  if (!state.startDate) {
     errors.push({
-      name: "startDate",
-      message: "Start date is required",
+      name: "genderBased",
+      message: `Gender based must be one of the following: ${genderEnumValues.join(", ")}`,
     });
   }
 
-  if (!state.startDateType) {
+  if (state.minimumAgeUnit.trim() === "") {
     errors.push({
-      name: "startDateType",
-      message: "Start date type is required",
+      name: "minimumAgeUnit",
+      message: "Minimum age unit is required",
     });
   }
 
-  if (!state.completionDate) {
+  if (state.maximumAgeUnit.trim() === "") {
     errors.push({
-      name: "completionDate",
-      message: "Completion date is required",
+      name: "maximumAgeUnit",
+      message: "Maximum age unit is required",
     });
   }
 
-  if (!state.completionDateType) {
+  if (
+    state.minimumAgeUnit.trim() !== "" &&
+    !ageUnitEnumValues.includes(state.minimumAgeUnit.trim())
+  ) {
     errors.push({
-      name: "completionDateType",
-      message: "Completion date type is required",
+      name: "minimumAgeUnit",
+      message: `Minimum age unit must be one of the following: ${ageUnitEnumValues.join(", ")}`,
+    });
+  }
+
+  if (
+    state.maximumAgeUnit.trim() !== "" &&
+    !ageUnitEnumValues.includes(state.maximumAgeUnit.trim())
+  ) {
+    errors.push({
+      name: "maximumAgeUnit",
+      message: `Maximum age unit must be one of the following: ${ageUnitEnumValues.join(", ")}`,
+    });
+  }
+
+  if (state.healthyVolunteers.trim() === "") {
+    errors.push({
+      name: "healthyVolunteers",
+      message: "Healthy volunteers is required",
+    });
+  }
+
+  if (
+    state.healthyVolunteers.trim() !== "" &&
+    !healthyVolunteersEnumValues.includes(state.healthyVolunteers.trim())
+  ) {
+    errors.push({
+      name: "healthyVolunteers",
+      message: `Healthy volunteers must be one of the following: ${healthyVolunteersEnumValues.join(", ")}`,
+    });
+  }
+
+  if (state.inclusionCriteria.length === 0) {
+    errors.push({
+      name: "inclusionCriteria",
+      message: "At least one inclusion criteria is required",
+    });
+  } else {
+    state.inclusionCriteria.forEach((item: any, index: number) => {
+      if (item.trim() === "") {
+        errors.push({
+          name: `inclusionCriteria[${index}]`,
+          message: "Field can not be empty",
+        });
+      }
+    });
+  }
+
+  if (state.exclusionCriteria.length === 0) {
+    errors.push({
+      name: "exclusionCriteria",
+      message: "At least one exclusion criteria is required",
+    });
+  } else {
+    state.exclusionCriteria.forEach((item: any, index: number) => {
+      if (item.trim() === "") {
+        errors.push({
+          name: `exclusionCriteria[${index}]`,
+          message: "Field can not be empty",
+        });
+      }
     });
   }
 
@@ -272,7 +357,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Based on Gender?" name="sex">
+            <UFormField label="Based on Gender?" name="genderBased">
               <USelect
                 v-model="state.genderBased"
                 class="w-full"
@@ -401,27 +486,34 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   :key="index"
                   class="mb-2 flex gap-2"
                 >
-                  <UInput
-                    v-model="state.inclusionCriteria[index]"
-                    class="w-full"
-                    placeholder="Inclusion Criteria"
-                  />
+                  <UFormField
+                    :name="`inclusionCriteria-${index}`"
+                    class="flex-1"
+                  >
+                    <UInput
+                      v-model="state.inclusionCriteria[index]"
+                      class="w-full"
+                      placeholder="Inclusion Criteria"
+                    />
+                  </UFormField>
 
-                  <UButton
-                    size="sm"
-                    color="error"
-                    variant="outline"
-                    icon="i-lucide-trash"
-                    @click="state.inclusionCriteria.splice(index, 1)"
-                  />
+                  <div class="flex items-start gap-2">
+                    <UButton
+                      size="sm"
+                      color="error"
+                      variant="outline"
+                      icon="i-lucide-trash"
+                      @click="state.inclusionCriteria.splice(index, 1)"
+                    />
 
-                  <UButton
-                    size="sm"
-                    color="success"
-                    variant="outline"
-                    icon="i-lucide-plus"
-                    @click="state.inclusionCriteria.splice(index + 1, 0, '')"
-                  />
+                    <UButton
+                      size="sm"
+                      color="success"
+                      variant="outline"
+                      icon="i-lucide-plus"
+                      @click="state.inclusionCriteria.splice(index + 1, 0, '')"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -446,27 +538,35 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   :key="index"
                   class="mb-2 flex gap-2"
                 >
-                  <UInput
-                    v-model="state.exclusionCriteria[index]"
-                    class="w-full"
-                    placeholder="Exclusion Criteria"
-                  />
+                  <UFormField
+                    class="flex-1"
+                    :name="`exclusionCriteria[${index}]`"
+                  >
+                    <UInput
+                      v-model="state.exclusionCriteria[index]"
+                      class="w-full"
+                      :name="`exclusionCriteria[${index}]`"
+                      placeholder="Exclusion Criteria"
+                    />
+                  </UFormField>
 
-                  <UButton
-                    size="sm"
-                    color="error"
-                    variant="outline"
-                    icon="i-lucide-trash"
-                    @click="state.exclusionCriteria.splice(index, 1)"
-                  />
+                  <div class="flex items-start gap-2">
+                    <UButton
+                      size="sm"
+                      color="error"
+                      variant="outline"
+                      icon="i-lucide-trash"
+                      @click="state.exclusionCriteria.splice(index, 1)"
+                    />
 
-                  <UButton
-                    size="sm"
-                    color="success"
-                    variant="outline"
-                    icon="i-lucide-plus"
-                    @click="state.exclusionCriteria.splice(index + 1, 0, '')"
-                  />
+                    <UButton
+                      size="sm"
+                      color="success"
+                      variant="outline"
+                      icon="i-lucide-plus"
+                      @click="state.exclusionCriteria.splice(index + 1, 0, '')"
+                    />
+                  </div>
                 </div>
               </div>
 
