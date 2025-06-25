@@ -69,11 +69,21 @@ if (data.value) {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const enumValues = FORM_JSON.studyMetadataStatusOptions.map(
+    (option) => option.value,
+  );
 
   if (!state.overallStatus) {
     errors.push({
       name: "overallStatus",
       message: "Overall status is required",
+    });
+  }
+
+  if (state.overallStatus && !enumValues.includes(state.overallStatus)) {
+    errors.push({
+      name: "overallStatus",
+      message: "Overall status must be a valid option",
     });
   }
 

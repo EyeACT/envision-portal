@@ -125,8 +125,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     loading.value = false;
   }
 }
-
-// const validate = (state: any): Form
 </script>
 
 <template>
