@@ -152,6 +152,27 @@ const validate = (state: any): FormError[] => {
         message: "State is required",
       });
     }
+
+    // If identifier is provided, then identifierScheme must also be provided or vice versa
+    if (
+      (location.identifier.trim() !== "" &&
+        location.identifierScheme.trim() === "") ||
+      (location.identifier.trim() === "" &&
+        location.identifierScheme.trim() !== "")
+    ) {
+      const messages = [
+        {
+          name: `identifier-${index}`,
+          message: "Identifier and Identifier Scheme must be provided together",
+        },
+        {
+          name: `identifierScheme-${index}`,
+          message: "Identifier and Identifier Scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
+    }
   });
 
   return errors;

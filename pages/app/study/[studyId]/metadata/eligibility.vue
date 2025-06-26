@@ -103,9 +103,6 @@ const validate = (state: any): FormError[] => {
       (option) => option.value,
     );
 
-  console.log(state);
-  console.log(state.sex.trim());
-  console.log(state.sex.trim() === "");
   if (state.sex.trim() === "") {
     errors.push({
       name: "sex",
@@ -134,6 +131,21 @@ const validate = (state: any): FormError[] => {
     errors.push({
       name: "genderBased",
       message: `Gender based must be one of the following: ${genderEnumValues.join(", ")}`,
+    });
+  }
+
+  console.log(state.minimumAgeValue <= 0);
+  if (state.minimumAgeValue <= 0) {
+    errors.push({
+      name: "minimumAge",
+      message: "Minimum age value must be greater than 0",
+    });
+  }
+
+  if (state.maximumAgeValue <= 0) {
+    errors.push({
+      name: "maximumAge",
+      message: "Maximum age value must be greater than 0",
     });
   }
 
