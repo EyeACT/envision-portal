@@ -70,19 +70,20 @@ const validate = (state: any): FormError[] => {
     (option) => option.value,
   );
 
-  if (!state.human_subject_review_status) {
+  console.log("Validating state:", state);
+  if (state.human_subject_review_status.trim() === "") {
     errors.push({
-      field: "human_subject_review_status",
+      name: "human_subject_review_status",
       message: "Human Subject Review Status is required.",
     });
   }
 
   if (
-    state.human_subject_review_status &&
+    state.human_subject_review_status.trim() !== "" &&
     !enumValues.includes(state.human_subject_review_status)
   ) {
     errors.push({
-      field: "human_subject_review_status",
+      name: "human_subject_review_status",
       message: "Invalid Human Subject Review Status.",
     });
   }
@@ -169,7 +170,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">
-            <UFormField label="Human Subject Review Status">
+            <UFormField
+              label="Human Subject Review Status"
+              name="human_subject_review_status"
+            >
               <USelect
                 v-model="state.human_subject_review_status"
                 :items="FORM_JSON.studyMetadataHumanSubjectReviewStatusOptions"
@@ -178,7 +182,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Is this clinical study studying a drug product?">
+            <UFormField
+              label="Is this clinical study studying a drug product?"
+              name="fda_regulated_drug"
+            >
               <USelect
                 v-model="state.fda_regulated_drug"
                 :items="yesNoOptions"
@@ -190,6 +197,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
             <UFormField
               label="Is this clinical study studying a medical device?"
+              name="fda_regulated_device"
             >
               <USelect
                 v-model="state.fda_regulated_device"
@@ -202,6 +210,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
             <UFormField
               label="Does this study have a Data Monitoring Committee (DMC)?"
+              name="has_dmc"
             >
               <USelect
                 v-model="state.has_dmc"
