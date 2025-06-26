@@ -166,6 +166,20 @@ const validate = (state: any): FormError[] => {
         message: "Bio specification description is required",
       });
     }
+
+    if (state.targetDuration <= 0) {
+      errors.push({
+        name: "targetDuration",
+        message: "Target duration must be greater than 0",
+      });
+    }
+
+    if (!state.targetDurationUnit) {
+      errors.push({
+        name: "targetDurationUnit",
+        message: "Target duration unit is required",
+      });
+    }
   }
 
   if (state.studyType === "Interventional") {
@@ -211,19 +225,19 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (!state.enrollmentCount) {
-      errors.push({
-        name: "enrollmentCount",
-        message: "Enrollment count is required",
-      });
-    }
-
-    if (!state.numberOfArms) {
+    if (state.numberOfArms <= 0) {
       errors.push({
         name: "numberOfArms",
-        message: "Number of arms is required",
+        message: "Number of arms must be greater than 0",
       });
     }
+  }
+
+  if (state.enrollmentCount <= 0) {
+    errors.push({
+      name: "enrollmentCount",
+      message: "Enrollment count must be greater than 0",
+    });
   }
 
   if (!state.enrollmentType) {
