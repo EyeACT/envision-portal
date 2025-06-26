@@ -97,25 +97,18 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyArms.forEach((arm: any) => {
+  state.studyArms.forEach((arm: any, index: number) => {
     if (arm.label.trim() === "") {
       errors.push({
-        name: "studyArms",
+        name: `label-${index}`,
         message: "Label is required",
       });
     }
 
     if (arm.description.trim() === "") {
       errors.push({
-        name: "studyArms",
+        name: `description-${index}`,
         message: "Description is required",
-      });
-    }
-
-    if (arm.type === null) {
-      errors.push({
-        name: "studyArms",
-        message: "Type is required",
       });
     }
   });
@@ -262,13 +255,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Label" :name="`Label ${index + 1}`">
+                  <UFormField label="Label" :name="`label-${index}`">
                     <UInput v-model="item.label" placeholder="Arm 1" />
                   </UFormField>
 
                   <UFormField
                     label="Description"
-                    :name="`Description ${index + 1}`"
+                    :name="`description-${index}`"
                   >
                     <UTextarea
                       v-model="item.description"
@@ -277,7 +270,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Type" name="type">
+                  <UFormField label="Type" :name="`type-${index}`">
                     <USelect
                       v-model="item.type as string"
                       placeholder="Type"
@@ -289,12 +282,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField label="Intervention List" name="interventionList">
                     <div v-if="item.interventionList.length > 0">
                       <div
-                        v-for="(intervention, index) in item.interventionList"
-                        :key="index"
+                        v-for="(
+                          intervention, innerIndex
+                        ) in item.interventionList"
+                        :key="innerIndex"
                         class="mb-2 flex gap-2"
                       >
                         <UInput
-                          v-model="item.interventionList[index]"
+                          v-model="item.interventionList[innerIndex]"
                           class="w-full"
                           placeholder="Intervention"
                         />
@@ -304,7 +299,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           color="error"
                           variant="outline"
                           icon="i-lucide-trash"
-                          @click="item.interventionList.splice(index, 1)"
+                          @click="item.interventionList.splice(innerIndex, 1)"
                         />
 
                         <UButton
@@ -313,7 +308,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           variant="outline"
                           icon="i-lucide-plus"
                           @click="
-                            item.interventionList.splice(index + 1, 0, '')
+                            item.interventionList.splice(innerIndex + 1, 0, '')
                           "
                         />
                       </div>
