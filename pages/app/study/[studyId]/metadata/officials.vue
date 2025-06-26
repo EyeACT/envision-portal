@@ -113,24 +113,24 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyOverallOfficials.forEach((official: any) => {
+  state.studyOverallOfficials.forEach((official: any, index: number) => {
     if (official.givenName.trim() === "") {
       errors.push({
-        name: "studyOverallOfficials",
+        name: `givenName-${index}`,
         message: "Given name is required",
       });
     }
 
     if (official.familyName.trim() === "") {
       errors.push({
-        name: "studyOverallOfficials",
+        name: `familyName-${index}`,
         message: "Family name is required",
       });
     }
 
     if (official.affiliation.trim() === "") {
       errors.push({
-        name: "studyOverallOfficials",
+        name: `affiliation-${index}`,
         message: "Affiliation is required",
       });
     }
@@ -142,7 +142,7 @@ const validate = (state: any): FormError[] => {
         official.affiliationIdentifierSchemeUri.trim() === "")
     ) {
       errors.push({
-        name: "studyOverallOfficials",
+        name: `studyOverallOfficials-${index}`,
         message:
           "If affiliation identifier is provided, scheme and scheme URI must also be provided",
       });
@@ -155,11 +155,18 @@ const validate = (state: any): FormError[] => {
       (official.identifier.trim() === "" &&
         official.identifierScheme.trim() !== "")
     ) {
-      errors.push({
-        name: "studyOverallOfficials",
-        message:
-          "If either identifier or identifier scheme is provided, both must be provided",
-      });
+      const messages = [
+        {
+          name: `identifier-${index}`,
+          message: "Identifier and Identifier scheme must be provided together",
+        },
+        {
+          name: `identifierScheme-${index}`,
+          message: "Identifier and Identifier scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
     }
 
     // Official role must be one of the predefined options
@@ -168,14 +175,14 @@ const validate = (state: any): FormError[] => {
       !enumValues.includes(official.role.trim())
     ) {
       errors.push({
-        name: "studyOverallOfficials",
+        name: `role-${index}`,
         message: `Role must be one of the following: ${enumValues.join(", ")}`,
       });
     }
 
     if (official.role.trim() === "") {
       errors.push({
-        name: "studyOverallOfficials",
+        name: `role-${index}`,
         message: "Role is required",
       });
     }
@@ -314,19 +321,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Given Name" name="givenName">
+                  <UFormField label="Given Name" :name="`givenName-${index}`">
                     <UInput v-model="item.givenName" placeholder="James" />
                   </UFormField>
 
-                  <UFormField label="Family Name" name="familyName">
+                  <UFormField label="Family Name" :name="`familyName-${index}`">
                     <UInput v-model="item.familyName" placeholder="Smith" />
                   </UFormField>
 
-                  <UFormField label="Degree" name="degree">
+                  <UFormField label="Degree" :name="`degree-${index}`">
                     <UInput v-model="item.degree" placeholder="PhD" />
                   </UFormField>
 
-                  <UFormField label="Affiliation" name="affiliation">
+                  <UFormField
+                    label="Affiliation"
+                    :name="`affiliation-${index}`"
+                  >
                     <UInput
                       v-model="item.affiliation"
                       placeholder="University of California, San Francisco"
@@ -336,7 +346,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Affiliation Identifier"
-                      name="affiliationIdentifier"
+                      :name="`affiliationIdentifier-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -349,7 +359,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UFormField
                       label="Affiliation Identifier Scheme"
                       class="w-full"
-                      name="affiliationIdentifierScheme"
+                      :name="`affiliationIdentifierScheme-${index}`"
                     >
                       <UInput
                         v-model="item.affiliationIdentifierScheme"
@@ -361,7 +371,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UFormField
                       label="Affiliation Identifier Scheme URI"
                       class="w-full"
-                      name="affiliationIdentifierSchemeUri"
+                      :name="`affiliationIdentifierSchemeUri-${index}`"
                     >
                       <UInput
                         v-model="item.affiliationIdentifierSchemeUri"
@@ -371,7 +381,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField label="Role" name="role">
+                  <UFormField label="Role" :name="`role-${index}`">
                     <USelect
                       v-model="item.role"
                       class="w-full"
@@ -385,7 +395,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Identifier"
-                      name="identifier"
+                      :name="`identifier-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -397,7 +407,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Scheme"
-                      name="identifierScheme"
+                      :name="`identifierScheme-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -409,7 +419,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Scheme URI"
-                      name="identifierSchemeUri"
+                      :name="`identifierSchemeUri-${index}`"
                       class="w-full"
                     >
                       <UInput

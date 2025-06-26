@@ -105,6 +105,7 @@ const removeContact = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (state.studyCentralContacts.length === 0) {
     errors.push({
@@ -113,35 +114,69 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyCentralContacts.forEach((contact: any) => {
+  state.studyCentralContacts.forEach((contact: any, index: number) => {
     if (contact.givenName.trim() === "") {
       errors.push({
-        name: "studyCentralContacts",
+        name: `givenName-${index}`,
         message: "Given name is required",
       });
     }
 
     if (contact.familyName.trim() === "") {
       errors.push({
-        name: "studyCentralContacts",
+        name: `familyName-${index}`,
         message: "Family name is required",
       });
     }
 
     if (contact.affiliation.trim() === "") {
       errors.push({
-        name: "studyCentralContacts",
+        name: `affiliation-${index}`,
         message: "Affiliation is required",
       });
     }
 
     if (contact.emailAddress.trim() === "") {
       errors.push({
-        name: "studyCentralContacts",
+        name: `emailAddress-${index}`,
         message: "Email address is required",
       });
     }
+
+    // Validate email format
+    if (
+      contact.emailAddress.trim() !== "" &&
+      !emailPattern.test(contact.emailAddress)
+    ) {
+      errors.push({
+        name: `emailAddress-${index}`,
+        message: "Email address is not valid",
+      });
+    }
+
+    // If identifier is provided, identifier scheme must also be provided and vice versa
+    if (
+      (contact.identifier.trim() !== "" &&
+        contact.identifierScheme.trim() === "") ||
+      (contact.identifier.trim() === "" &&
+        contact.identifierScheme.trim() !== "")
+    ) {
+      const messages = [
+        {
+          name: `identifier-${index}`,
+          message: "Identifier and Identifier scheme must be provided together",
+        },
+        {
+          name: `identifierScheme-${index}`,
+          message: "Identifier and Identifier scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
+    }
   });
+
+  console.log("Validation errors:", errors);
 
   return errors;
 };
@@ -274,19 +309,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Given Name" name="givenName">
+                  <UFormField label="Given Name" :name="`givenName-${index}`">
                     <UInput v-model="item.givenName" placeholder="James" />
                   </UFormField>
 
-                  <UFormField label="Family Name" name="familyName">
+                  <UFormField label="Family Name" :name="`familyName-${index}`">
                     <UInput v-model="item.familyName" placeholder="Smith" />
                   </UFormField>
 
-                  <UFormField label="Degree" name="degree">
+                  <UFormField label="Degree" :name="`degree-${index}`">
                     <UInput v-model="item.degree" placeholder="PhD" />
                   </UFormField>
 
-                  <UFormField label="Affiliation" name="affiliation">
+                  <UFormField
+                    label="Affiliation"
+                    :name="`affiliation-${index}`"
+                  >
                     <UInput
                       v-model="item.affiliation"
                       placeholder="University of California, San Francisco"
@@ -296,7 +334,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Affiliation Identifier"
-                      name="affiliationIdentifier"
+                      :name="`affiliationIdentifier-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -309,7 +347,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UFormField
                       label="Affiliation Identifier Scheme"
                       class="w-full"
-                      name="affiliationIdentifierScheme"
+                      :name="`affiliationIdentifierScheme-${index}`"
                     >
                       <UInput
                         v-model="item.affiliationIdentifierScheme"
@@ -321,7 +359,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UFormField
                       label="Affiliation Identifier Scheme URI"
                       class="w-full"
-                      name="affiliationIdentifierSchemeUri"
+                      :name="`affiliationIdentifierSchemeUri-${index}`"
                     >
                       <UInput
                         v-model="item.affiliationIdentifierSchemeUri"
@@ -331,7 +369,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField label="Email Address" name="emailAddress">
+                  <UFormField
+                    label="Email Address"
+                    :name="`emailAddress-${index}`"
+                  >
                     <UInput
                       v-model="item.emailAddress"
                       placeholder="james.smith@example.com"
@@ -341,7 +382,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Identifier"
-                      name="identifier"
+                      :name="`identifier-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -353,7 +394,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Scheme"
-                      name="identifierScheme"
+                      :name="`identifierScheme-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -365,7 +406,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Scheme URI"
-                      name="identifierSchemeUri"
+                      :name="`identifierSchemeUri-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -377,7 +418,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </div>
 
                   <div class="flex w-full gap-3">
-                    <UFormField label="Phone" name="phone" class="w-full">
+                    <UFormField
+                      label="Phone"
+                      :name="`phone-${index}`"
+                      class="w-full"
+                    >
                       <UInput
                         v-model="item.phone"
                         placeholder="1234567890"
@@ -387,7 +432,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Phone Extension"
-                      name="phoneExt"
+                      :name="`phoneExt-${index}`"
                       class="w-full"
                     >
                       <UInput
