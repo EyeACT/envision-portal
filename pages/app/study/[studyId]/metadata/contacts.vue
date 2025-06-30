@@ -176,8 +176,6 @@ const validate = (state: any): FormError[] => {
     }
   });
 
-  console.log("Validation errors:", errors);
-
   return errors;
 };
 
