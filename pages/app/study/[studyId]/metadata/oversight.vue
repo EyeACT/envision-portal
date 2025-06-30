@@ -70,7 +70,6 @@ const validate = (state: any): FormError[] => {
     (option) => option.value,
   );
 
-  console.log("Validating state:", state);
   if (state.human_subject_review_status.trim() === "") {
     errors.push({
       name: "human_subject_review_status",
@@ -173,6 +172,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField
               label="Human Subject Review Status"
               name="human_subject_review_status"
+              required
             >
               <USelect
                 v-model="state.human_subject_review_status"

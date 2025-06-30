@@ -255,13 +255,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Label" :name="`label-${index}`">
+                  <UFormField required label="Label" :name="`label-${index}`">
                     <UInput v-model="item.label" placeholder="Arm 1" />
                   </UFormField>
 
                   <UFormField
                     label="Description"
                     :name="`description-${index}`"
+                    required
                   >
                     <UTextarea
                       v-model="item.description"

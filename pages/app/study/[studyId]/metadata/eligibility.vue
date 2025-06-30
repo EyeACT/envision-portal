@@ -360,7 +360,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Sex" name="sex">
+            <UFormField label="Sex" name="sex" required>
               <USelect
                 v-model="state.sex"
                 class="w-full"
@@ -369,7 +369,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Based on Gender?" name="genderBased">
+            <UFormField label="Based on Gender?" name="genderBased" required>
               <USelect
                 v-model="state.genderBased"
                 class="w-full"
@@ -404,7 +404,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Minimum Age" name="minimumAge" class="w-full">
+              <UFormField
+                label="Minimum Age"
+                name="minimumAge"
+                class="w-full"
+                required
+              >
                 <UInput
                   v-model="state.minimumAgeValue"
                   class="w-full"
@@ -413,7 +418,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Age Unit" name="minimumAgeUnit" class="w-full">
+              <UFormField
+                label="Age Unit"
+                name="minimumAgeUnit"
+                class="w-full"
+                required
+              >
                 <USelect
                   v-model="state.minimumAgeUnit"
                   class="w-full"
@@ -424,7 +434,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Maximum Age" name="maximumAge" class="w-full">
+              <UFormField
+                label="Maximum Age"
+                name="maximumAge"
+                class="w-full"
+                required
+              >
                 <UInput
                   v-model="state.maximumAgeValue"
                   class="w-full"
@@ -433,7 +448,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Age Unit" name="maximumAgeUnit" class="w-full">
+              <UFormField
+                label="Age Unit"
+                name="maximumAgeUnit"
+                class="w-full"
+                required
+              >
                 <USelect
                   v-model="state.maximumAgeUnit"
                   class="w-full"
@@ -463,6 +483,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField
               label="Are the volunteers healthy?"
               name="healthyVolunteers"
+              required
             >
               <USelect
                 v-model="state.healthyVolunteers"
@@ -491,7 +512,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Inclusion Criteria" name="inclusionCriteria">
+            <UFormField
+              label="Inclusion Criteria"
+              name="inclusionCriteria"
+              required
+            >
               <div v-if="state.inclusionCriteria.length > 0">
                 <div
                   v-for="(item, index) in state.inclusionCriteria"
@@ -543,7 +568,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </div>
             </UFormField>
 
-            <UFormField label="Exclusion Criteria" name="exclusionCriteria">
+            <UFormField
+              label="Exclusion Criteria"
+              name="exclusionCriteria"
+              required
+            >
               <div v-if="state.exclusionCriteria.length > 0">
                 <div
                   v-for="(item, index) in state.exclusionCriteria"

@@ -363,7 +363,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="What is the study type?" name="studyType">
+            <UFormField
+              label="What is the study type?"
+              name="studyType"
+              required
+            >
               <USelect
                 v-model="state.studyType"
                 class="w-full"
@@ -376,6 +380,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Observational'"
               label="Is this study a Patient Registry?"
               name="isPatientRegistry"
+              required
             >
               <USelect
                 v-model="state.isPatientRegistry"
@@ -410,6 +415,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Interventional'"
               label="Allocation"
               name="allocation"
+              required
             >
               <USelect
                 v-model="state.allocation"
@@ -423,6 +429,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Interventional'"
               label="Intervention Model"
               name="interventionModel"
+              required
             >
               <USelect
                 v-model="state.interventionModel"
@@ -448,6 +455,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Interventional'"
               label="Primary Purpose"
               name="primaryPurpose"
+              required
             >
               <USelect
                 v-model="state.primaryPurpose"
@@ -461,6 +469,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Observational'"
               label="Observational Models"
               name="oberservationalModelList"
+              required
             >
               <USelect
                 v-model="state.oberservationalModelList"
@@ -475,6 +484,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Observational'"
               label="Time Perspective"
               name="timePerspectiveList"
+              required
             >
               <USelect
                 v-model="state.timePerspectiveList"
@@ -503,7 +513,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Masking" name="masking">
+            <UFormField label="Masking" name="masking" required>
               <USelect
                 v-model="state.masking"
                 class="w-full"
@@ -520,7 +530,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Who Masked?" name="whoMaskedList">
+            <UFormField label="Who Masked?" name="whoMaskedList" required>
               <USelect
                 v-model="state.whoMaskedList"
                 class="w-full"
@@ -548,7 +558,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Phase" name="phaseList">
+            <UFormField label="Phase" name="phaseList" required>
               <USelect
                 v-model="state.phaseList"
                 class="w-full"
@@ -576,7 +586,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Retention" name="bioSpecRetention">
+            <UFormField label="Retention" name="bioSpecRetention" required>
               <USelect
                 v-model="state.bioSpecRetention"
                 class="w-full"
@@ -585,7 +595,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Description" name="bioSpecDescription">
+            <UFormField label="Description" name="bioSpecDescription" required>
               <UTextarea
                 v-model="state.bioSpecDescription"
                 class="w-full"
@@ -613,6 +623,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField
               label="Total number of participants to be enrolled"
               name="enrollmentCount"
+              required
             >
               <UInput
                 v-model="state.enrollmentCount"
@@ -622,7 +633,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Type of enrollment" name="enrollmentType">
+            <UFormField
+              label="Type of enrollment"
+              name="enrollmentType"
+              required
+            >
               <USelect
                 v-model="state.enrollmentType"
                 class="w-full"
@@ -635,6 +650,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Interventional'"
               label="Number of Arms"
               name="numberOfArms"
+              required
             >
               <UInput
                 v-model="state.numberOfArms"

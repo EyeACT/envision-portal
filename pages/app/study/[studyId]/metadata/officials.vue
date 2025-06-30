@@ -321,11 +321,19 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Given Name" :name="`givenName-${index}`">
+                  <UFormField
+                    label="Given Name"
+                    :name="`givenName-${index}`"
+                    required
+                  >
                     <UInput v-model="item.givenName" placeholder="James" />
                   </UFormField>
 
-                  <UFormField label="Family Name" :name="`familyName-${index}`">
+                  <UFormField
+                    label="Family Name"
+                    :name="`familyName-${index}`"
+                    required
+                  >
                     <UInput v-model="item.familyName" placeholder="Smith" />
                   </UFormField>
 
@@ -336,6 +344,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Affiliation"
                     :name="`affiliation-${index}`"
+                    required
                   >
                     <UInput
                       v-model="item.affiliation"
@@ -381,7 +390,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField label="Role" :name="`role-${index}`">
+                  <UFormField label="Role" :name="`role-${index}`" required>
                     <USelect
                       v-model="item.role"
                       class="w-full"

@@ -302,11 +302,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Facility" :name="`facility-${index}`">
+                  <UFormField
+                    label="Facility"
+                    :name="`facility-${index}`"
+                    required
+                  >
                     <UInput v-model="item.facility" placeholder="James" />
                   </UFormField>
 
-                  <UFormField label="Status" :name="`status-${index}`">
+                  <UFormField label="Status" :name="`status-${index}`" required>
                     <USelect
                       v-model="item.status"
                       class="w-full"
@@ -315,15 +319,19 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="City" :name="`city-${index}`">
+                  <UFormField label="City" :name="`city-${index}`" required>
                     <UInput v-model="item.city" placeholder="San Francisco" />
                   </UFormField>
 
-                  <UFormField label="State" :name="`state-${index}`">
+                  <UFormField label="State" :name="`state-${index}`" required>
                     <UInput v-model="item.state" placeholder="California" />
                   </UFormField>
 
-                  <UFormField label="Country" :name="`country-${index}`">
+                  <UFormField
+                    label="Country"
+                    :name="`country-${index}`"
+                    required
+                  >
                     <UInput
                       v-model="item.country"
                       placeholder="United States"

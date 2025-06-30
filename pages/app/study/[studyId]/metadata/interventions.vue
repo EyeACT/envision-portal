@@ -256,7 +256,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Type" :name="`type-${index}`">
+                  <UFormField label="Type" :name="`type-${index}`" required>
                     <USelect
                       v-model="item.type as string"
                       placeholder="Type"
@@ -265,13 +265,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Name" :name="`name-${index}`">
+                  <UFormField label="Name" :name="`name-${index}`" required>
                     <UInput v-model="item.name" placeholder="Intervention 1" />
                   </UFormField>
 
                   <UFormField
                     label="Description"
                     :name="`description-${index}`"
+                    required
                   >
                     <UTextarea
                       v-model="item.description"
