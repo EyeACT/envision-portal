@@ -1,14 +1,45 @@
 <script setup lang="ts">
 import type { FormError } from "@nuxt/ui";
+import { z } from "zod";
 import FORM_JSON from "~/assets/data/form.json";
 
 const route = useRoute();
 const toast = useToast();
 const { studyId } = route.params as { studyId: string };
+const studyTitle = ref("");
 
 const loading = ref(false);
 
-const state = reactive({
+const schema = z.object({
+  collaborators: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string().optional(),
+      deleted: z.boolean(),
+      identifier: z.string().optional(),
+      scheme: z.string().optional(),
+      schemeUri: z.string().optional(),
+    }),
+  ),
+  leadSponsorIdentifier: z.string(),
+  leadSponsorIdentifierScheme: z.string(),
+  leadSponsorIdentifierSchemeUri: z.string(),
+  leadSponsorName: z.string(),
+  responsiblePartyInvestigatorAffiliationIdentifier: z.string(),
+  responsiblePartyInvestigatorAffiliationIdentifierScheme: z.string(),
+  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z.string(),
+  responsiblePartyInvestigatorAffiliationName: z.string(),
+  responsiblePartyInvestigatorFamilyName: z.string(),
+  responsiblePartyInvestigatorGivenName: z.string(),
+  responsiblePartyInvestigatorIdentifierScheme: z.string(),
+  responsiblePartyInvestigatorIdentifierValue: z.string(),
+  responsiblePartyInvestigatorTitle: z.string(),
+  responsiblePartyType: z.string(),
+});
+
+type Schema = z.output<typeof schema>;
+
+const state = reactive<Schema>({
   collaborators: [
     {
       id: crypto.randomUUID(),
@@ -58,28 +89,37 @@ function removeCollaboratorById(id: string) {
   }
 }
 
-async function fetchStudySponsor() {
-  try {
-    const res = await fetch(`/api/studies/${studyId}/metadata/team`);
+const { data, error } = await useFetch(
+  `/api/studies/${studyId}/metadata/team`,
+  {},
+);
 
-    if (!res.ok) throw new Error("Failed to fetch sponsor data");
-    const data = await res.json();
+if (error.value) {
+  toast.add({
+    title: "Error fetching study",
+    description: "Please try again later",
+    icon: "material-symbols:error",
+  });
+}
 
-    // assign all keys except collaborators
-    for (const key in state) {
-      if (key === "collaborators") continue;
-      state[key as keyof typeof state] = data[key as keyof typeof data] ?? "";
+if (data.value) {
+  studyTitle.value = data.value?.title || "Untitled Study";
+  // assign all keys except collaborators
+  for (const key in state) {
+    if (key === "collaborators") continue;
+    if (key in data.value) {
+      state[key as keyof typeof state] = (data.value as any)[key] ?? "";
     }
+  }
 
-    // assign collaborators carefully
-    if (Array.isArray(data.collaborators)) {
-      state.collaborators = data.collaborators;
-    } else {
-      state.collaborators = [];
-    }
-  } catch (err) {
-    console.error(err);
-    toast.add({ title: "Error", description: "Failed to fetch sponsor data." });
+  // assign collaborators carefully
+  if (Array.isArray(data.value.collaborators)) {
+    state.collaborators = data.value.collaborators.map((c: any) => ({
+      ...c,
+      deleted: false, // default to not deleted
+    }));
+  } else {
+    state.collaborators = [];
   }
 }
 
@@ -126,11 +166,6 @@ async function onSubmit() {
   }
 }
 
-const { data: studyMeta, error: metaError } = await useFetch(
-  `/api/studies/${studyId}`,
-);
-const studyTitle = computed(() => studyMeta.value?.title || "Untitled Study");
-
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
 
@@ -148,7 +183,7 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.collaborators.forEach((c, index) => {
+  state.collaborators.forEach((c: any, index: number) => {
     if (!c.deleted && !c.name?.trim()) {
       errors.push({
         name: `collaborators[${index}].name`,
@@ -159,8 +194,6 @@ const validate = (state: any): FormError[] => {
 
   return errors;
 };
-
-onBeforeMount(fetchStudySponsor);
 </script>
 
 <template>
@@ -215,11 +248,12 @@ onBeforeMount(fetchStudySponsor);
               </p>
             </div>
 
-            <UFormField name="responsiblePartyType" class="w-full">
-              <template #label>
-                Type <span class="text-red-500">*</span>
-              </template>
-
+            <UFormField
+              name="responsiblePartyType"
+              label="Responsible Party Type"
+              required
+              class="w-full"
+            >
               <USelect
                 v-model="state.responsiblePartyType"
                 class="w-full"

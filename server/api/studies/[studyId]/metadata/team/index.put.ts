@@ -6,28 +6,32 @@ const prisma = new PrismaClient();
 const CollaboratorSchema = z.object({
   id: z.string().optional(),
   name: z.string(),
+  deleted: z.boolean().optional(),
   identifier: z.string(),
   scheme: z.string(),
   schemeUri: z.string(),
-  deleted: z.boolean().optional(),
 });
 
 const StudyMetadataSponsorsSchema = z.object({
-  responsiblePartyType: z.string().optional(),
-  responsiblePartyInvestigatorGivenName: z.string().optional(),
-  responsiblePartyInvestigatorFamilyName: z.string().optional(),
-  responsiblePartyInvestigatorTitle: z.string().optional(),
-  responsiblePartyInvestigatorIdentifierScheme: z.string().optional(),
-  responsiblePartyInvestigatorIdentifierValue: z.string().optional(),
-  responsiblePartyInvestigatorAffiliationName: z.string().optional(),
-  responsiblePartyInvestigatorAffiliationIdentifier: z.string().optional(),
-  responsiblePartyInvestigatorAffiliationIdentifierScheme: z.string().optional(),
-  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z.string().optional(),
-  leadSponsorName: z.string().optional(),
+  collaborators: z.array(CollaboratorSchema).optional(),
   leadSponsorIdentifier: z.string().optional(),
   leadSponsorIdentifierScheme: z.string().optional(),
   leadSponsorIdentifierSchemeUri: z.string().optional(),
-  collaborators: z.array(CollaboratorSchema).optional(),
+  leadSponsorName: z.string().optional(),
+  responsiblePartyInvestigatorAffiliationIdentifier: z.string().optional(),
+  responsiblePartyInvestigatorAffiliationIdentifierScheme: z
+    .string()
+    .optional(),
+  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z
+    .string()
+    .optional(),
+  responsiblePartyInvestigatorAffiliationName: z.string().optional(),
+  responsiblePartyInvestigatorFamilyName: z.string().optional(),
+  responsiblePartyInvestigatorGivenName: z.string().optional(),
+  responsiblePartyInvestigatorIdentifierScheme: z.string().optional(),
+  responsiblePartyInvestigatorIdentifierValue: z.string().optional(),
+  responsiblePartyInvestigatorTitle: z.string().optional(),
+  responsiblePartyType: z.string().optional(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -52,21 +56,32 @@ export default defineEventHandler(async (event) => {
   }
 
   const data = {
-    studyId,
-    responsiblePartyType: body.data.responsiblePartyType ?? null,
-    responsiblePartyInvestigatorGivenName: body.data.responsiblePartyInvestigatorGivenName ?? null,
-    responsiblePartyInvestigatorFamilyName: body.data.responsiblePartyInvestigatorFamilyName ?? null,
-    responsiblePartyInvestigatorTitle: body.data.responsiblePartyInvestigatorTitle ?? null,
-    responsiblePartyInvestigatorIdentifierScheme: body.data.responsiblePartyInvestigatorIdentifierScheme ?? null,
-    responsiblePartyInvestigatorIdentifierValue: body.data.responsiblePartyInvestigatorIdentifierValue ?? null,
-    responsiblePartyInvestigatorAffiliationName: body.data.responsiblePartyInvestigatorAffiliationName ?? null,
-    responsiblePartyInvestigatorAffiliationIdentifier: body.data.responsiblePartyInvestigatorAffiliationIdentifier ?? null,
-    responsiblePartyInvestigatorAffiliationIdentifierScheme: body.data.responsiblePartyInvestigatorAffiliationIdentifierScheme ?? null,
-    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: body.data.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri ?? null,
-    leadSponsorName: body.data.leadSponsorName ?? null,
     leadSponsorIdentifier: body.data.leadSponsorIdentifier ?? null,
     leadSponsorIdentifierScheme: body.data.leadSponsorIdentifierScheme ?? null,
-    leadSponsorIdentifierSchemeUri: body.data.leadSponsorIdentifierSchemeUri ?? null,
+    leadSponsorIdentifierSchemeUri:
+      body.data.leadSponsorIdentifierSchemeUri ?? null,
+    leadSponsorName: body.data.leadSponsorName ?? null,
+    responsiblePartyInvestigatorAffiliationIdentifier:
+      body.data.responsiblePartyInvestigatorAffiliationIdentifier ?? null,
+    responsiblePartyInvestigatorAffiliationIdentifierScheme:
+      body.data.responsiblePartyInvestigatorAffiliationIdentifierScheme ?? null,
+    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri:
+      body.data.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri ??
+      null,
+    responsiblePartyInvestigatorAffiliationName:
+      body.data.responsiblePartyInvestigatorAffiliationName ?? null,
+    responsiblePartyInvestigatorFamilyName:
+      body.data.responsiblePartyInvestigatorFamilyName ?? null,
+    responsiblePartyInvestigatorGivenName:
+      body.data.responsiblePartyInvestigatorGivenName ?? null,
+    responsiblePartyInvestigatorIdentifierScheme:
+      body.data.responsiblePartyInvestigatorIdentifierScheme ?? null,
+    responsiblePartyInvestigatorIdentifierValue:
+      body.data.responsiblePartyInvestigatorIdentifierValue ?? null,
+    responsiblePartyInvestigatorTitle:
+      body.data.responsiblePartyInvestigatorTitle ?? null,
+    responsiblePartyType: body.data.responsiblePartyType ?? null,
+    studyId,
   };
 
   const result = await prisma.studySponsors.upsert({
@@ -77,7 +92,9 @@ export default defineEventHandler(async (event) => {
 
   // Handle collaborators
   if (Array.isArray(body.data.collaborators)) {
-    const collaboratorsToSave = body.data.collaborators.filter(c => !c.deleted);
+    const collaboratorsToSave = body.data.collaborators.filter(
+      (c) => !c.deleted,
+    );
 
     await prisma.studyCollaborators.deleteMany({
       where: { studyId },
@@ -86,11 +103,11 @@ export default defineEventHandler(async (event) => {
     if (collaboratorsToSave.length > 0) {
       await prisma.studyCollaborators.createMany({
         data: collaboratorsToSave.map((c) => ({
-          studyId,
           name: c.name,
           identifier: c.identifier,
           scheme: c.scheme,
           schemeUri: c.schemeUri,
+          studyId,
         })),
       });
     }
