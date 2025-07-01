@@ -28,12 +28,7 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const sponsor = study?.StudySponsors;
-  const collaborators = study?.StudyCollaborators;
-
   return {
     ...study,
-    collaborators,
-    sponsor,
   };
 });
