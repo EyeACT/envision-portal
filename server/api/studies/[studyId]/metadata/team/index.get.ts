@@ -13,8 +13,12 @@ export default defineEventHandler(async (event) => {
     where: { studyId },
   });
 
-  return (
-    sponsor ?? {
+  const collaborators = await prisma.studyCollaborators.findMany({
+    where: { studyId },
+  });
+
+  return {
+    ...(sponsor ?? {
       created: null,
       leadSponsorIdentifier: null,
       leadSponsorIdentifierScheme: null,
