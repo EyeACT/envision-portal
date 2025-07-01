@@ -1,16 +1,21 @@
 import { z } from "zod";
 
 const StudyMetadataArmsSchema = z.object({
-  studyArms: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      description: z.string(),
-      interventionList: z.array(z.string()),
-      label: z.string(),
-      type: z.string(),
-    }),
-  ),
+  studyArms: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        deleted: z.boolean().optional(),
+        description: z
+          .string()
+          .trim()
+          .min(1, { message: "Description is required" }),
+        interventionList: z.array(z.string()),
+        label: z.string().trim().min(1, { message: "Label is required" }),
+        type: z.string().trim().min(1, { message: "Type is required" }),
+      }),
+    )
+    .min(1, { message: "At least one study arm is required" }),
 });
 
 export default defineEventHandler(async (event) => {

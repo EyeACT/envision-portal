@@ -1,25 +1,62 @@
 import { z } from "zod";
 
 const StudyMetadataContactsSchema = z.object({
-  studyContacts: z.array(
-    z.object({
-      id: z.string().optional(),
-      affiliation: z.string(),
-      affiliationIdentifier: z.string(),
-      affiliationIdentifierScheme: z.string(),
-      affiliationIdentifierSchemeUri: z.string(),
-      degree: z.string(),
-      deleted: z.boolean().optional(),
-      emailAddress: z.string(),
-      familyName: z.string(),
-      givenName: z.string(),
-      identifier: z.string(),
-      identifierScheme: z.string(),
-      identifierSchemeUri: z.string(),
-      phone: z.string(),
-      phoneExt: z.string(),
+  studyContacts: z
+    .array(
+      z
+        .object({
+          id: z.string().optional(),
+          affiliation: z
+            .string()
+            .trim()
+            .min(1, { message: "Affiliation is required" }),
+          affiliationIdentifier: z.string(),
+          affiliationIdentifierScheme: z.string(),
+          affiliationIdentifierSchemeUri: z.string(),
+          degree: z.string(),
+          deleted: z.boolean().optional(),
+          emailAddress: z
+            .string()
+            .trim()
+            .min(1, { message: "Email address is required" })
+            .email({ message: "Email address is not valid" }),
+          familyName: z
+            .string()
+            .trim()
+            .min(1, { message: "Family name is required" }),
+          givenName: z
+            .string()
+            .trim()
+            .min(1, { message: "Given name is required" }),
+          identifier: z.string(),
+          identifierScheme: z.string(),
+          identifierSchemeUri: z.string(),
+          phone: z.string(),
+          phoneExt: z.string(),
+        })
+        .superRefine((contact, ctx) => {
+          const id = contact.identifier.trim();
+          const sch = contact.identifierScheme.trim();
+
+          if ((id === "" && sch !== "") || (id !== "" && sch === "")) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message:
+                "Identifier and Identifier scheme must be provided together",
+              path: ["identifier"],
+            });
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message:
+                "Identifier and Identifier scheme must be provided together",
+              path: ["identifierScheme"],
+            });
+          }
+        }),
+    )
+    .min(1, {
+      message: "At least one study central contact is required",
     }),
-  ),
 });
 
 export default defineEventHandler(async (event) => {
