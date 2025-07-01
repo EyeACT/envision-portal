@@ -219,6 +219,48 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  if (
+    (state.leadSponsorIdentifier.trim() !== "" &&
+      state.leadSponsorIdentifierScheme.trim() === "") ||
+    (state.leadSponsorIdentifier.trim() === "" &&
+      state.leadSponsorIdentifierScheme.trim() !== "")
+  ) {
+    const messages = [
+      {
+        name: "leadSponsorIdentifier",
+        message: "Identifier is required when scheme is provided",
+      },
+      {
+        name: "leadSponsorScheme",
+        message: "Identifier scheme is required when identifier is provided",
+      },
+    ];
+
+    errors.push(...messages);
+  }
+
+  if (
+    (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() !== "" &&
+      state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() ===
+        "") ||
+    (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() === "" &&
+      state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() !==
+        "")
+  ) {
+    const messages = [
+      {
+        name: "affiliationId",
+        message: "Identifier is required when scheme is provided",
+      },
+      {
+        name: "affiliationScheme",
+        message: "Identifier scheme is required when identifier is provided",
+      },
+    ];
+
+    errors.push(...messages);
+  }
+
   state.collaborators.forEach((c: any, index: number) => {
     if (!c.deleted && !c.name?.trim()) {
       errors.push({
