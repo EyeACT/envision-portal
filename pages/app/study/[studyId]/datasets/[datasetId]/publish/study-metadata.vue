@@ -34,7 +34,7 @@ if (data.value) {
   });
 }
 
-const items = ref<TimelineItem[]>([
+const timelineItems = ref<TimelineItem[]>([
   {
     title: "Study Metadata",
     description: "Review added study metadata.",
@@ -49,6 +49,16 @@ const items = ref<TimelineItem[]>([
     title: "Changelog",
     description: "Add a changelog to the dataset.",
     icon: "i-lucide-code",
+  },
+  {
+    title: "Readme",
+    description: "Add a readme to the dataset.",
+    icon: "i-lucide-file-text",
+  },
+  {
+    title: "Publish",
+    description: "Publish the dataset.",
+    icon: "i-lucide-rocket",
   },
 ]);
 </script>
@@ -94,9 +104,9 @@ const items = ref<TimelineItem[]>([
 
       <UTimeline
         orientation="horizontal"
-        :default-value="2"
-        :items="items"
-        class="w-full"
+        :default-value="5"
+        :items="timelineItems"
+        class="mx-5 w-full"
       />
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
