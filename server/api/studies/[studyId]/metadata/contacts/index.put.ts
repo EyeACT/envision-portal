@@ -34,18 +34,18 @@ const StudyMetadataContactsSchema = z.object({
           phone: z.string(),
           phoneExt: z.string(),
         })
-        .superRefine((contact, ctx) => {
-          const id = contact.identifier.trim();
-          const sch = contact.identifierScheme.trim();
+        .superRefine((data, context) => {
+          const id = data.identifier.trim();
+          const sch = data.identifierScheme.trim();
 
           if ((id === "" && sch !== "") || (id !== "" && sch === "")) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message:
                 "Identifier and Identifier scheme must be provided together",
               path: ["identifier"],
             });
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message:
                 "Identifier and Identifier scheme must be provided together",
@@ -76,6 +76,7 @@ export default defineEventHandler(async (event) => {
     console.log(body.error);
 
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
       statusMessage: "Invalid  data",
     });
