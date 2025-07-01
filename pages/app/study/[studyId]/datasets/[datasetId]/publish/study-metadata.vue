@@ -567,7 +567,7 @@ const items = ref<TimelineItem[]>([
               class="w-full"
               :columns="[
                 {
-                  accessorKey: 'label',
+                  accessorKey: 'name',
                   header: 'Name',
                 },
                 {
@@ -616,6 +616,106 @@ const items = ref<TimelineItem[]>([
                 </tr>
               </tbody>
             </table>
+          </div>
+        </CardCollapsible>
+      </div>
+
+      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <CardCollapsible
+          class="my-1 shadow-none"
+          title="Central Contacts"
+          bordered
+        >
+          <div class="flex flex-col">
+            <UTable
+              :data="data?.StudyCentralContact"
+              class="w-full"
+              :columns="[
+                {
+                  accessorKey: 'givenName',
+                  header: 'Given Name',
+                },
+                {
+                  accessorKey: 'familyName',
+                  header: 'Family Name',
+                },
+                {
+                  accessorKey: 'affiliation',
+                  header: 'Affiliation',
+                },
+              ]"
+            />
+          </div>
+        </CardCollapsible>
+      </div>
+
+      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <CardCollapsible
+          class="my-1 shadow-none"
+          title="Overall Officials"
+          bordered
+        >
+          <div class="flex flex-col">
+            <UTable
+              v-if="
+                data?.StudyOverallOfficials &&
+                data?.StudyOverallOfficials.length > 0
+              "
+              :data="data?.StudyOverallOfficials"
+              class="w-full"
+              :columns="[
+                {
+                  accessorKey: 'givenName',
+                  header: 'Given Name',
+                },
+                {
+                  accessorKey: 'familyName',
+                  header: 'Family Name',
+                },
+                {
+                  accessorKey: 'affiliation',
+                  header: 'Affiliation',
+                },
+              ]"
+            />
+
+            <div v-else>
+              <p>No overall officials provided.</p>
+            </div>
+          </div>
+        </CardCollapsible>
+      </div>
+
+      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <CardCollapsible class="my-1 shadow-none" title="Locations" bordered>
+          <div class="flex flex-col">
+            <UTable
+              v-if="data?.StudyLocation && data?.StudyLocation.length > 0"
+              :data="data?.StudyLocation"
+              class="w-full"
+              :columns="[
+                {
+                  accessorKey: 'facility',
+                  header: 'Facility',
+                },
+                {
+                  accessorKey: 'city',
+                  header: 'City',
+                },
+                {
+                  accessorKey: 'state',
+                  header: 'State',
+                },
+                {
+                  accessorKey: 'country',
+                  header: 'Country',
+                },
+              ]"
+            />
+
+            <div v-else>
+              <p>No overall officials provided.</p>
+            </div>
           </div>
         </CardCollapsible>
       </div>
