@@ -1,16 +1,37 @@
 import { z } from "zod";
+import FORM_JSON from "~/assets/data/form.json";
+
+const validTypes = FORM_JSON.studyMetadataInterventionsTypeOptions.map(
+  (opt) => opt.value,
+);
 
 const StudyMetadataInterventionsSchema = z.object({
-  studyInterventions: z.array(
-    z.object({
-      id: z.string().optional(),
-      name: z.string(),
-      deleted: z.boolean().optional(),
-      description: z.string(),
-      otherNameList: z.array(z.string()),
-      type: z.string(),
-    }),
-  ),
+  studyInterventions: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        name: z.string().trim().min(1, { message: "Name is required" }),
+        deleted: z.boolean().optional(),
+        description: z
+          .string()
+          .trim()
+          .min(1, { message: "Description is required" }),
+        otherNameList: z.array(z.string()),
+        type: z
+          .string({
+            invalid_type_error: "Type is required",
+            required_error: "Type is required",
+          })
+          .refine((v) => validTypes.includes(v), {
+            message: "Type must be a valid option",
+          }),
+      }),
+      {
+        invalid_type_error: "`studyInterventions` must be an array",
+        required_error: "`studyInterventions` array is required",
+      },
+    )
+    .min(1, { message: "At least one study intervention is required" }),
 });
 
 export default defineEventHandler(async (event) => {
@@ -28,8 +49,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Validation failed",
     });
   }
 
