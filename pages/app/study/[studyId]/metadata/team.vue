@@ -113,14 +113,50 @@ if (data.value) {
   }
 
   // assign collaborators carefully
-  if (Array.isArray(data.value.collaborators)) {
-    state.collaborators = data.value.collaborators.map((c: any) => ({
+  if (Array.isArray(data.value.StudyCollaborators)) {
+    state.collaborators = data.value.StudyCollaborators.map((c: any) => ({
       ...c,
       deleted: false, // default to not deleted
     }));
   } else {
     state.collaborators = [];
   }
+
+  state.leadSponsorIdentifier =
+    data.value.StudySponsors?.[0]?.leadSponsorIdentifier || "";
+  state.leadSponsorIdentifierScheme =
+    data.value.StudySponsors?.[0]?.leadSponsorIdentifierScheme || "";
+  state.leadSponsorIdentifierSchemeUri =
+    data.value.StudySponsors?.[0]?.leadSponsorIdentifierSchemeUri || "";
+  state.leadSponsorName = data.value.StudySponsors?.[0]?.leadSponsorName || "";
+  state.responsiblePartyType =
+    data.value.StudySponsors?.[0]?.responsiblePartyType || "";
+  state.responsiblePartyInvestigatorGivenName =
+    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorGivenName || "";
+  state.responsiblePartyInvestigatorFamilyName =
+    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorFamilyName || "";
+  state.responsiblePartyInvestigatorTitle =
+    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorTitle || "";
+  state.responsiblePartyInvestigatorAffiliationName =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorAffiliationName || "";
+  state.responsiblePartyInvestigatorAffiliationIdentifier =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorAffiliationIdentifier || "";
+  state.responsiblePartyInvestigatorAffiliationIdentifierScheme =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorAffiliationIdentifierScheme || "";
+  state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri || "";
+  state.responsiblePartyInvestigatorIdentifierScheme =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorIdentifierScheme || "";
+  state.responsiblePartyInvestigatorIdentifierValue =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorIdentifierValue || "";
+  state.responsiblePartyType =
+    data.value.StudySponsors?.[0]?.responsiblePartyType || "";
 }
 
 async function onSubmit() {
@@ -186,9 +222,28 @@ const validate = (state: any): FormError[] => {
   state.collaborators.forEach((c: any, index: number) => {
     if (!c.deleted && !c.name?.trim()) {
       errors.push({
-        name: `collaborators[${index}].name`,
-        message: `Collaborator ${index + 1} name is required`,
+        name: `name-${index}`,
+        message: `Collaborator name is required`,
       });
+    }
+
+    // If either official identifier or identifier scheme is provided, both must be provided
+    if (
+      (c.identifier.trim() !== "" && c.scheme.trim() === "") ||
+      (c.identifier.trim() === "" && c.scheme.trim() !== "")
+    ) {
+      const messages = [
+        {
+          name: `identifier-${index}`,
+          message: "Identifier and Identifier scheme must be provided together",
+        },
+        {
+          name: `identifierScheme-${index}`,
+          message: "Identifier and Identifier scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
     }
   });
 
@@ -475,28 +530,28 @@ const validate = (state: any): FormError[] => {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField
-                    :name="`collaborators[${index}].name`"
-                    label="Name"
-                  >
+                  <UFormField :name="`name-${index}`" label="Name" required>
                     <UInput
                       v-model="item.name"
                       placeholder="Collaborator Name"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier" name="identifier">
+                  <UFormField label="Identifier" :name="`identifier-${index}`">
                     <UInput
                       v-model="item.identifier"
                       placeholder="Identifier"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Scheme" name="scheme">
+                  <UFormField
+                    label="Identifier Scheme"
+                    :name="`identifierScheme-${index}`"
+                  >
                     <UInput v-model="item.scheme" placeholder="Scheme" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" name="schemeUri">
+                  <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
                     <UInput
                       v-model="item.schemeUri"
                       placeholder="https://scheme.uri"
