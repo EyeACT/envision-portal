@@ -69,69 +69,119 @@ if (data.value) {
   });
 
   state.studyType = data.value.studyType ?? "";
-  state.sex = data.value.StudyEligibilty?.sex ?? "";
-  state.studyPopulation = data.value.StudyEligibilty?.studyPopulation ?? "";
-  state.samplingMethod = data.value.StudyEligibilty?.samplingMethod ?? "";
-  state.exclusionCriteria = data.value.StudyEligibilty?.exclusionCriteria ?? [];
-  state.inclusionCriteria = ["as", "asd"]; // data.value.StudyEligibilty?.inclusionCriteria ??;
-  state.genderBased = data.value.StudyEligibilty?.genderBased ?? "";
-  state.genderDescription = data.value.StudyEligibilty?.genderDescription ?? "";
-  state.healthyVolunteers = data.value.StudyEligibilty?.healthyVolunteers ?? "";
-  state.maximumAgeValue = data.value.StudyEligibilty?.maximumAgeValue ?? 0;
-  state.maximumAgeUnit = data.value.StudyEligibilty?.maximumAgeUnit ?? "";
-  state.minimumAgeValue = data.value.StudyEligibilty?.minimumAgeValue ?? 0;
-  state.minimumAgeUnit = data.value.StudyEligibilty?.minimumAgeUnit ?? "";
+  state.sex = data.value.StudyEligibility?.sex ?? "";
+  state.studyPopulation = data.value.StudyEligibility?.studyPopulation ?? "";
+  state.samplingMethod = data.value.StudyEligibility?.samplingMethod ?? "";
+  state.exclusionCriteria =
+    data.value.StudyEligibility?.exclusionCriteria ?? [];
+  state.inclusionCriteria =
+    data.value.StudyEligibility?.inclusionCriteria ?? [];
+  state.genderBased = data.value.StudyEligibility?.genderBased ?? "";
+  state.genderDescription =
+    data.value.StudyEligibility?.genderDescription ?? "";
+  state.healthyVolunteers =
+    data.value.StudyEligibility?.healthyVolunteers ?? "";
+  state.maximumAgeValue = data.value.StudyEligibility?.maximumAgeValue ?? 0;
+  state.maximumAgeUnit = data.value.StudyEligibility?.maximumAgeUnit ?? "";
+  state.minimumAgeValue = data.value.StudyEligibility?.minimumAgeValue ?? 0;
+  state.minimumAgeUnit = data.value.StudyEligibility?.minimumAgeUnit ?? "";
 }
 
 const validate = (state: any): FormError[] => {
   const errors = [];
 
-  if (!state.overallStatus) {
+  if (!state.sex) {
     errors.push({
-      name: "overallStatus",
-      message: "Overall status is required",
+      name: "sex",
+      message: "Sex is required",
+    });
+  }
+
+  if (!state.genderBased) {
+    errors.push({
+      name: "genderBased",
+      message: "Gender Based is required",
+    });
+  }
+
+  if (!state.genderDescription) {
+    errors.push({
+      name: "genderDescription",
+      message: "Gender Description is required",
+    });
+  }
+
+  if (!state.healthyVolunteers) {
+    errors.push({
+      name: "healthyVolunteers",
+      message: "Healthy Volunteers is required",
+    });
+  }
+
+  if (state.inclusionCriteria.length === 0) {
+    errors.push({
+      name: "inclusionCriteria",
+      message: "Inclusion Criteria is required",
+    });
+  }
+
+  if (state.exclusionCriteria.length === 0) {
+    errors.push({
+      name: "exclusionCriteria",
+      message: "Exclusion Criteria is required",
+    });
+  }
+
+  if (state.minimumAgeValue === 0) {
+    errors.push({
+      name: "minimumAgeValue",
+      message: "Minimum Age is required",
+    });
+  }
+
+  if (!state.minimumAgeUnit) {
+    errors.push({
+      name: "minimumAgeUnit",
+      message: "Minimum Age Unit is required",
+    });
+  }
+
+  if (state.maximumAgeValue === 0) {
+    errors.push({
+      name: "maximumAgeValue",
+      message: "Maximum Age is required",
+    });
+  }
+
+  if (!state.maximumAgeUnit) {
+    errors.push({
+      name: "maximumAgeUnit",
+      message: "Maximum Age Unit is required",
     });
   }
 
   if (
-    state.overallStatus === "Suspended" ||
-    state.overallStatus === "Terminated" ||
-    state.overallStatus === "Withdrawn"
+    state.minimumAgeValue &&
+    state.maximumAgeValue &&
+    state.minimumAgeValue > state.maximumAgeValue
   ) {
-    if (!state.whyStopped) {
-      errors.push({
-        name: "whyStopped",
-        message:
-          "A valid reason is required when the study is suspended, terminated or withdrawn",
-      });
-    }
-  }
-
-  if (!state.startDate) {
     errors.push({
-      name: "startDate",
-      message: "Start date is required",
+      name: "minimumAgeValue",
+      message: "Minimum Age must be less than Maximum Age",
     });
   }
 
-  if (!state.startDateType) {
+  if (!state.samplingMethod) {
     errors.push({
-      name: "startDateType",
-      message: "Start date type is required",
+      name: "samplingMethod",
+      message: "Sampling Method is required",
     });
   }
 
-  if (!state.completionDate) {
+  if (!state.studyPopulation) {
     errors.push({
-      name: "completionDate",
-      message: "Completion date is required",
-    });
-  }
-
-  if (!state.completionDateType) {
-    errors.push({
-      name: "completionDateType",
-      message: "Completion date type is required",
+      name: "studyPopulation",
+      message: "Study Population is required",
     });
   }
 
@@ -142,6 +192,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
 
   const formData = event.data;
+
+  console.log(formData);
 
   const b = {
     exclusionCriteria: formData.exclusionCriteria.filter(
@@ -174,6 +226,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         color: "success",
         description: "The form has been submitted.",
       });
+
+      // refresh the page
+      window.location.reload();
     })
     .catch((err) => {
       console.log(err);
@@ -181,13 +236,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       toast.add({
         title: "Error",
         color: "error",
-        description: "The form has been submitted.",
+        description: "An error occurred while submitting the form.",
       });
     })
     .finally(() => {
-      // refresh the page
-      window.location.reload();
-
       saveLoading.value = false;
     });
 }
@@ -204,8 +256,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           label: 'Metadata',
         },
         {
-          label: 'Status',
-          to: `/app/study/${studyId}/metadata/status`,
+          label: 'Eligibility',
+          to: `/app/study/${studyId}/metadata/eligibility`,
         },
       ]"
     />
@@ -216,7 +268,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       >
         <div class="flex w-full items-center justify-between gap-3">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Status
+            Eligibility
           </h1>
         </div>
 
@@ -272,7 +324,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Based on Gender?" name="sex">
+            <UFormField label="Based on Gender?" name="genderBased">
               <USelect
                 v-model="state.genderBased"
                 class="w-full"
@@ -307,7 +359,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Minimum Age" name="minimumAge" class="w-full">
+              <UFormField
+                label="Minimum Age"
+                name="minimumAgeValue"
+                class="w-full"
+              >
                 <UInput
                   v-model="state.minimumAgeValue"
                   class="w-full"
@@ -327,7 +383,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Maximum Age" name="maximumAge" class="w-full">
+              <UFormField
+                label="Maximum Age"
+                name="maximumAgeValue"
+                class="w-full"
+              >
                 <UInput
                   v-model="state.maximumAgeValue"
                   class="w-full"
@@ -374,6 +434,40 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 :items="
                   FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions
                 "
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Sampling Method
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Quisquam, quos.
+              </p>
+            </div>
+
+            <UFormField label="Study Population" name="studyPopulation">
+              <UInput
+                v-model="state.studyPopulation"
+                class="w-full"
+                placeholder="A description of the population from which the groups or cohorts will be selected (for example, primary care clinic, community sample, residents of a certain town). Required for observational studies only"
+              />
+            </UFormField>
+
+            <UFormField label="Sampling Method" name="samplingMethod">
+              <USelect
+                v-model="state.samplingMethod"
+                class="w-full"
+                placeholder="Probability Sample"
+                :items="FORM_JSON.studyMetadataEligibilitySamplingMethodOptions"
               />
             </UFormField>
           </div>

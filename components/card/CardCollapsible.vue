@@ -44,7 +44,7 @@ const toggleCollapse = () => {
     }"
   >
     <div
-      class="flex items-center justify-between rounded-lg px-6 py-4 transition-all"
+      class="flex items-center justify-between gap-4 rounded-lg px-6 py-4 transition-all"
       :class="{
         'bg-white': contentCollapsed,
         'bg-slate-50/50': !contentCollapsed,
