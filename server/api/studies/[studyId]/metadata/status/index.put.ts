@@ -43,6 +43,7 @@ const StudyMetadataStatusSchema = z
       .trim(),
     whyStopped: z.string().trim(),
   })
+  .strict()
   .superRefine((data, context) => {
     if (conditionalStatuses.includes(data.overallStatus) && !data.whyStopped) {
       context.addIssue({
@@ -69,8 +70,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Validation failed",
     });
   }
 
