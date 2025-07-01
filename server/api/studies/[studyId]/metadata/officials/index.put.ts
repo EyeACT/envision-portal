@@ -96,8 +96,6 @@ export default defineEventHandler(async (event) => {
   );
 
   if (!body.success) {
-    console.log(body.error);
-
     throw createError({
       data: body.error.format(),
       statusCode: 400,

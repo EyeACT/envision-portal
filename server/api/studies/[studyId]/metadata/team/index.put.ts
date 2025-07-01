@@ -12,6 +12,7 @@ const CollaboratorSchema = z
     scheme: z.string(),
     schemeUri: z.string(),
   })
+  .strict()
   .superRefine((data, ctx) => {
     // If scheme is provided, schemeUri must also be provided
     if (
@@ -47,6 +48,7 @@ const StudyMetadataSponsorsSchema = z
     responsiblePartyInvestigatorTitle: z.string().optional(),
     responsiblePartyType: z.string().optional(),
   })
+  .strict()
   .superRefine((data, ctx) => {
     // If identifierscheme is provided, identifierSchemeUri must also be provided
     if (
