@@ -1,26 +1,158 @@
-import { z } from "zod";
+import { z, ZodIssueCode } from "zod";
 
-const StudyMetadataAboutSchema = z.object({
-  allocation: z.string(),
-  bioSpecDescription: z.string(),
-  bioSpecRetention: z.string(),
-  enrollmentCount: z.number(),
-  enrollmentType: z.string(),
-  interventionModel: z.string(),
-  interventionModelDescription: z.string(),
-  isPatientRegistry: z.string(),
-  masking: z.string(),
-  maskingDescription: z.string(),
-  numberOfArms: z.number(),
-  oberservationalModelList: z.array(z.string()),
-  phaseList: z.array(z.string()),
-  primaryPurpose: z.string(),
-  studyType: z.string(),
-  targetDuration: z.number(),
-  targetDurationUnit: z.string(),
-  timePerspectiveList: z.array(z.string()),
-  whoMaskedList: z.array(z.string()),
-});
+const StudyMetadataAboutSchema = z
+  .object({
+    allocation: z.string(),
+    bioSpecDescription: z.string(),
+    bioSpecRetention: z.string(),
+    enrollmentCount: z.number(),
+    enrollmentType: z.string(),
+    interventionModel: z.string(),
+    interventionModelDescription: z.string(),
+    isPatientRegistry: z.string(),
+    masking: z.string(),
+    maskingDescription: z.string(),
+    numberOfArms: z.number(),
+    oberservationalModelList: z.array(z.string()),
+    phaseList: z.array(z.string()),
+    primaryPurpose: z.string(),
+    studyType: z.string(),
+    targetDuration: z.number(),
+    targetDurationUnit: z.string(),
+    timePerspectiveList: z.array(z.string()),
+    whoMaskedList: z.array(z.string()),
+  })
+  .superRefine((data, context) => {
+    // studyType required
+    if (!data.studyType) {
+      context.addIssue({
+        code: ZodIssueCode.custom,
+        message: "Study type is required",
+        path: ["studyType"],
+      });
+    }
+
+    // Observational
+    if (data.studyType === "Observational") {
+      if (!data.isPatientRegistry) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Is patient registry is required",
+          path: ["isPatientRegistry"],
+        });
+      }
+      if (data.oberservationalModelList.length === 0) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Observational model is required",
+          path: ["oberservationalModelList"],
+        });
+      }
+      if (data.timePerspectiveList.length === 0) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Time perspective is required",
+          path: ["timePerspectiveList"],
+        });
+      }
+      if (!data.bioSpecRetention) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Bio specification retention is required",
+          path: ["bioSpecRetention"],
+        });
+      }
+      if (!data.bioSpecDescription) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Bio specification description is required",
+          path: ["bioSpecDescription"],
+        });
+      }
+      if (data.targetDuration <= 0) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Target duration must be greater than 0",
+          path: ["targetDuration"],
+        });
+      }
+      if (!data.targetDurationUnit) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Target duration unit is required",
+          path: ["targetDurationUnit"],
+        });
+      }
+    }
+
+    // Interventional
+    if (data.studyType === "Interventional") {
+      if (!data.allocation) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Allocation is required",
+          path: ["allocation"],
+        });
+      }
+      if (!data.interventionModel) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Intervention model is required",
+          path: ["interventionModel"],
+        });
+      }
+      if (!data.primaryPurpose) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Primary purpose is required",
+          path: ["primaryPurpose"],
+        });
+      }
+      if (!data.masking) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Masking is required",
+          path: ["masking"],
+        });
+      }
+      if (data.whoMaskedList.length === 0) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Who masked is required",
+          path: ["whoMaskedList"],
+        });
+      }
+      if (data.phaseList.length === 0) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Phase is required",
+          path: ["phaseList"],
+        });
+      }
+      if (data.numberOfArms <= 0) {
+        context.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Number of arms must be greater than 0",
+          path: ["numberOfArms"],
+        });
+      }
+    }
+
+    if (data.enrollmentCount <= 0) {
+      context.addIssue({
+        code: ZodIssueCode.custom,
+        message: "Enrollment count must be greater than 0",
+        path: ["enrollmentCount"],
+      });
+    }
+    if (!data.enrollmentType) {
+      context.addIssue({
+        code: ZodIssueCode.custom,
+        message: "Enrollment type is required",
+        path: ["enrollmentType"],
+      });
+    }
+  });
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
