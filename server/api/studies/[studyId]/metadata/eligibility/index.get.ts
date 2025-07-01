@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const study = await prisma.study.findUnique({
     include: {
       StudyDesign: true,
-      StudyEligibilty: true,
+      StudyEligibility: true,
     },
     where: {
       id: studyId,

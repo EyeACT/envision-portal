@@ -71,7 +71,7 @@ model Study {
     StudySponsors         StudySponsors?
     StudyOversight        StudyOversight?
     StudyDesign           StudyDesign?
-    StudyEligibilty       StudyEligibilty?
+    StudyEligibility      StudyEligibility?
     StudyIdentification   StudyIdentification[]
     StudyCollaborators    StudyCollaborators[]
     StudyConditions       StudyConditions[]
@@ -234,7 +234,7 @@ model StudyDesign {
     created DateTime @default(now())
 }
 
-model StudyEligibilty {
+model StudyEligibility {
     id String @id @default(cuid())
 
     studyId String @unique

@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
           whoMaskedList: [],
         },
       },
-      StudyEligibilty: {
+      StudyEligibility: {
         create: {
           exclusionCriteria: [],
           genderBased: null,

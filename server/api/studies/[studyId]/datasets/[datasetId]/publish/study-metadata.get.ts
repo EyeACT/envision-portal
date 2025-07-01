@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
       StudyConditions: true,
       StudyDescription: true,
       StudyDesign: true,
-      StudyEligibilty: true,
+      StudyEligibility: true,
       StudyIdentification: true,
       StudyIntervention: true,
       StudyKeywords: true,
