@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
       responsiblePartyType: null,
       studyId,
       updated: null,
-    }
-  );
+    }),
+    collaborators,
+  };
 });

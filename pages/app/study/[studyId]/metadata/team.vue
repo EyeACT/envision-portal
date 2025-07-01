@@ -50,7 +50,6 @@ function addCollaborator() {
     scheme: "",
     schemeUri: "",
   });
-}
 
 function removeCollaboratorById(id: string) {
   const collaborator = state.collaborators.find((c) => c.id === id);
@@ -73,17 +72,12 @@ async function fetchStudySponsor() {
       state[key as keyof typeof state] = data[key as keyof typeof data] ?? "";
     }
 
-    // assign collaborators carefully
-    if (Array.isArray(data.collaborators)) {
-      state.collaborators = data.collaborators;
-    } else {
-      state.collaborators = [];
+  function removeCollaboratorById(id: string) {
+    const collaborator = state.collaborators.find(c => c.id === id);
+    if (collaborator) {
+      collaborator.deleted = true;
     }
-  } catch (err) {
-    console.error(err);
-    toast.add({ title: "Error", description: "Failed to fetch sponsor data." });
   }
-}
 
 async function onSubmit() {
   if (!state.responsiblePartyType) {
@@ -101,7 +95,8 @@ async function onSubmit() {
     return;
   }
 
-  loading.value = true;
+  const { data: studyMeta, error: metaError } = await useFetch(`/api/studies/${studyId}`);
+  const studyTitle = computed(() => studyMeta.value?.title || "Untitled Study");
 
   try {
     const res = await fetch(`/api/studies/${studyId}/metadata/team`, {
@@ -128,7 +123,10 @@ async function onSubmit() {
   }
 }
 
-onBeforeMount(fetchStudySponsor);
+    return errors;
+  };
+
+  onBeforeMount(fetchStudySponsor);
 </script>
 
 <template>
@@ -168,31 +166,32 @@ onBeforeMount(fetchStudySponsor);
               />
             </UFormField>
 
-            <UFormField label="Family Name" class="w-1/2">
-              <UInput
-                v-model="state.responsiblePartyInvestigatorFamilyName"
-                placeholder="Leonhart"
-                class="w-full"
-              />
-            </UFormField>
-          </div>
+        <p class="text-gray-500 dark:text-gray-400">
+          Some basic information about the study is displayed here.
+        </p>
+      </div>
+      <UForm :state="state" :validate="validate" class="flex flex-col gap-6" @submit.prevent="onSubmit">
+        <!-- Responsible Party Card -->
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Responsible Party
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Provide information about the individual or entity responsible for the study.
+              </p>
+            </div>
 
-          <UFormField label="Title">
-            <UInput
-              v-model="state.responsiblePartyInvestigatorTitle"
-              placeholder="Warrior Candidate"
-              class="w-full"
-            />
-          </UFormField>
-
-          <div class="flex gap-4">
-            <UFormField label="Affiliation" class="w-1/2">
-              <UInput
-                v-model="state.responsiblePartyInvestigatorAffiliationName"
-                placeholder="Marleyan Military"
-                class="w-full"
-              />
+            <UFormField name="responsiblePartyType" class="w-full">
+              <template #label> Type <span class="text-red-500">*</span> </template>
+              <USelect v-model="state.responsiblePartyType" class="w-full" placeholder="Principal Investigator" :items="FORM_JSON.studyMetadataSponsorsResponsiblePartyTypeOptions" />
             </UFormField>
+
+            <div class="flex w-full gap-4">
+              <UFormField label="Given Name" name="givenName" class="w-full">
+                <UInput v-model="state.responsiblePartyInvestigatorGivenName" placeholder="Annie" class="w-full" />
+              </UFormField>
 
             <UFormField label="Affiliation Identifier" class="w-1/2">
               <UInput
@@ -226,24 +225,28 @@ onBeforeMount(fetchStudySponsor);
               />
             </UFormField>
           </div>
+        </div>
 
-          <div class="flex gap-4">
-            <UFormField label="Identifier Scheme" class="w-1/2">
-              <UInput
-                v-model="state.responsiblePartyInvestigatorIdentifierScheme"
-                placeholder="ORCID"
-                class="w-full"
-              />
+        <!-- Lead Sponsor Card -->
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Lead Sponsor
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Provide information about the primary organization overseeing the study.
+              </p>
+            </div>
+
+            <UFormField name="leadSponsorName" class="w-full">
+              <template #label> Name <span class="text-red-500">*</span> </template>
+              <UInput v-model="state.leadSponsorName" placeholder="Willy Tybur" class="w-full" />
             </UFormField>
 
-            <UFormField label="Identifier Value" class="w-1/2">
-              <UInput
-                v-model="state.responsiblePartyInvestigatorIdentifierValue"
-                placeholder="0000-0003-2829-8032"
-                class="w-full"
-              />
+            <UFormField label="Identifier" name="leadSponsorIdentifier" class="w-full">
+              <UInput v-model="state.leadSponsorIdentifier" placeholder="04aj4c18" class="w-full" />
             </UFormField>
-          </div>
 
           <h2 class="mt-6 mb-4 text-xl font-semibold">Lead Sponsor</h2>
 
@@ -276,16 +279,12 @@ onBeforeMount(fetchStudySponsor);
               />
             </UFormField>
 
-            <UFormField label="Identifier Scheme URI" class="w-1/2">
-              <UInput
-                v-model="state.leadSponsorIdentifierSchemeUri"
-                placeholder="https://ror.org"
-                class="w-full"
-              />
-            </UFormField>
+              <UFormField label="Identifier Scheme URI" name="leadSponsorSchemeUri" class="w-full">
+                <UInput v-model="state.leadSponsorIdentifierSchemeUri" placeholder="https://ror.org" class="w-full" />
+              </UFormField>
+            </div>
           </div>
         </div>
-      </div>
 
       <div
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
@@ -351,15 +350,9 @@ onBeforeMount(fetchStudySponsor);
             @click="addCollaborator"
           />
         </div>
-      </div>
 
-      <UButton
-        type="submit"
-        class="w-1/10 text-center"
-        size="lg"
-        label="Save Metadata"
-        icon="i-lucide-save"
-      />
-    </UForm>
+        <UButton type="submit" class="w-1/10 text-center" size="lg" label="Save Metadata" icon="i-lucide-save" />
+      </UForm>
+    </div>
   </div>
 </template>
