@@ -669,6 +669,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Target duration value"
                 name="targetDuration"
                 class="w-full"
+                required
               >
                 <UInput
                   v-model="state.targetDuration"
@@ -682,6 +683,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Target duration unit"
                 name="targetDurationUnit"
                 class="w-full"
+                required
               >
                 <USelect
                   v-model="state.targetDurationUnit"
