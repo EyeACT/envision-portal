@@ -34,9 +34,10 @@ export default defineEventHandler(async (event) => {
   if (!user.emailVerified) {
     throw createError({
       statusCode: 403,
-      statusMessage: "Email not verified. Please check your email for the verification link.",
+      statusMessage:
+        "Email not verified. Please check your email for the verification link.",
     });
-  } 
+  }
 
   // Check if the password matches
   if (!(await compare(body.data.password, user.password))) {
