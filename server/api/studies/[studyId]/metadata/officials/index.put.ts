@@ -1,23 +1,85 @@
 import { z } from "zod";
+import FORM_JSON from "~/assets/data/form.json";
+
+const validRoles = FORM_JSON.studyMetadataContactsOverallOfficialRole.map(
+  (opt) => opt.value,
+);
+
+const OfficialSchema = z
+  .object({
+    id: z.string().optional(),
+    affiliation: z
+      .string()
+      .trim()
+      .min(1, { message: "Affiliation is required" }),
+    affiliationIdentifier: z.string().trim(),
+    affiliationIdentifierScheme: z.string().trim(),
+    affiliationIdentifierSchemeUri: z.string().trim(),
+    degree: z.string().trim(),
+    deleted: z.boolean().optional(),
+    familyName: z
+      .string()
+      .trim()
+      .min(1, { message: "Family name is required" }),
+    givenName: z.string().trim().min(1, { message: "Given name is required" }),
+    identifier: z.string().trim(),
+    identifierScheme: z.string().trim(),
+    identifierSchemeUri: z.string().trim(),
+    role: z
+      .string({
+        invalid_type_error: "Role is required",
+        required_error: "Role is required",
+      })
+      .trim()
+      .refine((v) => validRoles.includes(v), {
+        message: `Role must be one of the following: ${validRoles.join(", ")}`,
+      }),
+  })
+  .superRefine((data, context) => {
+    // affiliationIdentifier and affiliationIdentifierScheme if provided must be together
+    const hasAffId = data.affiliationIdentifier !== "";
+    const hasAffSch = data.affiliationIdentifierScheme !== "";
+    const hasAffSchUri = data.affiliationIdentifierSchemeUri !== "";
+
+    if (hasAffId && (!hasAffSch || !hasAffSchUri)) {
+      [
+        "affiliationIdentifier",
+        "affiliationIdentifierScheme",
+        "affiliationIdentifierSchemeUri",
+      ].forEach((path) =>
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "If affiliation identifier is provided, scheme and scheme URI must also be provided",
+          path: [path],
+        }),
+      );
+    }
+
+    // identifier and identifierScheme if provided must be together
+    const hasId = data.identifier !== "";
+    const hasIdSch = data.identifierScheme !== "";
+
+    if (hasId !== hasIdSch) {
+      ["identifier", "identifierScheme"].forEach((path) =>
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Identifier and Identifier scheme must be provided together",
+          path: [path],
+        }),
+      );
+    }
+  });
 
 const StudyMetadataOverallOfficialsSchema = z.object({
-  studyOverallOfficials: z.array(
-    z.object({
-      id: z.string().optional(),
-      affiliation: z.string(),
-      affiliationIdentifier: z.string(),
-      affiliationIdentifierScheme: z.string(),
-      affiliationIdentifierSchemeUri: z.string(),
-      degree: z.string(),
-      deleted: z.boolean().optional(),
-      familyName: z.string(),
-      givenName: z.string(),
-      identifier: z.string(),
-      identifierScheme: z.string(),
-      identifierSchemeUri: z.string(),
-      role: z.string(),
+  studyOverallOfficials: z
+    .array(OfficialSchema, {
+      invalid_type_error: "`studyOverallOfficials` must be an array",
+      required_error: "`studyOverallOfficials` array is required",
+    })
+    .min(1, {
+      message: "At least one study overall official is required",
     }),
-  ),
 });
 
 export default defineEventHandler(async (event) => {
@@ -37,8 +99,9 @@ export default defineEventHandler(async (event) => {
     console.log(body.error);
 
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Validation failed",
     });
   }
 
