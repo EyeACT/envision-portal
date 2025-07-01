@@ -3,36 +3,76 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const CollaboratorSchema = z.object({
-  id: z.string().optional(),
-  name: z.string(),
-  deleted: z.boolean().optional(),
-  identifier: z.string(),
-  scheme: z.string(),
-  schemeUri: z.string(),
-});
+const CollaboratorSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string(),
+    deleted: z.boolean().optional(),
+    identifier: z.string(),
+    scheme: z.string(),
+    schemeUri: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    // If scheme is provided, schemeUri must also be provided
+    if (
+      (data.scheme && !data.identifier) ||
+      (!data.scheme && data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "If scheme is provided, schemeUri must also be provided",
+      });
+    }
+  });
 
-const StudyMetadataSponsorsSchema = z.object({
-  collaborators: z.array(CollaboratorSchema).optional(),
-  leadSponsorIdentifier: z.string().optional(),
-  leadSponsorIdentifierScheme: z.string().optional(),
-  leadSponsorIdentifierSchemeUri: z.string().optional(),
-  leadSponsorName: z.string().optional(),
-  responsiblePartyInvestigatorAffiliationIdentifier: z.string().optional(),
-  responsiblePartyInvestigatorAffiliationIdentifierScheme: z
-    .string()
-    .optional(),
-  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z
-    .string()
-    .optional(),
-  responsiblePartyInvestigatorAffiliationName: z.string().optional(),
-  responsiblePartyInvestigatorFamilyName: z.string().optional(),
-  responsiblePartyInvestigatorGivenName: z.string().optional(),
-  responsiblePartyInvestigatorIdentifierScheme: z.string().optional(),
-  responsiblePartyInvestigatorIdentifierValue: z.string().optional(),
-  responsiblePartyInvestigatorTitle: z.string().optional(),
-  responsiblePartyType: z.string().optional(),
-});
+const StudyMetadataSponsorsSchema = z
+  .object({
+    collaborators: z.array(CollaboratorSchema).optional(),
+    leadSponsorIdentifier: z.string().optional(),
+    leadSponsorIdentifierScheme: z.string().optional(),
+    leadSponsorIdentifierSchemeUri: z.string().optional(),
+    leadSponsorName: z.string().optional(),
+    responsiblePartyInvestigatorAffiliationIdentifier: z.string().optional(),
+    responsiblePartyInvestigatorAffiliationIdentifierScheme: z
+      .string()
+      .optional(),
+    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z
+      .string()
+      .optional(),
+    responsiblePartyInvestigatorAffiliationName: z.string().optional(),
+    responsiblePartyInvestigatorFamilyName: z.string().optional(),
+    responsiblePartyInvestigatorGivenName: z.string().optional(),
+    responsiblePartyInvestigatorIdentifierScheme: z.string().optional(),
+    responsiblePartyInvestigatorIdentifierValue: z.string().optional(),
+    responsiblePartyInvestigatorTitle: z.string().optional(),
+    responsiblePartyType: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // If identifierscheme is provided, identifierSchemeUri must also be provided
+    if (
+      (data.leadSponsorIdentifier && !data.leadSponsorIdentifierScheme) ||
+      (!data.leadSponsorIdentifier && data.leadSponsorIdentifierScheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "If lead sponsor identifier scheme is provided, identifier scheme URI must also be provided",
+      });
+    }
+
+    if (
+      (data.responsiblePartyInvestigatorAffiliationIdentifier &&
+        !data.responsiblePartyInvestigatorAffiliationIdentifierScheme) ||
+      (!data.responsiblePartyInvestigatorAffiliationIdentifier &&
+        data.responsiblePartyInvestigatorAffiliationIdentifierScheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "If responsible party investigator affiliation identifier scheme is provided, identifier scheme URI must also be provided",
+      });
+    }
+  });
 
 export default defineEventHandler(async (event) => {
   const { studyId } = event.context.params as { studyId: string };
@@ -50,6 +90,7 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
       statusMessage: "Invalid study sponsor data",
     });
@@ -84,7 +125,7 @@ export default defineEventHandler(async (event) => {
     studyId,
   };
 
-  const result = await prisma.studySponsors.upsert({
+  await prisma.studySponsors.upsert({
     create: data,
     update: data,
     where: { studyId },
