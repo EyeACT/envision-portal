@@ -24,6 +24,7 @@
     "scripts:create:record": "tsx ./scripts/create-record.ts"
   },
   "dependencies": {
+    "@azure/storage-file-datalake": "^12.26.0",
     "@vueuse/core": "^12.5.0",
     "bcrypt": "^5.1.1",
     "date-fns": "^4.1.0",

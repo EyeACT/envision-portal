@@ -12,7 +12,7 @@ const { datasetId, studyId } = route.params as {
 };
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/datasets/${datasetId}`,
+  `/api/studies/${studyId}/datasets/${datasetId}/files`,
   {},
 );
 
@@ -23,103 +23,47 @@ if (error.value) {
     icon: "material-symbols:error",
   });
 
-  await navigateTo("/");
+  await navigateTo(`/app/study/${studyId}/datasets/${datasetId}`);
 }
+
+// const f2 = [
+//   {
+//     icon: "i-heroicons-document-text",
+//     label: "README.md",
+//   },
+//   {
+//     icon: "i-vscode-icons-file-type-csv",
+//     label: "participants.tsv",
+//   },
+//   {
+//     icon: "i-vscode-icons-file-type-json",
+//     label: "participants.json",
+//   },
+//   {
+//     icon: "i-vscode-icons-file-type-json",
+//     label: "dataset_structure_description.json",
+//   },
+//   {
+//     children: [
+//       {
+//         icon: "i-vscode-icons-file-type-excel",
+//         label: "analysis_results.xlsx",
+//       },
+//       {
+//         icon: "i-vscode-icons-file-type-csv",
+//         label: "summary_stats.csv",
+//       },
+//     ],
+//     icon: "i-heroicons-cog-6-tooth",
+//     label: "processed/",
+//   },
+// ];
 
 if (data.value) {
   useSeoMeta({
-    title: data.value.title,
+    title: "Files - " + data.value.title,
   });
 }
-
-const items = ref([
-  {
-    children: [
-      {
-        children: [
-          {
-            icon: "i-vscode-icons-file-type-csv",
-            label: "participant_001.csv",
-          },
-          {
-            icon: "i-vscode-icons-file-type-csv",
-            label: "participant_002.csv",
-          },
-        ],
-        icon: "i-heroicons-user-group",
-        label: "participants/",
-      },
-      {
-        children: [
-          {
-            icon: "i-vscode-icons-file-type-json",
-            label: "baseline_survey.json",
-          },
-          {
-            icon: "i-vscode-icons-file-type-json",
-            label: "followup_survey.json",
-          },
-        ],
-        defaultExpanded: true,
-        icon: "i-heroicons-clipboard-document-list",
-        label: "surveys/",
-      },
-    ],
-    defaultExpanded: true,
-    icon: "i-heroicons-folder",
-    label: "raw_data/",
-  },
-  {
-    children: [
-      {
-        icon: "i-vscode-icons-file-type-excel",
-        label: "analysis_results.xlsx",
-      },
-      {
-        icon: "i-vscode-icons-file-type-csv",
-        label: "summary_stats.csv",
-      },
-    ],
-    icon: "i-heroicons-cog-6-tooth",
-    label: "processed/",
-  },
-  {
-    icon: "i-heroicons-document-text",
-    label: "README.md",
-  },
-  {
-    icon: "i-heroicons-shield-check",
-    label: "LICENSE.txt",
-  },
-  {
-    icon: "i-heroicons-clock",
-    label: "CHANGELOG.md",
-  },
-  {
-    icon: "i-heroicons-heart",
-    label: "healthsheet.md",
-  },
-  {
-    icon: "i-vscode-icons-file-type-json",
-    label: "study_description.json",
-  },
-  {
-    icon: "i-vscode-icons-file-type-json",
-    label: "dataset_description.json",
-  },
-  {
-    icon: "i-vscode-icons-file-type-csv",
-    label: "participants.tsv",
-  },
-  {
-    icon: "i-vscode-icons-file-type-json",
-    label: "participants.json",
-  },
-  {
-    icon: "i-vscode-icons-file-type-json",
-    label: "dataset_structure_description.json",
-  },
-]);
 </script>
 
 <template>
@@ -128,7 +72,7 @@ const items = ref([
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/study/${studyId}` },
+        { label: data?.study?.title, to: `/app/study/${studyId}` },
         {
           label: 'Datasets',
           to: `/app/study/${studyId}/datasets`,
@@ -162,8 +106,10 @@ const items = ref([
       </div>
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-        <UTree :items="items" />
+        <UTree :items="data?.files || []" />
       </div>
+
+      <pre>{{ data }}</pre>
     </div>
   </div>
 </template>
