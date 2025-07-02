@@ -8,47 +8,82 @@ const validHumanStatuses =
   );
 const validYesNo = ["Yes", "No"];
 
-const StudyMetadataOversightSchema = z.object({
-  humanSubjectReviewStatus: z
-    .string({
-      invalid_type_error: "Human Subject Review Status is required.",
-      required_error: "Human Subject Review Status is required.",
-    })
-    .trim()
-    .refine((v) => validHumanStatuses.includes(v), {
-      message: "Invalid Human Subject Review Status.",
-    }),
+const StudyMetadataOversightSchema = z
+  .object({
+    humanSubjectReviewStatus: z
+      .string({
+        invalid_type_error: "Human Subject Review Status is required.",
+        required_error: "Human Subject Review Status is required.",
+      })
+      .trim()
+      .refine((v) => validHumanStatuses.includes(v), {
+        message: `Invalid Human Subject Review Status. Must be one of: ${validHumanStatuses.join(", ")}`,
+      }),
 
-  isFDARegulatedDevice: z
-    .string({
-      invalid_type_error: "FDA Regulated Device selection is required.",
-      required_error: "FDA Regulated Device selection is required.",
-    })
-    .trim()
-    .refine((v) => validYesNo.includes(v), {
-      message: "Invalid option for FDA Regulated Device.",
-    }),
+    isFDARegulatedDevice: z.preprocess(
+      (val) => {
+        // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+        if (typeof val === "string" && val.trim() === "") {
+          return undefined;
+        }
 
-  isFDARegulatedDrug: z
-    .string({
-      invalid_type_error: "FDA Regulated Drug selection is required.",
-      required_error: "FDA Regulated Drug selection is required.",
-    })
-    .trim()
-    .refine((v) => validYesNo.includes(v), {
-      message: "Invalid option for FDA Regulated Drug.",
-    }),
+        return val;
+      },
+      z
+        .string({
+          invalid_type_error: "FDA Regulated Device selection is required.",
+          required_error: "FDA Regulated Device selection is required.",
+        })
+        .trim()
+        .refine((v) => validYesNo.includes(v as (typeof validYesNo)[number]), {
+          message: `Invalid option for FDA Regulated Device. Must be one of: ${validYesNo.join(", ")}`,
+        })
+        .optional(),
+    ),
 
-  oversightHasDMC: z
-    .string({
-      invalid_type_error: "Has DMC selection is required.",
-      required_error: "Has DMC selection is required.",
-    })
-    .trim()
-    .refine((v) => validYesNo.includes(v), {
-      message: "Invalid option for Has DMC.",
-    }),
-});
+    isFDARegulatedDrug: z.preprocess(
+      (val) => {
+        // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+        if (typeof val === "string" && val.trim() === "") {
+          return undefined;
+        }
+
+        return val;
+      },
+      z
+        .string({
+          invalid_type_error: "FDA Regulated Drug selection is required.",
+          required_error: "FDA Regulated Drug selection is required.",
+        })
+        .trim()
+        .refine((v) => validYesNo.includes(v), {
+          message: `Invalid option for FDA Regulated Drug. Must be one of: ${validYesNo.join(", ")}`,
+        })
+        .optional(),
+    ),
+
+    oversightHasDMC: z.preprocess(
+      (val) => {
+        // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+        if (typeof val === "string" && val.trim() === "") {
+          return undefined;
+        }
+
+        return val;
+      },
+      z
+        .string({
+          invalid_type_error: "Has DMC selection is required.",
+          required_error: `Has DMC selection is required. Must be one of: ${validYesNo.join(", ")}`,
+        })
+        .trim()
+        .refine((v) => validYesNo.includes(v), {
+          message: `Invalid option for Has DMC. Must be one of: ${validYesNo.join(", ")}`,
+        })
+        .optional(),
+    ),
+  })
+  .strict();
 
 export default defineEventHandler(async (event) => {
   const { studyId } = event.context.params as { studyId: string };
