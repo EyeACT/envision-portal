@@ -4,6 +4,10 @@ import FORM_JSON from "~/assets/data/form.json";
 const validStatuses = FORM_JSON.studyMetadataStatusOptions.map(
   (opt) => opt.value,
 );
+
+const dateTypes = FORM_JSON.studyMetadataEnrollmentTypeOptions.map(
+  (opt) => opt.value,
+);
 const conditionalStatuses = ["Suspended", "Terminated", "Withdrawn"];
 
 const StudyMetadataStatusSchema = z
@@ -19,7 +23,10 @@ const StudyMetadataStatusSchema = z
         invalid_type_error: "Completion date type is required",
         required_error: "Completion date type is required",
       })
-      .trim(),
+      .trim()
+      .refine((v) => dateTypes.includes(v), {
+        message: `Completion date type must be one of: ${dateTypes.join(", ")}`,
+      }),
     overallStatus: z
       .string({
         invalid_type_error: "Overall status is required",
@@ -27,7 +34,7 @@ const StudyMetadataStatusSchema = z
       })
       .trim()
       .refine((v) => validStatuses.includes(v), {
-        message: "Overall status must be a valid option",
+        message: `Overall status must be one of: ${validStatuses.join(", ")}`,
       }),
     startDate: z
       .string({
@@ -40,8 +47,11 @@ const StudyMetadataStatusSchema = z
         invalid_type_error: "Start date type is required",
         required_error: "Start date type is required",
       })
-      .trim(),
-    whyStopped: z.string().trim(),
+      .trim()
+      .refine((v) => dateTypes.includes(v), {
+        message: `Start date type must be one of: ${dateTypes.join(", ")}`,
+      }),
+    whyStopped: z.string().trim().optional(),
   })
   .strict()
   .superRefine((data, context) => {
