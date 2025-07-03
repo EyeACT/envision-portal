@@ -2,17 +2,14 @@ import { z } from "zod";
 import FORM_JSON from "~/assets/data/form.json"; // where your enums live
 
 const sexEnumValues = FORM_JSON.studyMetadataEligibilityGenderOptions.map(
-  (o) => o.value,
+  (opt) => opt.value,
 );
 const genderEnumValues =
-  FORM_JSON.studyMetadataEligibilityGenderBasedOptions.map((o) => o.value);
+  FORM_JSON.studyMetadataEligibilityGenderBasedOptions.map((opt) => opt.value);
 const ageUnitEnumValues = FORM_JSON.studyMetadataEligibilityAgeUnitOptions.map(
-  (o) => o.value,
+  (opt) => opt.value,
 );
-const healthyVolunteersEnumValues =
-  FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions.map(
-    (o) => o.value,
-  );
+const validYesNo = ["Yes", "No"];
 
 const StudyMetadataEligibilitySchema = z.object({
   exclusionCriteria: z
@@ -30,10 +27,8 @@ const StudyMetadataEligibilitySchema = z.object({
     .string()
     .trim()
     .min(1, { message: "Healthy volunteers is required" })
-    .refine((v) => healthyVolunteersEnumValues.includes(v), {
-      message: `Healthy volunteers must be one of: ${healthyVolunteersEnumValues.join(
-        ", ",
-      )}`,
+    .refine((v) => validYesNo.includes(v), {
+      message: `Healthy volunteers must be one of: ${validYesNo.join(", ")}`,
     }),
   inclusionCriteria: z
     .array(z.string().trim().min(1, { message: "Field cannot be empty" }))
