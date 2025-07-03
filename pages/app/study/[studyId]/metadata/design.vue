@@ -166,6 +166,20 @@ const validate = (state: any): FormError[] => {
         message: "Bio specification description is required",
       });
     }
+
+    if (state.targetDuration <= 0) {
+      errors.push({
+        name: "targetDuration",
+        message: "Target duration must be greater than 0",
+      });
+    }
+
+    if (!state.targetDurationUnit) {
+      errors.push({
+        name: "targetDurationUnit",
+        message: "Target duration unit is required",
+      });
+    }
   }
 
   if (state.studyType === "Interventional") {
@@ -211,19 +225,19 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (!state.enrollmentCount) {
-      errors.push({
-        name: "enrollmentCount",
-        message: "Enrollment count is required",
-      });
-    }
-
-    if (!state.numberOfArms) {
+    if (state.numberOfArms <= 0) {
       errors.push({
         name: "numberOfArms",
-        message: "Number of arms is required",
+        message: "Number of arms must be greater than 0",
       });
     }
+  }
+
+  if (state.enrollmentCount <= 0) {
+    errors.push({
+      name: "enrollmentCount",
+      message: "Enrollment count must be greater than 0",
+    });
   }
 
   if (!state.enrollmentType) {
@@ -349,7 +363,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="What is the study type?" name="studyType">
+            <UFormField
+              label="What is the study type?"
+              name="studyType"
+              required
+            >
               <USelect
                 v-model="state.studyType"
                 class="w-full"
@@ -362,6 +380,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Observational'"
               label="Is this study a Patient Registry?"
               name="isPatientRegistry"
+              required
             >
               <USelect
                 v-model="state.isPatientRegistry"
@@ -396,6 +415,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Interventional'"
               label="Allocation"
               name="allocation"
+              required
             >
               <USelect
                 v-model="state.allocation"
@@ -409,6 +429,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Interventional'"
               label="Intervention Model"
               name="interventionModel"
+              required
             >
               <USelect
                 v-model="state.interventionModel"
@@ -434,6 +455,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Interventional'"
               label="Primary Purpose"
               name="primaryPurpose"
+              required
             >
               <USelect
                 v-model="state.primaryPurpose"
@@ -447,6 +469,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Observational'"
               label="Observational Models"
               name="oberservationalModelList"
+              required
             >
               <USelect
                 v-model="state.oberservationalModelList"
@@ -461,6 +484,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Observational'"
               label="Time Perspective"
               name="timePerspectiveList"
+              required
             >
               <USelect
                 v-model="state.timePerspectiveList"
@@ -489,7 +513,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Masking" name="masking">
+            <UFormField label="Masking" name="masking" required>
               <USelect
                 v-model="state.masking"
                 class="w-full"
@@ -506,7 +530,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Who Masked?" name="whoMaskedList">
+            <UFormField label="Who Masked?" name="whoMaskedList" required>
               <USelect
                 v-model="state.whoMaskedList"
                 class="w-full"
@@ -534,7 +558,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Phase" name="phaseList">
+            <UFormField label="Phase" name="phaseList" required>
               <USelect
                 v-model="state.phaseList"
                 class="w-full"
@@ -562,7 +586,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Retention" name="bioSpecRetention">
+            <UFormField label="Retention" name="bioSpecRetention" required>
               <USelect
                 v-model="state.bioSpecRetention"
                 class="w-full"
@@ -571,7 +595,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Description" name="bioSpecDescription">
+            <UFormField label="Description" name="bioSpecDescription" required>
               <UTextarea
                 v-model="state.bioSpecDescription"
                 class="w-full"
@@ -599,6 +623,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField
               label="Total number of participants to be enrolled"
               name="enrollmentCount"
+              required
             >
               <UInput
                 v-model="state.enrollmentCount"
@@ -608,7 +633,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Type of enrollment" name="enrollmentType">
+            <UFormField
+              label="Type of enrollment"
+              name="enrollmentType"
+              required
+            >
               <USelect
                 v-model="state.enrollmentType"
                 class="w-full"
@@ -621,6 +650,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               v-show="state.studyType === 'Interventional'"
               label="Number of Arms"
               name="numberOfArms"
+              required
             >
               <UInput
                 v-model="state.numberOfArms"
@@ -639,6 +669,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Target duration value"
                 name="targetDuration"
                 class="w-full"
+                required
               >
                 <UInput
                   v-model="state.targetDuration"
@@ -652,6 +683,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Target duration unit"
                 name="targetDurationUnit"
                 class="w-full"
+                required
               >
                 <USelect
                   v-model="state.targetDurationUnit"

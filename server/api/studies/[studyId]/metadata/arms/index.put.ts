@@ -1,17 +1,47 @@
 import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
+const typeOptions = FORM_JSON.studyMetadataArmsTypeOptions.map(
+  (opt) => opt.value,
+);
 
-const StudyMetadataArmsSchema = z.object({
-  studyArms: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      description: z.string(),
-      interventionList: z.array(z.string()),
-      label: z.string(),
-      type: z.string(),
-    }),
-  ),
-});
+const StudyMetadataArmsSchema = z
+  .object({
+    studyArms: z
+      .array(
+        z
+          .object({
+            id: z.string().trim().optional(),
+            deleted: z.boolean().optional(),
+            description: z
+              .string()
+              .trim()
+              .min(1, { message: "Description is required" }),
+            interventionList: z.array(z.string()),
+            label: z.string().trim().min(1, { message: "Label is required" }),
+            local: z.boolean().optional(),
+            type: z.preprocess(
+              (val) => {
+                // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+                if (typeof val === "string" && val.trim() === "") {
+                  return undefined;
+                }
+
+                return val;
+              },
+              z
+                .string()
+                .trim()
+                .refine((val) => typeOptions.includes(val), {
+                  message: `Type must be one of: ${typeOptions.join(", ")}`,
+                })
+                .optional(),
+            ),
+          })
+          .strict(),
+      )
+      .min(1, { message: "At least one study arm is required" }),
+  })
+  .strict();
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -28,8 +58,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Validation failed",
     });
   }
 
@@ -43,7 +74,7 @@ export default defineEventHandler(async (event) => {
         description: arm.description,
         interventionList: arm.interventionList,
         label: arm.label,
-        type: arm.type,
+        type: arm.type || "",
       },
       where: { id: arm.id },
     });
@@ -58,7 +89,7 @@ export default defineEventHandler(async (event) => {
         interventionList: arm.interventionList,
         label: arm.label,
         studyId,
-        type: arm.type,
+        type: arm.type || "",
       },
     });
   }

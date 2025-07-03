@@ -1,14 +1,45 @@
 <script setup lang="ts">
 import type { FormError } from "@nuxt/ui";
+import { z } from "zod";
 import FORM_JSON from "~/assets/data/form.json";
 
 const route = useRoute();
 const toast = useToast();
 const { studyId } = route.params as { studyId: string };
+const studyTitle = ref("");
 
-const saveLoading = ref(false);
+const loading = ref(false);
 
-const state = reactive({
+const schema = z.object({
+  collaborators: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string().optional(),
+      deleted: z.boolean(),
+      identifier: z.string().optional(),
+      scheme: z.string().optional(),
+      schemeUri: z.string().optional(),
+    }),
+  ),
+  leadSponsorIdentifier: z.string(),
+  leadSponsorIdentifierScheme: z.string(),
+  leadSponsorIdentifierSchemeUri: z.string(),
+  leadSponsorName: z.string(),
+  responsiblePartyInvestigatorAffiliationIdentifier: z.string(),
+  responsiblePartyInvestigatorAffiliationIdentifierScheme: z.string(),
+  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z.string(),
+  responsiblePartyInvestigatorAffiliationName: z.string(),
+  responsiblePartyInvestigatorFamilyName: z.string(),
+  responsiblePartyInvestigatorGivenName: z.string(),
+  responsiblePartyInvestigatorIdentifierScheme: z.string(),
+  responsiblePartyInvestigatorIdentifierValue: z.string(),
+  responsiblePartyInvestigatorTitle: z.string(),
+  responsiblePartyType: z.string(),
+});
+
+type Schema = z.output<typeof schema>;
+
+const state = reactive<Schema>({
   collaborators: [
     {
       id: crypto.randomUUID(),
@@ -58,29 +89,78 @@ function removeCollaboratorById(id: string) {
   }
 }
 
-async function fetchStudySponsor() {
-  try {
-    const res = await fetch(`/api/studies/${studyId}/metadata/team`);
+const { data, error } = await useFetch(
+  `/api/studies/${studyId}/metadata/team`,
+  {},
+);
 
-    if (!res.ok) throw new Error("Failed to fetch sponsor data");
-    const data = await res.json();
+if (error.value) {
+  toast.add({
+    title: "Error fetching study",
+    description: "Please try again later",
+    icon: "material-symbols:error",
+  });
+}
 
-    // assign all keys except collaborators
-    for (const key in state) {
-      if (key === "collaborators") continue;
-      state[key as keyof typeof state] = data[key as keyof typeof data] ?? "";
+if (data.value) {
+  studyTitle.value = data.value?.title || "Untitled Study";
+  // assign all keys except collaborators
+  for (const key in state) {
+    if (key === "collaborators") continue;
+    if (key in data.value) {
+      state[key as keyof typeof state] = (data.value as any)[key] ?? "";
     }
-
-    // assign collaborators carefully
-    if (Array.isArray(data.collaborators)) {
-      state.collaborators = data.collaborators;
-    } else {
-      state.collaborators = [];
-    }
-  } catch (err) {
-    console.error(err);
-    toast.add({ title: "Error", description: "Failed to fetch sponsor data." });
   }
+
+  // assign collaborators carefully
+  if (Array.isArray(data.value.StudyCollaborators)) {
+    state.collaborators = data.value.StudyCollaborators.map((c: any) => ({
+      id: c.id || crypto.randomUUID(),
+      name: c.name || "",
+      deleted: false, // default to not deleted
+      identifier: c.identifier || "",
+      scheme: c.scheme || "",
+      schemeUri: c.schemeUri || "",
+    }));
+  } else {
+    state.collaborators = [];
+  }
+
+  state.leadSponsorIdentifier =
+    data.value.StudySponsors?.[0]?.leadSponsorIdentifier || "";
+  state.leadSponsorIdentifierScheme =
+    data.value.StudySponsors?.[0]?.leadSponsorIdentifierScheme || "";
+  state.leadSponsorIdentifierSchemeUri =
+    data.value.StudySponsors?.[0]?.leadSponsorIdentifierSchemeUri || "";
+  state.leadSponsorName = data.value.StudySponsors?.[0]?.leadSponsorName || "";
+  state.responsiblePartyType =
+    data.value.StudySponsors?.[0]?.responsiblePartyType || "";
+  state.responsiblePartyInvestigatorGivenName =
+    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorGivenName || "";
+  state.responsiblePartyInvestigatorFamilyName =
+    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorFamilyName || "";
+  state.responsiblePartyInvestigatorTitle =
+    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorTitle || "";
+  state.responsiblePartyInvestigatorAffiliationName =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorAffiliationName || "";
+  state.responsiblePartyInvestigatorAffiliationIdentifier =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorAffiliationIdentifier || "";
+  state.responsiblePartyInvestigatorAffiliationIdentifierScheme =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorAffiliationIdentifierScheme || "";
+  state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri || "";
+  state.responsiblePartyInvestigatorIdentifierScheme =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorIdentifierScheme || "";
+  state.responsiblePartyInvestigatorIdentifierValue =
+    data.value.StudySponsors?.[0]
+      ?.responsiblePartyInvestigatorIdentifierValue || "";
+  state.responsiblePartyType =
+    data.value.StudySponsors?.[0]?.responsiblePartyType || "";
 }
 
 async function onSubmit() {
@@ -99,11 +179,11 @@ async function onSubmit() {
     return;
   }
 
-  saveLoading.value = true;
+  loading.value = true;
 
   try {
     const res = await fetch(`/api/studies/${studyId}/metadata/team`, {
-      body: JSON.stringify({ studyId, ...state }),
+      body: JSON.stringify(state),
       headers: { "Content-Type": "application/json" },
       method: "PUT",
     });
@@ -124,14 +204,9 @@ async function onSubmit() {
     console.error(err);
     toast.add({ title: "Error", description: "Failed to save sponsor data." });
   } finally {
-    saveLoading.value = false;
+    loading.value = false;
   }
 }
-const studyTitle = computed(() => studyMeta.value?.title || "Untitled Study");
-
-const { data: studyMeta, error: metaError } = await useFetch(
-  `/api/studies/${studyId}`,
-);
 
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
@@ -150,19 +225,78 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  if (
+    (state.leadSponsorIdentifier.trim() !== "" &&
+      state.leadSponsorIdentifierScheme.trim() === "") ||
+    (state.leadSponsorIdentifier.trim() === "" &&
+      state.leadSponsorIdentifierScheme.trim() !== "")
+  ) {
+    const messages = [
+      {
+        name: "leadSponsorIdentifier",
+        message: "Identifier is required when scheme is provided",
+      },
+      {
+        name: "leadSponsorScheme",
+        message: "Identifier scheme is required when identifier is provided",
+      },
+    ];
+
+    errors.push(...messages);
+  }
+
+  if (
+    (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() !== "" &&
+      state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() ===
+        "") ||
+    (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() === "" &&
+      state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() !==
+        "")
+  ) {
+    const messages = [
+      {
+        name: "affiliationId",
+        message: "Identifier is required when scheme is provided",
+      },
+      {
+        name: "affiliationScheme",
+        message: "Identifier scheme is required when identifier is provided",
+      },
+    ];
+
+    errors.push(...messages);
+  }
+
   state.collaborators.forEach((c: any, index: number) => {
     if (!c.deleted && !c.name?.trim()) {
       errors.push({
-        name: `collaborators[${index}].name`,
-        message: `Collaborator ${index + 1} name is required`,
+        name: `name-${index}`,
+        message: `Collaborator name is required`,
       });
+    }
+
+    // If either official identifier or identifier scheme is provided, both must be provided
+    if (
+      (c.identifier.trim() !== "" && c.scheme.trim() === "") ||
+      (c.identifier.trim() === "" && c.scheme.trim() !== "")
+    ) {
+      const messages = [
+        {
+          name: `identifier-${index}`,
+          message: "Identifier and Identifier scheme must be provided together",
+        },
+        {
+          name: `identifierScheme-${index}`,
+          message: "Identifier and Identifier scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
     }
   });
 
   return errors;
 };
-
-onBeforeMount(fetchStudySponsor);
 </script>
 
 <template>
@@ -217,11 +351,12 @@ onBeforeMount(fetchStudySponsor);
               </p>
             </div>
 
-            <UFormField name="responsiblePartyType" class="w-full">
-              <template #label>
-                Type <span class="text-red-500">*</span>
-              </template>
-
+            <UFormField
+              name="responsiblePartyType"
+              label="Responsible Party Type"
+              required
+              class="w-full"
+            >
               <USelect
                 v-model="state.responsiblePartyType"
                 class="w-full"
@@ -443,28 +578,28 @@ onBeforeMount(fetchStudySponsor);
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField
-                    :name="`collaborators[${index}].name`"
-                    label="Name"
-                  >
+                  <UFormField :name="`name-${index}`" label="Name" required>
                     <UInput
                       v-model="item.name"
                       placeholder="Collaborator Name"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier" name="identifier">
+                  <UFormField label="Identifier" :name="`identifier-${index}`">
                     <UInput
                       v-model="item.identifier"
                       placeholder="Identifier"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Scheme" name="scheme">
+                  <UFormField
+                    label="Identifier Scheme"
+                    :name="`identifierScheme-${index}`"
+                  >
                     <UInput v-model="item.scheme" placeholder="Scheme" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" name="schemeUri">
+                  <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
                     <UInput
                       v-model="item.schemeUri"
                       placeholder="https://scheme.uri"
@@ -486,9 +621,7 @@ onBeforeMount(fetchStudySponsor);
 
         <UButton
           type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
+          class="w-1/10 text-center"
           size="lg"
           label="Save Metadata"
           icon="i-lucide-save"

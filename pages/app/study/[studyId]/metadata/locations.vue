@@ -96,6 +96,9 @@ const removeLocation = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const enumValues = FORM_JSON.studyMetadataStatusOptions.map(
+    (option) => option.value,
+  );
 
   if (state.studyLocations.length === 0) {
     errors.push({
@@ -104,40 +107,71 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyLocations.forEach((location: any) => {
+  state.studyLocations.forEach((location: any, index: number) => {
     if (location.facility.trim() === "") {
       errors.push({
-        name: "studyLocations",
+        name: `facility-${index}`,
         message: "Facility is required",
       });
     }
 
     if (location.status.trim() === "") {
       errors.push({
-        name: "studyLocations",
+        name: `status-${index}`,
         message: "Status is required",
+      });
+    }
+
+    if (
+      location.status.trim() !== "" &&
+      !enumValues.includes(location.status.trim())
+    ) {
+      errors.push({
+        name: `status-${index}`,
+        message: "Status must be a valid option",
       });
     }
 
     if (location.city.trim() === "") {
       errors.push({
-        name: "studyLocations",
+        name: `city-${index}`,
         message: "City is required",
       });
     }
 
     if (location.country.trim() === "") {
       errors.push({
-        name: "studyLocations",
+        name: `country-${index}`,
         message: "Country is required",
       });
     }
 
     if (location.state.trim() === "") {
       errors.push({
-        name: "studyLocations",
+        name: `state-${index}`,
         message: "State is required",
       });
+    }
+
+    // If identifier is provided, then identifierScheme must also be provided or vice versa
+    if (
+      (location.identifier.trim() !== "" &&
+        location.identifierScheme.trim() === "") ||
+      (location.identifier.trim() === "" &&
+        location.identifierScheme.trim() !== "")
+    ) {
+      const messages = [
+        {
+          name: `identifier-${index}`,
+          message: "Identifier and Identifier Scheme must be provided together",
+        },
+        {
+          name: `identifierScheme-${index}`,
+          message: "Identifier and Identifier Scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
     }
   });
 
@@ -268,11 +302,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Facility" name="facility">
+                  <UFormField
+                    label="Facility"
+                    :name="`facility-${index}`"
+                    required
+                  >
                     <UInput v-model="item.facility" placeholder="James" />
                   </UFormField>
 
-                  <UFormField label="Status" name="status">
+                  <UFormField label="Status" :name="`status-${index}`" required>
                     <USelect
                       v-model="item.status"
                       class="w-full"
@@ -281,29 +319,33 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="City" name="city">
+                  <UFormField label="City" :name="`city-${index}`" required>
                     <UInput v-model="item.city" placeholder="San Francisco" />
                   </UFormField>
 
-                  <UFormField label="State" name="state">
+                  <UFormField label="State" :name="`state-${index}`" required>
                     <UInput v-model="item.state" placeholder="California" />
                   </UFormField>
 
-                  <UFormField label="Country" name="country">
+                  <UFormField
+                    label="Country"
+                    :name="`country-${index}`"
+                    required
+                  >
                     <UInput
                       v-model="item.country"
                       placeholder="United States"
                     />
                   </UFormField>
 
-                  <UFormField label="Zip Code" name="zip">
+                  <UFormField label="Zip Code" :name="`zip-${index}`">
                     <UInput v-model="item.zip" placeholder="94101" />
                   </UFormField>
 
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Identifier"
-                      name="identifier"
+                      :name="`identifier-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -315,7 +357,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Scheme"
-                      name="identifierScheme"
+                      :name="`identifierScheme-${index}`"
                       class="w-full"
                     >
                       <UInput
@@ -327,7 +369,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Scheme URI"
-                      name="identifierSchemeUri"
+                      :name="`identifierSchemeUri-${index}`"
                       class="w-full"
                     >
                       <UInput

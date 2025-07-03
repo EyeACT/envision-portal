@@ -69,11 +69,21 @@ if (data.value) {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const enumValues = FORM_JSON.studyMetadataStatusOptions.map(
+    (option) => option.value,
+  );
 
   if (!state.overallStatus) {
     errors.push({
       name: "overallStatus",
       message: "Overall status is required",
+    });
+  }
+
+  if (state.overallStatus && !enumValues.includes(state.overallStatus)) {
+    errors.push({
+      name: "overallStatus",
+      message: "Overall status must be a valid option",
     });
   }
 
@@ -220,7 +230,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Overall Status" name="overallStatus">
+            <UFormField label="Overall Status" name="overallStatus" required>
               <USelect
                 v-model="state.overallStatus"
                 class="w-full"
@@ -230,7 +240,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Start Date" name="startDate" class="w-full">
+              <UFormField
+                label="Start Date"
+                name="startDate"
+                class="w-full"
+                required
+              >
                 <UInput
                   v-model="state.startDate"
                   class="w-full"
@@ -243,6 +258,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Start Date Type"
                 name="startDateType"
                 class="w-full"
+                required
               >
                 <USelect
                   v-model="state.startDateType"
@@ -253,7 +269,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </UFormField>
             </div>
 
-            <UFormField label="Why Stopped" name="whyStopped">
+            <UFormField
+              label="Why Stopped"
+              name="whyStopped"
+              :required="
+                state.overallStatus === 'Suspended' ||
+                state.overallStatus === 'Terminated' ||
+                state.overallStatus === 'Withdrawn'
+              "
+            >
               <UTextarea
                 v-model="state.whyStopped"
                 class="w-full"
@@ -266,6 +290,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Completion Date"
                 name="completionDate"
                 class="w-full"
+                required
               >
                 <UInput
                   v-model="state.completionDate"
@@ -279,6 +304,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Completion Date Type"
                 name="completionDateType"
                 class="w-full"
+                required
               >
                 <USelect
                   v-model="state.completionDateType"

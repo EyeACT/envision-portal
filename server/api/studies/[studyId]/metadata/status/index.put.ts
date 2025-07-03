@@ -1,13 +1,69 @@
 import { z } from "zod";
+import FORM_JSON from "~/assets/data/form.json";
 
-const StudyMetadataStatusSchema = z.object({
-  completionDate: z.string(),
-  completionDateType: z.string(),
-  overallStatus: z.string(),
-  startDate: z.string(),
-  startDateType: z.string(),
-  whyStopped: z.string(),
-});
+const validStatuses = FORM_JSON.studyMetadataStatusOptions.map(
+  (opt) => opt.value,
+);
+
+const dateTypes = FORM_JSON.studyMetadataEnrollmentTypeOptions.map(
+  (opt) => opt.value,
+);
+const conditionalStatuses = ["Suspended", "Terminated", "Withdrawn"];
+
+const StudyMetadataStatusSchema = z
+  .object({
+    completionDate: z
+      .string({
+        invalid_type_error: "Completion date is required",
+        required_error: "Completion date is required",
+      })
+      .trim(),
+    completionDateType: z
+      .string({
+        invalid_type_error: "Completion date type is required",
+        required_error: "Completion date type is required",
+      })
+      .trim()
+      .refine((v) => dateTypes.includes(v), {
+        message: `Completion date type must be one of: ${dateTypes.join(", ")}`,
+      }),
+    overallStatus: z
+      .string({
+        invalid_type_error: "Overall status is required",
+        required_error: "Overall status is required",
+      })
+      .trim()
+      .refine((v) => validStatuses.includes(v), {
+        message: `Overall status must be one of: ${validStatuses.join(", ")}`,
+      }),
+    startDate: z
+      .string({
+        invalid_type_error: "Start date is required",
+        required_error: "Start date is required",
+      })
+      .trim(),
+    startDateType: z
+      .string({
+        invalid_type_error: "Start date type is required",
+        required_error: "Start date type is required",
+      })
+      .trim()
+      .refine((v) => dateTypes.includes(v), {
+        message: `Start date type must be one of: ${dateTypes.join(", ")}`,
+      }),
+    whyStopped: z.string().trim().optional(),
+  })
+  .strict()
+  .superRefine((data, context) => {
+    if (conditionalStatuses.includes(data.overallStatus) && !data.whyStopped) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "A valid reason is required when the study is suspended, terminated or withdrawn",
+        path: ["whyStopped"],
+      });
+    }
+  });
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -24,8 +80,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Validation failed",
     });
   }
 

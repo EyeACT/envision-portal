@@ -89,77 +89,152 @@ if (data.value) {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const sexEnumValues = FORM_JSON.studyMetadataEligibilityGenderOptions.map(
+    (option) => option.value,
+  );
+  const genderEnumValues =
+    FORM_JSON.studyMetadataEligibilityGenderBasedOptions.map(
+      (option) => option.value,
+    );
 
-  if (!state.sex) {
+  const ageUnitEnumValues =
+    FORM_JSON.studyMetadataEligibilityAgeUnitOptions.map(
+      (option) => option.value,
+    );
+
+  const healthyVolunteersEnumValues =
+    FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions.map(
+      (option) => option.value,
+    );
+
+  if (state.sex.trim() === "") {
     errors.push({
       name: "sex",
       message: "Sex is required",
     });
   }
 
-  if (!state.genderBased) {
+  if (state.sex.trim() !== "" && !sexEnumValues.includes(state.sex.trim())) {
+    errors.push({
+      name: "sex",
+      message: `Sex must be one of the following: ${sexEnumValues.join(", ")}`,
+    });
+  }
+
+  if (state.genderBased.trim() === "") {
     errors.push({
       name: "genderBased",
-      message: "Gender Based is required",
+      message: "Gender based is required",
     });
   }
 
-  if (!state.genderDescription) {
+  if (
+    state.genderBased.trim() !== "" &&
+    !genderEnumValues.includes(state.genderBased.trim())
+  ) {
     errors.push({
-      name: "genderDescription",
-      message: "Gender Description is required",
+      name: "genderBased",
+      message: `Gender based must be one of the following: ${genderEnumValues.join(", ")}`,
     });
   }
 
-  if (!state.healthyVolunteers) {
+  console.log(state.minimumAgeValue <= 0);
+  if (state.minimumAgeValue <= 0) {
+    errors.push({
+      name: "minimumAge",
+      message: "Minimum age value must be greater than 0",
+    });
+  }
+
+  if (state.maximumAgeValue <= 0) {
+    errors.push({
+      name: "maximumAge",
+      message: "Maximum age value must be greater than 0",
+    });
+  }
+
+  if (state.minimumAgeUnit.trim() === "") {
+    errors.push({
+      name: "minimumAgeUnit",
+      message: "Minimum age unit is required",
+    });
+  }
+
+  if (state.maximumAgeUnit.trim() === "") {
+    errors.push({
+      name: "maximumAgeUnit",
+      message: "Maximum age unit is required",
+    });
+  }
+
+  if (
+    state.minimumAgeUnit.trim() !== "" &&
+    !ageUnitEnumValues.includes(state.minimumAgeUnit.trim())
+  ) {
+    errors.push({
+      name: "minimumAgeUnit",
+      message: `Minimum age unit must be one of the following: ${ageUnitEnumValues.join(", ")}`,
+    });
+  }
+
+  if (
+    state.maximumAgeUnit.trim() !== "" &&
+    !ageUnitEnumValues.includes(state.maximumAgeUnit.trim())
+  ) {
+    errors.push({
+      name: "maximumAgeUnit",
+      message: `Maximum age unit must be one of the following: ${ageUnitEnumValues.join(", ")}`,
+    });
+  }
+
+  if (state.healthyVolunteers.trim() === "") {
     errors.push({
       name: "healthyVolunteers",
-      message: "Healthy Volunteers is required",
+      message: "Healthy volunteers is required",
+    });
+  }
+
+  if (
+    state.healthyVolunteers.trim() !== "" &&
+    !healthyVolunteersEnumValues.includes(state.healthyVolunteers.trim())
+  ) {
+    errors.push({
+      name: "healthyVolunteers",
+      message: `Healthy volunteers must be one of the following: ${healthyVolunteersEnumValues.join(", ")}`,
     });
   }
 
   if (state.inclusionCriteria.length === 0) {
     errors.push({
       name: "inclusionCriteria",
-      message: "Inclusion Criteria is required",
+      message: "At least one inclusion criteria is required",
+    });
+  } else {
+    state.inclusionCriteria.forEach((item: any, index: number) => {
+      if (item.trim() === "") {
+        errors.push({
+          name: `inclusionCriteria[${index}]`,
+          message: "Field can not be empty",
+        });
+      }
     });
   }
 
   if (state.exclusionCriteria.length === 0) {
     errors.push({
       name: "exclusionCriteria",
-      message: "Exclusion Criteria is required",
+      message: "At least one exclusion criteria is required",
+    });
+  } else {
+    state.exclusionCriteria.forEach((item: any, index: number) => {
+      if (item.trim() === "") {
+        errors.push({
+          name: `exclusionCriteria[${index}]`,
+          message: "Field can not be empty",
+        });
+      }
     });
   }
-
-  if (state.minimumAgeValue === 0) {
-    errors.push({
-      name: "minimumAgeValue",
-      message: "Minimum Age is required",
-    });
-  }
-
-  if (!state.minimumAgeUnit) {
-    errors.push({
-      name: "minimumAgeUnit",
-      message: "Minimum Age Unit is required",
-    });
-  }
-
-  if (state.maximumAgeValue === 0) {
-    errors.push({
-      name: "maximumAgeValue",
-      message: "Maximum Age is required",
-    });
-  }
-
-  if (!state.maximumAgeUnit) {
-    errors.push({
-      name: "maximumAgeUnit",
-      message: "Maximum Age Unit is required",
-    });
-  }
-
   if (
     state.minimumAgeValue &&
     state.maximumAgeValue &&
@@ -315,7 +390,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Sex" name="sex">
+            <UFormField label="Sex" name="sex" required>
               <USelect
                 v-model="state.sex"
                 class="w-full"
@@ -324,7 +399,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Based on Gender?" name="genderBased">
+            <UFormField label="Based on Gender?" name="genderBased" required>
               <USelect
                 v-model="state.genderBased"
                 class="w-full"
@@ -361,8 +436,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <div class="flex w-full gap-4">
               <UFormField
                 label="Minimum Age"
-                name="minimumAgeValue"
+                name="minimumAge"
                 class="w-full"
+                required
               >
                 <UInput
                   v-model="state.minimumAgeValue"
@@ -372,7 +448,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Age Unit" name="minimumAgeUnit" class="w-full">
+              <UFormField
+                label="Age Unit"
+                name="minimumAgeUnit"
+                class="w-full"
+                required
+              >
                 <USelect
                   v-model="state.minimumAgeUnit"
                   class="w-full"
@@ -385,8 +466,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <div class="flex w-full gap-4">
               <UFormField
                 label="Maximum Age"
-                name="maximumAgeValue"
+                name="maximumAge"
                 class="w-full"
+                required
               >
                 <UInput
                   v-model="state.maximumAgeValue"
@@ -396,7 +478,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Age Unit" name="maximumAgeUnit" class="w-full">
+              <UFormField
+                label="Age Unit"
+                name="maximumAgeUnit"
+                class="w-full"
+                required
+              >
                 <USelect
                   v-model="state.maximumAgeUnit"
                   class="w-full"
@@ -426,6 +513,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField
               label="Are the volunteers healthy?"
               name="healthyVolunteers"
+              required
             >
               <USelect
                 v-model="state.healthyVolunteers"
@@ -488,34 +576,45 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Inclusion Criteria" name="inclusionCriteria">
+            <UFormField
+              label="Inclusion Criteria"
+              name="inclusionCriteria"
+              required
+            >
               <div v-if="state.inclusionCriteria.length > 0">
                 <div
                   v-for="(item, index) in state.inclusionCriteria"
                   :key="index"
                   class="mb-2 flex gap-2"
                 >
-                  <UInput
-                    v-model="state.inclusionCriteria[index]"
-                    class="w-full"
-                    placeholder="Inclusion Criteria"
-                  />
+                  <UFormField
+                    :name="`inclusionCriteria-${index}`"
+                    class="flex-1"
+                  >
+                    <UInput
+                      v-model="state.inclusionCriteria[index]"
+                      class="w-full"
+                      placeholder="Inclusion Criteria"
+                    />
+                  </UFormField>
 
-                  <UButton
-                    size="sm"
-                    color="error"
-                    variant="outline"
-                    icon="i-lucide-trash"
-                    @click="state.inclusionCriteria.splice(index, 1)"
-                  />
+                  <div class="flex items-start gap-2">
+                    <UButton
+                      size="sm"
+                      color="error"
+                      variant="outline"
+                      icon="i-lucide-trash"
+                      @click="state.inclusionCriteria.splice(index, 1)"
+                    />
 
-                  <UButton
-                    size="sm"
-                    color="success"
-                    variant="outline"
-                    icon="i-lucide-plus"
-                    @click="state.inclusionCriteria.splice(index + 1, 0, '')"
-                  />
+                    <UButton
+                      size="sm"
+                      color="success"
+                      variant="outline"
+                      icon="i-lucide-plus"
+                      @click="state.inclusionCriteria.splice(index + 1, 0, '')"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -533,34 +632,46 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </div>
             </UFormField>
 
-            <UFormField label="Exclusion Criteria" name="exclusionCriteria">
+            <UFormField
+              label="Exclusion Criteria"
+              name="exclusionCriteria"
+              required
+            >
               <div v-if="state.exclusionCriteria.length > 0">
                 <div
                   v-for="(item, index) in state.exclusionCriteria"
                   :key="index"
                   class="mb-2 flex gap-2"
                 >
-                  <UInput
-                    v-model="state.exclusionCriteria[index]"
-                    class="w-full"
-                    placeholder="Exclusion Criteria"
-                  />
+                  <UFormField
+                    class="flex-1"
+                    :name="`exclusionCriteria[${index}]`"
+                  >
+                    <UInput
+                      v-model="state.exclusionCriteria[index]"
+                      class="w-full"
+                      :name="`exclusionCriteria[${index}]`"
+                      placeholder="Exclusion Criteria"
+                    />
+                  </UFormField>
 
-                  <UButton
-                    size="sm"
-                    color="error"
-                    variant="outline"
-                    icon="i-lucide-trash"
-                    @click="state.exclusionCriteria.splice(index, 1)"
-                  />
+                  <div class="flex items-start gap-2">
+                    <UButton
+                      size="sm"
+                      color="error"
+                      variant="outline"
+                      icon="i-lucide-trash"
+                      @click="state.exclusionCriteria.splice(index, 1)"
+                    />
 
-                  <UButton
-                    size="sm"
-                    color="success"
-                    variant="outline"
-                    icon="i-lucide-plus"
-                    @click="state.exclusionCriteria.splice(index + 1, 0, '')"
-                  />
+                    <UButton
+                      size="sm"
+                      color="success"
+                      variant="outline"
+                      icon="i-lucide-plus"
+                      @click="state.exclusionCriteria.splice(index + 1, 0, '')"
+                    />
+                  </div>
                 </div>
               </div>
 

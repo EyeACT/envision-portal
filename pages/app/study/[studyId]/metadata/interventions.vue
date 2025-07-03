@@ -88,6 +88,9 @@ const removeIntervention = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
+  const enumValues = FORM_JSON.studyMetadataInterventionsTypeOptions.map(
+    (option) => option.value,
+  );
 
   if (state.studyInterventions.length === 0) {
     errors.push({
@@ -96,25 +99,32 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyInterventions.forEach((intervention: any) => {
+  state.studyInterventions.forEach((intervention: any, index: number) => {
     if (intervention.name.trim() === "") {
       errors.push({
-        name: "studyInterventions",
+        name: `name-${index}`,
         message: "Name is required",
       });
     }
 
     if (intervention.description.trim() === "") {
       errors.push({
-        name: "studyInterventions",
+        name: `description-${index}`,
         message: "Description is required",
       });
     }
 
     if (intervention.type === null) {
       errors.push({
-        name: "studyInterventions",
+        name: `type-${index}`,
         message: "Type is required",
+      });
+    }
+
+    if (intervention.type && !enumValues.includes(intervention.type.trim())) {
+      errors.push({
+        name: `type-${index}`,
+        message: "Type must be a valid option",
       });
     }
   });
@@ -246,7 +256,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-3">
-                  <UFormField label="Type" name="type">
+                  <UFormField label="Type" :name="`type-${index}`" required>
                     <USelect
                       v-model="item.type as string"
                       placeholder="Type"
@@ -255,11 +265,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Name" name="name">
+                  <UFormField label="Name" :name="`name-${index}`" required>
                     <UInput v-model="item.name" placeholder="Intervention 1" />
                   </UFormField>
 
-                  <UFormField label="Description" name="description">
+                  <UFormField
+                    label="Description"
+                    :name="`description-${index}`"
+                    required
+                  >
                     <UTextarea
                       v-model="item.description"
                       placeholder="Description"
@@ -267,15 +281,18 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Other Names" name="otherNameList">
+                  <UFormField
+                    label="Other Names"
+                    :name="`otherNameList-${index}`"
+                  >
                     <div v-if="item.otherNameList.length > 0">
                       <div
-                        v-for="(otherName, index) in item.otherNameList"
-                        :key="index"
+                        v-for="(otherName, innerIndex) in item.otherNameList"
+                        :key="innerIndex"
                         class="mb-2 flex gap-2"
                       >
                         <UInput
-                          v-model="item.otherNameList[index]"
+                          v-model="item.otherNameList[innerIndex]"
                           class="w-full"
                           placeholder="Other Name"
                         />
@@ -285,7 +302,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           color="error"
                           variant="outline"
                           icon="i-lucide-trash"
-                          @click="item.otherNameList.splice(index, 1)"
+                          @click="item.otherNameList.splice(innerIndex, 1)"
                         />
 
                         <UButton
@@ -293,7 +310,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           color="success"
                           variant="outline"
                           icon="i-lucide-plus"
-                          @click="item.otherNameList.splice(index + 1, 0, '')"
+                          @click="
+                            item.otherNameList.splice(innerIndex + 1, 0, '')
+                          "
                         />
                       </div>
                     </div>
