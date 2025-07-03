@@ -115,8 +115,12 @@ if (data.value) {
   // assign collaborators carefully
   if (Array.isArray(data.value.StudyCollaborators)) {
     state.collaborators = data.value.StudyCollaborators.map((c: any) => ({
-      ...c,
+      id: c.id || crypto.randomUUID(),
+      name: c.name || "",
       deleted: false, // default to not deleted
+      identifier: c.identifier || "",
+      scheme: c.scheme || "",
+      schemeUri: c.schemeUri || "",
     }));
   } else {
     state.collaborators = [];
@@ -179,7 +183,7 @@ async function onSubmit() {
 
   try {
     const res = await fetch(`/api/studies/${studyId}/metadata/team`, {
-      body: JSON.stringify({ studyId, ...state }),
+      body: JSON.stringify(state),
       headers: { "Content-Type": "application/json" },
       method: "PUT",
     });
