@@ -4,57 +4,61 @@ import FORM_JSON from "@/assets/data/form.json";
 const studyTypeOptions = FORM_JSON.studyMetadataStudyTypeOptions.map(
   (opt) => opt.value,
 );
-
+const validYesNo = ["Yes", "No"];
 const allocationOptions = FORM_JSON.studyMetadataAllocationOptions.map(
   (opt) => opt.value,
 );
-
 const interventionModelOptions =
   FORM_JSON.studyMetadataInterventionModelOptions.map((opt) => opt.value);
-
 const primaryPurposeOptions = FORM_JSON.studyMetadataPrimaryPurposeOptions.map(
   (opt) => opt.value,
 );
-
 const maskingOptions = FORM_JSON.studyMetadataMaskingOptions.map(
   (opt) => opt.value,
 );
-
 const whoMaskedOptions = FORM_JSON.studyMetadataWhoMaskedOptions.map(
   (opt) => opt.value,
 );
-
 const phaseOptions = FORM_JSON.studyMetadataPhaseOptions.map(
   (opt) => opt.value,
 );
-
 const enrollmentTypes = FORM_JSON.studyMetadataEnrollmentTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const oberservationalModelOptions =
+  FORM_JSON.studyMetadataObservationalModelsOptions.map((opt) => opt.value);
+
+const timePerspectiveOptions =
+  FORM_JSON.studyMetadataTimePerspectiveOptions.map((opt) => opt.value);
+
+const bioRetentionOptions = FORM_JSON.studyMetadataBioSpecRetentionOptions.map(
   (opt) => opt.value,
 );
 
 const StudyMetadataAboutSchema = z
   .object({
-    allocation: z.string(),
-    bioSpecDescription: z.string(),
-    bioSpecRetention: z.string(),
+    allocation: z.string().trim(),
+    bioSpecDescription: z.string().trim(),
+    bioSpecRetention: z.string().trim(),
     enrollmentCount: z.number(),
-    enrollmentType: z.string(),
-    interventionModel: z.string(),
-    interventionModelDescription: z.string(),
-    isPatientRegistry: z.string(),
-    masking: z.string(),
-    maskingDescription: z.string(),
+    enrollmentType: z.string().trim(),
+    interventionModel: z.string().trim(),
+    interventionModelDescription: z.string().trim(),
+    isPatientRegistry: z.string().trim(),
+    masking: z.string().trim(),
+    maskingDescription: z.string().trim(),
     numberOfArms: z.number(),
-    oberservationalModelList: z.array(z.string()),
-    phaseList: z.array(z.string()),
-    primaryPurpose: z.string(),
+    oberservationalModelList: z.array(z.string().trim()),
+    phaseList: z.array(z.string().trim()),
+    primaryPurpose: z.string().trim(),
     studyType: z.string().refine((val) => studyTypeOptions.includes(val), {
       message: `Study type must be one of: ${studyTypeOptions.join(", ")}`,
     }),
     targetDuration: z.number(),
-    targetDurationUnit: z.string(),
-    timePerspectiveList: z.array(z.string()),
-    whoMaskedList: z.array(z.string()),
+    targetDurationUnit: z.string().trim(),
+    timePerspectiveList: z.array(z.string().trim()),
+    whoMaskedList: z.array(z.string().trim()),
   })
   .strict()
   .superRefine((data, context) => {
@@ -76,11 +80,28 @@ const StudyMetadataAboutSchema = z
           path: ["isPatientRegistry"],
         });
       }
+      if (!validYesNo.includes(data.isPatientRegistry)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Is patient registry must be one of: ${validYesNo.join(", ")}`,
+          path: ["isPatientRegistry"],
+        });
+      }
       if (data.oberservationalModelList.length === 0) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Observational model is required",
           path: ["oberservationalModelList"],
+        });
+      } else {
+        data.oberservationalModelList.forEach((model) => {
+          if (!oberservationalModelOptions.includes(model)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Observational model must be one of: ${oberservationalModelOptions.join(", ")}`,
+              path: ["oberservationalModelList", model],
+            });
+          }
         });
       }
       if (data.timePerspectiveList.length === 0) {
@@ -89,11 +110,28 @@ const StudyMetadataAboutSchema = z
           message: "Time perspective is required",
           path: ["timePerspectiveList"],
         });
+      } else {
+        data.timePerspectiveList.forEach((perspective) => {
+          if (!timePerspectiveOptions.includes(perspective)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Time perspective must be one of: ${timePerspectiveOptions.join(", ")}`,
+              path: ["timePerspectiveList", perspective],
+            });
+          }
+        });
       }
       if (!data.bioSpecRetention) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Bio specification retention is required",
+          path: ["bioSpecRetention"],
+        });
+      }
+      if (!bioRetentionOptions.includes(data.bioSpecRetention)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Bio specification retention must be one of: ${bioRetentionOptions.join(", ")}`,
           path: ["bioSpecRetention"],
         });
       }
