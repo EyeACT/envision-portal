@@ -1,4 +1,9 @@
-import { DataLakeServiceClient } from "@azure/storage-file-datalake";
+import {
+  DataLakeServiceClient,
+  StorageSharedKeyCredential,
+  generateDataLakeSASQueryParameters,
+  FileSystemSASPermissions,
+} from "@azure/storage-file-datalake";
 
 // Function to convert paths array to tree structure
 function convertPathsToTree(paths: any[]) {
@@ -74,7 +79,7 @@ function getFileIcon(filename: string): string {
 
   switch (extension) {
     case "csv":
-      return "i-vscode-icons-file-type-csv";
+      return "teenyicons:csv-outline";
     case "json":
       return "i-vscode-icons-file-type-json";
     case "xlsx":
@@ -87,16 +92,16 @@ function getFileIcon(filename: string): string {
     case "zip":
       return "i-vscode-icons-file-type-zip";
     case "dcm":
-      return "i-vscode-icons-file-type-dicom";
+      return "marketeq:eye";
     case "tsv":
-      return "i-vscode-icons-file-type-csv";
+      return "material-symbols:tsv-outline";
     default:
       return "i-heroicons-document";
   }
 }
 
 export default defineEventHandler(async (event) => {
-  const { AZURE_CONNECTION_STRING } = useRuntimeConfig();
+  const { AZURE_ACCOUNT_KEY, AZURE_CONNECTION_STRING } = useRuntimeConfig();
   const session = await requireUserSession(event);
 
   // todo: add permissions check
@@ -151,9 +156,42 @@ export default defineEventHandler(async (event) => {
   // Convert paths to tree structure
   const files = convertPathsToTree(paths);
 
+  const { accountName } = datalakeServiceClient;
+  const fileSystemName = "test";
+
+  const sharedKeyCredential = new StorageSharedKeyCredential(
+    accountName,
+    AZURE_ACCOUNT_KEY,
+  );
+
+  const now = new Date();
+  const expiresOn = new Date(now);
+
+  expiresOn.setHours(now.getHours() + 1); // 1-hour expiration
+
+  const containerSAS = generateDataLakeSASQueryParameters(
+    {
+      expiresOn,
+      fileSystemName,
+      // isDirectory: true,
+      // pathName: "/",
+      permissions: FileSystemSASPermissions.parse("racwdl"), // read, add, create, write, delete, list
+      startsOn: now,
+    },
+    sharedKeyCredential,
+  ).toString();
+
+  const sasUrl = `https://${accountName}.dfs.core.windows.net/${fileSystemName}?${containerSAS}`;
+
+  // replace the string `sp=r` with `sp=rl`
+  // sasUrl = sasUrl.replace("sp=racwm&", "sp=racwml&");
+
+  console.log("SAS URL:", sasUrl);
+
   return {
     ...dataset,
     files,
     paths,
+    sasUrl,
   };
 });

@@ -11,6 +11,8 @@ const { datasetId, studyId } = route.params as {
   studyId: string;
 };
 
+const sasUrl = ref("");
+
 const { data, error } = await useFetch(
   `/api/studies/${studyId}/datasets/${datasetId}/files`,
   {},
@@ -23,7 +25,7 @@ if (error.value) {
     icon: "material-symbols:error",
   });
 
-  await navigateTo(`/app/study/${studyId}/datasets/${datasetId}`);
+  // await navigateTo(`/app/study/${studyId}/datasets/${datasetId}`);
 }
 
 // const f2 = [
@@ -63,6 +65,8 @@ if (data.value) {
   useSeoMeta({
     title: "Files - " + data.value.title,
   });
+
+  sasUrl.value = data.value.sasUrl;
 }
 </script>
 
@@ -108,6 +112,8 @@ if (data.value) {
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <UTree :items="data?.files || []" />
       </div>
+
+      <UInput v-model="sasUrl" />
 
       <pre>{{ data }}</pre>
     </div>
