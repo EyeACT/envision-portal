@@ -1,7 +1,10 @@
 import { z } from "zod";
-import { PrismaClient } from "@prisma/client";
+import FORM_JSON from "@/assets/data/form.json";
 
-const prisma = new PrismaClient();
+const partyTypeOptions =
+  FORM_JSON.studyMetadataSponsorsResponsiblePartyTypeOptions.map(
+    (opt) => opt.value,
+  );
 
 const CollaboratorSchema = z
   .object({
@@ -29,24 +32,39 @@ const CollaboratorSchema = z
 const StudyMetadataSponsorsSchema = z
   .object({
     collaborators: z.array(CollaboratorSchema).optional(),
-    leadSponsorIdentifier: z.string().optional(),
-    leadSponsorIdentifierScheme: z.string().optional(),
-    leadSponsorIdentifierSchemeUri: z.string().optional(),
-    leadSponsorName: z.string().optional(),
-    responsiblePartyInvestigatorAffiliationIdentifier: z.string().optional(),
+    leadSponsorIdentifier: z.string().trim().optional(),
+    leadSponsorIdentifierScheme: z.string().trim().optional(),
+    leadSponsorIdentifierSchemeUri: z.string().trim().optional(),
+    leadSponsorName: z.string().trim().optional(),
+    responsiblePartyInvestigatorAffiliationIdentifier: z
+      .string()
+      .trim()
+      .optional(),
     responsiblePartyInvestigatorAffiliationIdentifierScheme: z
       .string()
+      .trim()
       .optional(),
     responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z
       .string()
+      .trim()
       .optional(),
-    responsiblePartyInvestigatorAffiliationName: z.string().optional(),
-    responsiblePartyInvestigatorFamilyName: z.string().optional(),
-    responsiblePartyInvestigatorGivenName: z.string().optional(),
-    responsiblePartyInvestigatorIdentifierScheme: z.string().optional(),
-    responsiblePartyInvestigatorIdentifierValue: z.string().optional(),
-    responsiblePartyInvestigatorTitle: z.string().optional(),
-    responsiblePartyType: z.string().optional(),
+    responsiblePartyInvestigatorAffiliationName: z.string().trim().optional(),
+    responsiblePartyInvestigatorFamilyName: z.string().trim().optional(),
+    responsiblePartyInvestigatorGivenName: z.string().trim().optional(),
+    responsiblePartyInvestigatorIdentifierScheme: z.string().trim().optional(),
+    responsiblePartyInvestigatorIdentifierValue: z.string().trim().optional(),
+    responsiblePartyInvestigatorTitle: z.string().trim().optional(),
+    responsiblePartyType: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (v) =>
+          partyTypeOptions.includes(v as (typeof partyTypeOptions)[number]),
+        {
+          message: `Responsible party type must be one of: ${partyTypeOptions.join(", ")}`,
+        },
+      ),
   })
   .strict()
   .superRefine((data, ctx) => {
