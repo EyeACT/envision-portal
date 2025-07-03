@@ -65,9 +65,22 @@ if (data.value) {
 
   state.studyCentralContacts = data.value.StudyCentralContact.map(
     (contact) => ({
-      ...contact,
+      id: contact.id,
+      affiliation: contact.affiliation,
+      affiliationIdentifier: contact.affiliationIdentifier,
+      affiliationIdentifierScheme: contact.affiliationIdentifierScheme,
+      affiliationIdentifierSchemeUri: contact.affiliationIdentifierSchemeUri,
+      degree: contact.degree,
       deleted: false,
+      emailAddress: contact.emailAddress,
+      familyName: contact.familyName,
+      givenName: contact.givenName,
+      identifier: contact.identifier,
+      identifierScheme: contact.identifierScheme,
+      identifierSchemeUri: contact.identifierSchemeUri,
       local: false,
+      phone: contact.phone,
+      phoneExt: contact.phoneExt,
     }),
   );
 }

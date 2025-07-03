@@ -35,6 +35,7 @@ const OfficialSchema = z
         message: `Role must be one of the following: ${validRoles.join(", ")}`,
       }),
   })
+  .strict()
   .superRefine((data, context) => {
     // affiliationIdentifier and affiliationIdentifierScheme if provided must be together
     const hasAffId = data.affiliationIdentifier !== "";

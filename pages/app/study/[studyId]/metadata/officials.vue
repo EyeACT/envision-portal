@@ -372,7 +372,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.affiliationIdentifierScheme"
-                        placeholder="ORCID"
+                        placeholder="ROR"
                         class="w-full"
                       />
                     </UFormField>

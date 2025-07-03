@@ -4,39 +4,44 @@ const typeOptions = FORM_JSON.studyMetadataArmsTypeOptions.map(
   (opt) => opt.value,
 );
 
-const StudyMetadataArmsSchema = z.object({
-  studyArms: z
-    .array(
-      z.object({
-        id: z.string().trim().optional(),
-        deleted: z.boolean().optional(),
-        description: z
-          .string()
-          .trim()
-          .min(1, { message: "Description is required" }),
-        interventionList: z.array(z.string()),
-        label: z.string().trim().min(1, { message: "Label is required" }),
-        type: z.preprocess(
-          (val) => {
-            // if incoming value is a string that’s just empty/whitespace, treat it as undefined
-            if (typeof val === "string" && val.trim() === "") {
-              return undefined;
-            }
+const StudyMetadataArmsSchema = z
+  .object({
+    studyArms: z
+      .array(
+        z
+          .object({
+            id: z.string().trim().optional(),
+            deleted: z.boolean().optional(),
+            description: z
+              .string()
+              .trim()
+              .min(1, { message: "Description is required" }),
+            interventionList: z.array(z.string()),
+            label: z.string().trim().min(1, { message: "Label is required" }),
+            local: z.boolean().optional(),
+            type: z.preprocess(
+              (val) => {
+                // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+                if (typeof val === "string" && val.trim() === "") {
+                  return undefined;
+                }
 
-            return val;
-          },
-          z
-            .string()
-            .trim()
-            .refine((val) => typeOptions.includes(val), {
-              message: `Type must be one of: ${typeOptions.join(", ")}`,
-            })
-            .optional(),
-        ),
-      }),
-    )
-    .min(1, { message: "At least one study arm is required" }),
-});
+                return val;
+              },
+              z
+                .string()
+                .trim()
+                .refine((val) => typeOptions.includes(val), {
+                  message: `Type must be one of: ${typeOptions.join(", ")}`,
+                })
+                .optional(),
+            ),
+          })
+          .strict(),
+      )
+      .min(1, { message: "At least one study arm is required" }),
+  })
+  .strict();
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
