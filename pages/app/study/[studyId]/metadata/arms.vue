@@ -24,7 +24,7 @@ const schema = z.object({
       interventionList: z.array(z.string()),
       label: z.string(),
       local: z.boolean(),
-      type: z.string().nullable(),
+      type: z.string().optional(),
     }),
   ),
   studyType: z.string(),
@@ -58,9 +58,13 @@ if (data.value) {
   });
 
   state.studyArms = data.value.StudyArm.map((arm) => ({
-    ...arm,
+    id: arm.id,
     deleted: false,
+    description: arm.description,
+    interventionList: arm.interventionList,
+    label: arm.label,
     local: false,
+    type: arm.type || "",
   }));
   state.studyType = data.value.StudyDesign?.studyType ?? "";
 }
@@ -73,7 +77,7 @@ const addArm = () => {
     interventionList: [],
     label: "",
     local: true,
-    type: null,
+    type: "",
   });
 };
 
