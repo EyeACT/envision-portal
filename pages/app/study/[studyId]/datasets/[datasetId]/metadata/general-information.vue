@@ -380,7 +380,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-show="!item.deleted"
                 :key="item.id"
                 class="my-1 shadow-none"
-                :title="item.description || `Description ${index + 1}`"
+                :title="item.type || `Description ${index + 1}`"
                 bordered
               >
                 <template #header-extra>

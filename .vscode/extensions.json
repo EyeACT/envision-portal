@@ -1,0 +1,21 @@
+{
+  "recommendations": [
+    "aaron-bond.better-comments",
+    "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
+    "bradlc.vscode-tailwindcss",
+    "christian-kohler.npm-intellisense",
+    "csstools.postcss",
+    "davidanson.vscode-markdownlint",
+    "dbaeumer.vscode-eslint",
+    "docker.docker",
+    "ecmel.vscode-html-css",
+    "esbenp.prettier-vscode",
+    "mikestead.dotenv",
+    "ms-azuretools.vscode-containers",
+    "ms-azuretools.vscode-docker",
+    "prisma.prisma",
+    "vue.volar",
+    "wix.vscode-import-cost",
+    "kamikillerto.vscode-colorize"
+  ]
+}

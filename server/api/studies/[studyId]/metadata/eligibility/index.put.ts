@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
     studyPopulation,
   } = body.data;
 
-  const updatedStudyEligibility = await prisma.studyEligibilty.update({
+  const updatedStudyEligibility = await prisma.StudyEligibility.update({
     data: {
       exclusionCriteria: exclusionCriteria.filter((item) => item.trim() !== ""),
       genderBased,

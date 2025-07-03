@@ -69,18 +69,22 @@ if (data.value) {
   });
 
   state.studyType = data.value.studyType ?? "";
-  state.sex = data.value.StudyEligibilty?.sex ?? "";
-  state.studyPopulation = data.value.StudyEligibilty?.studyPopulation ?? "";
-  state.samplingMethod = data.value.StudyEligibilty?.samplingMethod ?? "";
-  state.exclusionCriteria = data.value.StudyEligibilty?.exclusionCriteria ?? [];
-  state.inclusionCriteria = ["as", "asd"]; // data.value.StudyEligibilty?.inclusionCriteria ??;
-  state.genderBased = data.value.StudyEligibilty?.genderBased ?? "";
-  state.genderDescription = data.value.StudyEligibilty?.genderDescription ?? "";
-  state.healthyVolunteers = data.value.StudyEligibilty?.healthyVolunteers ?? "";
-  state.maximumAgeValue = data.value.StudyEligibilty?.maximumAgeValue ?? 0;
-  state.maximumAgeUnit = data.value.StudyEligibilty?.maximumAgeUnit ?? "";
-  state.minimumAgeValue = data.value.StudyEligibilty?.minimumAgeValue ?? 0;
-  state.minimumAgeUnit = data.value.StudyEligibilty?.minimumAgeUnit ?? "";
+  state.sex = data.value.StudyEligibility?.sex ?? "";
+  state.studyPopulation = data.value.StudyEligibility?.studyPopulation ?? "";
+  state.samplingMethod = data.value.StudyEligibility?.samplingMethod ?? "";
+  state.exclusionCriteria =
+    data.value.StudyEligibility?.exclusionCriteria ?? [];
+  state.inclusionCriteria =
+    data.value.StudyEligibility?.inclusionCriteria ?? [];
+  state.genderBased = data.value.StudyEligibility?.genderBased ?? "";
+  state.genderDescription =
+    data.value.StudyEligibility?.genderDescription ?? "";
+  state.healthyVolunteers =
+    data.value.StudyEligibility?.healthyVolunteers ?? "";
+  state.maximumAgeValue = data.value.StudyEligibility?.maximumAgeValue ?? 0;
+  state.maximumAgeUnit = data.value.StudyEligibility?.maximumAgeUnit ?? "";
+  state.minimumAgeValue = data.value.StudyEligibility?.minimumAgeValue ?? 0;
+  state.minimumAgeUnit = data.value.StudyEligibility?.minimumAgeUnit ?? "";
 }
 
 const validate = (state: any): FormError[] => {
@@ -231,6 +235,30 @@ const validate = (state: any): FormError[] => {
       }
     });
   }
+  if (
+    state.minimumAgeValue &&
+    state.maximumAgeValue &&
+    state.minimumAgeValue > state.maximumAgeValue
+  ) {
+    errors.push({
+      name: "minimumAgeValue",
+      message: "Minimum Age must be less than Maximum Age",
+    });
+  }
+
+  if (!state.samplingMethod) {
+    errors.push({
+      name: "samplingMethod",
+      message: "Sampling Method is required",
+    });
+  }
+
+  if (!state.studyPopulation) {
+    errors.push({
+      name: "studyPopulation",
+      message: "Study Population is required",
+    });
+  }
 
   return errors;
 };
@@ -239,6 +267,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
 
   const formData = event.data;
+
+  console.log(formData);
 
   const b = {
     exclusionCriteria: formData.exclusionCriteria.filter(
@@ -271,6 +301,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         color: "success",
         description: "The form has been submitted.",
       });
+
+      // refresh the page
+      window.location.reload();
     })
     .catch((err) => {
       console.log(err);
@@ -278,13 +311,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       toast.add({
         title: "Error",
         color: "error",
-        description: "The form has been submitted.",
+        description: "An error occurred while submitting the form.",
       });
     })
     .finally(() => {
-      // refresh the page
-      window.location.reload();
-
       saveLoading.value = false;
     });
 }
@@ -301,8 +331,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           label: 'Metadata',
         },
         {
-          label: 'Status',
-          to: `/app/study/${studyId}/metadata/status`,
+          label: 'Eligibility',
+          to: `/app/study/${studyId}/metadata/eligibility`,
         },
       ]"
     />
@@ -313,7 +343,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       >
         <div class="flex w-full items-center justify-between gap-3">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Status
+            Eligibility
           </h1>
         </div>
 
@@ -492,6 +522,40 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 :items="
                   FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions
                 "
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Sampling Method
+              </h2>
+
+              <p class="text-gray-500 dark:text-gray-400">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Quisquam, quos.
+              </p>
+            </div>
+
+            <UFormField label="Study Population" name="studyPopulation">
+              <UInput
+                v-model="state.studyPopulation"
+                class="w-full"
+                placeholder="A description of the population from which the groups or cohorts will be selected (for example, primary care clinic, community sample, residents of a certain town). Required for observational studies only"
+              />
+            </UFormField>
+
+            <UFormField label="Sampling Method" name="samplingMethod">
+              <USelect
+                v-model="state.samplingMethod"
+                class="w-full"
+                placeholder="Probability Sample"
+                :items="FORM_JSON.studyMetadataEligibilitySamplingMethodOptions"
               />
             </UFormField>
           </div>

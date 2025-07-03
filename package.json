@@ -24,6 +24,7 @@
     "scripts:create:record": "tsx ./scripts/create-record.ts"
   },
   "dependencies": {
+    "@azure/storage-file-datalake": "^12.26.0",
     "@vueuse/core": "^12.5.0",
     "bcrypt": "^5.1.1",
     "date-fns": "^4.1.0",
@@ -36,7 +37,7 @@
     "@faker-js/faker": "^9.4.0",
     "@nuxt/devtools": "2.3.0",
     "@nuxt/eslint": "1.2.0",
-    "@nuxt/ui": "3.0.0",
+    "@nuxt/ui": "3.2.0",
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
     "@prisma/client": "^6.3.0",
     "@stylistic/eslint-plugin-js": "^2.13.0",

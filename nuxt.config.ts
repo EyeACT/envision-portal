@@ -10,6 +10,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "nuxt-auth-utils", "dayjs-nuxt"],
   runtimeConfig: {
+    AZURE_CONNECTION_STRING: process.env.AZURE_CONNECTION_STRING,
     emailVerificationDomain: process.env.EMAIL_VERIFICATION_DOMAIN,
     mailFrom: process.env.MAIL_FROM,
     mailHost: process.env.MAIL_HOST,

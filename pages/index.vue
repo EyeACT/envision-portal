@@ -24,12 +24,9 @@ definePageMeta({
           class="absolute bottom-3 flex w-full flex-col justify-between gap-8 px-10 pb-10"
         >
           <p class="my-3 text-3xl font-medium">
-            The Envision Portal is more than just a platform—it's your launchpad
-            for preparing, sharing, and scaling eye imaging data for advanced AI
-            research. With rich context and MLCommons Croissant compatibility,
-            it supports seamless integration with TensorFlow, JAX, and
-            PyTorch—enabling powerful analysis and sharing on platforms like
-            Kaggle and HuggingFace.
+            The Envision Portal is your launchpad for easily preparing, sharing,
+            and finding eye imaging data using user friendly interfaces and
+            automation tools.
           </p>
 
           <div class="flex w-max items-center justify-start gap-3">
@@ -62,41 +59,26 @@ definePageMeta({
     <UContainer class="py-24">
       <div class="max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400">
         <h2 class="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
-          What are we doing?
+          What is the Envision Portal?
         </h2>
 
         <p class="mb-4 font-light">
-          We are redefining the way clinical researchers share and collaborate
-          on eye imaging data. The Envision Portal is a next-generation platform
-          engineered to deliver a secure, user-friendly, and highly scalable
-          solution for data sharing. It is thoughtfully designed to support
-          researchers at every level, enabling efficient collaboration without
-          technical barriers.
+          Eye imaging data are essential to advancing research in eye health and
+          beyond. Yet, the research community faces challenges in finding and
+          accessing eye imaging datasets that are standardized, well-documented,
+          and ready for reuse. To address this challenge, we are developing the
+          Envision Portal, a cloud-based, open-source platform that provides
+          researchers and AI developers with the tools they need to conveniently
+          share, discover, and reuse eye imaging data.
         </p>
 
-        <p class="mb-4 font-medium">
-          Our goal is to provide a seamless experience for researchers to share
-          their data and collaborate with their peers.
-        </p>
-
-        <a
-          href="#"
+        <NuxtLink
+          to="/about"
           class="text-primary-600 hover:text-primary-800 dark:text-primary-500 dark:hover:text-primary-700 inline-flex items-center font-medium"
         >
-          Try it out now
-          <svg
-            class="ml-1 h-6 w-6"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-        </a>
+          Learn more
+          <Icon name="i-heroicons-arrow-right-20-solid" size="20" />
+        </NuxtLink>
       </div>
     </UContainer>
 
@@ -104,37 +86,17 @@ definePageMeta({
 
     <UContainer class="py-12">
       <section class="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:px-8">
-        <div class="grid items-center gap-12 md:grid-cols-2">
+        <div class="grid items-start gap-12 md:grid-cols-2">
           <div class="space-y-4">
             <h2 class="text-4xl font-bold tracking-tight md:text-5xl">
-              Built for clinicians, data scientists and AI developers like you
+              Easy to use, intuitive, and focused on supporting your work.
             </h2>
 
             <p class="text-xl">
-              We are a team of clinicians, researchers, and engineers who are
-              passionate about the future of eye health. We are dedicated to
-              making the most of the latest technologies and data to improve
-              patient care and outcomes.
+              Whether you are sharing data, searching for datasets, or building
+              AI models, the Envision Portal provides the tools you need to work
+              efficiently and responsibly.
             </p>
-
-            <a
-              href="#"
-              class="text-primary-600 hover:text-primary-800 dark:text-primary-500 dark:hover:text-primary-700 inline-flex items-center font-medium"
-            >
-              Learn more
-              <svg
-                class="ml-1 h-6 w-6"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </a>
           </div>
 
           <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -145,14 +107,14 @@ definePageMeta({
                 <Icon name="fa-solid:bullseye" size="20" />
               </div>
 
-              <h3 class="text-xl font-bold">Accuracy</h3>
+              <h3 class="text-xl font-bold">Easy Data Sharing</h3>
 
               <p class="">
-                At Envision, we are committed to providing accurate,
-                high-quality medical imaging data to support model training,
-                clinical research, and informed decision-making. Our datasets
-                are meticulously curated and validated to ensure maximum
-                reliability and utility.
+                Contribute your datasets through guided submission workflows.
+                The platform supports data standardization, data
+                de-identification, metadata completeness, and multiple access
+                methods making your data valuable and responsibly reusable by
+                the community.
               </p>
             </div>
 
@@ -163,14 +125,13 @@ definePageMeta({
                 <Icon name="rivet-icons:lock-open-solid" size="20" />
               </div>
 
-              <h3 class="text-xl font-bold">Open Source</h3>
+              <h3 class="text-xl font-bold">Convenient Data Discovery</h3>
 
               <p class="">
-                Envision is built on open-source principles. We are committed to
-                transparency and collaboration, making our tools, code, and
-                imaging datasets openly available to the community. We encourage
-                contributions and aim to foster an inclusive, innovative
-                ecosystem.
+                Discover diverse eye imaging datasets using powerful search and
+                filtering tools. The platform act as a registry for all eye
+                imaging datasets, whether they are shared through the Envision
+                Portal or not.
               </p>
             </div>
 
@@ -181,15 +142,15 @@ definePageMeta({
                 <Icon name="cbi:ceiling-fair" size="20" />
               </div>
 
-              <h3 class="text-xl font-bold">FAIR first</h3>
+              <h3 class="text-xl font-bold">Automation for Efficiency</h3>
 
               <p class="">
-                We prioritize FAIR principles (<strong
-                  >Findable, Accessible, Interoperable, and Reusable</strong
-                >) to ensure the long-term value and usability of medical image
-                data and AI models. Envision is designed to make sharing and
-                discovery effortless and compliant with these foundational
-                standards.
+                Automated tools for data formatting, metadata completeness, and
+                de-identification help ensure that are AI-ready while reducing
+                effort for contributors. The platform also includes a novel
+                LLM-based search tool where data consumers can identify the
+                right datasets for their use cases through a series of
+                questions.
               </p>
             </div>
 
@@ -200,44 +161,18 @@ definePageMeta({
                 <Icon name="file-icons:codemeta" size="20" />
               </div>
 
-              <h3 class="text-xl font-bold">Metadata and standards</h3>
+              <h3 class="text-xl font-bold">FAIR first</h3>
 
               <p class="">
-                All our datasets are curated to have all the possible metadata
-                required for training and deployment of AI models. We also have
-                a set of standards and guidelines to ensure consistency and
-                interoperability across datasets.
+                Every dataset on the Envision Portal is aligned with the FAIR
+                (Findable, Accessible, Interoperable, Reusable) principles. Rich
+                metadata, standardized formats, and clear documentation make
+                data ready for reuse in research, AI development, and beyond.
               </p>
             </div>
           </div>
         </div>
       </section>
-    </UContainer>
-
-    <UContainer class="py-12">
-      <div
-        class="mx-auto flex max-w-screen-xl flex-col items-center justify-between px-4 lg:flex-row"
-      >
-        <div class="px-5 lg:max-w-2xl">
-          <h2 class="mb-5 text-4xl font-bold tracking-tight md:text-5xl">
-            Reinventing what it means to share data
-          </h2>
-
-          <p class="text-lg">
-            Transforming the Future of Data Sharing in the era of AI, data is
-            not just a byproduct—it's a foundational asset. To develop AI models
-            that truly make an impact, we must prioritize how data is accessed,
-            shared, and understood. The Envision Portal is pioneering a new
-            standard in data collaboration—bridging the gap between data
-            contributors and AI developers to accelerate innovation and
-            discovery.
-          </p>
-        </div>
-
-        <div class="flex w-full items-center justify-center px-5 py-5">
-          <img class="rounded-lg" src="public/images/brain.jpg" alt="mockup" />
-        </div>
-      </div>
     </UContainer>
 
     <UContainer class="py-12">
@@ -288,7 +223,7 @@ definePageMeta({
           <div
             class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
           >
-            <h2 class="text-4xl font-bold text-blue-400">1800,000+</h2>
+            <h2 class="text-4xl font-bold text-blue-400">1,800,000+</h2>
 
             <p class="mt-2 text-gray-700">API Requests</p>
           </div>
@@ -298,13 +233,15 @@ definePageMeta({
           >
             <h2 class="text-4xl font-bold text-blue-400">200+</h2>
 
-            <p class="mt-2 text-gray-700">Research Papers Ciring our Data</p>
+            <p class="mt-2 text-gray-700">
+              Research Papers Citing our Datasets
+            </p>
           </div>
         </div>
       </div>
     </UContainer>
 
-    <UContainer class="py-18">
+    <UContainer class="py-12">
       <div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
         <div class="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
           <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">Our Blog</h2>
@@ -460,7 +397,7 @@ definePageMeta({
       </div>
     </UContainer>
 
-    <UContainer class="py-18">
+    <UContainer class="py-12">
       <div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
         <div class="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
           <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">

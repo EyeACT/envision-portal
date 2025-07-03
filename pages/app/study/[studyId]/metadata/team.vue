@@ -198,6 +198,8 @@ async function onSubmit() {
       title: "Success",
       description: "Sponsor data saved successfully.",
     });
+
+    window.location.reload();
   } catch (err) {
     console.error(err);
     toast.add({ title: "Error", description: "Failed to save sponsor data." });
