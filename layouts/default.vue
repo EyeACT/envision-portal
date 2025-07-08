@@ -15,7 +15,9 @@ const inStudy = ref(!!selectedStudy.value);
 const inDataset = ref(!!selectedDataset.value);
 
 const inStudyMetadata = computed(() => {
-  return route.path.includes(`${selectedStudy.value}/metadata`);
+  return route.path.includes(
+    `/datasets/${selectedDataset.value}/study/metadata`,
+  );
 });
 
 const inDatasetMetadata = computed(() => {
@@ -26,92 +28,6 @@ const inHealthsheet = computed(() => {
   return route.path.includes(`/datasets/${selectedDataset.value}/healthsheet`);
 });
 
-// TODO: Add tooltip for each nav item
-const studyNavItems = [
-  {
-    name: "Overview",
-    icon: "material-symbols:overview-key-rounded",
-    route: "",
-  },
-  {
-    name: "Metadata",
-    children: [
-      {
-        name: "About",
-        icon: "material-symbols:description",
-        route: "metadata/about",
-      },
-      {
-        name: "Oversight",
-        icon: "material-symbols:admin-panel-settings",
-        route: "metadata/oversight",
-      },
-      {
-        name: "Status",
-        icon: "hugeicons:status",
-        route: "metadata/status",
-      },
-      { name: "Team", icon: "material-symbols:group", route: "metadata/team" },
-      {
-        name: "Design",
-        icon: "material-symbols:architecture",
-        route: "metadata/design",
-      },
-      {
-        name: "Eligibility",
-        icon: "material-symbols:checklist",
-        route: "metadata/eligibility",
-      },
-      {
-        name: "Arms",
-        icon: "material-symbols:science",
-        route: "metadata/arms",
-      },
-      {
-        name: "Interventions",
-        icon: "material-symbols:syringe-sharp",
-        route: "metadata/interventions",
-      },
-      {
-        name: "Central Contacts",
-        icon: "mdi:contact",
-        route: "metadata/contacts",
-      },
-      {
-        name: "Overall Officials",
-        icon: "material-symbols:badge",
-        route: "metadata/officials",
-      },
-      {
-        name: "Locations",
-        icon: "material-symbols:location-on",
-        route: "metadata/locations",
-      },
-    ],
-    icon: "ooui:view-details-ltr",
-    route: "metadata",
-  },
-  { name: "Files", icon: "ph:files-fill", route: "files" },
-  { name: "Datasets", icon: "material-symbols:dataset", route: "datasets" },
-  {
-    name: "Permissions",
-    icon: "mdi:account-group-outline",
-    route: "permissions",
-  },
-  { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
-  { name: "Data Upload", icon: "heroicons-outline:upload", route: "upload" },
-  {
-    name: "Data Processing",
-    icon: "heroicons-outline:cube",
-    route: "processing",
-  },
-  {
-    name: "Data Requests",
-    icon: "heroicons-outline:inbox-arrow-down",
-    route: "requests",
-  },
-];
-
 const datasetNavItems = [
   {
     name: "Overview",
@@ -119,7 +35,7 @@ const datasetNavItems = [
     route: "overview",
   },
   {
-    name: "Metadata",
+    name: "Dataset Metadata",
     children: [
       {
         name: "General Information",
@@ -202,7 +118,86 @@ const datasetNavItems = [
     icon: "ooui:view-details-ltr",
     route: "healthsheet",
   },
+  {
+    name: "Study Metadata",
+    children: [
+      {
+        name: "About",
+        icon: "material-symbols:description",
+        route: "study/metadata/about",
+      },
+      {
+        name: "Oversight",
+        icon: "material-symbols:admin-panel-settings",
+        route: "study/metadata/oversight",
+      },
+      {
+        name: "Status",
+        icon: "hugeicons:status",
+        route: "study/metadata/status",
+      },
+      {
+        name: "Team",
+        icon: "material-symbols:group",
+        route: "study/metadata/team",
+      },
+      {
+        name: "Design",
+        icon: "material-symbols:architecture",
+        route: "study/metadata/design",
+      },
+      {
+        name: "Eligibility",
+        icon: "material-symbols:checklist",
+        route: "study/metadata/eligibility",
+      },
+      {
+        name: "Arms",
+        icon: "material-symbols:science",
+        route: "study/metadata/arms",
+      },
+      {
+        name: "Interventions",
+        icon: "material-symbols:syringe-sharp",
+        route: "study/metadata/interventions",
+      },
+      {
+        name: "Central Contacts",
+        icon: "mdi:contact",
+        route: "study/metadata/contacts",
+      },
+      {
+        name: "Overall Officials",
+        icon: "material-symbols:badge",
+        route: "study/metadata/officials",
+      },
+      {
+        name: "Locations",
+        icon: "material-symbols:location-on",
+        route: "study/metadata/locations",
+      },
+    ],
+    icon: "ooui:view-details-ltr",
+    route: "metadata",
+  },
   { name: "Files", icon: "ph:files-fill", route: "files" },
+  {
+    name: "Permissions",
+    icon: "mdi:account-group-outline",
+    route: "permissions",
+  },
+  { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
+  { name: "Data Upload", icon: "heroicons-outline:upload", route: "upload" },
+  {
+    name: "Data Processing",
+    icon: "heroicons-outline:cube",
+    route: "processing",
+  },
+  {
+    name: "Data Requests",
+    icon: "heroicons-outline:inbox-arrow-down",
+    route: "requests",
+  },
   {
     name: "Publish",
     icon: "material-symbols:publish",
@@ -254,113 +249,6 @@ watch(sidebarCollapsed, (newVal) => {
 
         <!-- Scrollable Navigation Section -->
         <div class="flex-1 overflow-y-auto">
-          <!-- Study-Specific Navigation -->
-          <template v-if="selectedStudy">
-            <UCollapsible
-              v-model:open="inStudy"
-              class="flex w-48 w-full flex-col gap-2"
-            >
-              <UButton
-                label="Study Navigation"
-                color="neutral"
-                variant="ghost"
-                block
-                class="w-full"
-                trailing-icon="i-lucide-chevron-down"
-              />
-
-              <template #content>
-                <ul class="space-y-1">
-                  <li v-for="item in studyNavItems" :key="item.route">
-                    <template v-if="item.children">
-                      <UCollapsible
-                        :default-open="inStudyMetadata"
-                        class="flex w-full flex-col gap-2"
-                      >
-                        <UButton
-                          color="neutral"
-                          variant="ghost"
-                          class="flex w-full items-center gap-2 rounded-lg p-2 text-sm"
-                          :class="[
-                            sidebarCollapsed
-                              ? 'justify-center'
-                              : 'justify-start',
-                          ]"
-                        >
-                          <Icon :name="item.icon" size="20" />
-
-                          <span
-                            :class="[sidebarCollapsed ? 'hidden' : 'block']"
-                          >
-                            {{ item.name }}
-                          </span>
-
-                          <Icon
-                            v-if="!sidebarCollapsed"
-                            name="i-lucide-chevron-down"
-                            size="16"
-                            class="ml-auto"
-                          />
-                        </UButton>
-
-                        <template #content>
-                          <ul class="ml-6 space-y-1">
-                            <li
-                              v-for="child in item.children"
-                              :key="child.route"
-                            >
-                              <ULink
-                                :to="`/app/study/${selectedStudy}/${child.route}`"
-                                class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                                :class="[
-                                  sidebarCollapsed
-                                    ? 'justify-center'
-                                    : 'justify-start',
-                                ]"
-                                active-class="bg-gray-200 dark:bg-gray-700"
-                                inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                              >
-                                <Icon :name="child.icon" size="18" />
-
-                                <span
-                                  :class="[
-                                    sidebarCollapsed ? 'hidden' : 'block',
-                                  ]"
-                                >
-                                  {{ child.name }}
-                                </span>
-                              </ULink>
-                            </li>
-                          </ul>
-                        </template>
-                      </UCollapsible>
-                    </template>
-
-                    <template v-else>
-                      <ULink
-                        :to="`/app/study/${selectedStudy}/${item.route}`"
-                        class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                        :class="[
-                          sidebarCollapsed ? 'justify-center' : 'justify-start',
-                        ]"
-                        active-class="bg-gray-200 dark:bg-gray-700"
-                        inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <Icon :name="item.icon" size="20" />
-
-                        <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-                          {{ item.name }}
-                        </span>
-                      </ULink>
-                    </template>
-                  </li>
-                </ul>
-              </template>
-            </UCollapsible>
-
-            <hr class="my-2 border-gray-200 dark:border-gray-700" />
-          </template>
-
           <!-- Dataset-Specific Navigation -->
           <template v-if="selectedDataset">
             <ul class="space-y-1">
@@ -368,8 +256,9 @@ watch(sidebarCollapsed, (newVal) => {
                 <template v-if="item.children">
                   <UCollapsible
                     :default-open="
-                      (inDatasetMetadata && item.name === 'Metadata') ||
-                      (inHealthsheet && item.name === 'Healthsheet')
+                      (inDatasetMetadata && item.name === 'Dataset Metadata') ||
+                      (inHealthsheet && item.name === 'Healthsheet') ||
+                      (inStudyMetadata && item.name === 'Study Metadata')
                     "
                     class="flex w-full flex-col gap-2"
                   >

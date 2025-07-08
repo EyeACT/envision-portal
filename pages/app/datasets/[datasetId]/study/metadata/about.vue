@@ -11,7 +11,7 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
 
@@ -78,7 +78,7 @@ const state = reactive<Schema>({
 });
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/metadata/about`,
+  `/api/datasets/${datasetId}/study/metadata/about`,
   {},
 );
 
@@ -89,7 +89,7 @@ if (error.value) {
     icon: "material-symbols:error",
   });
 
-  await navigateTo("/");
+  // await navigateTo("/");
 }
 
 if (data.value) {
@@ -357,7 +357,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     ),
   };
 
-  await $fetch(`/api/studies/${studyId}/metadata/about`, {
+  await $fetch(`/api/datasets/${datasetId}/study/metadata/about`, {
     body: b,
     method: "PUT",
   })
@@ -394,13 +394,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/study/${studyId}` },
+        { label: data?.title, to: `/app/datasets/${datasetId}` },
         {
-          label: 'Metadata',
+          label: 'Study Metadata',
         },
         {
           label: 'About',
-          to: `/app/study/${studyId}/metadata/about`,
+          to: `/app/datasets/${datasetId}/study-metadata/about`,
         },
       ]"
     />

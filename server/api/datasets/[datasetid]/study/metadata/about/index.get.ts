@@ -4,10 +4,12 @@ export default defineEventHandler(async (event) => {
   const { user } = session;
   const userId = user.id;
 
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as {
+    datasetId: string;
+  };
 
   // Get the study from the database
-  const study = await prisma.study.findUnique({
+  const dataset = await prisma.dataset.findUnique({
     include: {
       StudyConditions: true,
       StudyDescription: true,
@@ -15,8 +17,8 @@ export default defineEventHandler(async (event) => {
       StudyKeywords: true,
     },
     where: {
-      id: studyId,
-      StudyMember: {
+      id: datasetId,
+      DatasetMember: {
         some: {
           userId,
         },
@@ -24,25 +26,25 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  // Check if the study exists
-  if (!study) {
+  // Check if the dataset exists
+  if (!dataset) {
     throw createError({
       statusCode: 404,
-      statusMessage: "Study not found",
+      statusMessage: "Dataset not found",
     });
   }
 
-  const primaryIdentifier = study.StudyIdentification.find(
+  const primaryIdentifier = dataset.StudyIdentification.find(
     (identifier) => identifier.isSecondary === false,
   );
 
-  const secondaryIdentifiers = study.StudyIdentification.filter(
+  const secondaryIdentifiers = dataset.StudyIdentification.filter(
     (identifier) => identifier.isSecondary === true,
   );
 
   return {
     primaryIdentifier,
     secondaryIdentifiers,
-    ...study,
+    ...dataset,
   };
 });

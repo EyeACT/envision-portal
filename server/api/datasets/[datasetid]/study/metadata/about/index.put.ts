@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
   const { user } = session;
   const userId = user.id;
 
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
   // Validate the request body
   const body = await readValidatedBody(event, (b) =>
@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
       detailedDescription,
     },
     where: {
-      studyId,
+      datasetId,
     },
   });
 
@@ -86,8 +86,8 @@ export default defineEventHandler(async (event) => {
   // Get the id of the primary identifier
   const primaryIdentifierId = await prisma.studyIdentification.findFirst({
     where: {
+      datasetId,
       isSecondary: false,
-      studyId,
     },
   });
 
@@ -104,12 +104,12 @@ export default defineEventHandler(async (event) => {
   } else {
     await prisma.studyIdentification.create({
       data: {
+        datasetId,
         identifier: primaryIdentifier.identifier,
         identifierDomain: primaryIdentifier.domain ?? "",
         identifierLink: primaryIdentifier.link ?? "",
         identifierType: primaryIdentifier.type,
         isSecondary: false,
-        studyId,
       },
     });
   }
@@ -135,12 +135,12 @@ export default defineEventHandler(async (event) => {
   for (const identifier of secondaryIdentifiersToCreate) {
     await prisma.studyIdentification.create({
       data: {
+        datasetId,
         identifier: identifier.identifier,
         identifierDomain: identifier.domain ?? "",
         identifierLink: identifier.link ?? "",
         identifierType: identifier.type,
         isSecondary: true,
-        studyId,
       },
     });
   }
@@ -181,10 +181,10 @@ export default defineEventHandler(async (event) => {
       data: {
         name: keyword.name,
         classificationCode: keyword.classificationCode,
+        datasetId,
         keywordUri: keyword.keywordUri,
         scheme: keyword.scheme,
         schemeUri: keyword.schemeUri,
-        studyId,
       },
     });
   }
@@ -224,9 +224,9 @@ export default defineEventHandler(async (event) => {
         name: condition.name,
         classificationCode: condition.classificationCode,
         conditionUri: condition.conditionUri,
+        datasetId,
         scheme: condition.scheme,
         schemeUri: condition.schemeUri,
-        studyId,
       },
     });
   }
