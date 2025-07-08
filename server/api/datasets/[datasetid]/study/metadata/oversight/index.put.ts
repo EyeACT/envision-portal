@@ -86,12 +86,12 @@ const StudyMetadataOversightSchema = z
   .strict();
 
 export default defineEventHandler(async (event) => {
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
-  if (!studyId) {
+  if (!datasetId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing studyId",
+      statusMessage: "Missing datasetId",
     });
   }
 
@@ -122,9 +122,9 @@ export default defineEventHandler(async (event) => {
   };
 
   const result = await prisma.studyOversight.upsert({
-    create: { studyId, ...data },
+    create: { datasetId, ...data },
     update: data,
-    where: { studyId },
+    where: { datasetId },
   });
 
   return result;

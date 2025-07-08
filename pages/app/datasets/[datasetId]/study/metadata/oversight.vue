@@ -7,7 +7,7 @@ import FORM_JSON from "~/assets/data/form.json";
 const route = useRoute();
 const toast = useToast();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId } = route.params as { datasetId: string };
 
 const schema = z.object({
   fda_regulated_device: z.string(),
@@ -41,13 +41,13 @@ function normalize(value: string | null | undefined): string {
 }
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/metadata/oversight`,
+  `/api/datasets/${datasetId}/study/metadata/oversight`,
   {},
 );
 
 if (error.value) {
   toast.add({
-    title: "Error fetching study",
+    title: "Error fetching dataset",
     description: "Please try again later",
     icon: "material-symbols:error",
   });
@@ -102,15 +102,18 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await fetch(`/api/studies/${studyId}/metadata/oversight`, {
-      body: JSON.stringify(body),
-      headers: { "Content-Type": "application/json" },
-      method: "PUT",
-    });
+    const res = await fetch(
+      `/api/datasets/${datasetId}/study/metadata/oversight`,
+      {
+        body: JSON.stringify(body),
+        headers: { "Content-Type": "application/json" },
+        method: "PUT",
+      },
+    );
 
     if (!res.ok) {
       throw new Error(
-        `[PUT] "/api/studies/${studyId}/metadata/oversight": ${res.statusText}`,
+        `[PUT] "/api/datasets/${datasetId}/study/metadata/oversight": ${res.statusText}`,
       );
     }
 
@@ -133,13 +136,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: 'Study Title', to: `/app/study/${studyId}` },
+        { label: data?.title, to: `/app/datasets/${datasetId}` },
         {
-          label: 'Metadata',
+          label: 'Study Metadata',
         },
         {
           label: 'Oversight',
-          to: `/app/study/${studyId}/metadata/oversight`,
+          to: `/app/datasets/${datasetId}/study/metadata/oversight`,
         },
       ]"
     />

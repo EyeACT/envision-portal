@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
   const { user } = session;
   const userId = user.id;
 
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
   // Validate the request body
   const body = await readValidatedBody(event, (b) =>
@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
     studyPopulation,
   } = body.data;
 
-  const updatedStudyEligibility = await prisma.StudyEligibility.update({
+  const updatedStudyEligibility = await prisma.studyEligibility.update({
     data: {
       exclusionCriteria: exclusionCriteria.filter((item) => item.trim() !== ""),
       genderBased,
@@ -121,7 +121,7 @@ export default defineEventHandler(async (event) => {
       sex,
       studyPopulation,
     },
-    where: { studyId },
+    where: { datasetId },
   });
 
   return {

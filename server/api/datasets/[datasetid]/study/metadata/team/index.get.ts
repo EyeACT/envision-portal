@@ -7,20 +7,20 @@ export default defineEventHandler(async (event) => {
 
   const { user } = session;
   const userId = user.id;
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
-  if (!studyId) {
-    throw createError({ statusCode: 400, statusMessage: "Study not found" });
+  if (!datasetId) {
+    throw createError({ statusCode: 400, statusMessage: "Dataset not found" });
   }
 
-  const study = await prisma.study.findUnique({
+  const dataset = await prisma.dataset.findUnique({
     include: {
       StudyCollaborators: true,
       StudySponsors: true,
     },
     where: {
-      id: studyId,
-      StudyMember: {
+      id: datasetId,
+      DatasetMember: {
         some: {
           userId,
         },
@@ -29,6 +29,6 @@ export default defineEventHandler(async (event) => {
   });
 
   return {
-    ...study,
+    ...dataset,
   };
 });

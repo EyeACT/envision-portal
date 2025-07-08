@@ -11,7 +11,7 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
 
@@ -36,7 +36,7 @@ const state = reactive<Schema>({
 });
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/metadata/interventions`,
+  `/api/datasets/${datasetId}/study/metadata/interventions`,
   {},
 );
 
@@ -56,7 +56,7 @@ if (data.value) {
   });
 
   state.studyInterventions = data.value.StudyIntervention.map(
-    (intervention) => ({
+    (intervention: any) => ({
       ...intervention,
       deleted: false,
       local: false,
@@ -152,7 +152,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
   };
 
-  await $fetch(`/api/studies/${studyId}/metadata/interventions`, {
+  await $fetch(`/api/datasets/${datasetId}/study/metadata/interventions`, {
     body: b,
     method: "PUT",
   })
@@ -189,13 +189,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/study/${studyId}` },
+        { label: data?.title, to: `/app/datasets/${datasetId}` },
         {
-          label: 'Metadata',
+          label: 'Study Metadata',
         },
         {
           label: 'Interventions',
-          to: `/app/study/${studyId}/metadata/interventions`,
+          to: `/app/datasets/${datasetId}/study/metadata/interventions`,
         },
       ]"
     />

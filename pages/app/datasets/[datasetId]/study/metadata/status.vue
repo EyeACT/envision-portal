@@ -11,7 +11,7 @@ const route = useRoute();
 const toast = useToast();
 const dayjs = useDayjs();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
 
@@ -36,7 +36,7 @@ const state = reactive<Schema>({
 });
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/metadata/status`,
+  `/api/datasets/${datasetId}/study/metadata/status`,
   {},
 );
 
@@ -146,7 +146,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     whyStopped: formData.whyStopped,
   };
 
-  await $fetch(`/api/studies/${studyId}/metadata/status`, {
+  await $fetch(`/api/datasets/${datasetId}/study/metadata/status`, {
     body: b,
     method: "PUT",
   })
@@ -183,13 +183,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/study/${studyId}` },
+        { label: data?.title, to: `/app/datasets/${datasetId}` },
         {
-          label: 'Metadata',
+          label: 'Study Metadata',
         },
         {
           label: 'Status',
-          to: `/app/study/${studyId}/metadata/status`,
+          to: `/app/datasets/${datasetId}/study/metadata/status`,
         },
       ]"
     />

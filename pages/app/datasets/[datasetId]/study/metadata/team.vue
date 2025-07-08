@@ -5,7 +5,7 @@ import FORM_JSON from "~/assets/data/form.json";
 
 const route = useRoute();
 const toast = useToast();
-const { studyId } = route.params as { studyId: string };
+const { datasetId } = route.params as { datasetId: string };
 const studyTitle = ref("");
 
 const loading = ref(false);
@@ -90,13 +90,13 @@ function removeCollaboratorById(id: string) {
 }
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/metadata/team`,
+  `/api/datasets/${datasetId}/study/metadata/team`,
   {},
 );
 
 if (error.value) {
   toast.add({
-    title: "Error fetching study",
+    title: "Error fetching dataset",
     description: "Please try again later",
     icon: "material-symbols:error",
   });
@@ -127,40 +127,38 @@ if (data.value) {
   }
 
   state.leadSponsorIdentifier =
-    data.value.StudySponsors?.[0]?.leadSponsorIdentifier || "";
+    data.value.StudySponsors?.leadSponsorIdentifier || "";
   state.leadSponsorIdentifierScheme =
-    data.value.StudySponsors?.[0]?.leadSponsorIdentifierScheme || "";
+    data.value.StudySponsors?.leadSponsorIdentifierScheme || "";
   state.leadSponsorIdentifierSchemeUri =
-    data.value.StudySponsors?.[0]?.leadSponsorIdentifierSchemeUri || "";
-  state.leadSponsorName = data.value.StudySponsors?.[0]?.leadSponsorName || "";
+    data.value.StudySponsors?.leadSponsorIdentifierSchemeUri || "";
+  state.leadSponsorName = data.value.StudySponsors?.leadSponsorName || "";
   state.responsiblePartyType =
-    data.value.StudySponsors?.[0]?.responsiblePartyType || "";
+    data.value.StudySponsors?.responsiblePartyType || "";
   state.responsiblePartyInvestigatorGivenName =
-    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorGivenName || "";
+    data.value.StudySponsors?.responsiblePartyInvestigatorGivenName || "";
   state.responsiblePartyInvestigatorFamilyName =
-    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorFamilyName || "";
+    data.value.StudySponsors?.responsiblePartyInvestigatorFamilyName || "";
   state.responsiblePartyInvestigatorTitle =
-    data.value.StudySponsors?.[0]?.responsiblePartyInvestigatorTitle || "";
+    data.value.StudySponsors?.responsiblePartyInvestigatorTitle || "";
   state.responsiblePartyInvestigatorAffiliationName =
-    data.value.StudySponsors?.[0]
-      ?.responsiblePartyInvestigatorAffiliationName || "";
+    data.value.StudySponsors?.responsiblePartyInvestigatorAffiliationName || "";
   state.responsiblePartyInvestigatorAffiliationIdentifier =
-    data.value.StudySponsors?.[0]
+    data.value.StudySponsors
       ?.responsiblePartyInvestigatorAffiliationIdentifier || "";
   state.responsiblePartyInvestigatorAffiliationIdentifierScheme =
-    data.value.StudySponsors?.[0]
+    data.value.StudySponsors
       ?.responsiblePartyInvestigatorAffiliationIdentifierScheme || "";
   state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri =
-    data.value.StudySponsors?.[0]
+    data.value.StudySponsors
       ?.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri || "";
   state.responsiblePartyInvestigatorIdentifierScheme =
-    data.value.StudySponsors?.[0]
-      ?.responsiblePartyInvestigatorIdentifierScheme || "";
+    data.value.StudySponsors?.responsiblePartyInvestigatorIdentifierScheme ||
+    "";
   state.responsiblePartyInvestigatorIdentifierValue =
-    data.value.StudySponsors?.[0]
-      ?.responsiblePartyInvestigatorIdentifierValue || "";
+    data.value.StudySponsors?.responsiblePartyInvestigatorIdentifierValue || "";
   state.responsiblePartyType =
-    data.value.StudySponsors?.[0]?.responsiblePartyType || "";
+    data.value.StudySponsors?.responsiblePartyType || "";
 }
 
 async function onSubmit() {
@@ -182,7 +180,7 @@ async function onSubmit() {
   loading.value = true;
 
   try {
-    const res = await fetch(`/api/studies/${studyId}/metadata/team`, {
+    const res = await fetch(`/api/datasets/${datasetId}/study/metadata/team`, {
       body: JSON.stringify(state),
       headers: { "Content-Type": "application/json" },
       method: "PUT",
@@ -190,7 +188,7 @@ async function onSubmit() {
 
     if (!res.ok) {
       throw new Error(
-        `[PUT] "/api/studies/${studyId}/metadata/team": ${res.statusText}`,
+        `[PUT] "/api/datasets/${datasetId}/study/metadata/team": ${res.statusText}`,
       );
     }
 
@@ -305,13 +303,13 @@ const validate = (state: any): FormError[] => {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: studyTitle, to: `/app/study/${studyId}` },
+        { label: data?.title, to: `/app/datasets/${datasetId}` },
         {
-          label: 'Metadata',
+          label: 'Study Metadata',
         },
         {
           label: 'Team',
-          to: `/app/study/${studyId}/metadata/team`,
+          to: `/app/datasets/${datasetId}/study/metadata/team`,
         },
       ]"
     />

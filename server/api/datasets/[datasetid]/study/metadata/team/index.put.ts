@@ -95,9 +95,9 @@ const StudyMetadataSponsorsSchema = z
   });
 
 export default defineEventHandler(async (event) => {
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
-  if (!studyId) {
+  if (!datasetId) {
     throw createError({
       statusCode: 400,
       statusMessage: "Missing studyId",
@@ -117,6 +117,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const data = {
+    datasetId,
     leadSponsorIdentifier: body.data.leadSponsorIdentifier ?? null,
     leadSponsorIdentifierScheme: body.data.leadSponsorIdentifierScheme ?? null,
     leadSponsorIdentifierSchemeUri:
@@ -142,13 +143,12 @@ export default defineEventHandler(async (event) => {
     responsiblePartyInvestigatorTitle:
       body.data.responsiblePartyInvestigatorTitle ?? null,
     responsiblePartyType: body.data.responsiblePartyType ?? null,
-    studyId,
   };
 
   await prisma.studySponsors.upsert({
     create: data,
     update: data,
-    where: { studyId },
+    where: { datasetId },
   });
 
   // Handle collaborators
@@ -158,17 +158,17 @@ export default defineEventHandler(async (event) => {
     );
 
     await prisma.studyCollaborators.deleteMany({
-      where: { studyId },
+      where: { datasetId },
     });
 
     if (collaboratorsToSave.length > 0) {
       await prisma.studyCollaborators.createMany({
         data: collaboratorsToSave.map((c) => ({
           name: c.name,
+          datasetId,
           identifier: c.identifier,
           scheme: c.scheme,
           schemeUri: c.schemeUri,
-          studyId,
         })),
       });
     }

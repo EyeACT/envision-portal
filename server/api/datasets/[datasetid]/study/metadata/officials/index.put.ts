@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
   const { user } = session;
   const userId = user.id;
 
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
   // Validate the request body
   const body = await readValidatedBody(event, (b) =>
@@ -140,6 +140,7 @@ export default defineEventHandler(async (event) => {
         affiliationIdentifier: official.affiliationIdentifier,
         affiliationIdentifierScheme: official.affiliationIdentifierScheme,
         affiliationIdentifierSchemeUri: official.affiliationIdentifierSchemeUri,
+        datasetId,
         degree: official.degree,
         familyName: official.familyName,
         givenName: official.givenName,
@@ -147,7 +148,6 @@ export default defineEventHandler(async (event) => {
         identifierScheme: official.identifierScheme,
         identifierSchemeUri: official.identifierSchemeUri,
         role: official.role,
-        studyId,
       },
     });
   }

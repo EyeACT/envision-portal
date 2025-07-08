@@ -1,23 +1,24 @@
 export default defineEventHandler(async (event) => {
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
-  if (!studyId) {
-    throw createError({ statusCode: 400, statusMessage: "Missing studyId" });
+  if (!datasetId) {
+    throw createError({ statusCode: 400, statusMessage: "Missing datasetId" });
   }
 
   const oversight = await prisma.studyOversight.findUnique({
-    where: { studyId },
+    include: {
+      dataset: true,
+    },
+    where: { datasetId },
   });
 
-  return (
-    oversight ?? {
-      created: null,
-      fdaRegulatedDevice: null,
-      fdaRegulatedDrug: null,
-      hasDmc: null,
-      humanSubjectReviewStatus: null,
-      studyId,
-      updated: null,
-    }
-  );
+  return {
+    title: oversight?.dataset?.title,
+    created: oversight?.created,
+    fdaRegulatedDevice: oversight?.fdaRegulatedDevice,
+    fdaRegulatedDrug: oversight?.fdaRegulatedDrug,
+    hasDmc: oversight?.hasDmc,
+    humanSubjectReviewStatus: oversight?.humanSubjectReviewStatus,
+    updated: oversight?.updated,
+  };
 });

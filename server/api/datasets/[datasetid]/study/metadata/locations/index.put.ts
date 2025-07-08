@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
   const { user } = session;
   const userId = user.id;
 
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
   // Validate the request body
   const body = await readValidatedBody(event, (b) =>
@@ -109,13 +109,13 @@ export default defineEventHandler(async (event) => {
       data: {
         city: location.city,
         country: location.country,
+        datasetId,
         facility: location.facility,
         identifier: location.identifier,
         identifierScheme: location.identifierScheme,
         identifierSchemeUri: location.identifierSchemeUri,
         state: location.state,
         status: location.status,
-        studyId,
         zip: location.zip,
       },
     });

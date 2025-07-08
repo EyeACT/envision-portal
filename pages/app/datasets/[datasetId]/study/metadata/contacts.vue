@@ -10,7 +10,7 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
 
@@ -44,7 +44,7 @@ const state = reactive<Schema>({
 });
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/metadata/contacts`,
+  `/api/datasets/${datasetId}/study/metadata/contacts`,
   {},
 );
 
@@ -64,7 +64,7 @@ if (data.value) {
   });
 
   state.studyCentralContacts = data.value.StudyCentralContact.map(
-    (contact) => ({
+    (contact: any) => ({
       id: contact.id,
       affiliation: contact.affiliation,
       affiliationIdentifier: contact.affiliationIdentifier,
@@ -212,7 +212,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
   };
 
-  await $fetch(`/api/studies/${studyId}/metadata/contacts`, {
+  await $fetch(`/api/datasets/${datasetId}/study/metadata/contacts`, {
     body: b,
     method: "PUT",
   })
@@ -249,13 +249,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/study/${studyId}` },
+        { label: data?.title, to: `/app/datasets/${datasetId}` },
         {
-          label: 'Metadata',
+          label: 'Study Metadata',
         },
         {
           label: 'Central Contacts',
-          to: `/app/study/${studyId}/metadata/contacts`,
+          to: `/app/datasets/${datasetId}/study/metadata/contacts`,
         },
       ]"
     />

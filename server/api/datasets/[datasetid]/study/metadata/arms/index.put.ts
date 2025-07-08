@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
   const { user } = session;
   const userId = user.id;
 
-  const { studyId } = event.context.params as { studyId: string };
+  const { datasetId } = event.context.params as { datasetId: string };
 
   // Validate the request body
   const body = await readValidatedBody(event, (b) =>
@@ -85,10 +85,10 @@ export default defineEventHandler(async (event) => {
   for (const arm of studyArmsToCreate) {
     await prisma.studyArm.create({
       data: {
+        datasetId,
         description: arm.description,
         interventionList: arm.interventionList,
         label: arm.label,
-        studyId,
         type: arm.type || "",
       },
     });
