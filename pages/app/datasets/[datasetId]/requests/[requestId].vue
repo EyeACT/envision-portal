@@ -39,9 +39,9 @@ const items = [
   },
 ];
 
-const { requestId, studyId } = route.params as {
+const { datasetId, requestId } = route.params as {
+  datasetId: string;
   requestId: string;
-  studyId: string;
 };
 
 const unsignedDUA = ref("");
@@ -49,7 +49,7 @@ const requesterSignedDUA = ref("");
 const submitterSignedDUA = ref("");
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/dataset-requests/${requestId}`,
+  `/api/datasets/${datasetId}/requests/${requestId}`,
   {},
 );
 
@@ -60,7 +60,7 @@ if (error.value) {
     icon: "material-symbols:error",
   });
 
-  await navigateTo("/");
+  // await navigateTo("/");
 }
 
 if (data.value) {
@@ -79,7 +79,12 @@ if (data.value) {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: 'My Studies', to: '/app/dashboard/studies' },
+        { label: 'My Datasets', to: '/app/dashboard/datasets' },
+        { label: data?.dataset.title, to: `/app/datasets/${datasetId}` },
+        {
+          label: 'Dataset Requests',
+          to: `/app/datasets/${datasetId}/requests`,
+        },
       ]"
     />
 

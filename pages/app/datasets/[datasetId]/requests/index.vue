@@ -10,10 +10,10 @@ useSeoMeta({
 const route = useRoute();
 const toast = useToast();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId } = route.params as { datasetId: string };
 
 const { data, error } = await useFetch(
-  `/api/studies/${studyId}/dataset-requests`,
+  `/api/datasets/${datasetId}/requests`,
   {},
 );
 
@@ -24,7 +24,7 @@ if (error.value) {
     icon: "material-symbols:error",
   });
 
-  await navigateTo("/");
+  // await navigateTo("/");
 }
 </script>
 
@@ -34,7 +34,12 @@ if (error.value) {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: 'My Studies', to: '/app/dashboard/studies' },
+        { label: 'My Datasets', to: '/app/dashboard/datasets' },
+        { label: data?.title, to: `/app/datasets/${datasetId}` },
+        {
+          label: 'Dataset Requests',
+          to: `/app/datasets/${datasetId}/requests`,
+        },
       ]"
     />
 
@@ -55,21 +60,19 @@ if (error.value) {
 
       <div class="flex flex-col gap-3">
         <NuxtLink
-          v-for="datasetRequest in data"
+          v-for="datasetRequest in data?.DatasetRequest"
           :key="datasetRequest.id"
-          :to="`/app/study/${studyId}/requests/${datasetRequest.id}`"
+          :to="`/app/datasets/${datasetId}/requests/${datasetRequest.id}`"
           class="tranistion-all hover:shadow-md"
         >
           <UCard>
             <template #header>
               <div class="flex items-center justify-between gap-3">
                 <h2 class="text-lg font-medium">
-                  {{ datasetRequest.dataset.title }}
+                  {{ data?.title }}
                 </h2>
 
-                <UBadge variant="subtle">
-                  Version {{ datasetRequest.dataset.version }}
-                </UBadge>
+                <UBadge variant="subtle"> Version {{ data?.version }} </UBadge>
               </div>
             </template>
 

@@ -6,9 +6,9 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const { studyId } = route.params as { studyId: string };
+const { datasetId } = route.params as { datasetId: string };
 
-const { data, error } = await useFetch(`/api/studies/${studyId}`, {});
+const { data, error } = await useFetch(`/api/datasets/${datasetId}`, {});
 
 if (error.value) {
   toast.add({
@@ -49,8 +49,8 @@ const copyToClipboard = async (text: string) => {
       class="mb-4 ml-2"
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/study/${studyId}` },
-        { label: 'Upload Data', to: `/app/study/${studyId}/upload` },
+        { label: data?.title, to: `/app/datasets/${datasetId}` },
+        { label: 'Upload Data', to: `/app/datasets/${datasetId}/upload` },
       ]"
     />
 
@@ -142,7 +142,7 @@ const copyToClipboard = async (text: string) => {
             <div class="flex items-center gap-2">
               <p class="flex-1 rounded bg-gray-50 p-3 font-mono text-sm">
                 https://envisionportal.blob.core.windows.net/study-data/{{
-                  studyId
+                  datasetId
                 }}
               </p>
 
@@ -152,7 +152,7 @@ const copyToClipboard = async (text: string) => {
                 variant="ghost"
                 @click="
                   copyToClipboard(
-                    `https://envisionportal.blob.core.windows.net/study-data/${studyId}`,
+                    `https://envisionportal.blob.core.windows.net/study-data/${datasetId}`,
                   )
                 "
               />

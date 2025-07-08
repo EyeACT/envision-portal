@@ -3,9 +3,9 @@ export default defineEventHandler(async (event) => {
 
   const { user } = session;
 
-  const { requestId, studyId } = event.context.params as {
+  const { datasetId, requestId } = event.context.params as {
+    datasetId: string;
     requestId: string;
-    studyId: string;
   };
 
   const datasetRequest = await prisma.datasetRequest.findUnique({
@@ -15,7 +15,14 @@ export default defineEventHandler(async (event) => {
     },
     where: {
       id: requestId,
-      studyId,
+      dataset: {
+        DatasetMember: {
+          some: {
+            userId: user.id,
+          },
+        },
+      },
+      datasetId,
     },
   });
 
