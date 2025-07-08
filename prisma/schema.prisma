@@ -32,10 +32,10 @@ model User {
     created DateTime @default(now())
     updated DateTime @updatedAt
 
-    Notification    Notification[]
-    StudyMember     StudyMember[]
-    StudyInvitation StudyInvitation[]
-    DatasetRequest  DatasetRequest[]
+    Notification      Notification[]
+    DatasetMember     DatasetMember[]
+    DatasetInvitation DatasetInvitation[]
+    DatasetRequest    DatasetRequest[]
 
     @@index([emailAddress])
 }
@@ -56,15 +56,43 @@ model Notification {
     created DateTime @default(now())
 }
 
-model Study {
+model Dataset {
     id String @id @default(cuid())
 
-    title    String
-    acronym  String?
-    imageUrl String  @default("https://picsum.photos/400")
+    title       String
+    description String
+    type        String
+
+    imageUrl String @default("https://picsum.photos/400")
+
+    canonicalId String @default(cuid()) // Used to identify different versions of the same dataset
+    version     String
+
+    doi String? // Optional since the doi is not assigned until the dataset is published
 
     updated DateTime @updatedAt
     created DateTime @default(now())
+
+    DatasetRequest DatasetRequest[]
+
+    DatasetMember     DatasetMember[]
+    DatasetInvitation DatasetInvitation[]
+
+    DatasetAccess               DatasetAccess?
+    DatasetAlternateIdentifier  DatasetAlternateIdentifier[]
+    DatasetConsent              DatasetConsent?
+    DatasetContributor          DatasetContributor[]
+    DatasetDate                 DatasetDate[]
+    DatasetDeIdentLevel         DatasetDeIdentLevel?
+    DatasetDescription          DatasetDescription[]
+    DatasetFunder               DatasetFunder[]
+    DatasetHealthsheet          DatasetHealthsheet?
+    DatasetManagingOrganization DatasetManagingOrganization?
+    DatasetOther                DatasetOther?
+    DatasetRelatedIdentifier    DatasetRelatedIdentifier[]
+    DatasetRights               DatasetRights?
+    DatasetSubject              DatasetSubject[]
+    DatasetTitle                DatasetTitle[]
 
     StudyDescription      StudyDescription?
     StudyStatus           StudyStatus?
@@ -81,15 +109,11 @@ model Study {
     StudyCentralContact   StudyCentralContact[]
     StudyOverallOfficials StudyOverallOfficials[]
     StudyLocation         StudyLocation[]
-    StudyMember           StudyMember[]
-    StudyInvitation       StudyInvitation[]
-    DatasetRequest        DatasetRequest[]
-    Dataset               Dataset[]
 }
 
-model StudyMember {
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+model DatasetMember {
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -100,14 +124,14 @@ model StudyMember {
     updated DateTime @updatedAt
     created DateTime @default(now())
 
-    @@id([studyId, userId])
+    @@id([datasetId, userId])
 }
 
-model StudyInvitation {
+model DatasetInvitation {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     userId String? // for users with  accounts
     user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -119,15 +143,15 @@ model StudyInvitation {
     updated DateTime @updatedAt
     created DateTime @default(now())
 
-    @@unique([studyId, userId])
-    @@unique([studyId, emailAddress])
+    @@unique([datasetId, userId])
+    @@unique([datasetId, emailAddress])
 }
 
 model StudyDescription {
     id String @id @default(cuid())
 
-    studyId String @unique
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String  @unique
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     briefSummary        String @default("")
     detailedDescription String @default("")
@@ -139,8 +163,8 @@ model StudyDescription {
 model StudyStatus {
     id String @id @default(cuid())
 
-    studyId String @unique
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String  @unique
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     overallStatus String?
     whyStopped    String?
@@ -158,8 +182,8 @@ model StudyStatus {
 model StudySponsors {
     id String @id @default(cuid())
 
-    studyId String @unique
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String  @unique
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     responsiblePartyType                                       String?
     responsiblePartyInvestigatorGivenName                      String?
@@ -184,8 +208,8 @@ model StudySponsors {
 model StudyOversight {
     id String @id @default(cuid())
 
-    studyId String @unique
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String  @unique
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     fdaRegulatedDrug         String?
     fdaRegulatedDevice       String?
@@ -199,8 +223,8 @@ model StudyOversight {
 model StudyDesign {
     id String @id @default(cuid())
 
-    studyId String @unique
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String  @unique
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     studyType String?
 
@@ -237,8 +261,8 @@ model StudyDesign {
 model StudyEligibility {
     id String @id @default(cuid())
 
-    studyId String @unique
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String  @unique
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     sex               String?
     genderBased       String?
@@ -265,8 +289,8 @@ model StudyEligibility {
 model StudyIdentification {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     identifier       String
     identifierType   String?
@@ -281,8 +305,8 @@ model StudyIdentification {
 model StudyCollaborators {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     name       String
     identifier String
@@ -296,8 +320,8 @@ model StudyCollaborators {
 model StudyConditions {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     name               String
     classificationCode String
@@ -312,8 +336,8 @@ model StudyConditions {
 model StudyKeywords {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     name               String
     classificationCode String
@@ -328,8 +352,8 @@ model StudyKeywords {
 model StudyArm {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     label       String
     type        String?
@@ -344,8 +368,8 @@ model StudyArm {
 model StudyIntervention {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     type        String?
     name        String
@@ -360,8 +384,8 @@ model StudyIntervention {
 model StudyCentralContact {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     givenName  String
     familyName String
@@ -389,8 +413,8 @@ model StudyCentralContact {
 model StudyOverallOfficials {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     givenName  String
     familyName String
@@ -414,8 +438,8 @@ model StudyOverallOfficials {
 model StudyLocation {
     id String @id @default(cuid())
 
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     facility            String
     status              String?
@@ -454,43 +478,6 @@ model StudyLocationContactList {
 
     updated DateTime @updatedAt
     created DateTime @default(now())
-}
-
-model Dataset {
-    id String @id @default(cuid())
-
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
-
-    title       String
-    description String
-    type        String
-
-    canonicalId String @default(cuid()) // Used to identify different versions of the same dataset
-    version     String
-
-    doi String? // Optional since the doi is not assigned until the dataset is published
-
-    updated DateTime @updatedAt
-    created DateTime @default(now())
-
-    DatasetRequest DatasetRequest[]
-
-    DatasetAccess               DatasetAccess?
-    DatasetAlternateIdentifier  DatasetAlternateIdentifier[]
-    DatasetConsent              DatasetConsent?
-    DatasetContributor          DatasetContributor[]
-    DatasetDate                 DatasetDate[]
-    DatasetDeIdentLevel         DatasetDeIdentLevel?
-    DatasetDescription          DatasetDescription[]
-    DatasetFunder               DatasetFunder[]
-    DatasetHealthsheet          DatasetHealthsheet?
-    DatasetManagingOrganization DatasetManagingOrganization?
-    DatasetOther                DatasetOther?
-    DatasetRelatedIdentifier    DatasetRelatedIdentifier[]
-    DatasetRights               DatasetRights?
-    DatasetSubject              DatasetSubject[]
-    DatasetTitle                DatasetTitle[]
 }
 
 model DatasetAccess {
@@ -778,9 +765,6 @@ model DatasetRequest {
 
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    studyId String
-    study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
 
     datasetId String
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
