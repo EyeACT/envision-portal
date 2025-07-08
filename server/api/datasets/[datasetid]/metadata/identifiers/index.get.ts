@@ -1,7 +1,8 @@
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
 
-  // todo: add permissions check
+  const { user } = session;
+  const userId = user.id;
 
   const { datasetId } = event.context.params as {
     datasetId: string;
@@ -9,8 +10,16 @@ export default defineEventHandler(async (event) => {
 
   // Get the dataset from the database
   const dataset = await prisma.dataset.findUnique({
+    include: {
+      DatasetAlternateIdentifier: true,
+    },
     where: {
       id: datasetId,
+      DatasetMember: {
+        some: {
+          userId,
+        },
+      },
     },
   });
 
@@ -22,5 +31,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return dataset;
+  return {
+    ...dataset,
+  };
 });

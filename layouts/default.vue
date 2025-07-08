@@ -5,11 +5,11 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 
 const sidebarCollapsed = ref(false);
-const selectedStudy = computed(() => route.params.studyId || null);
 const selectedDataset = computed(() => route.params.datasetId || null);
+const selectedStudy = computed(() => route.params.studyId || null);
 
-const studyNavigationIsOpen = ref(true);
-const datasetNavigationIsOpen = ref(false);
+const datasetNavigationIsOpen = ref(true);
+const studyNavigationIsOpen = ref(false);
 
 const inStudy = ref(!!selectedStudy.value);
 const inDataset = ref(!!selectedDataset.value);
@@ -19,9 +19,11 @@ const inStudyMetadata = computed(() => {
 });
 
 const inDatasetMetadata = computed(() => {
-  return route.path.includes(
-    `${selectedStudy.value}/datasets/${selectedDataset.value}/metadata`,
-  );
+  return route.path.includes(`/datasets/${selectedDataset.value}/metadata`);
+});
+
+const inHealthsheet = computed(() => {
+  return route.path.includes(`/datasets/${selectedDataset.value}/healthsheet`);
 });
 
 // TODO: Add tooltip for each nav item
@@ -361,107 +363,85 @@ watch(sidebarCollapsed, (newVal) => {
 
           <!-- Dataset-Specific Navigation -->
           <template v-if="selectedDataset">
-            <UCollapsible
-              v-model:open="inDataset"
-              class="flex w-48 w-full flex-col gap-2"
-            >
-              <UButton
-                label="Dataset Navigation"
-                color="neutral"
-                variant="ghost"
-                block
-                class="w-full"
-                trailing-icon="i-lucide-chevron-down"
-              />
+            <ul class="space-y-1">
+              <li v-for="item in datasetNavItems" :key="item.route">
+                <template v-if="item.children">
+                  <UCollapsible
+                    :default-open="
+                      (inDatasetMetadata && item.name === 'Metadata') ||
+                      (inHealthsheet && item.name === 'Healthsheet')
+                    "
+                    class="flex w-full flex-col gap-2"
+                  >
+                    <UButton
+                      color="neutral"
+                      variant="ghost"
+                      class="flex w-full items-center gap-2 rounded-lg p-2 text-sm"
+                      :class="[
+                        sidebarCollapsed ? 'justify-center' : 'justify-start',
+                      ]"
+                    >
+                      <Icon :name="item.icon" size="20" />
 
-              <template #content>
-                <ul class="space-y-1">
-                  <li v-for="item in datasetNavItems" :key="item.route">
-                    <template v-if="item.children">
-                      <UCollapsible
-                        :default-open="inDatasetMetadata"
-                        class="flex w-full flex-col gap-2"
-                      >
-                        <UButton
-                          color="neutral"
-                          variant="ghost"
-                          class="flex w-full items-center gap-2 rounded-lg p-2 text-sm"
-                          :class="[
-                            sidebarCollapsed
-                              ? 'justify-center'
-                              : 'justify-start',
-                          ]"
-                        >
-                          <Icon :name="item.icon" size="20" />
+                      <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                        {{ item.name }}
+                      </span>
 
-                          <span
-                            :class="[sidebarCollapsed ? 'hidden' : 'block']"
+                      <Icon
+                        v-if="!sidebarCollapsed"
+                        name="i-lucide-chevron-down"
+                        size="16"
+                        class="ml-auto"
+                      />
+                    </UButton>
+
+                    <template #content>
+                      <ul class="ml-6 space-y-1">
+                        <li v-for="child in item.children" :key="child.route">
+                          <ULink
+                            :to="`/app/datasets/${selectedDataset}/${child.route}`"
+                            class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                            :class="[
+                              sidebarCollapsed
+                                ? 'justify-center'
+                                : 'justify-start',
+                            ]"
+                            active-class="bg-gray-200 dark:bg-gray-700"
+                            inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
                           >
-                            {{ item.name }}
-                          </span>
+                            <Icon :name="child.icon" size="18" />
 
-                          <Icon
-                            v-if="!sidebarCollapsed"
-                            name="i-lucide-chevron-down"
-                            size="16"
-                            class="ml-auto"
-                          />
-                        </UButton>
-
-                        <template #content>
-                          <ul class="ml-6 space-y-1">
-                            <li
-                              v-for="child in item.children"
-                              :key="child.route"
+                            <span
+                              :class="[sidebarCollapsed ? 'hidden' : 'block']"
                             >
-                              <ULink
-                                :to="`/app/study/${selectedStudy}/datasets/${selectedDataset}/${child.route}`"
-                                class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                                :class="[
-                                  sidebarCollapsed
-                                    ? 'justify-center'
-                                    : 'justify-start',
-                                ]"
-                                active-class="bg-gray-200 dark:bg-gray-700"
-                                inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                              >
-                                <Icon :name="child.icon" size="18" />
-
-                                <span
-                                  :class="[
-                                    sidebarCollapsed ? 'hidden' : 'block',
-                                  ]"
-                                >
-                                  {{ child.name }}
-                                </span>
-                              </ULink>
-                            </li>
-                          </ul>
-                        </template>
-                      </UCollapsible>
+                              {{ child.name }}
+                            </span>
+                          </ULink>
+                        </li>
+                      </ul>
                     </template>
+                  </UCollapsible>
+                </template>
 
-                    <template v-else>
-                      <ULink
-                        :to="`/app/study/${selectedStudy}/datasets/${selectedDataset}/${item.route}`"
-                        class="flex items-center gap-2 rounded-lg p-2 text-sm"
-                        :class="[
-                          sidebarCollapsed ? 'justify-center' : 'justify-start',
-                        ]"
-                        active-class="bg-gray-200 dark:bg-gray-700"
-                        inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <Icon :name="item.icon" size="20" />
+                <template v-else>
+                  <ULink
+                    :to="`/app/datasets/${selectedDataset}/${item.route}`"
+                    class="flex items-center gap-2 rounded-lg p-2 text-sm"
+                    :class="[
+                      sidebarCollapsed ? 'justify-center' : 'justify-start',
+                    ]"
+                    active-class="bg-gray-200 dark:bg-gray-700"
+                    inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <Icon :name="item.icon" size="20" />
 
-                        <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
-                          {{ item.name }}
-                        </span>
-                      </ULink>
-                    </template>
-                  </li>
-                </ul>
-              </template>
-            </UCollapsible>
+                    <span :class="[sidebarCollapsed ? 'hidden' : 'block']">
+                      {{ item.name }}
+                    </span>
+                  </ULink>
+                </template>
+              </li>
+            </ul>
 
             <hr class="my-2 border-gray-200 dark:border-gray-700" />
           </template>

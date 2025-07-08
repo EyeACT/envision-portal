@@ -65,8 +65,8 @@ model Dataset {
 
     imageUrl String @default("https://picsum.photos/400")
 
-    canonicalId String @default(cuid()) // Used to identify different versions of the same dataset
-    version     String
+    canonicalId String  @default(cuid()) // Used to identify different versions of the same dataset
+    version     String? // Used to identify different versions of the same dataset
 
     doi String? // Optional since the doi is not assigned until the dataset is published
 

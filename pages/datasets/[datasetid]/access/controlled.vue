@@ -17,7 +17,9 @@ const loading = ref(false);
 
 const { datasetid } = route.params as { datasetid: string };
 
-const { data: dataset, error } = await useFetch(`/api/datasets/${datasetid}`);
+const { data: dataset, error } = await useFetch(
+  `/api/discover/datasets/${datasetid}`,
+);
 
 if (error.value) {
   toast.add({
@@ -63,7 +65,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   loading.value = true;
 
-  await $fetch(`/api/datasets/${datasetid}/access/request`, {
+  await $fetch(`/api/discover/datasets/${datasetid}/access/request`, {
     body,
     method: "POST",
   })

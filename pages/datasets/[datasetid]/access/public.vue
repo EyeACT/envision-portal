@@ -12,7 +12,9 @@ const azureUri = ref(
 
 const { datasetid } = route.params as { datasetid: string };
 
-const { data: dataset, error } = await useFetch(`/api/datasets/${datasetid}`);
+const { data: dataset, error } = await useFetch(
+  `/api/discover/datasets/${datasetid}`,
+);
 
 if (error.value) {
   toast.add({
