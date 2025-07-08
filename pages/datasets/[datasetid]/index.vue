@@ -102,7 +102,9 @@ const treeItems = ref([
 
 const { datasetid } = route.params as { datasetid: string };
 
-const { data: dataset, error } = await useFetch(`/api/datasets/${datasetid}`);
+const { data: dataset, error } = await useFetch(
+  `/api/discover/datasets/${datasetid}`,
+);
 
 if (error.value) {
   toast.add({
@@ -309,7 +311,11 @@ if (dataset.value) {
             </template>
 
             <template #healthsheet>
-              <MetadataHealthSheet :metadata="dataset?.metadata?.healthsheet" />
+              <MetadataHealthSheet
+                :metadata="
+                  (dataset?.metadata?.healthsheet || {}) as HealthsheetRecords
+                "
+              />
             </template>
 
             <template #files> <UTree multiple :items="treeItems" /> </template>

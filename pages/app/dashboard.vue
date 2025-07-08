@@ -18,44 +18,48 @@ const searchQuery = ref("");
 // User session + study management variables
 const loading = ref(false);
 
-const { data: studies, error } = await useFetch("/api/studies", {
+const { data: datasets, error } = await useFetch("/api/datasets", {
   method: "GET",
 });
 
 if (error.value) {
   toast.add({
-    title: "Error fetching studies",
+    title: "Error fetching datasets",
     description: "Please try again later",
     icon: "material-symbols:error",
   });
 }
 
-const newStudyForm = useTemplateRef("newStudyForm");
-const newStudySchema = z.object({
+const newDatasetForm = useTemplateRef("newDatasetForm");
+const newDatasetSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
+  type: z.string().optional(),
+  version: z.string().optional(),
 });
-const newStudyState = reactive({
+const newDatasetState = reactive({
   title: faker.commerce.productName(),
   description: faker.lorem.sentences(3),
   imageUrl: faker.image.url(),
+  type: "Dataset",
+  version: "1.0.0",
 });
 
 const onSubmit = async () => {
   loading.value = true;
 
-  await $fetch("/api/studies", {
-    body: newStudyState,
+  await $fetch("/api/datasets", {
+    body: newDatasetState,
     method: "POST",
   })
     .then((response) => {
-      navigateTo(`/app/study/${response.data.studyId}`);
+      navigateTo(`/app/dataset/${response.data.datasetId}`);
     })
     .catch((error) => {
-      console.error("Error creating new study:", error);
+      console.error("Error creating new dataset:", error);
       toast.add({
-        title: "Error creating study",
+        title: "Error creating dataset",
         color: "error",
         description: "Please try again later",
         icon: "material-symbols:error",
@@ -90,40 +94,48 @@ const dropdownItems = ref([
       >
         <div>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            My Studies
+            My Datasets
           </h1>
 
           <p class="text-lg font-normal">
-            Manage and explore your research studies
+            Manage and explore your research datasets
           </p>
         </div>
 
-        <USlideover side="right" title="Create New Study">
+        <USlideover side="right" title="Create New Dataset">
           <UButton color="primary" size="xl" icon="heroicons-outline:plus">
-            New Study
+            New Dataset
           </UButton>
 
           <template #body>
             <div>
               <UForm
-                ref="newStudyForm"
-                :schema="newStudySchema"
-                :state="newStudyState"
+                ref="newDatasetForm"
+                :schema="newDatasetSchema"
+                :state="newDatasetState"
                 class="space-y-4"
                 @submit="onSubmit"
               >
                 <UFormField label="Title" name="title">
-                  <UInput v-model="newStudyState.title" type="text" />
+                  <UInput v-model="newDatasetState.title" type="text" />
                 </UFormField>
 
                 <UFormField label="Description" name="description">
-                  <UInput v-model="newStudyState.description" type="text" />
+                  <UInput v-model="newDatasetState.description" type="text" />
+                </UFormField>
+
+                <UFormField label="Type" name="type">
+                  <UInput v-model="newDatasetState.type" type="text" />
+                </UFormField>
+
+                <UFormField label="Version" name="version">
+                  <UInput v-model="newDatasetState.version" type="text" />
                 </UFormField>
 
                 <!-- New Banner Image Field -->
                 <UFormField label="Banner Image URL" name="imageUrl">
                   <!-- Accepts only JPEG and PNG -->
-                  <UInput v-model="newStudyState.imageUrl" type="href" />
+                  <UInput v-model="newDatasetState.imageUrl" type="href" />
                 </UFormField>
               </UForm>
             </div>
@@ -136,9 +148,9 @@ const dropdownItems = ref([
                 size="lg"
                 :loading="loading"
                 icon="heroicons-outline:plus"
-                @click="newStudyForm?.submit()"
+                @click="newDatasetForm?.submit()"
               >
-                Create Study
+                Create Dataset
               </UButton>
             </div>
           </template>
@@ -150,7 +162,7 @@ const dropdownItems = ref([
         <UInput
           v-model="searchQuery"
           type="text"
-          placeholder="Search studies..."
+          placeholder="Search datasets..."
           size="lg"
         />
 
@@ -177,23 +189,23 @@ const dropdownItems = ref([
       <!-- Studies Grid -->
       <div class="flex flex-col gap-3">
         <NuxtLink
-          v-for="study in studies"
-          :key="study.id"
-          :to="`/app/study/${study.id}`"
+          v-for="dataset in datasets"
+          :key="dataset.id"
+          :to="`/app/datasets/${dataset.id}`"
         >
           <UCard class="transition-all hover:shadow-md">
             <template #header>
               <div class="flex items-center justify-between gap-3">
                 <h2>
-                  {{ study.title }}
+                  {{ dataset.title }}
                 </h2>
 
-                <UAvatar :src="study.imageUrl" size="lg" class="rounded-md" />
+                <UAvatar :src="dataset.imageUrl" size="lg" class="rounded-md" />
               </div>
             </template>
 
             <p>
-              {{ study.StudyDescription?.briefSummary }}
+              {{ dataset.description }}
             </p>
 
             <USeparator class="my-3" />
@@ -201,12 +213,12 @@ const dropdownItems = ref([
             <div class="flex items-center gap-2 text-sm">
               <p>
                 Updated:
-                {{ displayDateDifference(study.updated) }} ago
+                {{ displayDateDifference(dataset.updated) }} ago
               </p>
 
               <USeparator orientation="vertical" class="h-3" />
 
-              <p>Created: {{ displayDateDifference(study.created) }} ago</p>
+              <p>Created: {{ displayDateDifference(dataset.created) }} ago</p>
             </div>
           </UCard>
         </NuxtLink>

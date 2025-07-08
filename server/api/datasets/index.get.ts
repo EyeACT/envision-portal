@@ -1,11 +1,25 @@
-// Returns a list of published datasets
-export default defineEventHandler(async (_event) => {
-  const datasets = await prisma.publishedDataset.findMany({
-    distinct: ["datasetId"],
-    orderBy: {
-      created: "desc",
+export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event);
+
+  const { user } = session;
+  const userId = user.id;
+
+  const datasets = await prisma.dataset.findMany({
+    where: {
+      DatasetMember: {
+        some: {
+          userId,
+        },
+      },
     },
   });
+
+  if (!datasets) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Datasets not found",
+    });
+  }
 
   return datasets || [];
 });
