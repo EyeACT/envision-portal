@@ -239,7 +239,7 @@ watch(sidebarCollapsed, (newVal) => {
               <span
                 :class="[sidebarCollapsed ? 'hidden opacity-0' : 'opacity-100']"
               >
-                My Studies
+                My Datasets
               </span>
             </ULink>
           </li>
