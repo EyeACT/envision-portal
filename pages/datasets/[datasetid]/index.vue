@@ -103,7 +103,7 @@ const treeItems = ref([
 const { datasetid } = route.params as { datasetid: string };
 
 const { data: dataset, error } = await useFetch(
-  `/api/discover/datasets/${datasetid}`,
+  `/api/discover/dataset/${datasetid}`,
 );
 
 if (error.value) {

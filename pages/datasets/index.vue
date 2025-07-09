@@ -11,7 +11,7 @@ useSeoMeta({
 const toast = useToast();
 
 const { data: datasets, error } = await useFetch<Dataset[]>(
-  "/api/discover/datasets",
+  "/api/discover/dataset",
 );
 
 if (error.value) {
