@@ -1,67 +1,128 @@
 import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
 
-const DatasetMetadataTeamSchema = z.object({
-  contributors: z.array(
-    z.object({
-      id: z.string().optional(),
-      affiliations: z.array(
+const nameTypeOptions = FORM_JSON.datasetNameTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const contribTypeOptions = FORM_JSON.datasetContributorTypeOptions.map(
+  (opt) => opt.value,
+);
+
+// Define the common validation function
+const validateNameIdentifier = (data: any, ctx: z.RefinementCtx) => {
+  if (
+    (data.nameIdentifier && !data.nameIdentifierScheme) ||
+    (!data.nameIdentifier && data.nameIdentifierScheme)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "Both nameIdentifierScheme and nameIdentifier must be provided together",
+    });
+  }
+};
+
+// Create base schema for creators and contributors
+const baseCreatorObjectSchema = z
+  .object({
+    id: z.string().optional(),
+    affiliations: z
+      .array(
         z.object({
           affiliation: z.string(),
-          identifier: z.string(),
-          identifierScheme: z.string(),
-          identifierSchemeUri: z.string(),
+          identifier: z.string().optional(),
+          identifierScheme: z.string().optional(),
+          identifierSchemeUri: z.string().optional(),
         }),
-      ),
-      contributorType: z.string(),
-      deleted: z.boolean().optional(),
-      familyName: z.string(),
-      givenName: z.string(),
-      nameIdentifier: z.string(),
-      nameIdentifierScheme: z.string(),
-      nameIdentifierSchemeUri: z.string(),
-      nameType: z.string(),
-    }),
-  ),
-  creators: z.array(
-    z.object({
-      id: z.string().optional(),
-      affiliations: z.array(
-        z.object({
-          affiliation: z.string(),
-          identifier: z.string(),
-          identifierScheme: z.string(),
-          identifierSchemeUri: z.string(),
-        }),
-      ),
-      deleted: z.boolean().optional(),
-      familyName: z.string(),
-      givenName: z.string(),
-      nameIdentifier: z.string(),
-      nameIdentifierScheme: z.string(),
-      nameIdentifierSchemeUri: z.string(),
-      nameType: z.string(),
-    }),
-  ),
-  funders: z.array(
-    z.object({
-      id: z.string().optional(),
-      name: z.string(),
-      awardNumber: z.string(),
-      awardTitle: z.string(),
-      awardUri: z.string(),
-      deleted: z.boolean().optional(),
-      identifier: z.string(),
-      identifierSchemeUri: z.string(),
-      identifierType: z.string(),
-    }),
-  ),
-  managingOrganization: z.object({
-    name: z.string(),
-    identifier: z.string(),
-    identifierScheme: z.string(),
-    identifierSchemeUri: z.string(),
-  }),
-});
+      )
+      .optional(),
+    deleted: z.boolean().optional(),
+    familyName: z.string(),
+    givenName: z.string(),
+    nameIdentifier: z.string().optional(),
+    nameIdentifierScheme: z.string().optional(),
+    nameIdentifierSchemeUri: z.string().optional(),
+    nameType: z
+      .string()
+      .trim()
+      .min(1, "Name type is required")
+      .refine((v) => nameTypeOptions.includes(v), {
+        message: `Name type must be one of: ${nameTypeOptions.join(", ")}`,
+      }),
+  })
+  .strict();
+
+const creatorSchema = baseCreatorObjectSchema.superRefine(
+  validateNameIdentifier,
+);
+
+// Contributor schema is the same as creator schema but with an additional contributorType field
+const contributorSchema = baseCreatorObjectSchema
+  .extend({
+    contributorType: z
+      .string()
+      .trim()
+      .min(1, "Contributor type is required")
+      .refine((v) => contribTypeOptions.includes(v), {
+        message: `Contributor type must be one of: ${contribTypeOptions.join(", ")}`,
+      }),
+  })
+  .superRefine(validateNameIdentifier);
+
+const funderSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    awardNumber: z.string().trim().optional(),
+    awardTitle: z.string().trim().optional(),
+    awardUri: z.string().trim().optional(),
+    deleted: z.boolean().optional(),
+    identifier: z.string().trim().optional(),
+    identifierSchemeUri: z.string().trim().optional(),
+    identifierType: z.string().trim().optional(),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    if (
+      (data.identifierType && !data.identifier) ||
+      (!data.identifierType && data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Both identifierType and identifier must be provided together",
+      });
+    }
+  });
+
+const managingOrgSchema = z
+  .object({
+    name: z.string().trim().min(1, "Name is required"),
+    identifier: z.string().trim().optional(),
+    identifierScheme: z.string().trim().optional(),
+    identifierSchemeUri: z.string().trim().optional(),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    if (
+      (data.identifierScheme && !data.identifier) ||
+      (!data.identifierScheme && data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Both identifierType and identifier must be provided together",
+      });
+    }
+  });
+
+const DatasetMetadataTeamSchema = z
+  .object({
+    contributors: z.array(contributorSchema),
+    creators: z.array(creatorSchema),
+    funders: z.array(funderSchema),
+    managingOrganization: managingOrgSchema,
+  })
+  .strict();
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -80,8 +141,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
@@ -117,9 +179,9 @@ export default defineEventHandler(async (event) => {
         datasetId,
         familyName: creator.familyName,
         givenName: creator.givenName,
-        nameIdentifier: creator.nameIdentifier,
-        nameIdentifierScheme: creator.nameIdentifierScheme,
-        nameIdentifierSchemeUri: creator.nameIdentifierSchemeUri,
+        nameIdentifier: creator.nameIdentifier || "",
+        nameIdentifierScheme: creator.nameIdentifierScheme || "",
+        nameIdentifierSchemeUri: creator.nameIdentifierSchemeUri || "",
         nameType: creator.nameType,
       },
     });
@@ -170,9 +232,9 @@ export default defineEventHandler(async (event) => {
         datasetId,
         familyName: contributor.familyName,
         givenName: contributor.givenName,
-        nameIdentifier: contributor.nameIdentifier,
-        nameIdentifierScheme: contributor.nameIdentifierScheme,
-        nameIdentifierSchemeUri: contributor.nameIdentifierSchemeUri,
+        nameIdentifier: contributor.nameIdentifier || "",
+        nameIdentifierScheme: contributor.nameIdentifierScheme || "",
+        nameIdentifierSchemeUri: contributor.nameIdentifierSchemeUri || "",
         nameType: contributor.nameType,
       },
     });
@@ -211,13 +273,13 @@ export default defineEventHandler(async (event) => {
     await prisma.datasetFunder.create({
       data: {
         name: funder.name,
-        awardNumber: funder.awardNumber,
-        awardTitle: funder.awardTitle,
-        awardUri: funder.awardUri,
+        awardNumber: funder.awardNumber || "",
+        awardTitle: funder.awardTitle || "",
+        awardUri: funder.awardUri || "",
         datasetId,
-        identifier: funder.identifier,
-        identifierSchemeUri: funder.identifierSchemeUri,
-        identifierType: funder.identifierType,
+        identifier: funder.identifier || "",
+        identifierSchemeUri: funder.identifierSchemeUri || "",
+        identifierType: funder.identifierType || "",
       },
     });
   }
