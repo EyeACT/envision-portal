@@ -53,6 +53,7 @@ const baseCreatorObjectSchema = z
   })
   .strict();
 
+// Add the nameIdentifier validation to the creator schema
 const creatorSchema = baseCreatorObjectSchema.superRefine(
   validateNameIdentifier,
 );
