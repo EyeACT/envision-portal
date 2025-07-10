@@ -542,7 +542,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Study Population" name="studyPopulation">
+            <UFormField
+              label="Study Population"
+              name="studyPopulation"
+              required
+            >
               <UInput
                 v-model="state.studyPopulation"
                 class="w-full"
@@ -550,7 +554,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Sampling Method" name="samplingMethod">
+            <UFormField label="Sampling Method" name="samplingMethod" required>
               <USelect
                 v-model="state.samplingMethod"
                 class="w-full"
