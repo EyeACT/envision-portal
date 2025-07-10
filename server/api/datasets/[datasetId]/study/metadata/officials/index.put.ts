@@ -25,6 +25,7 @@ const OfficialSchema = z
     identifier: z.string().trim(),
     identifierScheme: z.string().trim(),
     identifierSchemeUri: z.string().trim(),
+    local: z.boolean().optional(),
     role: z
       .string({
         invalid_type_error: "Role is required",
@@ -40,9 +41,8 @@ const OfficialSchema = z
     // affiliationIdentifier and affiliationIdentifierScheme if provided must be together
     const hasAffId = data.affiliationIdentifier !== "";
     const hasAffSch = data.affiliationIdentifierScheme !== "";
-    const hasAffSchUri = data.affiliationIdentifierSchemeUri !== "";
 
-    if (hasAffId && (!hasAffSch || !hasAffSchUri)) {
+    if ((hasAffId && !hasAffSch) || (!hasAffId && hasAffSch)) {
       [
         "affiliationIdentifier",
         "affiliationIdentifierScheme",
@@ -51,7 +51,7 @@ const OfficialSchema = z
         context.addIssue({
           code: z.ZodIssueCode.custom,
           message:
-            "If affiliation identifier is provided, scheme and scheme URI must also be provided",
+            "Affiliation identifier and affiliation identifier scheme must be provided together",
           path: [path],
         }),
       );
@@ -61,7 +61,7 @@ const OfficialSchema = z
     const hasId = data.identifier !== "";
     const hasIdSch = data.identifierScheme !== "";
 
-    if (hasId !== hasIdSch) {
+    if ((hasId && !hasIdSch) || (!hasId && hasIdSch)) {
       ["identifier", "identifierScheme"].forEach((path) =>
         context.addIssue({
           code: z.ZodIssueCode.custom,

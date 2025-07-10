@@ -137,15 +137,25 @@ const validate = (state: any): FormError[] => {
 
     // If affiliation identifier is provided, scheme and scheme URI must also be provided
     if (
-      official.affiliationIdentifier.trim() !== "" &&
-      (official.affiliationIdentifierScheme.trim() === "" ||
-        official.affiliationIdentifierSchemeUri.trim() === "")
+      (official.affiliationIdentifier.trim() !== "" &&
+        official.affiliationIdentifierScheme.trim() === "") ||
+      (official.affiliationIdentifier.trim() === "" &&
+        official.affiliationIdentifierScheme.trim() !== "")
     ) {
-      errors.push({
-        name: `studyOverallOfficials-${index}`,
-        message:
-          "If affiliation identifier is provided, scheme and scheme URI must also be provided",
-      });
+      const messages = [
+        {
+          name: `affiliationIdentifier-${index}`,
+          message:
+            "Affiliation identifier and scheme must be provided together",
+        },
+        {
+          name: `affiliationIdentifierScheme-${index}`,
+          message:
+            "Affiliation identifier and scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
     }
 
     // If either official identifier or identifier scheme is provided, both must be provided

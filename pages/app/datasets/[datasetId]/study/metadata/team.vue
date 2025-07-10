@@ -265,6 +265,28 @@ const validate = (state: any): FormError[] => {
     errors.push(...messages);
   }
 
+  if (
+    (state.responsiblePartyInvestigatorIdentifierValue.trim() !== "" &&
+      state.responsiblePartyInvestigatorIdentifierScheme.trim() === "") ||
+    (state.responsiblePartyInvestigatorIdentifierValue.trim() === "" &&
+      state.responsiblePartyInvestigatorIdentifierScheme.trim() !== "")
+  ) {
+    const messages = [
+      {
+        name: "idValue",
+        message:
+          "Identifier scheme is required when identifier scheme is provided",
+      },
+      {
+        name: "idScheme",
+        message:
+          "Identifier value is required when identifier value is provided",
+      },
+    ];
+
+    errors.push(...messages);
+  }
+
   state.collaborators.forEach((c: any, index: number) => {
     if (!c.deleted && !c.name?.trim()) {
       errors.push({

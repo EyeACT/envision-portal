@@ -167,6 +167,28 @@ const validate = (state: any): FormError[] => {
       });
     }
 
+    if (
+      (contact.affiliationIdentifier.trim() !== "" &&
+        contact.affiliationIdentifierScheme.trim() === "") ||
+      (contact.affiliationIdentifier.trim() === "" &&
+        contact.affiliationIdentifierScheme.trim() !== "")
+    ) {
+      const messages = [
+        {
+          name: `affiliationIdentifier-${index}`,
+          message:
+            "Affiliation identifier and scheme must be provided together",
+        },
+        {
+          name: `affiliationIdentifierScheme-${index}`,
+          message:
+            "Affiliation identifier and scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
+    }
+
     // If identifier is provided, identifier scheme must also be provided and vice versa
     if (
       (contact.identifier.trim() !== "" &&

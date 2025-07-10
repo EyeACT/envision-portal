@@ -377,23 +377,24 @@ const validate = (state: any): FormError[] => {
       path: "managingOrganization.name",
     });
   }
-  if (!state.managingOrganization.identifier) {
-    errors.push({
-      message: "Identifier is required for managing organization",
-      path: "managingOrganization.identifier",
-    });
-  }
-  if (!state.managingOrganization.identifierScheme) {
-    errors.push({
-      message: "Identifier scheme is required for managing organization",
-      path: "managingOrganization.identifierScheme",
-    });
-  }
-  if (!state.managingOrganization.identifierSchemeUri) {
-    errors.push({
-      message: "Identifier scheme URI is required for managing organization",
-      path: "managingOrganization.identifierSchemeUri",
-    });
+  if (
+    (state.managingOrganization.identifier.trim() !== "" &&
+      !state.managingOrganization.identifierScheme) ||
+    (state.managingOrganization.identifierScheme.trim() !== "" &&
+      !state.managingOrganization.identifier)
+  ) {
+    const messages = [
+      {
+        message: "Identifier scheme is required when identifier is provided",
+        path: "managingOrganization.identifier",
+      },
+      {
+        message: "Identifier scheme is required when identifier is provided",
+        path: "managingOrganization.identifierScheme",
+      },
+    ];
+
+    errors.push(...messages);
   }
 
   return errors;
