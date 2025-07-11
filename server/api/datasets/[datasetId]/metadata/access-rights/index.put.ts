@@ -58,8 +58,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 

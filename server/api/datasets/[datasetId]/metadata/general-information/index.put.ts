@@ -1,31 +1,62 @@
 import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
+
+const titleTypeOptions = FORM_JSON.datasetTitleTypeOptions.map(
+  (opt) => opt.value,
+);
+const descripTypeOptions = FORM_JSON.datasetDescriptionTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const dateTypeOptions = FORM_JSON.datasetDateTypeOptions.map(
+  (opt) => opt.value,
+);
 
 const DatasetMetadataAboutSchema = z.object({
-  DatasetDate: z.array(
-    z.object({
-      id: z.string().optional(),
-      date: z.string(),
-      deleted: z.boolean().optional(),
-      information: z.string(),
-      type: z.string(),
-    }),
-  ),
-  DatasetDescription: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      description: z.string(),
-      type: z.string(),
-    }),
-  ),
-  DatasetTitle: z.array(
-    z.object({
-      id: z.string().optional(),
-      title: z.string(),
-      deleted: z.boolean().optional(),
-      type: z.string(),
-    }),
-  ),
+  DatasetDate: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        date: z.string().min(1, "Date is required"),
+        deleted: z.boolean().optional(),
+        information: z.string().optional(),
+        type: z.string().refine((v) => dateTypeOptions.includes(v), {
+          message: `Date type must be one of: ${dateTypeOptions.join(", ")}`,
+        }),
+      }),
+    )
+    .min(1, "At least one date is required"),
+  DatasetDescription: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        deleted: z.boolean().optional(),
+        description: z.string(),
+        type: z.string().refine((v) => descripTypeOptions.includes(v), {
+          message: `Description type must be one of: ${descripTypeOptions.join(", ")}`,
+        }),
+      }),
+    )
+    .min(1, "At least Abstract description is required"),
+  DatasetTitle: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        title: z.string().min(1, "Title is required"),
+        deleted: z.boolean().optional(),
+        type: z
+          .string()
+          .optional()
+          .refine(
+            (v) =>
+              titleTypeOptions.includes(v as (typeof titleTypeOptions)[number]),
+            {
+              message: `Title type must be one of: ${titleTypeOptions.join(", ")}`,
+            },
+          ),
+      }),
+    )
+    .min(1, "At least Main title is required"),
 });
 
 export default defineEventHandler(async (event) => {
@@ -45,8 +76,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
