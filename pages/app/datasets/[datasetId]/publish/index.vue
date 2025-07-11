@@ -5,14 +5,11 @@ definePageMeta({
 
 const route = useRoute();
 
-const { datasetId, studyId } = route.params as {
+const { datasetId } = route.params as {
   datasetId: string;
-  studyId: string;
 };
 
-await navigateTo(
-  `/app/study/${studyId}/datasets/${datasetId}/publish/study-metadata`,
-);
+await navigateTo(`/app/datasets/${datasetId}/publish/study-metadata`);
 </script>
 
 <template>

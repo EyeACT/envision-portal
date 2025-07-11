@@ -12,6 +12,10 @@ const props = defineProps({
     default: false,
     type: Boolean,
   },
+  noShadow: {
+    default: false,
+    type: Boolean,
+  },
 });
 
 const slots = useSlots();
@@ -37,10 +41,11 @@ const toggleCollapse = () => {
 
 <template>
   <div
-    class="rounded-lg shadow-lg"
+    class="rounded-lg"
     :class="{
       border: bordered,
       'border-slate-300': bordered,
+      'shadow-none': noShadow,
     }"
   >
     <div
