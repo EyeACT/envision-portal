@@ -1,14 +1,23 @@
 import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
+
+const identTypeOptions = FORM_JSON.datasetIdentifierTypeOptions.map(
+  (opt) => opt.value,
+);
 
 const DatasetMetadataIdentifiersSchema = z.object({
-  DatasetAlternateIdentifier: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      identifier: z.string(),
-      type: z.string(),
-    }),
-  ),
+  DatasetAlternateIdentifier: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        deleted: z.boolean().optional(),
+        identifier: z.string(),
+        type: z.string().refine((v) => identTypeOptions.includes(v), {
+          message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+        }),
+      }),
+    )
+    .min(1, "At least one alternate identifier is required"),
 });
 
 export default defineEventHandler(async (event) => {
