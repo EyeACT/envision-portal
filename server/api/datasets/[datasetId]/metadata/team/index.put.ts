@@ -40,6 +40,7 @@ const baseCreatorObjectSchema = z
     deleted: z.boolean().optional(),
     familyName: z.string(),
     givenName: z.string(),
+    local: z.boolean().optional(),
     nameIdentifier: z.string().optional(),
     nameIdentifierScheme: z.string().optional(),
     nameIdentifierSchemeUri: z.string().optional(),
@@ -82,6 +83,7 @@ const funderSchema = z
     identifier: z.string().trim().optional(),
     identifierSchemeUri: z.string().trim().optional(),
     identifierType: z.string().trim().optional(),
+    local: z.boolean().optional(),
   })
   .strict()
   .superRefine((data, ctx) => {

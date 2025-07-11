@@ -64,7 +64,7 @@ const DatasetMetadataDataManagementSchema = z
   .object({
     consent: consentSchema,
     deidentLevel: deIdentSchema,
-    subjects: z.array(subjectSchema),
+    subjects: z.array(subjectSchema).min(1, "At least one subject is required"),
   })
   .strict();
 
@@ -85,8 +85,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
