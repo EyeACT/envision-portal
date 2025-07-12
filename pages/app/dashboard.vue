@@ -54,7 +54,7 @@ const onSubmit = async () => {
     method: "POST",
   })
     .then((response) => {
-      navigateTo(`/app/dataset/${response.data.datasetId}`);
+      navigateTo(`/app/datasets/${response.data.datasetId}`);
     })
     .catch((error) => {
       console.error("Error creating new dataset:", error);

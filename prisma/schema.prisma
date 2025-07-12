@@ -70,6 +70,9 @@ model Dataset {
 
     doi String? // Optional since the doi is not assigned until the dataset is published
 
+    changelog String @default("")
+    readme    String @default("")
+
     updated DateTime @updatedAt
     created DateTime @default(now())
 
