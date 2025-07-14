@@ -657,7 +657,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               Primary Identifier
             </h2>
 
-            <UFormField label="Identifier" name="primaryIdentifier.identifier">
+            <UFormField
+              label="Identifier"
+              name="primaryIdentifier.identifier"
+              required
+            >
               <UInput
                 v-model="state.primaryIdentifier.identifier"
                 class="w-full"
@@ -665,7 +669,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Identifier Type" name="primaryIdentifier.type">
+            <UFormField
+              label="Identifier Type"
+              name="primaryIdentifier.type"
+              required
+            >
               <USelect
                 v-model="state.primaryIdentifier.type"
                 class="w-full"
