@@ -157,10 +157,7 @@ const validate = (state: any): FormError[] => {
     }
 
     // Validate email format
-    if (
-      contact.emailAddress.trim() !== "" &&
-      !emailPattern.test(contact.emailAddress)
-    ) {
+    if (contact.emailAddress.trim() && !isValidEmail(contact.emailAddress)) {
       errors.push({
         name: `emailAddress-${index}`,
         message: "Email address is not valid",
@@ -189,6 +186,26 @@ const validate = (state: any): FormError[] => {
       errors.push(...messages);
     }
 
+    if (
+      contact.affiliationIdentifier &&
+      !isValidORCIDValue(contact.affiliationIdentifier)
+    ) {
+      errors.push({
+        name: `affiliationIdentifier-${index}`,
+        message: "Must be a valid ORCID value",
+      });
+    }
+
+    if (
+      contact.affiliationIdentifierSchemeUri.trim() &&
+      !isValidUrl(contact.affiliationIdentifierSchemeUri)
+    ) {
+      errors.push({
+        name: `affiliationIdentifierSchemeUri-${index}`,
+        message: "Affiliation identifier scheme URI must be a valid URL",
+      });
+    }
+
     // If identifier is provided, identifier scheme must also be provided and vice versa
     if (
       (contact.identifier.trim() !== "" &&
@@ -208,6 +225,23 @@ const validate = (state: any): FormError[] => {
       ];
 
       errors.push(...messages);
+    }
+
+    if (contact.identifier && !isValidORCIDValue(contact.identifier)) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Must be a valid ORCID value",
+      });
+    }
+
+    if (
+      contact.identifierSchemeUri &&
+      !isValidUrl(contact.identifierSchemeUri)
+    ) {
+      errors.push({
+        name: `identifierSchemeUri-${index}`,
+        message: "Identifier scheme URI must be a valid URL",
+      });
     }
   });
 
