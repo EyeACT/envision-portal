@@ -244,6 +244,26 @@ const validate = (state: any): FormError[] => {
   }
 
   if (
+    state.leadSponsorIdentifier &&
+    !isValidORCIDValue(state.leadSponsorIdentifier)
+  ) {
+    errors.push({
+      name: "leadSponsorIdentifier",
+      message: "Invalid ORCID value",
+    });
+  }
+
+  if (
+    state.leadSponsorIdentifierSchemeUri &&
+    !isValidUrl(state.leadSponsorIdentifierSchemeUri)
+  ) {
+    errors.push({
+      name: "leadSponsorSchemeUri",
+      message: "Invalid URL",
+    });
+  }
+
+  if (
     (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() !== "" &&
       state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() ===
         "") ||
@@ -287,6 +307,38 @@ const validate = (state: any): FormError[] => {
     errors.push(...messages);
   }
 
+  if (
+    state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri &&
+    !isValidUrl(
+      state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri,
+    )
+  ) {
+    errors.push({
+      name: "affiliationSchemeUri",
+      message: "Invalid URL",
+    });
+  }
+
+  if (
+    state.responsiblePartyInvestigatorIdentifierValue &&
+    !isValidORCIDValue(state.responsiblePartyInvestigatorIdentifierValue)
+  ) {
+    errors.push({
+      name: "idValue",
+      message: "Invalid ORCID value",
+    });
+  }
+
+  if (
+    state.responsiblePartyInvestigatorAffiliationIdentifier &&
+    !isValidORCIDValue(state.responsiblePartyInvestigatorAffiliationIdentifier)
+  ) {
+    errors.push({
+      name: "affiliationId",
+      message: "Invalid ORCID value",
+    });
+  }
+
   state.collaborators.forEach((c: any, index: number) => {
     if (!c.deleted && !c.name?.trim()) {
       errors.push({
@@ -312,6 +364,20 @@ const validate = (state: any): FormError[] => {
       ];
 
       errors.push(...messages);
+    }
+
+    if (c.identifier && !isValidORCIDValue(c.identifier)) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Invalid ORCID value",
+      });
+    }
+
+    if (c.schemeUri && !isValidUrl(c.schemeUri)) {
+      errors.push({
+        name: `schemeUri-${index}`,
+        message: "Invalid URL",
+      });
     }
   });
 
