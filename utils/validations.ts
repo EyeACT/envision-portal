@@ -26,3 +26,9 @@ export const isValidORCIDValue = (orcid: string): boolean => {
 
   return orcidRegex.test(orcid);
 };
+
+export const isValidRORValue = (ror: string): boolean => {
+  const rorRegex = /^0[a-z|0-9]{6}[0-9]{2}$/;
+
+  return rorRegex.test(ror);
+};
