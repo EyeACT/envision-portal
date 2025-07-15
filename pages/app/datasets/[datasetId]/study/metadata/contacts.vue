@@ -188,11 +188,22 @@ const validate = (state: any): FormError[] => {
 
     if (
       contact.affiliationIdentifier &&
+      contact.affiliationIdentifierScheme.toUpperCase() === "ORCID" &&
       !isValidORCIDValue(contact.affiliationIdentifier)
     ) {
       errors.push({
         name: `affiliationIdentifier-${index}`,
         message: "Must be a valid ORCID value",
+      });
+    }
+    if (
+      contact.affiliationIdentifier &&
+      contact.affiliationIdentifierScheme.toUpperCase() === "ROR" &&
+      !isValidRORValue(contact.affiliationIdentifier)
+    ) {
+      errors.push({
+        name: `affiliationIdentifier-${index}`,
+        message: "Must be a valid ROR value",
       });
     }
 
@@ -227,10 +238,25 @@ const validate = (state: any): FormError[] => {
       errors.push(...messages);
     }
 
-    if (contact.identifier && !isValidORCIDValue(contact.identifier)) {
+    if (
+      contact.identifier &&
+      contact.identifierScheme.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(contact.identifier)
+    ) {
       errors.push({
         name: `identifier-${index}`,
         message: "Must be a valid ORCID value",
+      });
+    }
+
+    if (
+      contact.identifier &&
+      contact.identifierScheme.toUpperCase() === "ROR" &&
+      !isValidRORValue(contact.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Must be a valid ROR value",
       });
     }
 

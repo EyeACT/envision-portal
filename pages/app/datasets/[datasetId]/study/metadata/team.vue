@@ -245,11 +245,22 @@ const validate = (state: any): FormError[] => {
 
   if (
     state.leadSponsorIdentifier &&
+    state.leadSponsorIdentifierScheme.toUpperCase() === "ORCID" &&
     !isValidORCIDValue(state.leadSponsorIdentifier)
   ) {
     errors.push({
       name: "leadSponsorIdentifier",
       message: "Invalid ORCID value",
+    });
+  }
+  if (
+    state.leadSponsorIdentifier &&
+    state.leadSponsorIdentifierScheme.toUpperCase() === "ROR" &&
+    !isValidRORValue(state.leadSponsorIdentifier)
+  ) {
+    errors.push({
+      name: "leadSponsorIdentifier",
+      message: "Invalid ROR value",
     });
   }
 
@@ -321,6 +332,8 @@ const validate = (state: any): FormError[] => {
 
   if (
     state.responsiblePartyInvestigatorIdentifierValue &&
+    state.responsiblePartyInvestigatorIdentifierScheme.toUpperCase() ===
+      "ORCID" &&
     !isValidORCIDValue(state.responsiblePartyInvestigatorIdentifierValue)
   ) {
     errors.push({
@@ -328,14 +341,38 @@ const validate = (state: any): FormError[] => {
       message: "Invalid ORCID value",
     });
   }
+  if (
+    state.responsiblePartyInvestigatorIdentifierValue &&
+    state.responsiblePartyInvestigatorIdentifierScheme.toUpperCase() ===
+      "ROR" &&
+    !isValidRORValue(state.responsiblePartyInvestigatorIdentifierValue)
+  ) {
+    errors.push({
+      name: "idValue",
+      message: "Invalid ROR value",
+    });
+  }
 
   if (
     state.responsiblePartyInvestigatorAffiliationIdentifier &&
+    state.responsiblePartyInvestigatorAffiliationIdentifierScheme.toUpperCase() ===
+      "ORCID" &&
     !isValidORCIDValue(state.responsiblePartyInvestigatorAffiliationIdentifier)
   ) {
     errors.push({
       name: "affiliationId",
       message: "Invalid ORCID value",
+    });
+  }
+  if (
+    state.responsiblePartyInvestigatorAffiliationIdentifier &&
+    state.responsiblePartyInvestigatorAffiliationIdentifierScheme.toUpperCase() ===
+      "ROR" &&
+    !isValidRORValue(state.responsiblePartyInvestigatorAffiliationIdentifier)
+  ) {
+    errors.push({
+      name: "affiliationId",
+      message: "Invalid ROR value",
     });
   }
 
@@ -366,10 +403,24 @@ const validate = (state: any): FormError[] => {
       errors.push(...messages);
     }
 
-    if (c.identifier && !isValidORCIDValue(c.identifier)) {
+    if (
+      c.identifier &&
+      c.identifierScheme.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(c.identifier)
+    ) {
       errors.push({
         name: `identifier-${index}`,
         message: "Invalid ORCID value",
+      });
+    }
+    if (
+      c.identifier &&
+      c.identifierScheme.toUpperCase() === "ROR" &&
+      !isValidRORValue(c.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Invalid ROR value",
       });
     }
 

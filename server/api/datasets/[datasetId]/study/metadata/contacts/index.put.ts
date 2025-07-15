@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isValidORCIDValue } from "~/utils/validations";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
 
 const contractSchema = z
   .object({
@@ -37,7 +37,9 @@ const contractSchema = z
   .superRefine((data, context) => {
     const id = data.identifier.trim();
     const sch = data.identifierScheme.trim();
+    const idScheme = data.identifierScheme.toUpperCase();
     const affiliationId = data.affiliationIdentifier.trim();
+    const affilIdScheme = data.affiliationIdentifierScheme.toUpperCase();
 
     if ((id === "" && sch !== "") || (id !== "" && sch === "")) {
       context.addIssue({
@@ -52,18 +54,40 @@ const contractSchema = z
       });
     }
 
-    if (id && !isValidORCIDValue(id)) {
+    if (id && idScheme === "ORCID" && !isValidORCIDValue(id)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Identifier must be a valid ORCID value",
         path: ["identifier"],
       });
     }
+    if (id && idScheme === "ROR" && !isValidRORValue(id)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ROR value",
+        path: ["identifier"],
+      });
+    }
 
-    if (affiliationId && !isValidORCIDValue(affiliationId)) {
+    if (
+      affiliationId &&
+      affilIdScheme === "ORCID" &&
+      !isValidORCIDValue(affiliationId)
+    ) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Affiliation identifier must be a valid ORCID value",
+        path: ["affiliationIdentifier"],
+      });
+    }
+    if (
+      affiliationId &&
+      affilIdScheme === "ROR" &&
+      !isValidRORValue(affiliationId)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ROR value",
         path: ["affiliationIdentifier"],
       });
     }
