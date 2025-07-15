@@ -14,3 +14,15 @@ export const isValidUrl = (url: string): boolean => {
     return false;
   }
 };
+
+export const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  return emailRegex.test(email);
+};
+
+export const isValidORCIDValue = (orcid: string): boolean => {
+  const orcidRegex = /^(orcid:)?\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/;
+
+  return orcidRegex.test(orcid);
+};
