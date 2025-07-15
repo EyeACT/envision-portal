@@ -2,7 +2,8 @@
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
-import FORM_JSON from "~/assets/data/form.json";
+import FORM_JSON from "@/assets/data/form.json";
+import { isValidUrl } from "~/utils/validations";
 
 definePageMeta({
   middleware: ["auth"],
@@ -262,6 +263,23 @@ const validate = (state: any): FormError[] => {
 
         errors.push(...messages);
       }
+
+      // Verify url for classificationCode and schemeUri
+      if (keyword.keywordUri && keyword.schemeUri) {
+        // validate url
+        if (!isValidUrl(keyword.keywordUri)) {
+          errors.push({
+            name: `keywordUri-${index}`,
+            message: "Invalid URL format",
+          });
+        }
+        if (!isValidUrl(keyword.schemeUri)) {
+          errors.push({
+            name: `schemeUri-${index}`,
+            message: "Invalid URL format",
+          });
+        }
+      }
     });
   }
 
@@ -295,6 +313,22 @@ const validate = (state: any): FormError[] => {
 
         errors.push(...messages);
       }
+
+      // Verify url for schemeuri and keyworduri
+      if (condition.conditionUri && !isValidUrl(condition.conditionUri)) {
+        // validate url
+        errors.push({
+          name: `conditionUri-${index}`,
+          message: "Invalid URL format",
+        });
+      }
+
+      if (condition.schemeUri && !isValidUrl(condition.schemeUri)) {
+        errors.push({
+          name: `schemeUri-${index}`,
+          message: "Condition scheme URI must be a valid URL",
+        });
+      }
     });
   }
 
@@ -312,6 +346,26 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  if (
+    state.primaryIdentifier.domain &&
+    !isValidUrl(state.primaryIdentifier.domain)
+  ) {
+    errors.push({
+      name: "primaryIdentifier.domain",
+      message: "Primary identifier domain must be a valid URL",
+    });
+  }
+
+  if (
+    state.primaryIdentifier.link &&
+    !isValidUrl(state.primaryIdentifier.link)
+  ) {
+    errors.push({
+      name: "primaryIdentifier.link",
+      message: "Primary identifier link must be a valid URL",
+    });
+  }
+
   state.secondaryIdentifiers.forEach((identifier: any, index: number) => {
     if (!identifier.identifier) {
       errors.push({
@@ -324,6 +378,20 @@ const validate = (state: any): FormError[] => {
       errors.push({
         name: `type-${index}`,
         message: "Identifier type is required",
+      });
+    }
+
+    if (identifier.domain && !isValidUrl(identifier.domain)) {
+      errors.push({
+        name: `domain-${index}`,
+        message: "Identifier domain must be a valid URL",
+      });
+    }
+
+    if (identifier.domain && !isValidUrl(identifier.link)) {
+      errors.push({
+        name: `link-${index}`,
+        message: "Identifier link must be a valid URL",
       });
     }
   });
@@ -380,6 +448,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     ),
   };
 
+  console.log(JSON.stringify(b, null, 2));
+
   await $fetch(`/api/datasets/${datasetId}/study/metadata/about`, {
     body: b,
     method: "PUT",
@@ -404,7 +474,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     })
     .finally(() => {
       // refresh the page
-      window.location.reload();
+      // window.location.reload();
 
       saveLoading.value = false;
     });

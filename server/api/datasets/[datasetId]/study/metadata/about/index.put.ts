@@ -15,10 +15,10 @@ const StudyMetadataAboutSchema = z
           id: z.string().optional(),
           name: z.string().min(1, "Name is required"),
           classificationCode: z.string().optional(),
-          conditionUri: z.string().min(1, "Condition URI is required"),
+          conditionUri: z.union([z.literal(""), z.string().trim().url()]),
           deleted: z.boolean().optional(),
           scheme: z.string().optional(),
-          schemeUri: z.string().optional(),
+          schemeUri: z.union([z.literal(""), z.string().trim().url()]),
         }),
       )
       .min(1, "At least one condition is required"),
@@ -30,16 +30,16 @@ const StudyMetadataAboutSchema = z
           name: z.string().min(1, "Name is required"),
           classificationCode: z.string().optional(),
           deleted: z.boolean().optional(),
-          keywordUri: z.string().optional(),
+          keywordUri: z.union([z.literal(""), z.string().trim().url()]),
           scheme: z.string().optional(),
-          schemeUri: z.string().optional(),
+          schemeUri: z.union([z.literal(""), z.string().trim().url()]),
         }),
       )
       .min(1, "At least one keyword is required"),
     primaryIdentifier: z.object({
-      domain: z.string().optional(),
+      domain: z.union([z.literal(""), z.string().trim().url()]),
       identifier: z.string(),
-      link: z.string().optional(),
+      link: z.union([z.literal(""), z.string().trim().url()]),
       type: z.string().refine((v) => identTypeOptions.includes(v), {
         message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
       }),
@@ -48,9 +48,9 @@ const StudyMetadataAboutSchema = z
       z.object({
         id: z.string().optional(),
         deleted: z.boolean().optional(),
-        domain: z.string().optional(),
+        domain: z.union([z.literal(""), z.string().trim().url()]),
         identifier: z.string(),
-        link: z.string().optional(),
+        link: z.union([z.literal(""), z.string().trim().url()]),
         type: z.string().refine((v) => identTypeOptions.includes(v), {
           message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
         }),
@@ -112,8 +112,8 @@ export default defineEventHandler(async (event) => {
     await prisma.studyIdentification.update({
       data: {
         identifier: primaryIdentifier.identifier,
-        identifierDomain: primaryIdentifier.domain,
-        identifierLink: primaryIdentifier.link,
+        identifierDomain: primaryIdentifier.domain || "",
+        identifierLink: primaryIdentifier.link || "",
         identifierType: primaryIdentifier.type,
       },
       where: { id: primaryIdentifierId.id },
@@ -123,8 +123,8 @@ export default defineEventHandler(async (event) => {
       data: {
         datasetId,
         identifier: primaryIdentifier.identifier,
-        identifierDomain: primaryIdentifier.domain ?? "",
-        identifierLink: primaryIdentifier.link ?? "",
+        identifierDomain: primaryIdentifier.domain || "",
+        identifierLink: primaryIdentifier.link || "",
         identifierType: primaryIdentifier.type,
         isSecondary: false,
       },
@@ -139,7 +139,13 @@ export default defineEventHandler(async (event) => {
 
   for (const identifier of secondaryIdentifiersToUpdate) {
     await prisma.studyIdentification.update({
-      data: identifier,
+      data: {
+        identifier: identifier.identifier,
+        identifierDomain: identifier.domain || "",
+        identifierLink: identifier.link || "",
+        identifierType: identifier.type,
+        isSecondary: true,
+      },
       where: { id: identifier.id },
     });
   }
@@ -154,8 +160,8 @@ export default defineEventHandler(async (event) => {
       data: {
         datasetId,
         identifier: identifier.identifier,
-        identifierDomain: identifier.domain ?? "",
-        identifierLink: identifier.link ?? "",
+        identifierDomain: identifier.domain || "",
+        identifierLink: identifier.link || "",
         identifierType: identifier.type,
         isSecondary: true,
       },
