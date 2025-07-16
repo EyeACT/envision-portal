@@ -3,6 +3,11 @@ import * as z from "zod";
 import { nanoid } from "nanoid";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
+import {
+  isValidORCIDValue,
+  isValidRORValue,
+  isValidUrl,
+} from "~/utils/validations";
 
 definePageMeta({
   middleware: ["auth"],
@@ -158,6 +163,37 @@ const validate = (state: any): FormError[] => {
       errors.push(...messages);
     }
 
+    if (
+      official.affiliationIdentifier &&
+      official.affiliationIdentifierScheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(official.affiliationIdentifier)
+    ) {
+      errors.push({
+        name: `affiliationIdentifier-${index}`,
+        message: "Affiliation identifier must be a valid ORCID",
+      });
+    }
+    if (
+      official.affiliationIdentifier &&
+      official.affiliationIdentifierScheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(official.affiliationIdentifier)
+    ) {
+      errors.push({
+        name: `affiliationIdentifier-${index}`,
+        message: "Affiliation identifier must be a valid ROR",
+      });
+    }
+
+    if (
+      official.affiliationIdentifierSchemeUri.trim() !== "" &&
+      !isValidUrl(official.affiliationIdentifierSchemeUri)
+    ) {
+      errors.push({
+        name: `affiliationIdentifierSchemeUri-${index}`,
+        message: "Affiliation identifier scheme URI must be a valid URI",
+      });
+    }
+
     // If either official identifier or identifier scheme is provided, both must be provided
     if (
       (official.identifier.trim() !== "" &&
@@ -177,6 +213,38 @@ const validate = (state: any): FormError[] => {
       ];
 
       errors.push(...messages);
+    }
+
+    if (
+      official.identifier &&
+      official.identifierScheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(official.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Identifier must be a valid ORCID",
+      });
+    }
+
+    if (
+      official.identifier &&
+      official.identifierScheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(official.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Identifier must be a valid ROR",
+      });
+    }
+
+    if (
+      official.identifierSchemeUri &&
+      !isValidUrl(official.identifierSchemeUri)
+    ) {
+      errors.push({
+        name: `identifierSchemeUri-${index}`,
+        message: "Identifier scheme URI must be a valid URL",
+      });
     }
 
     // Official role must be one of the predefined options

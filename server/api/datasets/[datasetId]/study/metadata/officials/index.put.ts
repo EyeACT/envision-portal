@@ -14,7 +14,10 @@ const OfficialSchema = z
       .min(1, { message: "Affiliation is required" }),
     affiliationIdentifier: z.string().trim(),
     affiliationIdentifierScheme: z.string().trim(),
-    affiliationIdentifierSchemeUri: z.string().trim(),
+    affiliationIdentifierSchemeUri: z.union([
+      z.literal(""),
+      z.string().trim().url(),
+    ]),
     degree: z.string().trim(),
     deleted: z.boolean().optional(),
     familyName: z
@@ -24,7 +27,7 @@ const OfficialSchema = z
     givenName: z.string().trim().min(1, { message: "Given name is required" }),
     identifier: z.string().trim(),
     identifierScheme: z.string().trim(),
-    identifierSchemeUri: z.string().trim(),
+    identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
     local: z.boolean().optional(),
     role: z
       .string({
@@ -41,6 +44,8 @@ const OfficialSchema = z
     // affiliationIdentifier and affiliationIdentifierScheme if provided must be together
     const hasAffId = data.affiliationIdentifier !== "";
     const hasAffSch = data.affiliationIdentifierScheme !== "";
+    const hasId = data.identifier !== "";
+    const hasIdSch = data.identifierScheme !== "";
 
     if ((hasAffId && !hasAffSch) || (!hasAffId && hasAffSch)) {
       [
@@ -58,9 +63,6 @@ const OfficialSchema = z
     }
 
     // identifier and identifierScheme if provided must be together
-    const hasId = data.identifier !== "";
-    const hasIdSch = data.identifierScheme !== "";
-
     if ((hasId && !hasIdSch) || (!hasId && hasIdSch)) {
       ["identifier", "identifierScheme"].forEach((path) =>
         context.addIssue({
