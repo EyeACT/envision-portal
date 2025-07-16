@@ -1,5 +1,6 @@
 import { z } from "zod";
 import FORM_JSON from "~/assets/data/form.json";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
 
 const validRoles = FORM_JSON.studyMetadataContactsOverallOfficialRole.map(
   (opt) => opt.value,
@@ -46,6 +47,8 @@ const OfficialSchema = z
     const hasAffSch = data.affiliationIdentifierScheme !== "";
     const hasId = data.identifier !== "";
     const hasIdSch = data.identifierScheme !== "";
+    const idScheme = data.identifierScheme.toUpperCase();
+    const affilIdScheme = data.affiliationIdentifierScheme.toUpperCase();
 
     if ((hasAffId && !hasAffSch) || (!hasAffId && hasAffSch)) {
       [
@@ -62,6 +65,29 @@ const OfficialSchema = z
       );
     }
 
+    if (
+      hasAffId &&
+      affilIdScheme === "ORCID" &&
+      !isValidORCIDValue(data.affiliationIdentifier)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ORCID",
+        path: ["affiliationIdentifier"],
+      });
+    }
+    if (
+      hasAffId &&
+      affilIdScheme === "ROR" &&
+      !isValidRORValue(data.affiliationIdentifier)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ROR",
+        path: ["affiliationIdentifier"],
+      });
+    }
+
     // identifier and identifierScheme if provided must be together
     if ((hasId && !hasIdSch) || (!hasId && hasIdSch)) {
       ["identifier", "identifierScheme"].forEach((path) =>
@@ -71,6 +97,21 @@ const OfficialSchema = z
           path: [path],
         }),
       );
+    }
+
+    if (hasId && idScheme === "ORCID" && !isValidORCIDValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ORCID",
+        path: ["identifier"],
+      });
+    }
+    if (hasId && idScheme === "ROR" && !isValidRORValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ROR",
+        path: ["identifier"],
+      });
     }
   });
 
