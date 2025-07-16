@@ -1,5 +1,6 @@
 import { z } from "zod";
 import FORM_JSON from "~/assets/data/form.json";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
 
 const validStatus = FORM_JSON.studyMetadataStatusOptions.map(
   (opt) => opt.value,
@@ -14,7 +15,7 @@ const LocationSchema = z
     facility: z.string().trim().min(1, { message: "Facility is required" }),
     identifier: z.string().trim(),
     identifierScheme: z.string().trim(),
-    identifierSchemeUri: z.string().trim(),
+    identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
     state: z.string().trim().min(1, { message: "State is required" }),
     status: z
       .string({
@@ -30,8 +31,9 @@ const LocationSchema = z
   .superRefine((data, context) => {
     const hasId = data.identifier !== "";
     const hasScheme = data.identifierScheme !== "";
+    const scheme = data.identifierScheme.toUpperCase();
 
-    if (hasId !== hasScheme) {
+    if ((hasId && !hasScheme) || (!hasId && hasScheme)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Identifier and Identifier Scheme must be provided together",
@@ -41,6 +43,21 @@ const LocationSchema = z
         code: z.ZodIssueCode.custom,
         message: "Identifier and Identifier Scheme must be provided together",
         path: ["identifierScheme"],
+      });
+    }
+
+    if (hasId && scheme === "ORCID" && !isValidORCIDValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid ORCID identifier",
+        path: ["identifier"],
+      });
+    }
+    if (hasId && scheme === "ROR" && !isValidRORValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid ROR identifier",
+        path: ["identifier"],
       });
     }
   });
