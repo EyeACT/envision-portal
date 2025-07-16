@@ -1,11 +1,16 @@
 import { z } from "zod";
 import FORM_JSON from "@/assets/data/form.json";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
 
 const nameTypeOptions = FORM_JSON.datasetNameTypeOptions.map(
   (opt) => opt.value,
 );
 
 const contribTypeOptions = FORM_JSON.datasetContributorTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const funderIdentTypeOptions = FORM_JSON.datasetFunderIdentifierTypeOptions.map(
   (opt) => opt.value,
 );
 
@@ -21,29 +26,87 @@ const validateNameIdentifier = (data: any, ctx: z.RefinementCtx) => {
         "Both nameIdentifierScheme and nameIdentifier must be provided together",
     });
   }
+
+  if (
+    data.nameIdentifier &&
+    data.nameIdentifierScheme === "ORCID" &&
+    !isValidORCIDValue(data.nameIdentifier)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Name identifier must be a valid ORCID value",
+      path: ["nameIdentifier"],
+    });
+  }
+  if (
+    data.nameIdentifier &&
+    data.nameIdentifierScheme === "ROR" &&
+    !isValidRORValue(data.nameIdentifier)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Name identifier must be a valid ROR value",
+      path: ["nameIdentifier"],
+    });
+  }
 };
+
+const affiliationSchema = z
+  .object({
+    affiliation: z.string(),
+    identifier: z.string().optional(),
+    identifierScheme: z.string().optional(),
+    identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      (data.identifier && !data.identifierScheme) ||
+      (!data.identifier && data.identifierScheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Both identifierScheme and identifier must be provided together",
+      });
+    }
+
+    if (
+      data.identifier &&
+      data.identifierScheme === "ORCID" &&
+      !isValidORCIDValue(data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ORCID value",
+        path: ["identifier"],
+      });
+    }
+
+    if (
+      data.identifier &&
+      data.identifierScheme === "ROR" &&
+      !isValidRORValue(data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ROR value",
+        path: ["identifier"],
+      });
+    }
+  });
 
 // Create base schema for creators and contributors
 const baseCreatorObjectSchema = z
   .object({
     id: z.string().optional(),
-    affiliations: z
-      .array(
-        z.object({
-          affiliation: z.string(),
-          identifier: z.string().optional(),
-          identifierScheme: z.string().optional(),
-          identifierSchemeUri: z.string().optional(),
-        }),
-      )
-      .optional(),
+    affiliations: z.array(affiliationSchema).optional(),
     deleted: z.boolean().optional(),
     familyName: z.string(),
     givenName: z.string(),
     local: z.boolean().optional(),
     nameIdentifier: z.string().optional(),
     nameIdentifierScheme: z.string().optional(),
-    nameIdentifierSchemeUri: z.string().optional(),
+    nameIdentifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
     nameType: z
       .string()
       .trim()
@@ -68,6 +131,7 @@ const contributorSchema = baseCreatorObjectSchema
       .min(1, "Contributor type is required")
       .refine((v) => contribTypeOptions.includes(v), {
         message: `Contributor type must be one of: ${contribTypeOptions.join(", ")}`,
+        path: ["contributorType"],
       }),
   })
   .superRefine(validateNameIdentifier);
@@ -82,7 +146,14 @@ const funderSchema = z
     deleted: z.boolean().optional(),
     identifier: z.string().trim().optional(),
     identifierSchemeUri: z.string().trim().optional(),
-    identifierType: z.string().trim().optional(),
+    identifierType: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => funderIdentTypeOptions.includes(v as any), {
+        message: `Identifier type must be one of: ${funderIdentTypeOptions.join(", ")}`,
+        path: ["identifierType"],
+      }),
     local: z.boolean().optional(),
   })
   .strict()
@@ -94,6 +165,30 @@ const funderSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Both identifierType and identifier must be provided together",
+      });
+    }
+
+    if (
+      data.identifier &&
+      data.identifierType === "ORCID" &&
+      !isValidORCIDValue(data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ORCID value",
+        path: ["identifier"],
+      });
+    }
+
+    if (
+      data.identifier &&
+      data.identifierType === "ROR" &&
+      !isValidRORValue(data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ROR value",
+        path: ["identifier"],
       });
     }
   });
@@ -114,6 +209,30 @@ const managingOrgSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Both identifierType and identifier must be provided together",
+      });
+    }
+
+    if (
+      data.identifier &&
+      data.identifierScheme === "ORCID" &&
+      !isValidORCIDValue(data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ORCID value",
+        path: ["identifier"],
+      });
+    }
+
+    if (
+      data.identifier &&
+      data.identifierScheme === "ROR" &&
+      !isValidRORValue(data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ROR value",
+        path: ["identifier"],
       });
     }
   });
