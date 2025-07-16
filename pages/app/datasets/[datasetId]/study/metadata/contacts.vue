@@ -127,6 +127,17 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  const activeContacts = state.studyCentralContacts.filter(
+    (contact: any) => !contact.deleted,
+  );
+
+  if (activeContacts.length === 0) {
+    errors.push({
+      name: "studyCentralContacts",
+      message: "At least one study central contact is required",
+    });
+  }
+
   state.studyCentralContacts.forEach((contact: any, index: number) => {
     if (contact.givenName.trim() === "") {
       errors.push({

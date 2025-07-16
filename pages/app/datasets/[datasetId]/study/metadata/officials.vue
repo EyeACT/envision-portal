@@ -118,6 +118,17 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  const activeOfficials = state.studyOverallOfficials.filter(
+    (official: any) => !official.deleted,
+  );
+
+  if (activeOfficials.length === 0) {
+    errors.push({
+      name: "studyOverallOfficials",
+      message: "At least one study overall official is required",
+    });
+  }
+
   state.studyOverallOfficials.forEach((official: any, index: number) => {
     if (official.givenName.trim() === "") {
       errors.push({

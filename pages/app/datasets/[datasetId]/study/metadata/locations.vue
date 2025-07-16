@@ -107,6 +107,17 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  const activeLocations = state.studyLocations.filter(
+    (location: any) => !location.deleted,
+  );
+
+  if (activeLocations.length === 0) {
+    errors.push({
+      name: "studyLocations",
+      message: "At least one study location is required",
+    });
+  }
+
   state.studyLocations.forEach((location: any, index: number) => {
     if (location.facility.trim() === "") {
       errors.push({
