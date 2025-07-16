@@ -87,14 +87,30 @@ const removeSecondaryIdentifier = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors = [];
+  const errors: FormError[] = [];
 
   if (state.secondaryIdentifiers.length === 0) {
     errors.push({
+      name: "secondaryIdentifiers",
       message: "Please add at least one secondary identifier",
-      path: "secondaryIdentifiers",
     });
   }
+
+  state.secondaryIdentifiers.forEach((item: any, index: number) => {
+    if (!item.deleted && !item.identifier?.trim()) {
+      errors.push({
+        name: `secondary-identifier-${index}`,
+        message: "Identifier value is required.",
+      });
+    }
+
+    if (!item.deleted && !item.type?.trim()) {
+      errors.push({
+        name: `secondary-type-${index}`,
+        message: "Identifier type is required.",
+      });
+    }
+  });
 
   return errors;
 };
@@ -247,14 +263,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Identifier" name="identifier">
-                    <UInput
-                      v-model="item.identifier"
-                      placeholder="10.1000/182"
-                    />
+                  <UFormField :name="`secondary-identifier-${index}`" label="Identifier" required>
+                    <UInput v-model="item.identifier" placeholder="10.1000/182" />
                   </UFormField>
-
-                  <UFormField label="Type" name="type">
+                  <UFormField :name="`secondary-type-${index}`" label="Type" required>
                     <USelect
                       v-model="item.type"
                       class="w-full"
