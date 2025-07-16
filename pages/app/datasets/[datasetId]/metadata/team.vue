@@ -241,164 +241,158 @@ const removeFunder = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors: FormError[] = []
+  const errors = [];
 
   // Validate creators
-  if (!state.creators || state.creators.length === 0) {
+  if (state.creators.length === 0) {
     errors.push({
-      name: "creators",
       message: "Please add at least one creator",
+      path: "creators",
     });
   } else {
     state.creators.forEach((creator: any, index: number) => {
       if (!creator.givenName) {
         errors.push({
-          name: `creators[${index}].givenName`,
-          message: "Given name is required.",
+          message: "Given name is required for creator",
+          path: `creators`,
         });
       }
       if (!creator.nameType) {
         errors.push({
-          name: `creators[${index}].nameType`,
-          message: "Name type is required.",
+          message: "Name type is required for creator",
+          path: `creators`,
         });
       }
       if (!creator.nameIdentifier) {
         errors.push({
-          name: `creators[${index}].nameIdentifier`,
-          message: "Name identifier is required.",
+          message: "Name identifier is required for creator",
+          path: `creators`,
         });
       }
       if (!creator.nameIdentifierScheme) {
         errors.push({
-          name: `creators[${index}].nameIdentifierScheme`,
-          message: "Name identifier scheme is required.",
+          message: "Name identifier scheme is required for creator",
+          path: `creators`,
         });
       }
       if (!creator.nameIdentifierSchemeUri) {
         errors.push({
-          name: `creators[${index}].nameIdentifierSchemeUri`,
-          message: "Name identifier scheme URI is required.",
+          message: "Name identifier scheme URI is required for creator",
+          path: `creators`,
         });
       }
     });
   }
 
   // Validate contributors
-  if (Array.isArray(state.contributors)) {
-    state.contributors.forEach((contributor: any, index: number) => {
-      if (!contributor.givenName?.trim()) {
-        errors.push({
-          name: `contributors[${index}].givenName`,
-          message: "Given name is required",
-        });
-      }
-      if (!contributor.nameType?.trim()) {
-        errors.push({
-          name: `contributors[${index}].nameType`,
-          message: "Name type is required",
-        });
-      }
-      if (!contributor.nameIdentifier?.trim()) {
-        errors.push({
-          name: `contributors[${index}].nameIdentifier`,
-          message: "Name identifier is required",
-        });
-      }
-      if (!contributor.nameIdentifierScheme?.trim()) {
-        errors.push({
-          name: `contributors[${index}].nameIdentifierScheme`,
-          message: "Name identifier scheme is required",
-        });
-      }
-      if (!contributor.nameIdentifierSchemeUri?.trim()) {
-        errors.push({
-          name: `contributors[${index}].nameIdentifierSchemeUri`,
-          message: "Name identifier scheme URI is required",
-        });
-      }
-      if (!contributor.contributorType?.trim()) {
-        errors.push({
-          name: `contributors[${index}].contributorType`,
-          message: "Contributor type is required",
-        });
-      }
-    });
-  }
+  state.contributors.forEach((contributor: any, index: number) => {
+    if (!contributor.givenName) {
+      errors.push({
+        message: "Given name is required for contributor",
+        path: `contributors`,
+      });
+    }
+    if (!contributor.nameType) {
+      errors.push({
+        message: "Name type is required for contributor",
+        path: `contributors`,
+      });
+    }
+    if (!contributor.nameIdentifier) {
+      errors.push({
+        message: "Name identifier is required for contributor",
+        path: `contributors`,
+      });
+    }
+    if (!contributor.nameIdentifierScheme) {
+      errors.push({
+        message: "Name identifier scheme is required for contributor",
+        path: `contributors`,
+      });
+    }
+    if (!contributor.nameIdentifierSchemeUri) {
+      errors.push({
+        message: "Name identifier scheme URI is required for contributor",
+        path: `contributors`,
+      });
+    }
+    if (!contributor.contributorType) {
+      errors.push({
+        message: "Contributor type is required for contributor",
+        path: `contributors`,
+      });
+    }
+  });
 
   // Validate funders
-  if (Array.isArray(state.funders)) {
-    state.funders.forEach((funder: any, index: number) => {
-      if (!funder.name?.trim()) {
-        errors.push({
-          name: `funders[${index}].name`,
-          message: "Name is required",
-        });
-      }
-      if (!funder.identifier?.trim()) {
-        errors.push({
-          name: `funders[${index}].identifier`,
-          message: "Identifier is required",
-        });
-      }
-      if (!funder.identifierType?.trim()) {
-        errors.push({
-          name: `funders[${index}].identifierType`,
-          message: "Identifier type is required",
-        });
-      }
-      if (!funder.identifierSchemeUri?.trim()) {
-        errors.push({
-          name: `funders[${index}].identifierSchemeUri`,
-          message: "Identifier scheme URI is required",
-        });
-      }
-      if (!funder.awardNumber?.trim()) {
-        errors.push({
-          name: `funders[${index}].awardNumber`,
-          message: "Award number is required",
-        });
-      }
-      if (!funder.awardTitle?.trim()) {
-        errors.push({
-          name: `funders[${index}].awardTitle`,
-          message: "Award title is required",
-        });
-      }
-      if (!funder.awardUri?.trim()) {
-        errors.push({
-          name: `funders[${index}].awardUri`,
-          message: "Award URI is required",
-        });
-      }
-    });
-  }
+  state.funders.forEach((funder: any, index: number) => {
+    if (!funder.name) {
+      errors.push({
+        message: "Name is required for funder",
+        path: `funders`,
+      });
+    }
+    if (!funder.identifier) {
+      errors.push({
+        message: "Identifier is required for funder",
+        path: `funders`,
+      });
+    }
+    if (!funder.identifierType) {
+      errors.push({
+        message: "Identifier type is required for funder",
+        path: `funders`,
+      });
+    }
+    if (!funder.identifierSchemeUri) {
+      errors.push({
+        message: "Identifier scheme URI is required for funder",
+        path: `funders`,
+      });
+    }
+    if (!funder.awardNumber) {
+      errors.push({
+        message: "Award number is required for funder",
+        path: `funders`,
+      });
+    }
+    if (!funder.awardTitle) {
+      errors.push({
+        message: "Award title is required for funder",
+        path: `funders`,
+      });
+    }
+    if (!funder.awardUri) {
+      errors.push({
+        message: "Award URI is required for funder",
+        path: `funders`,
+      });
+    }
+  });
 
   // Validate managing organization
-  const org = state.managingOrganization || {};
-
-  if (!org.name?.trim()) {
+  if (!state.managingOrganization.name) {
     errors.push({
-      name: "managingOrganization.name",
-      message: "Name is required",
+      message: "Name is required for managing organization",
+      path: "managingOrganization.name",
     });
   }
-  if (!org.identifier?.trim()) {
+  if (!state.managingOrganization.identifier) {
     errors.push({
-      name: "managingOrganization.identifier",
-      message: "Identifier is required",
+      message: "Identifier is required for managing organization",
+      path: "managingOrganization.identifier",
     });
   }
-  if (!org.identifierScheme?.trim()) {
+  if (!state.managingOrganization.identifierScheme) {
     errors.push({
-      name: "managingOrganization.identifierScheme",
-      message: "Identifier scheme is required",
+      message: "Identifier scheme is required for managing organization",
+      path: "managingOrganization.identifierScheme",
     });
   }
-  if (!org.identifierSchemeUri?.trim()) {
+  if (!state.managingOrganization.identifierSchemeUri) {
     errors.push({
-      name: "managingOrganization.identifierSchemeUri",
-      message: "Identifier scheme URI is required",
+      message: "Identifier scheme URI is required for managing organization",
+      path: "managingOrganization.identifierSchemeUri",
     });
   }
 
@@ -559,11 +553,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField
-                    label="Name Type"
-                    :name="`creators[${index}].nameType`"
-                    required
-                  >
+                  <UFormField label="Name Type" name="nameType">
                     <USelect
                       v-model="item.nameType"
                       class="w-full"
@@ -575,9 +565,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Given Name"
-                      :name="`creators[${index}].givenName`"
+                      name="givenName"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.givenName"
@@ -602,9 +591,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Name Identifier"
-                      :name="`creators[${index}].nameIdentifier`"
+                      name="nameIdentifier"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifier"
@@ -615,9 +603,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Name Identifier Scheme"
-                      :name="`creators[${index}].nameIdentifierScheme`"
+                      name="nameIdentifierScheme"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
@@ -628,9 +615,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Name Identifier Scheme URI"
-                      :name="`creators[${index}].nameIdentifierSchemeUri`"
+                      name="nameIdentifierSchemeUri"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifierSchemeUri"
@@ -771,11 +757,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField
-                    label="Contributor Type"
-                    :name="`contributors[${index}].contributorType`"
-                    required
-                  >
+                  <UFormField label="Contributor Type" name="contributorType">
                     <USelect
                       v-model="item.contributorType"
                       class="w-full"
@@ -784,11 +766,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Name Type"
-                    :name="`contributors[${index}].nameType`"
-                    required
-                  >
+                  <UFormField label="Name Type" name="nameType">
                     <USelect
                       v-model="item.nameType"
                       class="w-full"
@@ -800,9 +778,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Given Name"
-                      :name="`contributors[${index}].givenName`"
+                      name="givenName"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.givenName"
@@ -827,9 +804,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Name Identifier"
-                      :name="`contributors[${index}].nameIdentifier`"
+                      name="nameIdentifier"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifier"
@@ -840,9 +816,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Name Identifier Scheme"
-                      :name="`contributors[${index}].nameIdentifierScheme`"
+                      name="nameIdentifierScheme"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
@@ -853,9 +828,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Name Identifier Scheme URI"
-                      :name="`contributors[${index}].nameIdentifierSchemeUri`"
+                      name="nameIdentifierSchemeUri"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifierSchemeUri"
@@ -993,7 +967,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`funders[${index}].name`" required>
+                  <UFormField label="Name" name="name">
                     <UInput
                       v-model="item.name"
                       placeholder="National Institutes of Health"
@@ -1004,8 +978,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Identifier"
-                      :name="`funders[${index}].identifier`"
-                      required
+                      name="identifier"
                       class="w-full"
                     >
                       <UInput
@@ -1017,8 +990,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Type"
-                      :name="`funders[${index}].identifierType`"
-                      required
+                      name="identifierType"
                       class="w-full"
                     >
                       <USelect
@@ -1031,8 +1003,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Scheme URI"
-                      :name="`funders[${index}].identifierSchemeUri`"
-                      required
+                      name="identifierSchemeUri"
                       class="w-full"
                     >
                       <UInput
@@ -1043,11 +1014,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField
-                    label="Award Number"
-                    :name="`funders[${index}].awardNumber`"
-                    required
-                  >
+                  <UFormField label="Award Number" name="awardNumber">
                     <UInput
                       v-model="item.awardNumber"
                       placeholder="R01GM123456"
@@ -1055,11 +1022,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Award Title"
-                    :name="`funders[${index}].awardTitle`"
-                    required
-                  >
+                  <UFormField label="Award Title" name="awardTitle">
                     <UInput
                       v-model="item.awardTitle"
                       placeholder="Research Project Grant"
@@ -1067,11 +1030,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Award URI"
-                    :name="`funders[${index}].awardUri`"
-                    required
-                  >
+                  <UFormField label="Award URI" name="awardUri">
                     <UInput
                       v-model="item.awardUri"
                       placeholder="https://reporter.nih.gov/project-details/12345678"
@@ -1107,7 +1066,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Name" name="managingOrganization.name" required>
+            <UFormField label="Name" name="managingOrganization.name">
               <UInput
                 v-model="state.managingOrganization.name"
                 placeholder="University of Example"
@@ -1120,7 +1079,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier"
                 name="managingOrganization.identifier"
                 class="w-full"
-                required
               >
                 <UInput
                   v-model="state.managingOrganization.identifier"
@@ -1133,7 +1091,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier Scheme"
                 name="managingOrganization.identifierScheme"
                 class="w-full"
-                required
               >
                 <UInput
                   v-model="state.managingOrganization.identifierScheme"
@@ -1146,7 +1103,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier Scheme URI"
                 name="managingOrganization.identifierSchemeUri"
                 class="w-full"
-                required
               >
                 <UInput
                   v-model="state.managingOrganization.identifierSchemeUri"
