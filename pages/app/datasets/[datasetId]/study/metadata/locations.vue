@@ -173,6 +173,27 @@ const validate = (state: any): FormError[] => {
 
       errors.push(...messages);
     }
+
+    if (
+      location.identifier &&
+      location.identifierScheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(location.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Identifier must be a valid ORCID",
+      });
+    }
+    if (
+      location.identifier &&
+      location.identifierScheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(location.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Identifier must be a valid ROR",
+      });
+    }
   });
 
   return errors;
