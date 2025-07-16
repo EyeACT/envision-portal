@@ -79,36 +79,12 @@ if (data.value) {
 }
 
 const validate = (state: any): FormError[] => {
-  const errors: FormError[] = [];
+  const errors = [];
 
-  if (!state.resourceTypeName) {
+  if (state.resourceTypeName === "") {
     errors.push({
-      name: "resourceTypeName",
-      message: "Resource type name is required.",
-    });
-  }
-
-  if (!state.resourceType) {
-    errors.push({
-      name: "resourceType",
-      message: "Resource type is required.",
-    });
-  }
-
-  if (!state.language) {
-    errors.push({
-      name: "language",
-      message: "Language is required.",
-    });
-  }
-
-  if (
-    state.size.length === 0 ||
-    state.size.some((val: string) => val.trim() === "")
-  ) {
-    errors.push({
-      name: "size",
-      message: "All size fields must be filled in.",
+      message: "Please enter a resource type name",
+      path: "resourceTypeName",
     });
   }
 
@@ -214,7 +190,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Name" name="resourceTypeName" required>
+              <UFormField label="Name" name="resourceTypeName">
                 <UInput
                   v-model="state.resourceTypeName"
                   class="w-full"
@@ -222,7 +198,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Type" name="resourceType" required>
+              <UFormField label="Type">
                 <UInput
                   v-model="state.resourceType"
                   class="w-full"
@@ -249,11 +225,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField
-                label="What is the language?"
-                name="language"
-                required
-              >
+              <UFormField label="" name="language">
                 <USelect
                   v-model="state.language"
                   class="w-full"
@@ -281,7 +253,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Size" name="size">
+              <UFormField label="" name="size">
                 <div v-if="state.size.length > 0">
                   <div
                     v-for="(size, index) in state.size"
@@ -345,7 +317,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="" name="format">
+              <UFormField label="" name="size">
                 <div v-if="state.format.length > 0">
                   <div
                     v-for="(format, index) in state.format"

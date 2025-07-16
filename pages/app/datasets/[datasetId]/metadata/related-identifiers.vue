@@ -100,67 +100,38 @@ const removeIdentifier = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors: FormError[] = [];
+  const errors = [];
 
   if (state.identifiers.length === 0) {
     errors.push({
-      name: "identifiers",
       message: "Please add at least one related identifier",
+      path: "identifiers",
     });
-    return errors;
   }
 
   state.identifiers.forEach((identifier: any) => {
-    if (!identifier.identifier) {
-      errors.push({
-        name: "identifier",
-        message: "Identifier is required",
-      });
-    }
-
-    if (!identifier.identifierType) {
-      errors.push({
-        name: "identifierType",
-        message: "Identifier type is required",
-      });
-    }
-
-    if (!identifier.relationType) {
-      errors.push({
-        name: "relationType",
-        message: "Relation type is required",
-      });
-    }
-
-    if (!identifier.resourceType) {
-      errors.push({
-        name: "resourceType",
-        message: "Resource type is required",
-      });
-    }
-
     if (
       identifier.relationType === "IsMetadataFor" ||
       identifier.relationType === "HasMetadata"
     ) {
       if (!identifier.relatedMetadataScheme) {
         errors.push({
-          name: "relatedMetadataScheme",
-          message: "Related metadata scheme is required",
+          message: "Please add a related metadata scheme",
+          path: "identifiers",
         });
       }
 
       if (!identifier.schemeType) {
         errors.push({
-          name: "schemeType",
-          message: "Scheme type is required",
+          message: "Please add a scheme type",
+          path: "identifiers",
         });
       }
 
       if (!identifier.schemeUri) {
         errors.push({
-          name: "schemeUri",
-          message: "Scheme URI is required",
+          message: "Please add a scheme URI",
+          path: "identifiers",
         });
       }
     }
@@ -289,18 +260,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Identifier" name="identifier" required>
+                  <UFormField label="Identifier" name="identifier">
                     <UInput
                       v-model="item.identifier"
                       placeholder="10.1000/182"
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier Type"
-                    name="identifierType"
-                    required
-                  >
+                  <UFormField label="Identifier Type" name="identifierType">
                     <USelect
                       v-model="item.identifierType"
                       class="w-full"
@@ -309,11 +276,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Relation Type"
-                    name="relationType"
-                    required
-                  >
+                  <UFormField label="Relation Type" name="relationType">
                     <USelect
                       v-model="item.relationType"
                       class="w-full"
@@ -324,11 +287,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Resource Type"
-                    name="resourceType"
-                    required
-                  >
+                  <UFormField label="Resource Type" name="resourceType">
                     <USelect
                       v-model="item.resourceType"
                       class="w-full"

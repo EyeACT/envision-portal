@@ -148,86 +148,15 @@ const removeSubject = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors: FormError[] = [];
+  const errors = [];
 
-  // Consent section
-  if (state.consent.type === "Consent") {
-    errors.push({ name: "consent.type", message: "Consent type is required" });
-  }
-
-  if (!state.consent.details) {
+  if (state.subjects.length === 0) {
     errors.push({
-      name: "consent.details",
-      message: "Consent details are required",
-    });
-  }
-
-  // De-identification section
-  if (state.deidentLevel.type === "DeIdentLevel") {
-    errors.push({
-      name: "deidentLevel.type",
-      message: "De-identification type is required",
-    });
-  }
-
-  if (!state.deidentLevel.details) {
-    errors.push({
-      name: "deidentLevel.details",
-      message: "De-identification details are required",
-    });
-  }
-
-  // Subjects section
-  if (
-    !state.subjects ||
-    state.subjects.filter((s: any) => !s.deleted).length === 0
-  ) {
-    errors.push({
-      name: "subjects",
       message: "Please add at least one subject",
-    });
-  } else {
-    state.subjects.forEach((subject: any, index: number) => {
-      if (subject.deleted) return;
-
-      if (!subject.subject) {
-        errors.push({
-          name: "subject",
-          message: `Subject is required`,
-        });
-      }
-
-      if (!subject.classificationCode) {
-        errors.push({
-          name: "classificationCode",
-          message: "Classification code is required",
-        });
-      }
-
-      if (!subject.scheme) {
-        errors.push({
-          name: "scheme",
-          message: "Scheme is required",
-        });
-      }
-
-      if (!subject.schemeUri) {
-        errors.push({
-          name: "schemeUri",
-          message: "Scheme URI is required",
-        });
-      }
-
-      if (!subject.valueUri) {
-        errors.push({
-          name: "valueUri",
-          message: "Value URI is required",
-        });
-      }
+      path: "subjects",
     });
   }
-  console.log(state.consent.type);
-  console.log(state.deidentLevel.type);
+
   return errors;
 };
 
@@ -334,7 +263,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Type" name="consent.type" required>
+              <UFormField label="Type" name="consent.type">
                 <USelect
                   v-model="state.consent.type"
                   class="w-full"
@@ -388,7 +317,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Details" name="consent.details" required>
+              <UFormField label="Details" name="consent.details">
                 <UTextarea
                   v-model="state.consent.details"
                   placeholder="Provide further details about the consent details"
@@ -414,7 +343,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Type" name="deidentLevel.type" required>
+              <UFormField label="Type" name="deidentLevel.type">
                 <USelect
                   v-model="state.deidentLevel.type"
                   class="w-full"
@@ -462,7 +391,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Details" name="deidentLevel.details" required>
+              <UFormField label="Details" name="deidentLevel.details">
                 <UTextarea
                   v-model="state.deidentLevel.details"
                   placeholder="Enter de-identification details"
@@ -507,7 +436,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Subject" name="subject" required>
+                  <UFormField label="Subject" name="subject">
                     <UInput
                       v-model="item.subject"
                       placeholder="Enter subject"
@@ -518,7 +447,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Classification Code"
                     name="classificationCode"
-                    required
                   >
                     <UInput
                       v-model="item.classificationCode"
@@ -528,12 +456,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </UFormField>
 
                   <div class="flex w-full gap-3">
-                    <UFormField
-                      label="Scheme"
-                      name="scheme"
-                      class="w-full"
-                      required
-                    >
+                    <UFormField label="Scheme" name="scheme" class="w-full">
                       <UInput
                         v-model="item.scheme"
                         placeholder="Enter scheme"
@@ -545,7 +468,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Scheme URI"
                       name="schemeUri"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.schemeUri"
@@ -555,7 +477,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField label="Value URI" name="valueUri" required>
+                  <UFormField label="Value URI" name="valueUri">
                     <UInput
                       v-model="item.valueUri"
                       placeholder="Enter value URI"

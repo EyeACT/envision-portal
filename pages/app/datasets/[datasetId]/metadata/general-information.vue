@@ -165,59 +165,14 @@ const removeDate = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors: FormError[] = [];
+  const errors = [];
 
   if (state.titles.length === 0) {
     errors.push({
-      name: "titles",
-      message: "Please add at least one title.",
+      message: "Please add at least one title",
+      path: "titles",
     });
   }
-
-  state.titles.forEach((item: any, index: number) => {
-    if (!item.deleted && !item.title?.trim()) {
-      errors.push({
-        name: `title-${index}`,
-        message: "Title value is required.",
-      });
-    }
-    if (!item.deleted && !item.type?.trim()) {
-      errors.push({
-        name: `title-type-${index}`,
-        message: "Title type is required.",
-      });
-    }
-  });
-
-  state.descriptions.forEach((item: any, index: number) => {
-    if (!item.deleted && !item.description?.trim()) {
-      errors.push({
-        name: `description-${index}`,
-        message: "Description value is required.",
-      });
-    }
-    if (!item.deleted && !item.type?.trim()) {
-      errors.push({
-        name: `description-type-${index}`,
-        message: "Description type is required.",
-      });
-    }
-  });
-
-  state.dates.forEach((item: any, index: number) => {
-    if (!item.deleted && !item.date?.trim()) {
-      errors.push({
-        name: `date-${index}`,
-        message: "Date value is required.",
-      });
-    }
-    if (!item.deleted && !item.type?.trim()) {
-      errors.push({
-        name: `date-type-${index}`,
-        message: "Date type is required.",
-      });
-    }
-  });
 
   return errors;
 };
@@ -367,14 +322,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField :name="`title-${index}`" label="Name" required>
+                  <UFormField label="Name" name="name">
                     <UInput
                       v-model="item.title"
                       placeholder="Artifical Intelligence"
                     />
                   </UFormField>
 
-                  <UFormField :name="`title-type-${index}`" label="Type">
+                  <UFormField label="Type" name="type">
                     <USelect
                       v-model="item.type"
                       class="w-full"
@@ -432,11 +387,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField
-                    :name="`description-${index}`"
-                    label="Name"
-                    required
-                  >
+                  <UFormField label="Name" name="name">
                     <UTextarea
                       v-model="item.description"
                       placeholder="Artifical Intelligence"
@@ -444,11 +395,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    :name="`description-type-${index}`"
-                    label="Type"
-                    required
-                  >
+                  <UFormField label="Type" name="type">
                     <USelect
                       v-model="item.type"
                       class="w-full"
@@ -505,7 +452,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField :name="`date-${index}`" label="Date" required>
+                  <UFormField label="Date" name="date">
                     <UInput
                       v-model="item.date"
                       placeholder="2021-01-01"
@@ -514,11 +461,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    :name="`date-type-${index}`"
-                    label="Type"
-                    required
-                  >
+                  <UFormField label="Type" name="type">
                     <USelect
                       v-model="item.type"
                       class="w-full"
