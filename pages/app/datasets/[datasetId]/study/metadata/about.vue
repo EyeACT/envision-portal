@@ -273,18 +273,40 @@ const validate = (state: any): FormError[] => {
       errors.push(...messages);
     }
 
+    if (
+      keyword.classificationCode &&
+      keyword.scheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(keyword.classificationCode)
+    ) {
+      errors.push({
+        name: `classificationCode-${index}`,
+        message: "ORCID identifier must be a valid ORCID format",
+      });
+    }
+
+    if (
+      keyword.classificationCode &&
+      keyword.scheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(keyword.classificationCode)
+    ) {
+      errors.push({
+        name: `classificationCode-${index}`,
+        message: "ROR identifier must be a valid ROR format",
+      });
+    }
+
     // Verify url for classificationCode and schemeUri
     if (keyword.keywordUri && keyword.schemeUri) {
       // validate url
       if (!isValidUrl(keyword.keywordUri)) {
         errors.push({
-          name: `keywordUri-${index}`,
+          name: `schemeUri-${index}`,
           message: "Invalid URL format",
         });
       }
       if (!isValidUrl(keyword.schemeUri)) {
         errors.push({
-          name: `schemeUri-${index}`,
+          name: `keywordUri-${index}`,
           message: "Invalid URL format",
         });
       }
@@ -331,19 +353,41 @@ const validate = (state: any): FormError[] => {
       errors.push(...messages);
     }
 
+    if (
+      condition.classificationCode &&
+      condition.scheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(condition.classificationCode)
+    ) {
+      errors.push({
+        name: `classificationCode-${index}`,
+        message: "ORCID identifier must be a valid ORCID format",
+      });
+    }
+
+    if (
+      condition.classificationCode &&
+      condition.scheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(condition.classificationCode)
+    ) {
+      errors.push({
+        name: `classificationCode-${index}`,
+        message: "ROR identifier must be a valid ROR format",
+      });
+    }
+
     // Verify url for schemeuri and keyworduri
     if (condition.conditionUri && !isValidUrl(condition.conditionUri)) {
       // validate url
       errors.push({
-        name: `conditionUri-${index}`,
+        name: `schemeUri-${index}`,
         message: "Invalid URL format",
       });
     }
 
     if (condition.schemeUri && !isValidUrl(condition.schemeUri)) {
       errors.push({
-        name: `schemeUri-${index}`,
-        message: "Condition scheme URI must be a valid URL",
+        name: `keywordUri-${index}`,
+        message: "Invalid URL format",
       });
     }
   });
@@ -418,14 +462,14 @@ const validate = (state: any): FormError[] => {
     if (identifier.domain && !isValidUrl(identifier.domain)) {
       errors.push({
         name: `domain-${index}`,
-        message: "Identifier domain must be a valid URL",
+        message: "Invalid URL format",
       });
     }
 
-    if (identifier.domain && !isValidUrl(identifier.link)) {
+    if (identifier.link && !isValidUrl(identifier.link)) {
       errors.push({
         name: `link-${index}`,
-        message: "Identifier link must be a valid URL",
+        message: "Invalid URL format",
       });
     }
   });
@@ -503,7 +547,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       toast.add({
         title: "Error",
         color: "error",
-        description: "The form has been submitted.",
+        description: "Error occurred while submitting the form.",
       });
     })
     .finally(() => {
