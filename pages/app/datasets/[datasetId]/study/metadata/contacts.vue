@@ -118,7 +118,6 @@ const removeContact = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (state.studyCentralContacts.length === 0) {
     errors.push({
@@ -138,7 +137,7 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyCentralContacts.forEach((contact: any, index: number) => {
+  activeContacts.forEach((contact: any, index: number) => {
     if (contact.givenName.trim() === "") {
       errors.push({
         name: `givenName-${index}`,

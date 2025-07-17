@@ -234,103 +234,119 @@ const validate = (state: any): FormError[] => {
       name: "keywords",
       message: "At least one keyword is required",
     });
-  } else {
-    state.keywords.forEach((keyword: any, index: number) => {
-      if (!keyword.name) {
-        errors.push({
-          name: `name-${index}`,
-          message: "A name is required",
-        });
-      }
+  }
+  const activeKeywords = state.keywords.filter((k: any) => !k.deleted);
 
-      // if classificationCode or scheme is provided, the other is also required
-      if (
-        (keyword.classificationCode && !keyword.scheme) ||
-        (!keyword.classificationCode && keyword.scheme)
-      ) {
-        const messages = [
-          {
-            name: `classificationCode-${index}`,
-            message:
-              "Both identifier and scheme are required if either is provided",
-          },
-          {
-            name: `scheme-${index}`,
-            message:
-              "Both identifier and scheme are required if either is provided",
-          },
-        ];
-
-        errors.push(...messages);
-      }
-
-      // Verify url for classificationCode and schemeUri
-      if (keyword.keywordUri && keyword.schemeUri) {
-        // validate url
-        if (!isValidUrl(keyword.keywordUri)) {
-          errors.push({
-            name: `keywordUri-${index}`,
-            message: "Invalid URL format",
-          });
-        }
-        if (!isValidUrl(keyword.schemeUri)) {
-          errors.push({
-            name: `schemeUri-${index}`,
-            message: "Invalid URL format",
-          });
-        }
-      }
+  if (activeKeywords.length === 0) {
+    errors.push({
+      name: "keywords",
+      message: "At least one keyword is required",
     });
   }
+
+  activeKeywords.forEach((keyword: any, index: number) => {
+    if (!keyword.name) {
+      errors.push({
+        name: `name-${index}`,
+        message: "A name is required",
+      });
+    }
+
+    // if classificationCode or scheme is provided, the other is also required
+    if (
+      (keyword.classificationCode && !keyword.scheme) ||
+      (!keyword.classificationCode && keyword.scheme)
+    ) {
+      const messages = [
+        {
+          name: `classificationCode-${index}`,
+          message:
+            "Both identifier and scheme are required if either is provided",
+        },
+        {
+          name: `scheme-${index}`,
+          message:
+            "Both identifier and scheme are required if either is provided",
+        },
+      ];
+
+      errors.push(...messages);
+    }
+
+    // Verify url for classificationCode and schemeUri
+    if (keyword.keywordUri && keyword.schemeUri) {
+      // validate url
+      if (!isValidUrl(keyword.keywordUri)) {
+        errors.push({
+          name: `keywordUri-${index}`,
+          message: "Invalid URL format",
+        });
+      }
+      if (!isValidUrl(keyword.schemeUri)) {
+        errors.push({
+          name: `schemeUri-${index}`,
+          message: "Invalid URL format",
+        });
+      }
+    }
+  });
 
   if (state.conditions.length === 0) {
     errors.push({
       name: "conditions",
       message: "At least one condition is required",
     });
-  } else {
-    state.conditions.forEach((condition: any, index: number) => {
-      if (!condition.name) {
-        errors.push({ name: `name-${index}`, message: "Name is required" });
-      }
+  }
+  const activeConditions = state.conditions.filter((c: any) => !c.deleted);
 
-      if (
-        (condition.classificationCode && !condition.scheme) ||
-        (!condition.classificationCode && condition.scheme)
-      ) {
-        const messages = [
-          {
-            name: `classificationCode-${index}`,
-            message:
-              "Both Identifier and scheme are required if either is provided",
-          },
-          {
-            name: `scheme-${index}`,
-            message:
-              "Both Identifier and scheme are required if either is provided",
-          },
-        ];
-
-        errors.push(...messages);
-      }
-
-      // Verify url for schemeuri and keyworduri
-      if (condition.conditionUri && !isValidUrl(condition.conditionUri)) {
-        // validate url
-        errors.push({
-          name: `conditionUri-${index}`,
-          message: "Invalid URL format",
-        });
-      }
-
-      if (condition.schemeUri && !isValidUrl(condition.schemeUri)) {
-        errors.push({
-          name: `schemeUri-${index}`,
-          message: "Condition scheme URI must be a valid URL",
-        });
-      }
+  if (activeConditions.length === 0) {
+    errors.push({
+      name: "conditions",
+      message: "At least one condition is required",
     });
   }
+
+  activeConditions.forEach((condition: any, index: number) => {
+    if (!condition.name) {
+      errors.push({ name: `name-${index}`, message: "Name is required" });
+    }
+
+    if (
+      (condition.classificationCode && !condition.scheme) ||
+      (!condition.classificationCode && condition.scheme)
+    ) {
+      const messages = [
+        {
+          name: `classificationCode-${index}`,
+          message:
+            "Both Identifier and scheme are required if either is provided",
+        },
+        {
+          name: `scheme-${index}`,
+          message:
+            "Both Identifier and scheme are required if either is provided",
+        },
+      ];
+
+      errors.push(...messages);
+    }
+
+    // Verify url for schemeuri and keyworduri
+    if (condition.conditionUri && !isValidUrl(condition.conditionUri)) {
+      // validate url
+      errors.push({
+        name: `conditionUri-${index}`,
+        message: "Invalid URL format",
+      });
+    }
+
+    if (condition.schemeUri && !isValidUrl(condition.schemeUri)) {
+      errors.push({
+        name: `schemeUri-${index}`,
+        message: "Condition scheme URI must be a valid URL",
+      });
+    }
+  });
 
   if (!state.primaryIdentifier.identifier) {
     errors.push({
@@ -366,7 +382,25 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.secondaryIdentifiers.forEach((identifier: any, index: number) => {
+  if (state.secondaryIdentifiers.length === 0) {
+    errors.push({
+      name: "secondaryIdentifiers",
+      message: "At least one secondary identifier is required",
+    });
+  }
+
+  const activeSecondaryIDs = state.secondaryIdentifiers.filter(
+    (i: any) => !i.deleted,
+  );
+
+  if (activeSecondaryIDs.length === 0) {
+    errors.push({
+      name: "secondaryIdentifiers",
+      message: "At least one second identifier is required",
+    });
+  }
+
+  activeSecondaryIDs.forEach((identifier: any, index: number) => {
     if (!identifier.identifier) {
       errors.push({
         name: `identifier-${index}`,

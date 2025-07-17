@@ -110,7 +110,7 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyInterventions.forEach((intervention: any, index: number) => {
+  activeInterventions.forEach((intervention: any, index: number) => {
     if (intervention.name.trim() === "") {
       errors.push({
         name: `name-${index}`,

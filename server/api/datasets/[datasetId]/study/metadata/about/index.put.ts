@@ -44,18 +44,20 @@ const StudyMetadataAboutSchema = z
         message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
       }),
     }),
-    secondaryIdentifiers: z.array(
-      z.object({
-        id: z.string().optional(),
-        deleted: z.boolean().optional(),
-        domain: z.union([z.literal(""), z.string().trim().url()]),
-        identifier: z.string(),
-        link: z.union([z.literal(""), z.string().trim().url()]),
-        type: z.string().refine((v) => identTypeOptions.includes(v), {
-          message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+    secondaryIdentifiers: z
+      .array(
+        z.object({
+          id: z.string().optional(),
+          deleted: z.boolean().optional(),
+          domain: z.union([z.literal(""), z.string().trim().url()]),
+          identifier: z.string(),
+          link: z.union([z.literal(""), z.string().trim().url()]),
+          type: z.string().refine((v) => identTypeOptions.includes(v), {
+            message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+          }),
         }),
-      }),
-    ),
+      )
+      .min(1, "At least one secondary identifier is required"),
   })
   .strict();
 
