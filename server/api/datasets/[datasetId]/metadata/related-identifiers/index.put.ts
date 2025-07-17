@@ -10,12 +10,17 @@ const relatedIdentSchema = z
     deleted: z.boolean(),
     identifier: z.string().min(1, "Identifier is required"),
     identifierType: z.string().min(1, "Identifier type is required"),
+    local: z.boolean().optional(),
     relatedMetadataScheme: z.string().optional(),
     relationType: z.string().min(1, "Relation type is required"),
-    resourceType: z.string().min(1, "Resource type is required"),
+    resourceType: z.string().refine((v) => resourceTypeOptions.includes(v), {
+      message: `Resource type must be one of: ${resourceTypeOptions.join(", ")}`,
+      path: ["resourceType"],
+    }),
     schemeType: z.string().min(1, "Scheme type is required"),
     schemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
+  .strict()
   .superRefine((data, context) => {
     if (
       (data.relationType === "IsMetadataFor" ||
@@ -56,8 +61,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
