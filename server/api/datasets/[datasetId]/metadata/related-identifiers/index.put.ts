@@ -1,19 +1,36 @@
 import { z } from "zod";
 
+const relatedIdentSchema = z
+  .object({
+    id: z.string().optional(),
+    deleted: z.boolean(),
+    identifier: z.string(),
+    identifierType: z.string(),
+    relatedMetadataScheme: z.string(),
+    relationType: z.string(),
+    resourceType: z.string(),
+    schemeType: z.string(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .superRefine((data, context) => {
+    if (
+      (data.relationType === "IsMetadataFor" ||
+        data.relationType === "HasMetadata") &&
+      !data.relatedMetadataScheme
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "relatedMetadataScheme is required when relationType is IsMetadataFor or HasMetadata",
+        path: ["relatedMetadataScheme"],
+      });
+    }
+  });
+
 const DatasetMetadataRelatedIdentifiersSchema = z.object({
-  relatedIdentifiers: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      identifier: z.string(),
-      identifierType: z.string(),
-      relatedMetadataScheme: z.string(),
-      relationType: z.string(),
-      resourceType: z.string(),
-      schemeType: z.string(),
-      schemeUri: z.string(),
-    }),
-  ),
+  relatedIdentifiers: z
+    .array(relatedIdentSchema)
+    .min(1, "At least one related identifier is required"),
 });
 
 export default defineEventHandler(async (event) => {
