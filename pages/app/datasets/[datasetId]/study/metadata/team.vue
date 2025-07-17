@@ -380,6 +380,13 @@ const validate = (state: any): FormError[] => {
     (c: any) => !c.deleted,
   );
 
+  if (activeCollaborators.length === 0) {
+    errors.push({
+      name: "collaborators",
+      message: "At least one collaborator is required.",
+    });
+  }
+
   activeCollaborators.forEach((c: any, index: number) => {
     if (!c.deleted && !c.name?.trim()) {
       errors.push({

@@ -32,7 +32,9 @@ const CollaboratorSchema = z
 
 const StudyMetadataSponsorsSchema = z
   .object({
-    collaborators: z.array(CollaboratorSchema).optional(),
+    collaborators: z
+      .array(CollaboratorSchema)
+      .min(1, "At least one collaborator is required"),
     leadSponsorIdentifier: z.string().trim().optional(),
     leadSponsorIdentifierScheme: z.string().trim().optional(),
     leadSponsorIdentifierSchemeUri: z.union([
