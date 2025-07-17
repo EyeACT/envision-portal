@@ -136,12 +136,33 @@ const updateLicense = async (value: string) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors = [];
+  const errors: FormError[] = [];
 
-  if (!state.rights.uri) {
+  if (!state.access.description?.trim()) {
     errors.push({
-      message: "URI is required",
-      path: "rights.uri",
+      name: "access-description",
+      message: "Access description is required.",
+    });
+  }
+
+  if (state.access.type === "Access") {
+    errors.push({
+      name: "access-type",
+      message: "Access type is required.",
+    });
+  }
+
+  if (state.access.url && !isValidUrl(state.access.url)) {
+    errors.push({
+      name: "access-url",
+      message: "Access URL is invalid.",
+    });
+  }
+
+  if (!state.rights.rights?.trim()) {
+    errors.push({
+      name: "rights-rights",
+      message: "Rights is required.",
     });
   }
 
@@ -239,7 +260,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Type" name="access.type">
+              <!-- Access Type -->
+              <UFormField label="Type" name="access-type" required>
                 <USelect
                   v-model="state.access.type"
                   class="w-full"
@@ -248,7 +270,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Description" name="access.description">
+              <!-- Access Description -->
+              <UFormField
+                label="Description"
+                name="access-description"
+                required
+              >
                 <UTextarea
                   v-model="state.access.description"
                   placeholder="Provide further details about the access details"
@@ -256,20 +283,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="URL" name="access.url">
+              <!-- Access URL -->
+              <UFormField label="URL" name="access-url">
                 <UInput
                   v-model="state.access.url"
                   placeholder="Enter the URL"
                   class="w-full"
-                />
-              </UFormField>
-
-              <UFormField label="URL Last Checked" name="access.urlLastChecked">
-                <UInput
-                  v-model="state.access.urlLastChecked"
-                  placeholder="Enter the URL last checked"
-                  class="w-full"
-                  type="date"
                 />
               </UFormField>
             </div>
@@ -291,7 +310,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Rights" name="rights.rights">
+              <!-- Rights (License Dropdown) -->
+              <UFormField label="Rights" name="rights-rights" required>
                 <USelect
                   v-model="state.rights.rights"
                   class="w-full"
@@ -307,7 +327,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Description" name="access.description">
+              <!-- Rights License Text -->
+              <UFormField label="Description" name="rights-description">
                 <UTextarea
                   v-model="state.rights.licenseText"
                   placeholder="Provide further details about the license text"
