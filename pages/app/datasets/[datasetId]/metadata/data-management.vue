@@ -178,56 +178,67 @@ const validate = (state: any): FormError[] => {
   }
 
   // Subjects section
-  if (
-    !state.subjects ||
-    state.subjects.filter((s: any) => !s.deleted).length === 0
-  ) {
+  const activeSubjects = state.subjects?.filter((s: any) => !s.deleted) ?? [];
+
+  if (activeSubjects.length === 0) {
     errors.push({
       name: "subjects",
       message: "Please add at least one subject",
     });
   } else {
-    state.subjects.forEach((subject: any, index: number) => {
-      if (subject.deleted) return;
-
-      if (!subject.subject) {
+    activeSubjects.forEach((subject: any, index: number) => {
+      if (!subject.subject?.trim()) {
         errors.push({
-          name: "subject",
-          message: `Subject is required`,
+          name: `subjects[${index}].subject`,
+          message: "Subject is required",
         });
       }
 
-      if (!subject.classificationCode) {
+      // classificationCode / scheme pairing logic
+      const code = subject.classificationCode?.trim();
+      const scheme = subject.scheme?.trim();
+
+      if ((code && !scheme) || (!code && scheme)) {
         errors.push({
-          name: "classificationCode",
-          message: "Classification code is required",
+          name: `subjects[${index}].classificationCode`,
+          message:
+            "Classification code and scheme must both be provided together",
+        });
+        errors.push({
+          name: `subjects[${index}].scheme`,
+          message:
+            "Scheme and classification code must both be provided together",
         });
       }
 
-      if (!subject.scheme) {
+      if (!subject.schemeUri?.trim()) {
         errors.push({
-          name: "scheme",
-          message: "Scheme is required",
-        });
-      }
-
-      if (!subject.schemeUri) {
-        errors.push({
-          name: "schemeUri",
+          name: `subjects[${index}].schemeUri`,
           message: "Scheme URI is required",
         });
+      } else if (!isValidUrl(subject.schemeUri)) {
+        errors.push({
+          name: `subjects[${index}].schemeUri`,
+          message: "Scheme URI must be a valid URL",
+        });
       }
 
-      if (!subject.valueUri) {
+      if (!subject.valueUri?.trim()) {
         errors.push({
-          name: "valueUri",
+          name: `subjects[${index}].valueUri`,
           message: "Value URI is required",
+        });
+      } else if (!isValidUrl(subject.valueUri)) {
+        errors.push({
+          name: `subjects[${index}].valueUri`,
+          message: "Value URI must be a valid URL",
         });
       }
     });
   }
   console.log(state.consent.type);
   console.log(state.deidentLevel.type);
+
   return errors;
 };
 
@@ -507,7 +518,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Subject" name="subject" required>
+                  <UFormField
+                    label="Subject"
+                    :name="`subjects[${index}].subject`"
+                    required
+                  >
                     <UInput
                       v-model="item.subject"
                       placeholder="Enter subject"
@@ -517,7 +532,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Classification Code"
-                    name="classificationCode"
+                    :name="`subjects[${index}].classificationCode`"
                     required
                   >
                     <UInput
@@ -530,7 +545,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Scheme"
-                      name="scheme"
+                      :name="`subjects[${index}].scheme`"
                       class="w-full"
                       required
                     >
@@ -543,7 +558,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Scheme URI"
-                      name="schemeUri"
+                      :name="`subjects[${index}].schemeUri`"
                       class="w-full"
                       required
                     >
@@ -555,7 +570,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField label="Value URI" name="valueUri" required>
+                  <UFormField
+                    label="Value URI"
+                    :name="`subjects[${index}].valueUri`"
+                    required
+                  >
                     <UInput
                       v-model="item.valueUri"
                       placeholder="Enter value URI"
@@ -565,6 +584,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </div>
               </CardCollapsible>
             </UFormField>
+
 
             <UButton
               icon="i-lucide-plus"

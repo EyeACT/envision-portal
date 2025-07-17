@@ -241,20 +241,29 @@ const removeFunder = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors: FormError[] = []
+  const errors: FormError[] = [];
 
   // Validate creators
-  if (!state.creators || state.creators.length === 0) {
+  const activeCreators =
+    state.creators?.filter((creator: any) => !creator.deleted) ?? [];
+
+  if (activeCreators.length === 0) {
     errors.push({
       name: "creators",
       message: "Please add at least one creator",
     });
   } else {
-    state.creators.forEach((creator: any, index: number) => {
+    activeCreators.forEach((creator: any, index: number) => {
       if (!creator.givenName) {
         errors.push({
           name: `creators[${index}].givenName`,
           message: "Given name is required.",
+        });
+      }
+      if (!creator.familyName) {
+        errors.push({
+          name: `creators[${index}].familyName`,
+          message: "Family name is required.",
         });
       }
       if (!creator.nameType) {
@@ -263,142 +272,275 @@ const validate = (state: any): FormError[] => {
           message: "Name type is required.",
         });
       }
-      if (!creator.nameIdentifier) {
+      if (
+        (creator.nameIdentifier.trim() !== "" &&
+          creator.nameIdentifierScheme.trim() === "") ||
+        (creator.nameIdentifier.trim() === "" &&
+          creator.nameIdentifierScheme.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `creators[${index}].nameIdentifier`,
+            message:
+              "Identifier scheme is required when identifier scheme is provided",
+          },
+          {
+            name: `creators[${index}].nameIdentifierScheme`,
+            message:
+              "Identifier value is required when identifier value is provided",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+      if (
+        creator.nameIdentifier &&
+        creator.nameIdentifierScheme.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(creator.nameIdentifier)
+      ) {
         errors.push({
           name: `creators[${index}].nameIdentifier`,
-          message: "Name identifier is required.",
+          message: "Invalid ORCID value",
         });
       }
-      if (!creator.nameIdentifierScheme) {
+      if (
+        creator.nameIdentifier &&
+        creator.nameIdentifierScheme.toUpperCase() === "ROR" &&
+        !isValidRORValue(creator.nameIdentifier)
+      ) {
         errors.push({
-          name: `creators[${index}].nameIdentifierScheme`,
-          message: "Name identifier scheme is required.",
+          name: `creators[${index}].nameIdentifier`,
+          message: "Invalid ROR value",
         });
       }
-      if (!creator.nameIdentifierSchemeUri) {
+      if (
+        creator.nameIdentifierSchemeUri &&
+        !isValidUrl(creator.nameIdentifierSchemeUri)
+      ) {
         errors.push({
           name: `creators[${index}].nameIdentifierSchemeUri`,
-          message: "Name identifier scheme URI is required.",
+          message: "Invalid URL",
         });
       }
     });
   }
 
   // Validate contributors
-  if (Array.isArray(state.contributors)) {
-    state.contributors.forEach((contributor: any, index: number) => {
-      if (!contributor.givenName?.trim()) {
+  const activeContributors =
+    state.contributors?.filter((contributor: any) => !contributor.deleted) ?? [];
+
+  if (activeContributors.length === 0) {
+    errors.push({
+      name: "contributors",
+      message: "Please add at least one contributor",
+    });
+  } else {
+    activeContributors.forEach((contributor: any, index: number) => {
+      if (!contributor.givenName) {
         errors.push({
           name: `contributors[${index}].givenName`,
-          message: "Given name is required",
+          message: "Given name is required.",
         });
       }
-      if (!contributor.nameType?.trim()) {
+      if (!contributor.familyName) {
+        errors.push({
+          name: `contributors[${index}].familyName`,
+          message: "Family name is required.",
+        });
+      }
+      if (!contributor.nameType) {
         errors.push({
           name: `contributors[${index}].nameType`,
-          message: "Name type is required",
+          message: "Name type is required.",
         });
       }
-      if (!contributor.nameIdentifier?.trim()) {
+      if (
+        (contributor.nameIdentifier.trim() !== "" &&
+          contributor.nameIdentifierScheme.trim() === "") ||
+        (contributor.nameIdentifier.trim() === "" &&
+          contributor.nameIdentifierScheme.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `contributors[${index}].nameIdentifier`,
+            message:
+              "Identifier scheme is required when identifier scheme is provided",
+          },
+          {
+            name: `contributors[${index}].nameIdentifierScheme`,
+            message:
+              "Identifier value is required when identifier value is provided",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+      if (
+        contributor.nameIdentifier &&
+        contributor.nameIdentifierScheme.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(contributor.nameIdentifier)
+      ) {
         errors.push({
           name: `contributors[${index}].nameIdentifier`,
-          message: "Name identifier is required",
+          message: "Invalid ORCID value",
         });
       }
-      if (!contributor.nameIdentifierScheme?.trim()) {
+      if (
+        contributor.nameIdentifier &&
+        contributor.nameIdentifierScheme.toUpperCase() === "ROR" &&
+        !isValidRORValue(contributor.nameIdentifier)
+      ) {
         errors.push({
-          name: `contributors[${index}].nameIdentifierScheme`,
-          message: "Name identifier scheme is required",
+          name: `contributors[${index}].nameIdentifier`,
+          message: "Invalid ROR value",
         });
       }
-      if (!contributor.nameIdentifierSchemeUri?.trim()) {
+      if (
+        contributor.nameIdentifierSchemeUri &&
+        !isValidUrl(contributor.nameIdentifierSchemeUri)
+      ) {
         errors.push({
           name: `contributors[${index}].nameIdentifierSchemeUri`,
-          message: "Name identifier scheme URI is required",
-        });
-      }
-      if (!contributor.contributorType?.trim()) {
-        errors.push({
-          name: `contributors[${index}].contributorType`,
-          message: "Contributor type is required",
+          message: "Invalid URL",
         });
       }
     });
   }
 
   // Validate funders
-  if (Array.isArray(state.funders)) {
-    state.funders.forEach((funder: any, index: number) => {
+  const activeFunders =
+    state.funders?.filter((funder: any) => !funder.deleted) ?? [];
+
+  if (activeFunders.length === 0) {
+    errors.push({
+      name: "funders",
+      message: "Please add at least one funder",
+    });
+  } else {
+    activeFunders.forEach((funder: any, index: number) => {
       if (!funder.name?.trim()) {
         errors.push({
           name: `funders[${index}].name`,
           message: "Name is required",
         });
       }
-      if (!funder.identifier?.trim()) {
+
+      if (
+        (funder.identifier?.trim() !== "" &&
+          funder.identifierType?.trim() === "") ||
+        (funder.identifier?.trim() === "" &&
+          funder.identifierType?.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `funders[${index}].identifier`,
+            message: "Identifier type is required when identifier is provided",
+          },
+          {
+            name: `funders[${index}].identifierType`,
+            message: "Identifier is required when identifier type is provided",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+
+      if (
+        funder.identifier &&
+        funder.identifierType?.toUpperCase() === "ROR" &&
+        !isValidRORValue(funder.identifier)
+      ) {
         errors.push({
           name: `funders[${index}].identifier`,
-          message: "Identifier is required",
+          message: "Invalid ROR value",
         });
       }
-      if (!funder.identifierType?.trim()) {
+
+      if (
+        funder.identifier &&
+        funder.identifierType?.toUpperCase() === "CROSSREF_FUNDER_ID" &&
+        !/^10\.\d{4,9}\/.+$/.test(funder.identifier)
+      ) {
         errors.push({
-          name: `funders[${index}].identifierType`,
-          message: "Identifier type is required",
+          name: `funders[${index}].identifier`,
+          message: "Invalid Crossref Funder ID",
         });
       }
-      if (!funder.identifierSchemeUri?.trim()) {
+
+      if (
+        funder.identifierSchemeUri &&
+        !isValidUrl(funder.identifierSchemeUri)
+      ) {
         errors.push({
           name: `funders[${index}].identifierSchemeUri`,
-          message: "Identifier scheme URI is required",
+          message: "Invalid Identifier Scheme URI",
         });
       }
-      if (!funder.awardNumber?.trim()) {
-        errors.push({
-          name: `funders[${index}].awardNumber`,
-          message: "Award number is required",
-        });
-      }
-      if (!funder.awardTitle?.trim()) {
-        errors.push({
-          name: `funders[${index}].awardTitle`,
-          message: "Award title is required",
-        });
-      }
-      if (!funder.awardUri?.trim()) {
+
+      if (funder.awardUri && !isValidUrl(funder.awardUri)) {
         errors.push({
           name: `funders[${index}].awardUri`,
-          message: "Award URI is required",
+          message: "Invalid Award URI",
         });
       }
     });
   }
 
   // Validate managing organization
-  const org = state.managingOrganization || {};
-
-  if (!org.name?.trim()) {
+  if (!state.managingOrganization.name?.trim()) {
     errors.push({
       name: "managingOrganization.name",
       message: "Name is required",
     });
   }
-  if (!org.identifier?.trim()) {
+  if (
+    (state.managingOrganization.identifier.trim() !== "" &&
+      state.managingOrganization.identifierScheme.trim() === "") ||
+    (state.managingOrganization.identifier.trim() === "" &&
+      state.managingOrganization.identifierScheme.trim() !== "")
+  ) {
+    const messages = [
+      {
+        name: "managingOrganization.identifier",
+        message:
+          "Identifier scheme is required when identifier scheme is provided",
+      },
+      {
+        name: "managingOrganization.identifierScheme",
+        message:
+          "Identifier value is required when identifier value is provided",
+      },
+    ];
+
+    errors.push(...messages);
+  }
+  if (
+    state.managingOrganization.identifier &&
+    state.managingOrganization.identifierScheme.toUpperCase() === "ORCID" &&
+    !isValidORCIDValue(state.managingOrganization.identifier)
+  ) {
     errors.push({
       name: "managingOrganization.identifier",
-      message: "Identifier is required",
+      message: "Invalid ORCID value",
     });
   }
-  if (!org.identifierScheme?.trim()) {
+  if (
+    state.managingOrganization.identifier &&
+    state.managingOrganization.identifierScheme.toUpperCase() === "ROR" &&
+    !isValidRORValue(state.managingOrganization.identifier)
+  ) {
     errors.push({
-      name: "managingOrganization.identifierScheme",
-      message: "Identifier scheme is required",
+      name: "managingOrganization.identifier",
+      message: "Invalid ROR value",
     });
   }
-  if (!org.identifierSchemeUri?.trim()) {
+  if (
+    state.managingOrganization.identifierSchemeUri &&
+    !isValidUrl(state.managingOrganization.identifierSchemeUri)
+  ) {
     errors.push({
       name: "managingOrganization.identifierSchemeUri",
-      message: "Identifier scheme URI is required",
+      message: "Invalid URL",
     });
   }
 
@@ -588,8 +730,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Family Name"
-                      name="familyName"
+                      :name="`creators[${index}].familyName`"
                       class="w-full"
+                      required
                     >
                       <UInput
                         v-model="item.familyName"
@@ -604,7 +747,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier"
                       :name="`creators[${index}].nameIdentifier`"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifier"
@@ -617,7 +759,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier Scheme"
                       :name="`creators[${index}].nameIdentifierScheme`"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
@@ -630,7 +771,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier Scheme URI"
                       :name="`creators[${index}].nameIdentifierSchemeUri`"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifierSchemeUri"
@@ -813,8 +953,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Family Name"
-                      name="familyName"
+                      :name="`contributors[${index}].familyName`"
                       class="w-full"
+                      required
                     >
                       <UInput
                         v-model="item.familyName"
@@ -829,7 +970,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier"
                       :name="`contributors[${index}].nameIdentifier`"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifier"
@@ -842,7 +982,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier Scheme"
                       :name="`contributors[${index}].nameIdentifierScheme`"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
@@ -855,7 +994,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier Scheme URI"
                       :name="`contributors[${index}].nameIdentifierSchemeUri`"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.nameIdentifierSchemeUri"
@@ -993,7 +1131,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`funders[${index}].name`" required>
+                  <UFormField
+                    label="Name"
+                    :name="`funders[${index}].name`"
+                    required
+                  >
                     <UInput
                       v-model="item.name"
                       placeholder="National Institutes of Health"
@@ -1005,7 +1147,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UFormField
                       label="Identifier"
                       :name="`funders[${index}].identifier`"
-                      required
                       class="w-full"
                     >
                       <UInput
@@ -1018,7 +1159,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UFormField
                       label="Identifier Type"
                       :name="`funders[${index}].identifierType`"
-                      required
                       class="w-full"
                     >
                       <USelect
@@ -1032,7 +1172,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UFormField
                       label="Identifier Scheme URI"
                       :name="`funders[${index}].identifierSchemeUri`"
-                      required
                       class="w-full"
                     >
                       <UInput
@@ -1046,7 +1185,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Award Number"
                     :name="`funders[${index}].awardNumber`"
-                    required
                   >
                     <UInput
                       v-model="item.awardNumber"
@@ -1058,7 +1196,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Award Title"
                     :name="`funders[${index}].awardTitle`"
-                    required
                   >
                     <UInput
                       v-model="item.awardTitle"
@@ -1070,7 +1207,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Award URI"
                     :name="`funders[${index}].awardUri`"
-                    required
                   >
                     <UInput
                       v-model="item.awardUri"
@@ -1120,7 +1256,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier"
                 name="managingOrganization.identifier"
                 class="w-full"
-                required
               >
                 <UInput
                   v-model="state.managingOrganization.identifier"
@@ -1133,7 +1268,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier Scheme"
                 name="managingOrganization.identifierScheme"
                 class="w-full"
-                required
               >
                 <UInput
                   v-model="state.managingOrganization.identifierScheme"
@@ -1146,7 +1280,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier Scheme URI"
                 name="managingOrganization.identifierSchemeUri"
                 class="w-full"
-                required
               >
                 <UInput
                   v-model="state.managingOrganization.identifierSchemeUri"

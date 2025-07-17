@@ -102,65 +102,92 @@ const removeIdentifier = (index: number) => {
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
 
-  if (state.identifiers.length === 0) {
+  const activeIdentifiers =
+    state.identifiers?.filter((i: any) => !i.deleted) ?? [];
+
+  if (activeIdentifiers.length === 0) {
     errors.push({
       name: "identifiers",
       message: "Please add at least one related identifier",
     });
+
     return errors;
   }
 
-  state.identifiers.forEach((identifier: any) => {
-    if (!identifier.identifier) {
+  activeIdentifiers.forEach((identifier: any, index: number) => {
+    if (!identifier.identifier?.trim()) {
       errors.push({
-        name: "identifier",
+        name: `identifiers[${index}].identifier`,
         message: "Identifier is required",
       });
     }
 
-    if (!identifier.identifierType) {
+    if (!identifier.identifierType?.trim()) {
       errors.push({
-        name: "identifierType",
+        name: `identifiers[${index}].identifierType`,
         message: "Identifier type is required",
       });
     }
 
-    if (!identifier.relationType) {
+    if (!identifier.relationType?.trim()) {
       errors.push({
-        name: "relationType",
+        name: `identifiers[${index}].relationType`,
         message: "Relation type is required",
       });
     }
 
-    if (!identifier.resourceType) {
+    if (!identifier.resourceType?.trim()) {
       errors.push({
-        name: "resourceType",
+        name: `identifiers[${index}].resourceType`,
         message: "Resource type is required",
       });
+    }
+
+    // Validate ORCID/ROR format if identifier is provided
+    if (identifier.identifier?.trim()) {
+      const type = identifier.identifierType?.toUpperCase();
+
+      if (type === "ORCID" && !isValidORCIDValue(identifier.identifier)) {
+        errors.push({
+          name: `identifiers[${index}].identifier`,
+          message: "Invalid ORCID value",
+        });
+      }
+      if (type === "ROR" && !isValidRORValue(identifier.identifier)) {
+        errors.push({
+          name: `identifiers[${index}].identifier`,
+          message: "Invalid ROR value",
+        });
+      }
     }
 
     if (
       identifier.relationType === "IsMetadataFor" ||
       identifier.relationType === "HasMetadata"
     ) {
-      if (!identifier.relatedMetadataScheme) {
+      if (!identifier.relatedMetadataScheme?.trim()) {
         errors.push({
-          name: "relatedMetadataScheme",
+          name: `identifiers[${index}].relatedMetadataScheme`,
           message: "Related metadata scheme is required",
         });
       }
 
-      if (!identifier.schemeType) {
+      if (!identifier.schemeType?.trim()) {
         errors.push({
-          name: "schemeType",
+          name: `identifiers[${index}].schemeType`,
           message: "Scheme type is required",
         });
       }
 
-      if (!identifier.schemeUri) {
+      if (!identifier.schemeUri?.trim()) {
         errors.push({
-          name: "schemeUri",
+          name: `identifiers[${index}].schemeUri`,
           message: "Scheme URI is required",
+        });
+      } else if (!isValidUrl(identifier.schemeUri)) {
+        errors.push({
+          name: `identifiers[${index}].schemeUri`,
+          message: "Scheme URI must be a valid URL",
         });
       }
     }
@@ -289,7 +316,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Identifier" name="identifier" required>
+                  <UFormField
+                    label="Identifier"
+                    :name="`identifiers[${index}].identifier`"
+                    required
+                  >
                     <UInput
                       v-model="item.identifier"
                       placeholder="10.1000/182"
@@ -298,7 +329,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Identifier Type"
-                    name="identifierType"
+                    :name="`identifiers[${index}].identifierType`"
                     required
                   >
                     <USelect
@@ -311,7 +342,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Relation Type"
-                    name="relationType"
+                    :name="`identifiers[${index}].relationType`"
                     required
                   >
                     <USelect
@@ -326,7 +357,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Resource Type"
-                    name="resourceType"
+                    :name="`identifiers[${index}].resourceType`"
                     required
                   >
                     <USelect
@@ -341,7 +372,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Related Metadata Scheme"
-                    name="relatedMetadataScheme"
+                    :name="`identifiers[${index}].relatedMetadataScheme`"
                   >
                     <UInput
                       v-model="item.relatedMetadataScheme"
@@ -354,7 +385,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Scheme Type" name="schemeType">
+                  <UFormField
+                    label="Scheme Type"
+                    :name="`identifiers[${index}].schemeType`"
+                  >
                     <UInput
                       v-model="item.schemeType"
                       class="w-full"
@@ -366,7 +400,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" name="schemeUri">
+                  <UFormField
+                    label="Scheme URI"
+                    :name="`identifiers[${index}].schemeUri`"
+                  >
                     <UInput
                       v-model="item.schemeUri"
                       class="w-full"

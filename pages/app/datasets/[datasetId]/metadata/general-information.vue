@@ -167,21 +167,24 @@ const removeDate = (index: number) => {
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
 
-  if (state.titles.length === 0) {
+  const activeTitles = state.titles?.filter((item: any) => !item.deleted) ?? [];
+
+  if (activeTitles.length === 0) {
     errors.push({
       name: "titles",
       message: "Please add at least one title.",
     });
   }
 
-  state.titles.forEach((item: any, index: number) => {
-    if (!item.deleted && !item.title?.trim()) {
+  activeTitles.forEach((item: any, index: number) => {
+    if (!item.title?.trim()) {
       errors.push({
         name: `title-${index}`,
         message: "Title value is required.",
       });
     }
-    if (!item.deleted && !item.type?.trim()) {
+
+    if (!item.type?.trim()) {
       errors.push({
         name: `title-type-${index}`,
         message: "Title type is required.",
@@ -189,14 +192,25 @@ const validate = (state: any): FormError[] => {
     }
   });
 
-  state.descriptions.forEach((item: any, index: number) => {
-    if (!item.deleted && !item.description?.trim()) {
+  const activeDescriptions =
+    state.descriptions?.filter((item: any) => !item.deleted) ?? [];
+
+  if (activeDescriptions.length === 0) {
+    errors.push({
+      name: "descriptions",
+      message: "At least one Abstract description is required.",
+    });
+  }
+
+  activeDescriptions.forEach((item: any, index: number) => {
+    if (!item.description?.trim()) {
       errors.push({
         name: `description-${index}`,
         message: "Description value is required.",
       });
     }
-    if (!item.deleted && !item.type?.trim()) {
+
+    if (!item.type?.trim()) {
       errors.push({
         name: `description-type-${index}`,
         message: "Description type is required.",
@@ -204,14 +218,24 @@ const validate = (state: any): FormError[] => {
     }
   });
 
-  state.dates.forEach((item: any, index: number) => {
-    if (!item.deleted && !item.date?.trim()) {
+  const activeDates = state.dates?.filter((item: any) => !item.deleted) ?? [];
+
+  if (activeDates.length === 0) {
+    errors.push({
+      name: "dates",
+      message: "Please add at least one date.",
+    });
+  }
+
+  activeDates.forEach((item: any, index: number) => {
+    if (!item.date?.trim()) {
       errors.push({
         name: `date-${index}`,
         message: "Date value is required.",
       });
     }
-    if (!item.deleted && !item.type?.trim()) {
+
+    if (!item.type?.trim()) {
       errors.push({
         name: `date-type-${index}`,
         message: "Date type is required.",

@@ -152,10 +152,10 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (!state.access.url?.trim()) {
+  if (state.access.url && !isValidUrl(state.access.url)) {
     errors.push({
       name: "access-url",
-      message: "Access URL is required.",
+      message: "Access URL is invalid.",
     });
   }
 
@@ -284,7 +284,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </UFormField>
 
               <!-- Access URL -->
-              <UFormField label="URL" name="access-url" required>
+              <UFormField label="URL" name="access-url">
                 <UInput
                   v-model="state.access.url"
                   placeholder="Enter the URL"
