@@ -6,35 +6,52 @@ const identTypeOptions =
     (opt) => opt.value,
   );
 
+const conditionsSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    classificationCode: z.string().optional(),
+    conditionUri: z.union([z.literal(""), z.string().trim().url()]),
+    deleted: z.boolean().optional(),
+    scheme: z.string().optional(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .strict();
+
+const keywordsSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    classificationCode: z.string().optional(),
+    deleted: z.boolean().optional(),
+    keywordUri: z.union([z.literal(""), z.string().trim().url()]),
+    scheme: z.string().optional(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .strict();
+
+const secondaryIdentifierSchema = z
+  .object({
+    id: z.string().optional(),
+    deleted: z.boolean().optional(),
+    domain: z.union([z.literal(""), z.string().trim().url()]),
+    identifier: z.string(),
+    link: z.union([z.literal(""), z.string().trim().url()]),
+    type: z.string().refine((v) => identTypeOptions.includes(v), {
+      message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+    }),
+  })
+  .strict();
+
 const StudyMetadataAboutSchema = z
   .object({
     briefSummary: z.string().min(1, "Brief summary is required"),
     conditions: z
-      .array(
-        z.object({
-          id: z.string().optional(),
-          name: z.string().min(1, "Name is required"),
-          classificationCode: z.string().optional(),
-          conditionUri: z.union([z.literal(""), z.string().trim().url()]),
-          deleted: z.boolean().optional(),
-          scheme: z.string().optional(),
-          schemeUri: z.union([z.literal(""), z.string().trim().url()]),
-        }),
-      )
+      .array(conditionsSchema)
       .min(1, "At least one condition is required"),
     detailedDescription: z.string().min(1, "Detailed description is required"),
     keywords: z
-      .array(
-        z.object({
-          id: z.string().optional(),
-          name: z.string().min(1, "Name is required"),
-          classificationCode: z.string().optional(),
-          deleted: z.boolean().optional(),
-          keywordUri: z.union([z.literal(""), z.string().trim().url()]),
-          scheme: z.string().optional(),
-          schemeUri: z.union([z.literal(""), z.string().trim().url()]),
-        }),
-      )
+      .array(keywordsSchema)
       .min(1, "At least one keyword is required"),
     primaryIdentifier: z.object({
       domain: z.union([z.literal(""), z.string().trim().url()]),
@@ -45,18 +62,7 @@ const StudyMetadataAboutSchema = z
       }),
     }),
     secondaryIdentifiers: z
-      .array(
-        z.object({
-          id: z.string().optional(),
-          deleted: z.boolean().optional(),
-          domain: z.union([z.literal(""), z.string().trim().url()]),
-          identifier: z.string(),
-          link: z.union([z.literal(""), z.string().trim().url()]),
-          type: z.string().refine((v) => identTypeOptions.includes(v), {
-            message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
-          }),
-        }),
-      )
+      .array(secondaryIdentifierSchema)
       .min(1, "At least one secondary identifier is required"),
   })
   .strict();

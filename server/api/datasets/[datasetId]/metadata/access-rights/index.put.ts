@@ -5,27 +5,35 @@ const accessTypeOptions = FORM_JSON.datasetAccessTypeOptions.map(
   (opt) => opt.value,
 );
 
+const accessSchema = z
+  .object({
+    description: z.string().trim().min(1, "Description is required"),
+    type: z
+      .string()
+      .trim()
+      .refine((v) => accessTypeOptions.includes(v), {
+        message: `Access type must be one of: ${accessTypeOptions.join(", ")}`,
+      }),
+    url: z.string().trim().optional(),
+    urlLastChecked: z.string().trim().optional(),
+  })
+  .strict();
+
+const rightsSchema = z
+  .object({
+    identifier: z.string().trim().optional(),
+    identifierScheme: z.string().trim().optional(),
+    identifierSchemeUri: z.string().trim().optional(),
+    licenseText: z.string().trim().optional(),
+    rights: z.string().trim().min(1, "rights is required"),
+    uri: z.string().trim().optional(),
+  })
+  .strict();
+
 const DatasetMetadataAccessRightsSchema = z
   .object({
-    access: z.object({
-      description: z.string().trim().min(1, "Description is required"),
-      type: z
-        .string()
-        .trim()
-        .refine((v) => accessTypeOptions.includes(v), {
-          message: `Access type must be one of: ${accessTypeOptions.join(", ")}`,
-        }),
-      url: z.string().trim().optional(),
-      urlLastChecked: z.string().trim().optional(),
-    }),
-    rights: z.object({
-      identifier: z.string().trim().optional(),
-      identifierScheme: z.string().trim().optional(),
-      identifierSchemeUri: z.string().trim().optional(),
-      licenseText: z.string().trim().optional(),
-      rights: z.string().trim().min(1, "rights is required"),
-      uri: z.string().trim().optional(),
-    }),
+    access: accessSchema,
+    rights: rightsSchema,
   })
   .strict()
   .superRefine((data, ctx) => {

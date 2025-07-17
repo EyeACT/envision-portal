@@ -1,15 +1,19 @@
 import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
+
+const resourceTypeOptions =
+  FORM_JSON.datasetRelatedIdentifierResourceTypeOptions.map((opt) => opt.value);
 
 const relatedIdentSchema = z
   .object({
     id: z.string().optional(),
     deleted: z.boolean(),
-    identifier: z.string(),
-    identifierType: z.string(),
-    relatedMetadataScheme: z.string(),
-    relationType: z.string(),
-    resourceType: z.string(),
-    schemeType: z.string(),
+    identifier: z.string().min(1, "Identifier is required"),
+    identifierType: z.string().min(1, "Identifier type is required"),
+    relatedMetadataScheme: z.string().optional(),
+    relationType: z.string().min(1, "Relation type is required"),
+    resourceType: z.string().min(1, "Resource type is required"),
+    schemeType: z.string().min(1, "Scheme type is required"),
     schemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
   .superRefine((data, context) => {
@@ -27,11 +31,13 @@ const relatedIdentSchema = z
     }
   });
 
-const DatasetMetadataRelatedIdentifiersSchema = z.object({
-  relatedIdentifiers: z
-    .array(relatedIdentSchema)
-    .min(1, "At least one related identifier is required"),
-});
+const DatasetMetadataRelatedIdentifiersSchema = z
+  .object({
+    relatedIdentifiers: z
+      .array(relatedIdentSchema)
+      .min(1, "At least one related identifier is required"),
+  })
+  .strict();
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -88,7 +94,7 @@ export default defineEventHandler(async (event) => {
         datasetId,
         identifier: relatedIdentifier.identifier,
         identifierType: relatedIdentifier.identifierType,
-        relatedMetadataScheme: relatedIdentifier.relatedMetadataScheme,
+        relatedMetadataScheme: relatedIdentifier.relatedMetadataScheme || "",
         relationType: relatedIdentifier.relationType,
         resourceType: relatedIdentifier.resourceType,
         schemeType: relatedIdentifier.schemeType,

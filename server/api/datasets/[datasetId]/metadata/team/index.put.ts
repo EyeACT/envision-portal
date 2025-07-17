@@ -58,6 +58,7 @@ const affiliationSchema = z
     identifierScheme: z.string().optional(),
     identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
+  .strict()
   .superRefine((data, ctx) => {
     if (
       (data.identifier && !data.identifierScheme) ||

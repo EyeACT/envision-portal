@@ -12,51 +12,46 @@ const dateTypeOptions = FORM_JSON.datasetDateTypeOptions.map(
   (opt) => opt.value,
 );
 
+const aboutSchema = z.object({
+  id: z.string().optional(),
+  date: z.string().min(1, "Date is required"),
+  deleted: z.boolean().optional(),
+  information: z.string().optional(),
+  type: z.string().refine((v) => dateTypeOptions.includes(v), {
+    message: `Date type must be one of: ${dateTypeOptions.join(", ")}`,
+  }),
+});
+
+const descriptionSchema = z.object({
+  id: z.string().optional(),
+  deleted: z.boolean().optional(),
+  description: z.string(),
+  type: z.string().refine((v) => descripTypeOptions.includes(v), {
+    message: `Description type must be one of: ${descripTypeOptions.join(", ")}`,
+  }),
+});
+
+const titleSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, "Title is required"),
+  deleted: z.boolean().optional(),
+  type: z
+    .string()
+    .optional()
+    .refine(
+      (v) => titleTypeOptions.includes(v as (typeof titleTypeOptions)[number]),
+      {
+        message: `Title type must be one of: ${titleTypeOptions.join(", ")}`,
+      },
+    ),
+});
+
 const DatasetMetadataAboutSchema = z.object({
-  DatasetDate: z
-    .array(
-      z.object({
-        id: z.string().optional(),
-        date: z.string().min(1, "Date is required"),
-        deleted: z.boolean().optional(),
-        information: z.string().optional(),
-        type: z.string().refine((v) => dateTypeOptions.includes(v), {
-          message: `Date type must be one of: ${dateTypeOptions.join(", ")}`,
-        }),
-      }),
-    )
-    .min(1, "At least one date is required"),
+  DatasetDate: z.array(aboutSchema).min(1, "At least one date is required"),
   DatasetDescription: z
-    .array(
-      z.object({
-        id: z.string().optional(),
-        deleted: z.boolean().optional(),
-        description: z.string(),
-        type: z.string().refine((v) => descripTypeOptions.includes(v), {
-          message: `Description type must be one of: ${descripTypeOptions.join(", ")}`,
-        }),
-      }),
-    )
+    .array(descriptionSchema)
     .min(1, "At least Abstract description is required"),
-  DatasetTitle: z
-    .array(
-      z.object({
-        id: z.string().optional(),
-        title: z.string().min(1, "Title is required"),
-        deleted: z.boolean().optional(),
-        type: z
-          .string()
-          .optional()
-          .refine(
-            (v) =>
-              titleTypeOptions.includes(v as (typeof titleTypeOptions)[number]),
-            {
-              message: `Title type must be one of: ${titleTypeOptions.join(", ")}`,
-            },
-          ),
-      }),
-    )
-    .min(1, "At least Main title is required"),
+  DatasetTitle: z.array(titleSchema).min(1, "At least Main title is required"),
 });
 
 export default defineEventHandler(async (event) => {

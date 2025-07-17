@@ -5,20 +5,24 @@ const identTypeOptions = FORM_JSON.datasetIdentifierTypeOptions.map(
   (opt) => opt.value,
 );
 
-const DatasetMetadataIdentifiersSchema = z.object({
-  DatasetAlternateIdentifier: z
-    .array(
-      z.object({
-        id: z.string().optional(),
-        deleted: z.boolean().optional(),
-        identifier: z.string(),
-        type: z.string().refine((v) => identTypeOptions.includes(v), {
-          message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
-        }),
-      }),
-    )
-    .min(1, "At least one alternate identifier is required"),
-});
+const altIdentifierSchema = z
+  .object({
+    id: z.string().optional(),
+    deleted: z.boolean().optional(),
+    identifier: z.string().min(1, "Identifier is required"),
+    type: z.string().refine((v) => identTypeOptions.includes(v), {
+      message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+    }),
+  })
+  .strict();
+
+const DatasetMetadataIdentifiersSchema = z
+  .object({
+    DatasetAlternateIdentifier: z
+      .array(altIdentifierSchema)
+      .min(1, "At least one alternate identifier is required"),
+  })
+  .strict();
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
