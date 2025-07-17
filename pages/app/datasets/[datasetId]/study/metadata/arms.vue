@@ -101,7 +101,16 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyArms.forEach((arm: any, index: number) => {
+  const activeArms = state.studyArms.filter((arm: any) => !arm.deleted);
+
+  if (activeArms.length === 0) {
+    errors.push({
+      name: "studyArms",
+      message: "At least one active study arm is required",
+    });
+  }
+
+  activeArms.forEach((arm: any, index: number) => {
     if (arm.label.trim() === "") {
       errors.push({
         name: `label-${index}`,

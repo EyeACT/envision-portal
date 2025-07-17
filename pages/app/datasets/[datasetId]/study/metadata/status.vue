@@ -150,9 +150,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     body: b,
     method: "PUT",
   })
-    .then((res) => {
-      console.log(res);
-
+    .then((_res) => {
       toast.add({
         title: "Success",
         color: "success",

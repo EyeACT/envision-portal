@@ -3,6 +3,11 @@ import * as z from "zod";
 import { nanoid } from "nanoid";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
+import {
+  isValidORCIDValue,
+  isValidRORValue,
+  isValidUrl,
+} from "~/utils/validations";
 
 definePageMeta({
   middleware: ["auth"],
@@ -113,7 +118,18 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyOverallOfficials.forEach((official: any, index: number) => {
+  const activeOfficials = state.studyOverallOfficials.filter(
+    (official: any) => !official.deleted,
+  );
+
+  if (activeOfficials.length === 0) {
+    errors.push({
+      name: "studyOverallOfficials",
+      message: "At least one study overall official is required",
+    });
+  }
+
+  activeOfficials.forEach((official: any, index: number) => {
     if (official.givenName.trim() === "") {
       errors.push({
         name: `givenName-${index}`,
@@ -137,14 +153,55 @@ const validate = (state: any): FormError[] => {
 
     // If affiliation identifier is provided, scheme and scheme URI must also be provided
     if (
-      official.affiliationIdentifier.trim() !== "" &&
-      (official.affiliationIdentifierScheme.trim() === "" ||
-        official.affiliationIdentifierSchemeUri.trim() === "")
+      (official.affiliationIdentifier.trim() !== "" &&
+        official.affiliationIdentifierScheme.trim() === "") ||
+      (official.affiliationIdentifier.trim() === "" &&
+        official.affiliationIdentifierScheme.trim() !== "")
+    ) {
+      const messages = [
+        {
+          name: `affiliationIdentifier-${index}`,
+          message:
+            "Affiliation identifier and scheme must be provided together",
+        },
+        {
+          name: `affiliationIdentifierScheme-${index}`,
+          message:
+            "Affiliation identifier and scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
+    }
+
+    if (
+      official.affiliationIdentifier &&
+      official.affiliationIdentifierScheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(official.affiliationIdentifier)
     ) {
       errors.push({
-        name: `studyOverallOfficials-${index}`,
-        message:
-          "If affiliation identifier is provided, scheme and scheme URI must also be provided",
+        name: `affiliationIdentifier-${index}`,
+        message: "Affiliation identifier must be a valid ORCID",
+      });
+    }
+    if (
+      official.affiliationIdentifier &&
+      official.affiliationIdentifierScheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(official.affiliationIdentifier)
+    ) {
+      errors.push({
+        name: `affiliationIdentifier-${index}`,
+        message: "Affiliation identifier must be a valid ROR",
+      });
+    }
+
+    if (
+      official.affiliationIdentifierSchemeUri.trim() !== "" &&
+      !isValidUrl(official.affiliationIdentifierSchemeUri)
+    ) {
+      errors.push({
+        name: `affiliationIdentifierSchemeUri-${index}`,
+        message: "Affiliation identifier scheme URI must be a valid URI",
       });
     }
 
@@ -167,6 +224,38 @@ const validate = (state: any): FormError[] => {
       ];
 
       errors.push(...messages);
+    }
+
+    if (
+      official.identifier &&
+      official.identifierScheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(official.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Identifier must be a valid ORCID",
+      });
+    }
+
+    if (
+      official.identifier &&
+      official.identifierScheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(official.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Identifier must be a valid ROR",
+      });
+    }
+
+    if (
+      official.identifierSchemeUri &&
+      !isValidUrl(official.identifierSchemeUri)
+    ) {
+      errors.push({
+        name: `identifierSchemeUri-${index}`,
+        message: "Identifier scheme URI must be a valid URL",
+      });
     }
 
     // Official role must be one of the predefined options

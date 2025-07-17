@@ -1,47 +1,109 @@
 import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
 
-const StudyMetadataAboutSchema = z.object({
-  briefSummary: z.string().min(1),
-  conditions: z.array(
-    z.object({
-      id: z.string().optional(),
-      name: z.string(),
-      classificationCode: z.string(),
-      conditionUri: z.string(),
-      deleted: z.boolean().optional(),
-      scheme: z.string(),
-      schemeUri: z.string(),
-    }),
-  ),
-  detailedDescription: z.string().min(1),
-  keywords: z.array(
-    z.object({
-      id: z.string().optional(),
-      name: z.string(),
-      classificationCode: z.string(),
-      deleted: z.boolean().optional(),
-      keywordUri: z.string(),
-      scheme: z.string(),
-      schemeUri: z.string(),
-    }),
-  ),
-  primaryIdentifier: z.object({
-    domain: z.string().optional(),
+const identTypeOptions =
+  FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions.map(
+    (opt) => opt.value,
+  );
+
+const conditionsSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    classificationCode: z.string().optional(),
+    conditionUri: z.union([z.literal(""), z.string().trim().url()]),
+    deleted: z.boolean().optional(),
+    local: z.boolean().optional(),
+    scheme: z.string().optional(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .strict();
+
+const keywordsSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    classificationCode: z.string().optional(),
+    deleted: z.boolean().optional(),
+    keywordUri: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
+    scheme: z.string().optional(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    if (
+      (data.classificationCode && !data.scheme) ||
+      (!data.classificationCode && data.scheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Both classificationCode and scheme are required if either is provided",
+      });
+    }
+
+    if (
+      data.classificationCode &&
+      data.scheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(data.classificationCode)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ORCID identifier must be a valid ORCID format",
+      });
+    }
+
+    if (
+      data.classificationCode &&
+      data.scheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(data.classificationCode)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ROR identifier must be a valid ROR format",
+      });
+    }
+  });
+
+const secondaryIdentifierSchema = z
+  .object({
+    id: z.string().optional(),
+    deleted: z.boolean().optional(),
+    domain: z.union([z.literal(""), z.string().trim().url()]),
     identifier: z.string(),
-    link: z.string().optional(),
-    type: z.string(),
-  }),
-  secondaryIdentifiers: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      domain: z.string().optional(),
-      identifier: z.string(),
-      link: z.string().optional(),
-      type: z.string(),
+    link: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
+    type: z.string().refine((v) => identTypeOptions.includes(v), {
+      message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
     }),
-  ),
-});
+  })
+  .strict();
+
+const StudyMetadataAboutSchema = z
+  .object({
+    briefSummary: z.string().min(1, "Brief summary is required"),
+    conditions: z
+      .array(conditionsSchema)
+      .min(1, "At least one condition is required"),
+    detailedDescription: z.string().min(1, "Detailed description is required"),
+    keywords: z
+      .array(keywordsSchema)
+      .min(1, "At least one keyword is required"),
+    primaryIdentifier: z.object({
+      domain: z.union([z.literal(""), z.string().trim().url()]),
+      identifier: z.string(),
+      link: z.union([z.literal(""), z.string().trim().url()]),
+      type: z.string().refine((v) => identTypeOptions.includes(v), {
+        message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+      }),
+    }),
+    secondaryIdentifiers: z
+      .array(secondaryIdentifierSchema)
+      .min(1, "At least one secondary identifier is required"),
+  })
+  .strict();
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -58,8 +120,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
@@ -95,8 +158,8 @@ export default defineEventHandler(async (event) => {
     await prisma.studyIdentification.update({
       data: {
         identifier: primaryIdentifier.identifier,
-        identifierDomain: primaryIdentifier.domain,
-        identifierLink: primaryIdentifier.link,
+        identifierDomain: primaryIdentifier.domain || "",
+        identifierLink: primaryIdentifier.link || "",
         identifierType: primaryIdentifier.type,
       },
       where: { id: primaryIdentifierId.id },
@@ -106,8 +169,8 @@ export default defineEventHandler(async (event) => {
       data: {
         datasetId,
         identifier: primaryIdentifier.identifier,
-        identifierDomain: primaryIdentifier.domain ?? "",
-        identifierLink: primaryIdentifier.link ?? "",
+        identifierDomain: primaryIdentifier.domain || "",
+        identifierLink: primaryIdentifier.link || "",
         identifierType: primaryIdentifier.type,
         isSecondary: false,
       },
@@ -122,7 +185,13 @@ export default defineEventHandler(async (event) => {
 
   for (const identifier of secondaryIdentifiersToUpdate) {
     await prisma.studyIdentification.update({
-      data: identifier,
+      data: {
+        identifier: identifier.identifier,
+        identifierDomain: identifier.domain || "",
+        identifierLink: identifier.link || "",
+        identifierType: identifier.type,
+        isSecondary: true,
+      },
       where: { id: identifier.id },
     });
   }
@@ -137,8 +206,8 @@ export default defineEventHandler(async (event) => {
       data: {
         datasetId,
         identifier: identifier.identifier,
-        identifierDomain: identifier.domain ?? "",
-        identifierLink: identifier.link ?? "",
+        identifierDomain: identifier.domain || "",
+        identifierLink: identifier.link || "",
         identifierType: identifier.type,
         isSecondary: true,
       },
@@ -180,11 +249,11 @@ export default defineEventHandler(async (event) => {
     await prisma.studyKeywords.create({
       data: {
         name: keyword.name,
-        classificationCode: keyword.classificationCode,
+        classificationCode: keyword.classificationCode || "",
         datasetId,
-        keywordUri: keyword.keywordUri,
-        scheme: keyword.scheme,
-        schemeUri: keyword.schemeUri,
+        keywordUri: keyword.keywordUri || "",
+        scheme: keyword.scheme || "",
+        schemeUri: keyword.schemeUri || "",
       },
     });
   }
@@ -222,11 +291,11 @@ export default defineEventHandler(async (event) => {
     await prisma.studyConditions.create({
       data: {
         name: condition.name,
-        classificationCode: condition.classificationCode,
-        conditionUri: condition.conditionUri,
+        classificationCode: condition.classificationCode || "",
+        conditionUri: condition.conditionUri || "",
         datasetId,
-        scheme: condition.scheme,
-        schemeUri: condition.schemeUri,
+        scheme: condition.scheme || "",
+        schemeUri: condition.schemeUri || "",
       },
     });
   }
