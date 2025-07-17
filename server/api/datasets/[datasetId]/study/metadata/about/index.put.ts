@@ -1,5 +1,6 @@
 import { z } from "zod";
 import FORM_JSON from "@/assets/data/form.json";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
 
 const identTypeOptions =
   FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions.map(
@@ -13,6 +14,7 @@ const conditionsSchema = z
     classificationCode: z.string().optional(),
     conditionUri: z.union([z.literal(""), z.string().trim().url()]),
     deleted: z.boolean().optional(),
+    local: z.boolean().optional(),
     scheme: z.string().optional(),
     schemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
@@ -25,10 +27,45 @@ const keywordsSchema = z
     classificationCode: z.string().optional(),
     deleted: z.boolean().optional(),
     keywordUri: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
     scheme: z.string().optional(),
     schemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    if (
+      (data.classificationCode && !data.scheme) ||
+      (!data.classificationCode && data.scheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Both classificationCode and scheme are required if either is provided",
+      });
+    }
+
+    if (
+      data.classificationCode &&
+      data.scheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(data.classificationCode)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ORCID identifier must be a valid ORCID format",
+      });
+    }
+
+    if (
+      data.classificationCode &&
+      data.scheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(data.classificationCode)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ROR identifier must be a valid ROR format",
+      });
+    }
+  });
 
 const secondaryIdentifierSchema = z
   .object({
@@ -37,6 +74,7 @@ const secondaryIdentifierSchema = z
     domain: z.union([z.literal(""), z.string().trim().url()]),
     identifier: z.string(),
     link: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
     type: z.string().refine((v) => identTypeOptions.includes(v), {
       message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
     }),
