@@ -129,7 +129,7 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyOverallOfficials.forEach((official: any, index: number) => {
+  activeOfficials.forEach((official: any, index: number) => {
     if (official.givenName.trim() === "") {
       errors.push({
         name: `givenName-${index}`,
