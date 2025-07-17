@@ -118,7 +118,7 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyLocations.forEach((location: any, index: number) => {
+  activeLocations.forEach((location: any, index: number) => {
     if (location.facility.trim() === "") {
       errors.push({
         name: `facility-${index}`,

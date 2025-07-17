@@ -376,7 +376,11 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.collaborators.forEach((c: any, index: number) => {
+  const activeCollaborators = state.collaborators.filter(
+    (c: any) => !c.deleted,
+  );
+
+  activeCollaborators.forEach((c: any, index: number) => {
     if (!c.deleted && !c.name?.trim()) {
       errors.push({
         name: `name-${index}`,
