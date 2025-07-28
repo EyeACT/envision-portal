@@ -18,7 +18,7 @@
     "prisma:db:push": "prisma db push",
     "prisma:db:pull": "prisma db pull",
     "postinstall": "nuxt prepare && prisma generate",
-    "reset": "rm -rf node_modules && rm -rf .nuxt && rm -rf .output && rm -rf dist && yarn install",
+    "reset": "rimraf node_modules .nuxt .output dist && yarn install",
     "prune-branches": "git removed-branches --prune --force",
     "scripts:edit:record": "tsx ./scripts/edit-record.ts",
     "scripts:create:record": "tsx ./scripts/create-record.ts"
@@ -60,6 +60,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.10",
     "prisma": "^6.11.1",
+    "rimraf": "^6.0.1",
     "tailwindcss-debug-screens": "^2.2.1",
     "tsx": "4.7.1",
     "typescript": "^5.7.3",
