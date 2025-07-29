@@ -107,7 +107,18 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyLocations.forEach((location: any, index: number) => {
+  const activeLocations = state.studyLocations.filter(
+    (location: any) => !location.deleted,
+  );
+
+  if (activeLocations.length === 0) {
+    errors.push({
+      name: "studyLocations",
+      message: "At least one study location is required",
+    });
+  }
+
+  activeLocations.forEach((location: any, index: number) => {
     if (location.facility.trim() === "") {
       errors.push({
         name: `facility-${index}`,
@@ -172,6 +183,27 @@ const validate = (state: any): FormError[] => {
       ];
 
       errors.push(...messages);
+    }
+
+    if (
+      location.identifier &&
+      location.identifierScheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(location.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Identifier must be a valid ORCID",
+      });
+    }
+    if (
+      location.identifier &&
+      location.identifierScheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(location.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Identifier must be a valid ROR",
+      });
     }
   });
 

@@ -1,36 +1,72 @@
 import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
 
-const DatasetMetadataDataManagementSchema = z.object({
-  consent: z.object({
-    details: z.string(),
+const deIdentTypeOptions = FORM_JSON.datasetDeIdentTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const consentTypeOptions = FORM_JSON.datasetConsentTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const deIdentSchema = z
+  .object({
+    dates: z.boolean(),
+    details: z.string().optional(),
+    direct: z.boolean(),
+    hipaa: z.boolean(),
+    kAnon: z.boolean(),
+    nonarr: z.boolean(),
+    type: z.string().refine((v) => deIdentTypeOptions.includes(v), {
+      message: `De-identification type must be one of: ${deIdentTypeOptions.join(", ")}`,
+    }),
+  })
+  .strict();
+
+const consentSchema = z
+  .object({
+    details: z.string().optional(),
     geneticOnly: z.boolean(),
     geogRestrict: z.boolean(),
     noMethods: z.boolean(),
     noncommercial: z.boolean(),
     researchType: z.boolean(),
-    type: z.string(),
-  }),
-  deidentLevel: z.object({
-    dates: z.boolean(),
-    details: z.string(),
-    direct: z.boolean(),
-    hipaa: z.boolean(),
-    kAnon: z.boolean(),
-    nonarr: z.boolean(),
-    type: z.string(),
-  }),
-  subjects: z.array(
-    z.object({
-      id: z.string().optional(),
-      classificationCode: z.string(),
-      deleted: z.boolean().optional(),
-      scheme: z.string(),
-      schemeUri: z.string(),
-      subject: z.string(),
-      valueUri: z.string(),
+    type: z.string().refine((v) => consentTypeOptions.includes(v), {
+      message: `Consent type must be one of: ${consentTypeOptions.join(", ")}`,
     }),
-  ),
-});
+  })
+  .strict();
+
+const subjectSchema = z
+  .object({
+    id: z.string().optional(),
+    classificationCode: z.string().optional(),
+    deleted: z.boolean().optional(),
+    scheme: z.string().optional(),
+    schemeUri: z.string().optional(),
+    subject: z.string().min(1, "Subject is required"),
+    valueUri: z.string().optional(),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    if (
+      (data.classificationCode && !data.scheme) ||
+      (!data.classificationCode && data.scheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Both classificationCode and scheme must be provided together",
+      });
+    }
+  });
+
+const DatasetMetadataDataManagementSchema = z
+  .object({
+    consent: consentSchema,
+    deidentLevel: deIdentSchema,
+    subjects: z.array(subjectSchema).min(1, "At least one subject is required"),
+  })
+  .strict();
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -49,8 +85,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
@@ -78,12 +115,12 @@ export default defineEventHandler(async (event) => {
   for (const subject of subjectsToCreate) {
     await prisma.datasetSubject.create({
       data: {
-        classificationCode: subject.classificationCode,
+        classificationCode: subject.classificationCode || "",
         datasetId,
-        scheme: subject.scheme,
-        schemeUri: subject.schemeUri,
-        subject: subject.subject,
-        valueUri: subject.valueUri,
+        scheme: subject.scheme || "",
+        schemeUri: subject.schemeUri || "",
+        subject: subject.subject || "",
+        valueUri: subject.valueUri || "",
       },
     });
   }

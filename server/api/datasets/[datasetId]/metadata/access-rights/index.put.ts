@@ -1,21 +1,53 @@
 import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
 
-const DatasetMetadataAccessRightsSchema = z.object({
-  access: z.object({
-    description: z.string(),
-    type: z.string(),
-    url: z.string(),
-    urlLastChecked: z.string(),
-  }),
-  rights: z.object({
-    identifier: z.string(),
-    identifierScheme: z.string(),
-    identifierSchemeUri: z.string(),
-    licenseText: z.string(),
-    rights: z.string(),
-    uri: z.string(),
-  }),
-});
+const accessTypeOptions = FORM_JSON.datasetAccessTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const accessSchema = z
+  .object({
+    description: z.string().trim().min(1, "Description is required"),
+    type: z
+      .string()
+      .trim()
+      .refine((v) => accessTypeOptions.includes(v), {
+        message: `Access type must be one of: ${accessTypeOptions.join(", ")}`,
+      }),
+    url: z.string().trim().optional(),
+    urlLastChecked: z.string().trim().optional(),
+  })
+  .strict();
+
+const rightsSchema = z
+  .object({
+    identifier: z.string().trim().optional(),
+    identifierScheme: z.string().trim().optional(),
+    identifierSchemeUri: z.string().trim().optional(),
+    licenseText: z.string().trim().optional(),
+    rights: z.string().trim().min(1, "rights is required"),
+    uri: z.string().trim().optional(),
+  })
+  .strict();
+
+const DatasetMetadataAccessRightsSchema = z
+  .object({
+    access: accessSchema,
+    rights: rightsSchema,
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    if (
+      (data.rights.identifier && !data.rights.identifierScheme) ||
+      (!data.rights.identifier && data.rights.identifierScheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Both identifier and identifierScheme must be provided together",
+      });
+    }
+  });
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -34,8 +66,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 

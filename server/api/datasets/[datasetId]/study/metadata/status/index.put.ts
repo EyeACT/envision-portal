@@ -17,6 +17,7 @@ const StudyMetadataStatusSchema = z
         invalid_type_error: "Completion date is required",
         required_error: "Completion date is required",
       })
+      .date("Date must be in YYYY-MM-DD format")
       .trim(),
     completionDateType: z
       .string({
@@ -41,6 +42,7 @@ const StudyMetadataStatusSchema = z
         invalid_type_error: "Start date is required",
         required_error: "Start date is required",
       })
+      .date("Date must be in YYYY-MM-DD format")
       .trim(),
     startDateType: z
       .string({

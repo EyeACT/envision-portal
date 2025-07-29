@@ -1,5 +1,6 @@
 import { z } from "zod";
 import FORM_JSON from "@/assets/data/form.json";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
 
 const partyTypeOptions =
   FORM_JSON.studyMetadataSponsorsResponsiblePartyTypeOptions.map(
@@ -11,9 +12,9 @@ const CollaboratorSchema = z
     id: z.string().optional(),
     name: z.string(),
     deleted: z.boolean().optional(),
-    identifier: z.string(),
-    scheme: z.string(),
-    schemeUri: z.string(),
+    identifier: z.string().optional(),
+    scheme: z.string().optional(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
   .strict()
   .superRefine((data, ctx) => {
@@ -31,10 +32,15 @@ const CollaboratorSchema = z
 
 const StudyMetadataSponsorsSchema = z
   .object({
-    collaborators: z.array(CollaboratorSchema).optional(),
+    collaborators: z
+      .array(CollaboratorSchema)
+      .min(1, "At least one collaborator is required"),
     leadSponsorIdentifier: z.string().trim().optional(),
     leadSponsorIdentifierScheme: z.string().trim().optional(),
-    leadSponsorIdentifierSchemeUri: z.string().trim().optional(),
+    leadSponsorIdentifierSchemeUri: z.union([
+      z.literal(""),
+      z.string().trim().url(),
+    ]),
     leadSponsorName: z.string().trim().optional(),
     responsiblePartyInvestigatorAffiliationIdentifier: z
       .string()
@@ -44,10 +50,10 @@ const StudyMetadataSponsorsSchema = z
       .string()
       .trim()
       .optional(),
-    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z
-      .string()
-      .trim()
-      .optional(),
+    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z.union([
+      z.literal(""),
+      z.string().trim().url(),
+    ]),
     responsiblePartyInvestigatorAffiliationName: z.string().trim().optional(),
     responsiblePartyInvestigatorFamilyName: z.string().trim().optional(),
     responsiblePartyInvestigatorGivenName: z.string().trim().optional(),
@@ -68,6 +74,22 @@ const StudyMetadataSponsorsSchema = z
   })
   .strict()
   .superRefine((data, ctx) => {
+    const leadSponsID = data.leadSponsorIdentifier?.trim();
+    const leadSponsScheme = data.leadSponsorIdentifierScheme
+      ?.trim()
+      .toUpperCase();
+    const respPartyInvestigatorAffilID =
+      data.responsiblePartyInvestigatorAffiliationIdentifier?.trim();
+    const respPartyInvestigatorAffilScheme =
+      data.responsiblePartyInvestigatorAffiliationIdentifierScheme
+        ?.trim()
+        .toUpperCase();
+
+    const respPartyInvestigatorID =
+      data.responsiblePartyInvestigatorIdentifierValue?.trim();
+    const respPartyInvestigatorScheme =
+      data.responsiblePartyInvestigatorIdentifierScheme?.trim().toUpperCase();
+
     // If identifierscheme is provided, identifierSchemeUri must also be provided
     if (
       (data.leadSponsorIdentifier && !data.leadSponsorIdentifierScheme) ||
@@ -90,6 +112,73 @@ const StudyMetadataSponsorsSchema = z
         code: z.ZodIssueCode.custom,
         message:
           "If responsible party investigator affiliation identifier scheme is provided, identifier scheme URI must also be provided",
+      });
+    }
+
+    if (
+      leadSponsID &&
+      leadSponsScheme === "ORCID" &&
+      !isValidORCIDValue(leadSponsID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Lead sponsor identifier must be a valid ORCID value",
+      });
+    }
+    if (
+      leadSponsID &&
+      leadSponsScheme === "ROR" &&
+      !isValidRORValue(leadSponsID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Lead sponsor identifier must be a valid ROR value",
+      });
+    }
+
+    if (
+      respPartyInvestigatorAffilID &&
+      respPartyInvestigatorAffilScheme === "ORCID" &&
+      !isValidORCIDValue(respPartyInvestigatorAffilID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator affiliation identifier must be a valid ORCID value",
+      });
+    }
+    if (
+      respPartyInvestigatorAffilID &&
+      respPartyInvestigatorAffilScheme === "ROR" &&
+      !isValidRORValue(respPartyInvestigatorAffilID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator affiliation identifier must be a valid ROR value",
+      });
+    }
+
+    if (
+      respPartyInvestigatorID &&
+      respPartyInvestigatorScheme === "ORCID" &&
+      !isValidORCIDValue(respPartyInvestigatorID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator identifier value must be a valid ORCID value",
+      });
+    }
+    if (
+      respPartyInvestigatorID &&
+      respPartyInvestigatorScheme === "ROR" &&
+      !isValidRORValue(respPartyInvestigatorID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator identifier value must be a valid ROR value",
       });
     }
   });
@@ -166,9 +255,9 @@ export default defineEventHandler(async (event) => {
         data: collaboratorsToSave.map((c) => ({
           name: c.name,
           datasetId,
-          identifier: c.identifier,
-          scheme: c.scheme,
-          schemeUri: c.schemeUri,
+          identifier: c.identifier || "",
+          scheme: c.scheme || "",
+          schemeUri: c.schemeUri || "",
         })),
       });
     }
