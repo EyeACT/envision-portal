@@ -1,8 +1,5 @@
 import { DataLakeServiceClient } from "@azure/storage-file-datalake";
-import type {
-  DataLakeDirectoryClient,
-  DataLakeFileClient,
-} from "@azure/storage-file-datalake";
+import { createId } from "@paralleldrive/cuid2";
 
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING, AZURE_PUBLISHED_CONNECTION_STRING } =
@@ -49,47 +46,11 @@ export default defineEventHandler(async (event) => {
     DataLakeServiceClient.fromConnectionString(
       AZURE_PUBLISHED_CONNECTION_STRING,
     );
-
-  const publishedContainerName = `published-${dataset.id}`;
-
+  const publishedContainerName = createId(); // Or `published-${dataset.id}`
   const publishedFileSystemClient =
     publishedDatalakeServiceClient.getFileSystemClient(publishedContainerName);
 
-  // delete the container if it exists
-  if (await publishedFileSystemClient.exists()) {
-    // await publishedFileSystemClient.delete();
-
-    // delete all files in the container
-    const iterator = publishedFileSystemClient.listPaths({
-      recursive: true,
-    });
-    let publishedFileSystemItem = await iterator.next();
-
-    while (!publishedFileSystemItem.done) {
-      const publishedFile = publishedFileSystemItem.value;
-
-      const publishedFileClient = publishedFileSystemClient.getFileClient(
-        publishedFile.name || "",
-      );
-
-      await publishedFileClient.delete();
-
-      publishedFileSystemItem = await iterator.next();
-    }
-  }
-
-  // Check if the container already exists
-  // if (await fileSystemClient.exists()) {
-  //   throw createError({
-  //     statusCode: 400,
-  //     statusMessage: "Dataset already published",
-  //   });
-  // }
-
-  // Create the container if it doesn't exist
-  if (!(await publishedFileSystemClient.exists())) {
-    await publishedFileSystemClient.create();
-  }
+  await publishedFileSystemClient.create(); // Always new container
 
   // 7. Move the dataset to the container (this probably needs to be a scheduled job)
 
@@ -100,62 +61,22 @@ export default defineEventHandler(async (event) => {
   const draftFileSystemClient =
     draftDatalakeServiceClient.getFileSystemClient("test");
 
-  const iterator = draftFileSystemClient.listPaths({
+  // Copy files from draft to published
+  for await (const draftFile of draftFileSystemClient.listPaths({
     recursive: true,
-  });
-  let draftFileSystemItem = await iterator.next();
+  })) {
+    if (draftFile.isDirectory) continue;
 
-  while (!draftFileSystemItem.done) {
-    const draftFile = draftFileSystemItem.value;
-
-    console.log(draftFile.name, draftFile.isDirectory);
-
-    const isInADirectory = draftFile.name?.includes("/");
-    let directoryClient: DataLakeDirectoryClient;
-    let draftFileClient: DataLakeFileClient =
-      publishedFileSystemClient.getFileClient(draftFile.name || "");
-
-    if (isInADirectory) {
-      const directories = draftFile.name?.split("/") || [];
-
-      if (directories.length > 1) {
-        directoryClient = publishedFileSystemClient.getDirectoryClient(
-          directories[0] || "",
-        );
-
-        for (let i = 1; i < directories?.length; i++) {
-          const directory = directories.slice(0, i).join("/");
-
-          directoryClient =
-            publishedFileSystemClient.getDirectoryClient(directory);
-
-          if (!(await directoryClient.exists())) {
-            await directoryClient.create();
-          }
-        }
-
-        draftFileClient = directoryClient.getFileClient(
-          directories.pop() || "",
-        );
-      }
-    } else {
-      console.log("copying file");
-
-      draftFileClient = draftFileSystemClient.getFileClient(
-        draftFile.name || "",
-      );
-    }
-
-    const draftFileContent = await draftFileClient.readToBuffer();
+    const draftFileClient = draftFileSystemClient.getFileClient(draftFile.name);
+    const content = await draftFileClient.readToBuffer();
 
     const publishedFileClient = publishedFileSystemClient.getFileClient(
-      draftFile.name || "",
+      draftFile.name,
     );
 
     await publishedFileClient.create();
-    await publishedFileClient.upload(draftFileContent);
-
-    draftFileSystemItem = await iterator.next();
+    await publishedFileClient.append(content, 0, content.length);
+    await publishedFileClient.flush(content.length);
   }
 
   // 8. Generate and upload the dataset metadata file
