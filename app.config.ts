@@ -17,5 +17,10 @@ export default defineAppConfig({
         root: "w-full",
       },
     },
+    timeline: {
+      slots: {
+        separator: "bg-gray-200 dark:bg-gray-800",
+      },
+    },
   },
 });

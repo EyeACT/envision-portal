@@ -10,7 +10,9 @@ function convertPathsToTree(paths: any[]) {
     const aDepth = (a.name.match(/\//g) || []).length;
     const bDepth = (b.name.match(/\//g) || []).length;
 
-    if (aDepth !== bDepth) return aDepth - bDepth;
+    if (aDepth !== bDepth) {
+      return aDepth - bDepth;
+    }
 
     return a.name.localeCompare(b.name);
   });
@@ -96,7 +98,7 @@ function getFileIcon(filename: string): string {
 }
 
 export default defineEventHandler(async (event) => {
-  const { AZURE_CONNECTION_STRING } = useRuntimeConfig();
+  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   const session = await requireUserSession(event);
 
   // todo: add permissions check
@@ -122,7 +124,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const datalakeServiceClient = DataLakeServiceClient.fromConnectionString(
-    AZURE_CONNECTION_STRING,
+    AZURE_DRAFT_CONNECTION_STRING,
   );
 
   const fileSystemClient = datalakeServiceClient.getFileSystemClient("test");
