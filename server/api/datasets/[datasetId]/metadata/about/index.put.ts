@@ -1,16 +1,4 @@
-import { z } from "zod";
-
-const DatasetMetadataAboutSchema = z.object({
-  acknowledgement: z.string(),
-  format: z.array(z.string()),
-  labelingMethod: z.string(),
-  language: z.string().min(2, "Language code is required"),
-  resourceType: z.string().min(1, "Resource type is required"),
-  resourceTypeName: z.string().min(1, "Resource type name is required"),
-  size: z.array(z.string().min(1)).min(1, "At least one size is required"),
-  standardsFollowed: z.string(),
-  validationInfo: z.string(),
-});
+import { DatasetMetadataAboutSchema } from "@/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -31,7 +19,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
