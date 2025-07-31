@@ -70,6 +70,11 @@ model Dataset {
 
     doi String? // Optional since the doi is not assigned until the dataset is published
 
+    status String @default("draft") // draft | inProgress | published
+
+    changelog String @default("")
+    readme    String @default("")
+
     updated DateTime @updatedAt
     created DateTime @default(now())
 
@@ -94,21 +99,22 @@ model Dataset {
     DatasetSubject              DatasetSubject[]
     DatasetTitle                DatasetTitle[]
 
-    StudyDescription      StudyDescription?
-    StudyStatus           StudyStatus?
-    StudySponsors         StudySponsors?
-    StudyOversight        StudyOversight?
-    StudyDesign           StudyDesign?
-    StudyEligibility      StudyEligibility?
-    StudyIdentification   StudyIdentification[]
-    StudyCollaborators    StudyCollaborators[]
-    StudyConditions       StudyConditions[]
-    StudyKeywords         StudyKeywords[]
-    StudyArm              StudyArm[]
-    StudyIntervention     StudyIntervention[]
-    StudyCentralContact   StudyCentralContact[]
-    StudyOverallOfficials StudyOverallOfficials[]
-    StudyLocation         StudyLocation[]
+    StudyDescription        StudyDescription?
+    StudyStatus             StudyStatus?
+    StudySponsors           StudySponsors?
+    StudyOversight          StudyOversight?
+    StudyDesign             StudyDesign?
+    StudyEligibility        StudyEligibility?
+    StudyIdentification     StudyIdentification[]
+    StudyCollaborators      StudyCollaborators[]
+    StudyConditions         StudyConditions[]
+    StudyKeywords           StudyKeywords[]
+    StudyArm                StudyArm[]
+    StudyIntervention       StudyIntervention[]
+    StudyCentralContact     StudyCentralContact[]
+    StudyOverallOfficials   StudyOverallOfficials[]
+    StudyLocation           StudyLocation[]
+    DatasetPublishingStatus DatasetPublishingStatus[]
 }
 
 model DatasetMember {
@@ -735,17 +741,34 @@ model DatasetTitle {
     created DateTime @default(now())
 }
 
-model PublishedDataset {
-    id Int @id
+model DatasetPublishingStatus {
+    id String @id @default(cuid())
 
-    // These fields aren't attached because they can be deleted from the source side. 
-    studyId   String
     datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    status Int @default(0) // -1: failed, 0: not started, ...
+
+    comment           String @default("")
+    currentFileNumber Int    @default(0)
+    fileCount         Int    @default(0)
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+}
+
+model PublishedDataset {
+    id Int @id @default(autoincrement())
+
+    // This field isn't attached because it can be deleted from the source side. 
+    datasetId   String?
+    canonicalId String?
 
     doi String
 
-    title        String
-    description  String
+    title       String
+    description String
+
     versionTitle String
     studyTitle   String
 
