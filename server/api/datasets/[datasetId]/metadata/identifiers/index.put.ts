@@ -1,28 +1,4 @@
-import { z } from "zod";
-import FORM_JSON from "@/assets/data/form.json";
-
-const identTypeOptions = FORM_JSON.datasetIdentifierTypeOptions.map(
-  (opt) => opt.value,
-);
-
-const altIdentifierSchema = z
-  .object({
-    id: z.string().optional(),
-    deleted: z.boolean().optional(),
-    identifier: z.string().min(1, "Identifier is required"),
-    type: z.string().refine((v) => identTypeOptions.includes(v), {
-      message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
-    }),
-  })
-  .strict();
-
-const DatasetMetadataIdentifiersSchema = z
-  .object({
-    DatasetAlternateIdentifier: z
-      .array(altIdentifierSchema)
-      .min(1, "At least one alternate identifier is required"),
-  })
-  .strict();
+import { DatasetMetadataIdentifiersSchema } from "~/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);

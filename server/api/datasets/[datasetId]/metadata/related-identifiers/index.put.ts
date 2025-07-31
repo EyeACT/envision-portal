@@ -1,48 +1,4 @@
-import { z } from "zod";
-import FORM_JSON from "@/assets/data/form.json";
-
-const resourceTypeOptions =
-  FORM_JSON.datasetRelatedIdentifierResourceTypeOptions.map((opt) => opt.value);
-
-const relatedIdentSchema = z
-  .object({
-    id: z.string().optional(),
-    deleted: z.boolean(),
-    identifier: z.string().min(1, "Identifier is required"),
-    identifierType: z.string().min(1, "Identifier type is required"),
-    local: z.boolean().optional(),
-    relatedMetadataScheme: z.string().optional(),
-    relationType: z.string().min(1, "Relation type is required"),
-    resourceType: z.string().refine((v) => resourceTypeOptions.includes(v), {
-      message: `Resource type must be one of: ${resourceTypeOptions.join(", ")}`,
-      path: ["resourceType"],
-    }),
-    schemeType: z.string().min(1, "Scheme type is required"),
-    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
-  })
-  .strict()
-  .superRefine((data, context) => {
-    if (
-      (data.relationType === "IsMetadataFor" ||
-        data.relationType === "HasMetadata") &&
-      !data.relatedMetadataScheme
-    ) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "relatedMetadataScheme is required when relationType is IsMetadataFor or HasMetadata",
-        path: ["relatedMetadataScheme"],
-      });
-    }
-  });
-
-const DatasetMetadataRelatedIdentifiersSchema = z
-  .object({
-    relatedIdentifiers: z
-      .array(relatedIdentSchema)
-      .min(1, "At least one related identifier is required"),
-  })
-  .strict();
+import { DatasetMetadataRelatedIdentifiersSchema } from "~/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
