@@ -2,6 +2,14 @@ import { DataLakeServiceClient } from "@azure/storage-file-datalake";
 import { createId } from "@paralleldrive/cuid2";
 import { faker } from "@faker-js/faker";
 import DatasetRecords from "~/dev/datasetRecords.json";
+import PublishingStatus from "~/assets/data/publishing-status.json";
+
+const getPublishingStatusIndex = (status: string) => {
+  const statusObject =
+    PublishingStatus[status as keyof typeof PublishingStatus];
+
+  return statusObject?.index;
+};
 
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING, AZURE_PUBLISHED_CONNECTION_STRING } =
@@ -35,14 +43,80 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  let publishingStatusIndex = getPublishingStatusIndex("preparing");
+
+  const publishingStatus = await prisma.datasetPublishingStatus.findUnique({
+    where: {
+      datasetId,
+    },
+  });
+
+  if (!publishingStatus) {
+    await prisma.datasetPublishingStatus.create({
+      data: {
+        comment: "",
+        currentFileNumber: 0,
+        datasetId,
+        fileCount: 0,
+        status: publishingStatusIndex,
+      },
+    });
+  } else {
+    await prisma.datasetPublishingStatus.update({
+      data: {
+        comment: "",
+        currentFileNumber: 0,
+        fileCount: 0,
+        status: publishingStatusIndex,
+      },
+      where: {
+        datasetId,
+      },
+    });
+  }
+
   // Start the publish process
   // 1. Validate the dataset metadata
-  // 2. Validate the study metadata
-  // 3. Validate the healthsheet
-  // 4. Validate the dataset changelog
-  // 5. Validate the dataset readme
 
-  // 6. Create the container for the dataset in the published storage account
+  publishingStatusIndex = getPublishingStatusIndex(
+    "validating-dataset-metadata",
+  );
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      status: publishingStatusIndex,
+    },
+    where: {
+      datasetId,
+    },
+  });
+  // 2. Validate the study metadata
+
+  publishingStatusIndex = getPublishingStatusIndex("validating-study-metadata");
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      status: publishingStatusIndex,
+    },
+    where: {
+      datasetId,
+    },
+  });
+
+  // 3. Validate the healthsheet
+
+  publishingStatusIndex = getPublishingStatusIndex("validating-healthsheet");
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      status: publishingStatusIndex,
+    },
+    where: {
+      datasetId,
+    },
+  });
+
+  // 4. Create the container for the dataset in the published storage account
 
   const publishedDatalakeServiceClient =
     DataLakeServiceClient.fromConnectionString(
@@ -54,7 +128,18 @@ export default defineEventHandler(async (event) => {
 
   await publishedFileSystemClient.create(); // Always new container
 
-  // 7. Move the dataset to the container (this probably needs to be a scheduled job)
+  // 5. Move the dataset to the container (this probably needs to be a scheduled job)
+
+  publishingStatusIndex = getPublishingStatusIndex("indexing-dataset");
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      status: publishingStatusIndex,
+    },
+    where: {
+      datasetId,
+    },
+  });
 
   // Get the files from the draft storage account
   const draftDatalakeServiceClient = DataLakeServiceClient.fromConnectionString(
@@ -63,7 +148,9 @@ export default defineEventHandler(async (event) => {
   const draftFileSystemClient =
     draftDatalakeServiceClient.getFileSystemClient("test");
 
-  // Copy files from draft to published
+  const files: string[] = [];
+  let index = 0;
+
   for await (const draftFile of draftFileSystemClient.listPaths({
     recursive: true,
   })) {
@@ -72,6 +159,57 @@ export default defineEventHandler(async (event) => {
     if (filePath === "" || draftFile.isDirectory) {
       continue;
     }
+
+    files.push(filePath);
+    index++;
+
+    if (index % 1000 === 0) {
+      await prisma.datasetPublishingStatus.update({
+        data: {
+          fileCount: index,
+        },
+        where: {
+          datasetId,
+        },
+      });
+    }
+  }
+
+  publishingStatusIndex = getPublishingStatusIndex(
+    "moving-dataset-to-published-storage",
+  );
+
+  index = 0;
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      currentFileNumber: 0,
+      fileCount: files.length,
+      status: publishingStatusIndex,
+    },
+    where: {
+      datasetId,
+    },
+  });
+
+  // Copy files from draft to published
+  for (const draftFilePath of files) {
+    const filePath = draftFilePath;
+    const fileName = filePath.split("/").pop();
+
+    if (!fileName) {
+      continue;
+    }
+
+    await prisma.datasetPublishingStatus.update({
+      data: {
+        comment: `Moving file ${fileName}`,
+        currentFileNumber: index + 1,
+      },
+      where: {
+        datasetId,
+      },
+    });
 
     const draftFileClient = draftFileSystemClient.getFileClient(filePath);
     const content = await draftFileClient.readToBuffer();
@@ -82,6 +220,19 @@ export default defineEventHandler(async (event) => {
     await publishedFileClient.create();
     await publishedFileClient.upload(content);
   }
+
+  publishingStatusIndex = getPublishingStatusIndex(
+    "generating-uploading-metadata-files",
+  );
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      status: publishingStatusIndex,
+    },
+    where: {
+      datasetId,
+    },
+  });
 
   const firstEntry = DatasetRecords[0];
 
@@ -104,7 +255,16 @@ export default defineEventHandler(async (event) => {
 
   const changelog = "# Changelog\n\n## 1.0.0\n\n- Initial release";
 
-  // 8. Generate and upload the dataset metadata file
+  // 6. Generate and upload the dataset metadata file
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      comment: "Uploading the dataset_description.json metadata file",
+    },
+    where: {
+      datasetId,
+    },
+  });
 
   let publishedFileClient = publishedFileSystemClient.getFileClient(
     "dataset_description.json",
@@ -114,7 +274,16 @@ export default defineEventHandler(async (event) => {
   await publishedFileClient.create();
   await publishedFileClient.upload(data);
 
-  // 9. Generate and upload the study metadata file
+  // 7. Generate and upload the study metadata file
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      comment: "Uploading the study_description.json metadata file",
+    },
+    where: {
+      datasetId,
+    },
+  });
 
   publishedFileClient = publishedFileSystemClient.getFileClient(
     "study_description.json",
@@ -124,7 +293,16 @@ export default defineEventHandler(async (event) => {
   await publishedFileClient.create();
   await publishedFileClient.upload(data);
 
-  // 10. Generate and upload the healthsheet file
+  // 8. Generate and upload the healthsheet file
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      comment: "Uploading the healthsheet.md metadata file",
+    },
+    where: {
+      datasetId,
+    },
+  });
 
   publishedFileClient =
     publishedFileSystemClient.getFileClient("healthsheet.md");
@@ -134,7 +312,16 @@ export default defineEventHandler(async (event) => {
   await publishedFileClient.create();
   await publishedFileClient.upload(data);
 
-  // 11. Generate and upload the changelog file
+  // 9. Generate and upload the changelog file
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      comment: "Uploading the changelog.md metadata file",
+    },
+    where: {
+      datasetId,
+    },
+  });
 
   publishedFileClient = publishedFileSystemClient.getFileClient("CHANGELOG.md");
 
@@ -143,7 +330,16 @@ export default defineEventHandler(async (event) => {
   await publishedFileClient.create();
   await publishedFileClient.upload(data);
 
-  // 12. Generate and upload the readme file
+  // 10. Generate and upload the readme file
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      comment: "Uploading the README.md metadata file",
+    },
+    where: {
+      datasetId,
+    },
+  });
 
   publishedFileClient = publishedFileSystemClient.getFileClient("README.md");
 
@@ -152,9 +348,32 @@ export default defineEventHandler(async (event) => {
   await publishedFileClient.create();
   await publishedFileClient.upload(data);
 
+  publishingStatusIndex = getPublishingStatusIndex("registering-doi");
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      status: publishingStatusIndex,
+    },
+    where: {
+      datasetId,
+    },
+  });
+
   // Register the doi for the dataset
 
+  publishingStatusIndex = getPublishingStatusIndex("registering-dataset");
+
   // Update the dataset status to published
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      status: publishingStatusIndex,
+    },
+    where: {
+      datasetId,
+    },
+  });
+
   await prisma.publishedDataset.create({
     data: {
       title: dataset.title,
@@ -169,6 +388,15 @@ export default defineEventHandler(async (event) => {
       publishedMetadata: firstEntry.publishedMetadata,
       studyTitle: firstEntry.studyTitle,
       versionTitle: faker.system.semver() || "",
+    },
+  });
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      status: getPublishingStatusIndex("completed"),
+    },
+    where: {
+      datasetId,
     },
   });
 
