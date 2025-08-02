@@ -166,6 +166,7 @@ export default defineEventHandler(async (event) => {
     if (index % 1000 === 0) {
       await prisma.datasetPublishingStatus.update({
         data: {
+          comment: `Discovered ${index} files...`,
           fileCount: index,
         },
         where: {
@@ -204,7 +205,7 @@ export default defineEventHandler(async (event) => {
     await prisma.datasetPublishingStatus.update({
       data: {
         comment: `Moving file ${fileName}`,
-        currentFileNumber: index + 1,
+        currentFileNumber: index++,
       },
       where: {
         datasetId,
@@ -393,10 +394,22 @@ export default defineEventHandler(async (event) => {
 
   await prisma.datasetPublishingStatus.update({
     data: {
+      comment: "Publishing workflow completed",
+      currentFileNumber: 0,
+      fileCount: 0,
       status: getPublishingStatusIndex("completed"),
     },
     where: {
       datasetId,
+    },
+  });
+
+  await prisma.dataset.update({
+    data: {
+      status: "published",
+    },
+    where: {
+      id: datasetId,
     },
   });
 

@@ -70,7 +70,7 @@ model Dataset {
 
     doi String? // Optional since the doi is not assigned until the dataset is published
 
-    status String @default("draft") // draft | inProgress | published
+    status String @default("draft") // draft | published
 
     changelog String @default("")
     readme    String @default("")
@@ -80,8 +80,9 @@ model Dataset {
 
     DatasetRequest DatasetRequest[]
 
-    DatasetMember     DatasetMember[]
-    DatasetInvitation DatasetInvitation[]
+    DatasetMember           DatasetMember[]
+    DatasetInvitation       DatasetInvitation[]
+    DatasetPublishingStatus DatasetPublishingStatus?
 
     DatasetAccess               DatasetAccess?
     DatasetAlternateIdentifier  DatasetAlternateIdentifier[]
@@ -99,22 +100,21 @@ model Dataset {
     DatasetSubject              DatasetSubject[]
     DatasetTitle                DatasetTitle[]
 
-    StudyDescription        StudyDescription?
-    StudyStatus             StudyStatus?
-    StudySponsors           StudySponsors?
-    StudyOversight          StudyOversight?
-    StudyDesign             StudyDesign?
-    StudyEligibility        StudyEligibility?
-    StudyIdentification     StudyIdentification[]
-    StudyCollaborators      StudyCollaborators[]
-    StudyConditions         StudyConditions[]
-    StudyKeywords           StudyKeywords[]
-    StudyArm                StudyArm[]
-    StudyIntervention       StudyIntervention[]
-    StudyCentralContact     StudyCentralContact[]
-    StudyOverallOfficials   StudyOverallOfficials[]
-    StudyLocation           StudyLocation[]
-    DatasetPublishingStatus DatasetPublishingStatus[]
+    StudyDescription      StudyDescription?
+    StudyStatus           StudyStatus?
+    StudySponsors         StudySponsors?
+    StudyOversight        StudyOversight?
+    StudyDesign           StudyDesign?
+    StudyEligibility      StudyEligibility?
+    StudyIdentification   StudyIdentification[]
+    StudyCollaborators    StudyCollaborators[]
+    StudyConditions       StudyConditions[]
+    StudyKeywords         StudyKeywords[]
+    StudyArm              StudyArm[]
+    StudyIntervention     StudyIntervention[]
+    StudyCentralContact   StudyCentralContact[]
+    StudyOverallOfficials StudyOverallOfficials[]
+    StudyLocation         StudyLocation[]
 }
 
 model DatasetMember {

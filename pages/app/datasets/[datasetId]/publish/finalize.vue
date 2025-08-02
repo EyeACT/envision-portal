@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { TimelineItem, TableColumn } from "@nuxt/ui";
+import { UIcon, UButton } from "#components";
+import DatasetPublishingStatus from "~/assets/data/publishing-status.json";
 
 definePageMeta({
   middleware: ["auth"],
@@ -9,32 +11,36 @@ const route = useRoute();
 const toast = useToast();
 
 const publishLoading = ref(false);
+const pollingInterval = ref<NodeJS.Timeout | null>(null);
 
 const { datasetId } = route.params as {
   datasetId: string;
 };
 
-const { data, error } = await useFetch(
-  // TODO: Change this to the finalize endpoint
-  `/api/datasets/${datasetId}/publish/readme`,
-  {},
-);
+const data = ref<any>(null);
 
-if (error.value) {
-  toast.add({
-    title: "Error fetching readme",
-    description: "Please try again later",
-    icon: "material-symbols:error",
-  });
+const fetchData = async () => {
+  await $fetch(`/api/datasets/${datasetId}/publish`, {})
+    .then((d) => {
+      useSeoMeta({
+        title: d.title,
+      });
 
-  // await navigateTo(`/app/study/${studyId}/datasets/${datasetId}`);
-}
+      data.value = d;
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
-}
+      return d;
+    })
+    .catch((error) => {
+      console.error(error);
+
+      toast.add({
+        title: "Error fetching details",
+        description: "Please try again later",
+        icon: "material-symbols:error",
+      });
+    })
+    .finally(() => {});
+};
 
 const timelineItems = ref<TimelineItem[]>([
   {
@@ -64,35 +70,112 @@ const timelineItems = ref<TimelineItem[]>([
   },
 ]);
 
-const tableData = ref([
-  {
-    id: "0",
-    icon: "i-lucide-rocket",
-    step: "Preparing the workflow",
-  },
-]);
+const tableData = ref(
+  (
+    Object.keys(DatasetPublishingStatus) as Array<
+      keyof typeof DatasetPublishingStatus
+    >
+  ).map((key) => ({
+    id: key,
+    index: DatasetPublishingStatus[key].index,
+    step: DatasetPublishingStatus[key].title,
+  })),
+);
+
+const currentStatus = computed(() => {
+  return (
+    data.value?.DatasetPublishingStatus || {
+      comment: "",
+      currentFileNumber: 0,
+      fileCount: 0,
+      status: 9,
+    }
+  );
+});
 
 const columns: TableColumn<{
   id: string;
-  icon: string;
+  index: number;
   step: string;
 }>[] = [
   {
-    accessorKey: "step",
-    cell: ({ row }) => row.original.step,
-    header: "Step",
+    accessorKey: "task",
+    cell: ({ row }) =>
+      h(
+        "div",
+        {
+          class: "flex flex-col gap-1",
+        },
+        [
+          h("p", { class: "text-base text-black" }, [row.original.step]),
+          (currentStatus.value.status === 4 && row.original.index === 4) ||
+          (currentStatus.value.status === 5 && row.original.index === 5)
+            ? h("p", { class: "text-sm text-gray-500" }, [
+                currentStatus.value.comment,
+              ])
+            : null,
+        ],
+      ),
+    header: "Task",
   },
   {
-    accessorKey: "icon",
-    cell: ({ row }) => row.original.icon,
-    header: "Icon",
+    accessorKey: "status",
+    cell: ({ row }) =>
+      row.original.index === currentStatus.value.status
+        ? h("div", { class: "flex flex-col gap-1" }, [
+            h(UIcon, {
+              name: "line-md:loading-loop",
+              class: "text-primary-500",
+              size: "2xl",
+            }),
+            row.original.index === 5 &&
+            currentStatus.value.status === 5 &&
+            currentStatus.value.fileCount > 0
+              ? h(
+                  "span",
+                  {
+                    class: "text-sm text-gray-500",
+                  },
+                  `${currentStatus.value.currentFileNumber}/${currentStatus.value.fileCount} (${((currentStatus.value.currentFileNumber / currentStatus.value.fileCount) * 100).toFixed(2)}%)`,
+                )
+              : null,
+          ])
+        : row.original.index < currentStatus.value.status
+          ? h(
+              UIcon,
+              {
+                name: "fluent-mdl2:completed",
+                class: "text-green-500",
+                size: "2xl",
+              },
+              [row.original.index],
+            )
+          : h(UIcon, {
+              name: "eos-icons:hourglass",
+              class: "text-gray-300",
+              size: "xl",
+            }),
+    header: () =>
+      h("div", { class: "flex items-center gap-2" }, [
+        h("p", { class: "text-sm text-gray-500" }, ["Status"]),
+        publishLoading.value &&
+          h(UIcon, {
+            name: "line-md:loading-loop",
+            class: "text-primary-500 hidden",
+            size: "2xl",
+          }),
+      ]),
   },
 ];
 
 const publishDataset = async () => {
   publishLoading.value = true;
 
-  await $fetch(`/api/datasets/${datasetId}/publish`, {
+  pollingInterval.value = setInterval(async () => {
+    await fetchData();
+  }, 500);
+
+  await $fetch(`/api/datasets/${datasetId}/publish/finalize`, {
     method: "POST",
   })
     .then(() => {
@@ -111,10 +194,24 @@ const publishDataset = async () => {
         icon: "material-symbols:error",
       });
     })
-    .finally(() => {
+    .finally(async () => {
       publishLoading.value = false;
+
+      // One last check to see if the dataset is published
+      await fetchData();
+
+      if (pollingInterval.value) {
+        clearInterval(pollingInterval.value);
+      }
     });
 };
+
+// Clean up polling on component unmount
+onUnmounted(() => {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value);
+  }
+});
 </script>
 
 <template>
@@ -136,15 +233,14 @@ const publishDataset = async () => {
     />
 
     <div class="flex w-full flex-col gap-6 pb-16">
-      <UTimeline
-        orientation="horizontal"
+      <UStepper
         :default-value="4"
         :items="timelineItems"
         class="mx-5 w-full pt-5"
       />
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-        <UTable :data="tableData" :columns="columns" class="flex-1" />
+        <UTable :data="tableData" :columns="columns" class="flex-1" loading />
       </div>
 
       <div class="flex justify-end gap-5">
@@ -158,7 +254,7 @@ const publishDataset = async () => {
         />
       </div>
 
-      <pre class="hidden">{{ data }}</pre>
+      <pre class="hiddenn">{{ data }}</pre>
     </div>
   </div>
 </template>
