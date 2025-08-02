@@ -56,7 +56,8 @@
   "completed": {
     "title": "Completed",
     "description": "The dataset has been published successfully.",
-    "index": 9,
+    "$comment": "Setting this to +2 for the frontend to show the completed icon",
+    "index": 10,
     "supportsExpandedRow": false
   }
 }

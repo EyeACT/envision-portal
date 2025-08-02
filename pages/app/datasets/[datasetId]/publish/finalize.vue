@@ -88,7 +88,7 @@ const currentStatus = computed(() => {
       comment: "",
       currentFileNumber: 0,
       fileCount: 0,
-      status: 9,
+      status: -1,
     }
   );
 });
