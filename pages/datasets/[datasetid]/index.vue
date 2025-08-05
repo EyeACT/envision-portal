@@ -318,7 +318,9 @@ if (dataset.value) {
               />
             </template>
 
-            <template #files> <UTree multiple :items="treeItems" /> </template>
+            <template #files>
+              <UTree multiple :items="dataset?.files || []" />
+            </template>
 
             <template #versions>
               <DatasetVersions :metadata="dataset?.versionTitle" />

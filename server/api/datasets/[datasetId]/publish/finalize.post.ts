@@ -11,6 +11,100 @@ const getPublishingStatusIndex = (status: string) => {
   return statusObject?.index;
 };
 
+function convertPathsToTree(paths: any[]) {
+  const tree: any[] = [];
+  const pathMap = new Map();
+
+  // Sort paths to ensure directories come before their files
+  const sortedPaths = paths.sort((a, b) => {
+    const aDepth = (a.name.match(/\//g) || []).length;
+    const bDepth = (b.name.match(/\//g) || []).length;
+
+    if (aDepth !== bDepth) return aDepth - bDepth;
+
+    return a.name.localeCompare(b.name);
+  });
+
+  for (const path of sortedPaths) {
+    const pathParts = path.name.split("/");
+    let currentLevel = tree;
+    let currentPath = "";
+
+    for (let i = 0; i < pathParts.length; i++) {
+      const part = pathParts[i];
+
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
+      const isLastPart = i === pathParts.length - 1;
+      const isDirectory = !isLastPart || path.isDirectory;
+
+      // Check if this level already exists
+      let existingNode = currentLevel.find((node) => node.label === part);
+
+      if (!existingNode) {
+        // Create new node
+        const newNode: any = {
+          children: isDirectory ? [] : undefined,
+          icon: isDirectory
+            ? part.includes(".")
+              ? "i-heroicons-folder"
+              : "i-heroicons-folder"
+            : getFileIcon(part),
+          label: part,
+          // Add file metadata if it's a file
+          ...(isLastPart && !isDirectory
+            ? {
+                // lastModified: path.lastModified,
+                // size: path.contentLength,
+              }
+            : {}),
+        };
+
+        // Add defaultExpanded for root level directories
+        if (i === 0 && isDirectory) {
+          newNode.defaultExpanded = false;
+        }
+
+        currentLevel.push(newNode);
+        existingNode = newNode;
+      }
+
+      // Move to next level if it's a directory
+      if (isDirectory && existingNode.children) {
+        currentLevel = existingNode.children;
+      }
+    }
+  }
+
+  return tree;
+}
+
+// Function to get appropriate icon based on file extension
+function getFileIcon(filename: string): string {
+  const extension = filename.split(".").pop()?.toLowerCase();
+
+  switch (extension) {
+    case "csv":
+      return "i-vscode-icons-file-type-csv";
+    case "json":
+      return "i-vscode-icons-file-type-json";
+    case "xlsx":
+    case "xls":
+      return "i-vscode-icons-file-type-excel";
+    case "md":
+      return "i-heroicons-document-text";
+    case "txt":
+      return "i-heroicons-document-text";
+    case "zip":
+      return "i-vscode-icons-file-type-zip";
+    case "dcm":
+      return "i-vscode-icons-file-type-dicom";
+    case "tsv":
+      return "i-vscode-icons-file-type-csv";
+    default:
+      return "i-heroicons-document";
+  }
+}
+
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING, AZURE_PUBLISHED_CONNECTION_STRING } =
     useRuntimeConfig();
@@ -145,10 +239,14 @@ export default defineEventHandler(async (event) => {
   const draftDatalakeServiceClient = DataLakeServiceClient.fromConnectionString(
     AZURE_DRAFT_CONNECTION_STRING,
   );
-  const draftFileSystemClient =
-    draftDatalakeServiceClient.getFileSystemClient("test");
+  const draftFileSystemClient = draftDatalakeServiceClient.getFileSystemClient(
+    dataset.id,
+  );
 
-  const files: string[] = [];
+  const files: {
+    name: string;
+    isDirectory: boolean;
+  }[] = [];
   let index = 0;
 
   for await (const draftFile of draftFileSystemClient.listPaths({
@@ -160,7 +258,10 @@ export default defineEventHandler(async (event) => {
       continue;
     }
 
-    files.push(filePath);
+    files.push({
+      name: filePath,
+      isDirectory: false,
+    });
     index++;
 
     if (index % 1000 === 0) {
@@ -195,7 +296,7 @@ export default defineEventHandler(async (event) => {
 
   // Copy files from draft to published
   for (const draftFilePath of files) {
-    const filePath = draftFilePath;
+    const filePath = draftFilePath.name;
     const fileName = filePath.split("/").pop();
 
     if (!fileName) {
@@ -360,12 +461,35 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  // Register the doi for the dataset
+  // Generate a file tree for the dataset
+  const fileTree = await convertPathsToTree([
+    ...files,
+    {
+      name: "dataset_description.json",
+      isDirectory: false,
+    },
+    {
+      name: "study_description.json",
+      isDirectory: false,
+    },
+    {
+      name: "healthsheet.md",
+      isDirectory: false,
+    },
+    {
+      name: "CHANGELOG.md",
+      isDirectory: false,
+    },
+    {
+      name: "README.md",
+      isDirectory: false,
+    },
+  ]);
 
+  // Register the doi for the dataset
   publishingStatusIndex = getPublishingStatusIndex("registering-dataset");
 
   // Update the dataset status to published
-
   await prisma.datasetPublishingStatus.update({
     data: {
       status: publishingStatusIndex,
@@ -385,7 +509,7 @@ export default defineEventHandler(async (event) => {
       doi: `10.1000/envision.${faker.string.alphanumeric(10)}`,
       external: false,
       externalUrl: null,
-      files: firstEntry.files,
+      files: JSON.stringify(fileTree),
       publishedMetadata: firstEntry.publishedMetadata,
       studyTitle: firstEntry.studyTitle,
       versionTitle: faker.system.semver() || "",

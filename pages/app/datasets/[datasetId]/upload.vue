@@ -29,6 +29,7 @@ if (data.value) {
   });
 
   sasUrl.value = data.value.sasUrl;
+  expiration.value = data.value.expiration;
 }
 
 const copyToClipboard = async (text: string) => {
@@ -144,10 +145,10 @@ const copyToClipboard = async (text: string) => {
               Storage Explorer.
             </p>
 
-            <div class="flex items-center gap-2">
-              <p class="flex-1 rounded bg-gray-50 p-3 font-mono text-sm">
-                {{ sasUrl }}
-              </p>
+            <div class="flex items-center gap-6 bg-gray-50 p-2">
+              <pre class="rounded font-mono text-base break-all"
+                >{{ sasUrl }}
+              </pre>
 
               <UButton
                 icon="i-mdi-content-copy"
