@@ -8,7 +8,10 @@ const toast = useToast();
 
 const { datasetId } = route.params as { datasetId: string };
 
-const { data, error } = await useFetch(`/api/datasets/${datasetId}`, {});
+const sasUrl = ref("");
+const expiration = ref("");
+
+const { data, error } = await useFetch(`/api/datasets/${datasetId}/upload`, {});
 
 if (error.value) {
   toast.add({
@@ -17,13 +20,15 @@ if (error.value) {
     icon: "material-symbols:error",
   });
 
-  await navigateTo("/");
+  // await navigateTo("/");
 }
 
 if (data.value) {
   useSeoMeta({
     title: data.value.title,
   });
+
+  sasUrl.value = data.value.sasUrl;
 }
 
 const copyToClipboard = async (text: string) => {
@@ -74,7 +79,7 @@ const copyToClipboard = async (text: string) => {
       </div>
 
       <div
-        class="flex flex-col items-start gap-3 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        class="mb-6 flex flex-col items-start gap-3 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="p-6">
           <div>
@@ -141,22 +146,20 @@ const copyToClipboard = async (text: string) => {
 
             <div class="flex items-center gap-2">
               <p class="flex-1 rounded bg-gray-50 p-3 font-mono text-sm">
-                https://envisionportal.blob.core.windows.net/study-data/{{
-                  datasetId
-                }}
+                {{ sasUrl }}
               </p>
 
               <UButton
                 icon="i-mdi-content-copy"
                 color="neutral"
                 variant="ghost"
-                @click="
-                  copyToClipboard(
-                    `https://envisionportal.blob.core.windows.net/study-data/${datasetId}`,
-                  )
-                "
+                @click="copyToClipboard(sasUrl)"
               />
             </div>
+
+            <p class="mt-2 text-sm text-gray-500">
+              This URL will expire at {{ expiration }}.
+            </p>
 
             <p class="mt-2 text-sm text-gray-500">
               Tip: Save this URL for future reference. You'll need it each time

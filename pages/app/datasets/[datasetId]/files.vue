@@ -94,7 +94,20 @@ if (data.value) {
       </div>
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-        <UTree :items="data?.files || []" />
+        <UTree
+          v-if="data?.files && data?.files.length > 0"
+          :items="data?.files || []"
+        />
+
+        <p v-else>
+          No files found. Please
+          <NuxtLink
+            :to="`/app/datasets/${datasetId}/upload`"
+            class="text-blue-500"
+            >upload files</NuxtLink
+          >
+          to get started.
+        </p>
       </div>
 
       <pre>{{ data }}</pre>
