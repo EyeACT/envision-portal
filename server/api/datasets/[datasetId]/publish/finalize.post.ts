@@ -530,6 +530,7 @@ export default defineEventHandler(async (event) => {
 
   await prisma.dataset.update({
     data: {
+      doi: `10.1000/envision.${faker.string.alphanumeric(10)}`,
       status: "published",
     },
     where: {

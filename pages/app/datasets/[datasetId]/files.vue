@@ -110,7 +110,7 @@ if (data.value) {
         </p>
       </div>
 
-      <pre>{{ data }}</pre>
+      <pre class="hidden"> {{ data }}</pre>
     </div>
   </div>
 </template>
