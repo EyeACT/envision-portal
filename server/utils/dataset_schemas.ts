@@ -169,6 +169,7 @@ const subjectSchema = z
     id: z.string().optional(),
     classificationCode: z.string().optional(),
     deleted: z.boolean().optional(),
+    local: z.boolean().optional(),
     scheme: z.string().optional(),
     schemeUri: z.string().optional(),
     subject: z.string().min(1, "Subject is required"),
@@ -242,6 +243,7 @@ const altIdentifierSchema = z
     id: z.string().optional(),
     deleted: z.boolean().optional(),
     identifier: z.string().min(1, "Identifier is required"),
+    local: z.boolean().optional(),
     type: z.string().refine((v) => identTypeOptions.includes(v), {
       message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
     }),
