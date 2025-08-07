@@ -261,7 +261,7 @@ export const DatasetMetadataIdentifiersSchema = z
 const relatedIdentSchema = z
   .object({
     id: z.string().optional(),
-    deleted: z.boolean(),
+    deleted: z.boolean().optional(),
     identifier: z.string().min(1, "Identifier is required"),
     identifierType: z.string().min(1, "Identifier type is required"),
     local: z.boolean().optional(),
@@ -271,7 +271,7 @@ const relatedIdentSchema = z
       message: `Resource type must be one of: ${resourceTypeOptions.join(", ")}`,
       path: ["resourceType"],
     }),
-    schemeType: z.string().min(1, "Scheme type is required"),
+    schemeType: z.string().optional(),
     schemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
   .strict()
