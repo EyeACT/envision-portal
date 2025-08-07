@@ -1,7 +1,8 @@
 import { DataLakeServiceClient } from "@azure/storage-file-datalake";
 import { createId } from "@paralleldrive/cuid2";
 import { faker } from "@faker-js/faker";
-import DatasetRecords from "~/dev/datasetRecords.json";
+import DatasetRecords from "@/dev/datasetRecords.json";
+import { validateDatasetMetadata } from "@/server/api/utils/validations";
 
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING, AZURE_PUBLISHED_CONNECTION_STRING } =
@@ -37,6 +38,9 @@ export default defineEventHandler(async (event) => {
 
   // Start the publish process
   // 1. Validate the dataset metadata
+  const datasetValidation = await validateDatasetMetadata(datasetId, userId);
+
+  console.log("Dataset validation result:", datasetValidation);
   // 2. Validate the study metadata
   // 3. Validate the healthsheet
   // 4. Validate the dataset changelog
