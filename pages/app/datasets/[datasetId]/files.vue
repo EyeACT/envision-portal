@@ -93,7 +93,7 @@ if (data.value) {
         </div>
       </div>
 
-      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+      <div class="rounded-lg bg-white p-6 pb-5 shadow-sm dark:bg-gray-900">
         <UTree
           v-if="data?.files && data?.files.length > 0"
           :items="data?.files || []"
