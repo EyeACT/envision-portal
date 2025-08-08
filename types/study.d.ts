@@ -499,7 +499,6 @@ interface AdditionalData {
 
 interface Dataset {
   id: string;
-  studyId: string;
   doi: string;
   title: string;
   description: string;

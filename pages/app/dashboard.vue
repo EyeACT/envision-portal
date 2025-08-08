@@ -46,6 +46,16 @@ const newDatasetState = reactive({
   version: "1.0.0",
 });
 
+const openNewVersionModal = (datasetId: string) => {
+  const dataset = datasets.value?.find((d) => d.id === datasetId);
+
+  newDatasetState.version = "";
+  newDatasetState.title = dataset?.title ?? "";
+  newDatasetState.description = dataset?.description ?? "";
+  newDatasetState.imageUrl = dataset?.imageUrl ?? "";
+  newDatasetState.type = dataset?.type ?? "";
+};
+
 const onSubmit = async () => {
   loading.value = true;
 
@@ -61,6 +71,32 @@ const onSubmit = async () => {
       toast.add({
         title: "Error creating dataset",
         color: "error",
+        description: "Please try again later",
+        icon: "material-symbols:error",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+
+const createNewVersion = async (datasetId: string) => {
+  loading.value = true;
+
+  await $fetch(`/api/datasets/${datasetId}/new-version`, {
+    body: {
+      id: datasetId,
+      version: newDatasetState.version,
+    },
+    method: "POST",
+  })
+    .then((response) => {
+      navigateTo(`/app/datasets/${response.data.datasetId}`);
+    })
+    .catch((error) => {
+      console.error("Error creating new version:", error);
+      toast.add({
+        title: "Error creating new version",
         description: "Please try again later",
         icon: "material-symbols:error",
       });
@@ -186,42 +222,109 @@ const dropdownItems = ref([
         </UDropdownMenu>
       </div>
 
-      <!-- Studies Grid -->
+      <!-- Datasets Grid -->
       <div class="flex flex-col gap-3">
-        <NuxtLink
+        <ULink
           v-for="dataset in datasets"
           :key="dataset.id"
           :to="`/app/datasets/${dataset.id}`"
+          :disabled="dataset.status === 'published'"
         >
-          <UCard class="transition-all hover:shadow-md">
+          <UCard
+            class="transition-shadow hover:shadow-md"
+            :class="dataset.status === 'published' ? 'hover:shadow-none' : ''"
+          >
             <template #header>
               <div class="flex items-center justify-between gap-3">
-                <h2>
+                <h2 class="text-primary-500">
                   {{ dataset.title }}
                 </h2>
 
-                <UAvatar :src="dataset.imageUrl" size="lg" class="rounded-md" />
+                <UModal
+                  title="Create a new version"
+                  description="Do you want to clone this dataset to create a new version? "
+                >
+                  <template #body>
+                    <div class="flex flex-col gap-4">
+                      <UAlert
+                        title="Are you sure?"
+                        description="This will create an entry that you can edit and publish later. Any files that are already published will be copied to the new version."
+                        color="warning"
+                        variant="subtle"
+                      />
+
+                      <UFormField
+                        label="Version"
+                        name="version"
+                        description="The version number of the new dataset"
+                      >
+                        <UInput v-model="newDatasetState.version" type="text" />
+                      </UFormField>
+
+                      <UButton
+                        label="Create a new version"
+                        color="primary"
+                        variant="solid"
+                        icon="heroicons-outline:plus"
+                        :disabled="!newDatasetState.version"
+                        :loading="loading"
+                        @click="createNewVersion(dataset.id)"
+                      />
+                    </div>
+                  </template>
+
+                  <UButton
+                    v-if="dataset.status === 'published'"
+                    color="primary"
+                    variant="outline"
+                    label="Create a new version"
+                    icon="heroicons-outline:plus"
+                    size="sm"
+                    @click.stop.prevent="openNewVersionModal(dataset.id)"
+                  />
+                </UModal>
+
+                <!-- <UAvatar :src="dataset.imageUrl" size="lg" class="rounded-md" /> -->
               </div>
             </template>
 
-            <p>
+            <p class="text-default">
               {{ dataset.description }}
             </p>
 
             <USeparator class="my-3" />
 
-            <div class="flex items-center gap-2 text-sm">
-              <p>
-                Updated:
-                {{ displayDateDifference(dataset.updated) }} ago
-              </p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-sm">
+                <p v-if="dataset.doi">DOI: {{ dataset.doi }}</p>
 
-              <USeparator orientation="vertical" class="h-3" />
+                <USeparator
+                  v-if="dataset.doi"
+                  orientation="vertical"
+                  class="h-3"
+                />
 
-              <p>Created: {{ displayDateDifference(dataset.created) }} ago</p>
+                <p>
+                  Updated:
+                  {{ displayDateDifference(dataset.updated) }} ago
+                </p>
+
+                <USeparator orientation="vertical" class="h-3" />
+
+                <p>Created: {{ displayDateDifference(dataset.created) }} ago</p>
+              </div>
+
+              <UBadge
+                :color="dataset.status === 'draft' ? 'warning' : 'success'"
+                variant="subtle"
+                size="lg"
+                class="capitalize"
+              >
+                {{ dataset.status }}
+              </UBadge>
             </div>
           </UCard>
-        </NuxtLink>
+        </ULink>
       </div>
     </div>
   </div>
