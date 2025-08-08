@@ -30,7 +30,10 @@ export default defineEventHandler(async (event) => {
     doi: publishedDataset.doi,
     external: publishedDataset.external,
     externalUrl: publishedDataset.externalUrl,
-    files: JSON.parse(datasetFiles),
+    files:
+      typeof datasetFiles === "string"
+        ? JSON.parse(datasetFiles)
+        : datasetFiles,
     labelingMethod: additionalData.labelingMethod,
     metadata: {
       contributors: datasetMetadata.contributors,

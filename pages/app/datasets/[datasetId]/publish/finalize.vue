@@ -12,6 +12,8 @@ const toast = useToast();
 
 const publishLoading = ref(false);
 const pollingInterval = ref<NodeJS.Timeout | null>(null);
+const modalOpen = ref(false);
+const publishedId = ref<number | null>(null);
 
 const { datasetId } = route.params as {
   datasetId: string;
@@ -27,6 +29,9 @@ const fetchData = async () => {
       });
 
       data.value = d;
+
+      publishedId.value =
+        parseInt(d.doi?.split("envision.")[1] || "") || d.publishedId || null;
 
       return d;
     })
@@ -75,9 +80,9 @@ const tableData = ref(
     Object.keys(DatasetPublishingStatus) as Array<
       keyof typeof DatasetPublishingStatus
     >
-  ).map((key) => ({
+  ).map((key, index) => ({
     id: key,
-    index: DatasetPublishingStatus[key].index,
+    index,
     step: DatasetPublishingStatus[key].title,
   })),
 );
@@ -200,6 +205,10 @@ const publishDataset = async () => {
       // One last check to see if the dataset is published
       await fetchData();
 
+      if (publishedId.value) {
+        modalOpen.value = true;
+      }
+
       if (pollingInterval.value) {
         clearInterval(pollingInterval.value);
       }
@@ -243,6 +252,30 @@ onUnmounted(() => {
         <UTable :data="tableData" :columns="columns" class="flex-1" loading />
       </div>
 
+      <UModal
+        v-model:open="modalOpen"
+        title="Your dataset was published"
+        description="You can now view your dataset on the discover page."
+      >
+        <template #body>
+          <div class="flex flex-col gap-4">
+            <p class="text-sm text-gray-500">
+              If your dataset contains large amounts of data, it may take a
+              while to index and move all files to the new location.
+            </p>
+
+            <UButton
+              label="View dataset"
+              :to="`/datasets/${publishedId}`"
+              target="_blank"
+              :disabled="!publishedId"
+              icon="i-lucide-arrow-right"
+              @click="navigateTo(`/app/dashboard`)"
+            />
+          </div>
+        </template>
+      </UModal>
+
       <div class="flex justify-end gap-5">
         <UButton
           class="w-full"
@@ -254,7 +287,7 @@ onUnmounted(() => {
         />
       </div>
 
-      <pre class="hiddenn">{{ data }}</pre>
+      <pre class="hidden">{{ data }}</pre>
     </div>
   </div>
 </template>

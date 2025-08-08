@@ -499,7 +499,7 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  await prisma.publishedDataset.create({
+  const publishedDataset = await prisma.publishedDataset.create({
     data: {
       title: dataset.title,
       canonicalId: dataset.canonicalId,
@@ -513,6 +513,15 @@ export default defineEventHandler(async (event) => {
       publishedMetadata: firstEntry.publishedMetadata,
       studyTitle: firstEntry.studyTitle,
       versionTitle: faker.system.semver() || "",
+    },
+  });
+
+  await prisma.publishedDataset.update({
+    data: {
+      doi: `10.1000/envision.${publishedDataset.id}`,
+    },
+    where: {
+      id: publishedDataset.id,
     },
   });
 
@@ -530,7 +539,8 @@ export default defineEventHandler(async (event) => {
 
   await prisma.dataset.update({
     data: {
-      doi: `10.1000/envision.${faker.string.alphanumeric(10)}`,
+      doi: `10.1000/envision.${publishedDataset.id}`,
+      publishedId: publishedDataset.id,
       status: "published",
     },
     where: {

@@ -223,7 +223,7 @@ const dropdownItems = ref([
       </div>
 
       <!-- Datasets Grid -->
-      <div class="flex flex-col gap-3">
+      <div class="mb-5 flex flex-col gap-3">
         <ULink
           v-for="dataset in datasets"
           :key="dataset.id"
