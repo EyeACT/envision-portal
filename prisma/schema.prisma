@@ -68,7 +68,8 @@ model Dataset {
     canonicalId String  @default(cuid()) // Used to identify different versions of the same dataset
     version     String? // Used to identify different versions of the same dataset
 
-    doi String? // Optional since the doi is not assigned until the dataset is published
+    doi         String? // Optional since the doi is not assigned until the dataset is published
+    publishedId Int? // Optional since the publishedId is not assigned until the dataset is published
 
     status String @default("draft") // draft | published
 

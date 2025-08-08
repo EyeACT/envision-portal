@@ -31,7 +31,22 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Check if the dataset is already published
+  const publishedDataset = await prisma.publishedDataset.findFirst({
+    where: {
+      datasetId,
+    },
+  });
+
+  if (publishedDataset) {
+    return {
+      ...dataset,
+      publishedId: publishedDataset.id,
+    };
+  }
+
   return {
     ...dataset,
+    publishedId: null,
   };
 });
