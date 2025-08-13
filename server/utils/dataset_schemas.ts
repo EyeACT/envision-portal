@@ -520,6 +520,6 @@ export const DatasetMetadataTeamSchema = z
         }
       }),
     ),
-    managingOrganization: managingOrgSchema.superRefine(),
+    managingOrganization: managingOrgSchema.superRefine(managingOrgRefine),
   })
   .strict();
