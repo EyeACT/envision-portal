@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
     await prisma.datasetContributor.update({
       data: {
         affiliations: JSON.stringify(creator.affiliations),
+        contributorType: creator.contributorType,
         familyName: creator.familyName,
         givenName: creator.givenName,
         nameIdentifier: creator.nameIdentifier,
@@ -50,7 +51,7 @@ export default defineEventHandler(async (event) => {
     await prisma.datasetContributor.create({
       data: {
         affiliations: JSON.stringify(creator.affiliations),
-        contributorType: null,
+        contributorType: creator.contributorType || "",
         creator: true,
         datasetId,
         familyName: creator.familyName,
