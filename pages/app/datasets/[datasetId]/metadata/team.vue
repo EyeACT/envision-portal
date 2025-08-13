@@ -598,8 +598,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     },
   };
 
-  console.log(b);
-
   await $fetch(`/api/datasets/${datasetId}/metadata/team`, {
     body: b,
     method: "PUT",

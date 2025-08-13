@@ -138,7 +138,6 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  console.log(state.minimumAgeValue <= 0);
   if (state.minimumAgeValue <= 0) {
     errors.push({
       name: "minimumAge",
@@ -267,8 +266,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
 
   const formData = event.data;
-
-  console.log(formData);
 
   const b = {
     exclusionCriteria: formData.exclusionCriteria.filter(

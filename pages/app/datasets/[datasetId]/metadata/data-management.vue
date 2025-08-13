@@ -236,8 +236,6 @@ const validate = (state: any): FormError[] => {
       }
     });
   }
-  console.log(state.consent.type);
-  console.log(state.deidentLevel.type);
 
   return errors;
 };
@@ -286,7 +284,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       toast.add({
         title: "Error",
         color: "error",
-        description: "The form has been submitted.",
+        description: "The form was unable to be submitted.",
       });
     })
     .finally(() => {
@@ -584,7 +582,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </div>
               </CardCollapsible>
             </UFormField>
-
 
             <UButton
               icon="i-lucide-plus"
