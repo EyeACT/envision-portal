@@ -44,7 +44,7 @@ const funderIdentTypeOptions = FORM_JSON.datasetFunderIdentifierTypeOptions.map(
   (opt) => opt.value,
 );
 
-const validateNameIdentifier = (data: any, ctx: z.RefinementCtx) => {
+export const validateNameIdentifier = (data: any, ctx: z.RefinementCtx) => {
   if (
     (data.nameIdentifier && !data.nameIdentifierScheme) ||
     (!data.nameIdentifier && data.nameIdentifierScheme)
@@ -80,19 +80,21 @@ const validateNameIdentifier = (data: any, ctx: z.RefinementCtx) => {
   }
 };
 
-export const DatasetMetadataAboutSchema = z.object({
-  acknowledgement: z.string(),
-  format: z.array(z.string()),
-  labelingMethod: z.string(),
-  language: z.string().min(2, "Language code is required"),
-  resourceType: z.string().min(1, "Resource type is required"),
-  resourceTypeName: z.string().min(1, "Resource type name is required"),
-  size: z.array(z.string().min(1)).min(1, "At least one size is required"),
-  standardsFollowed: z.string(),
-  validationInfo: z.string(),
-});
+export const DatasetMetadataAboutSchema = z
+  .object({
+    acknowledgement: z.string(),
+    format: z.array(z.string()),
+    labelingMethod: z.string(),
+    language: z.string().min(2, "Language code is required"),
+    resourceType: z.string().min(1, "Resource type is required"),
+    resourceTypeName: z.string().min(1, "Resource type name is required"),
+    size: z.array(z.string().min(1)).min(1, "At least one size is required"),
+    standardsFollowed: z.string(),
+    validationInfo: z.string(),
+  })
+  .strict();
 
-const accessSchema = z
+export const accessSchema = z
   .object({
     description: z.string().trim().min(1, "Description is required"),
     type: z
@@ -102,11 +104,11 @@ const accessSchema = z
         message: `Access type must be one of: ${accessTypeOptions.join(", ")}`,
       }),
     url: z.string().trim().optional(),
-    urlLastChecked: z.string().trim().optional(),
+    urlLastChecked: z.coerce.date().optional(),
   })
   .strict();
 
-const rightsSchema = z
+export const rightsSchema = z
   .object({
     identifier: z.string().trim().optional(),
     identifierScheme: z.string().trim().optional(),
@@ -136,7 +138,7 @@ export const DatasetMetadataAccessRightsSchema = z
     }
   });
 
-const deIdentSchema = z
+export const deIdentSchema = z
   .object({
     dates: z.boolean(),
     details: z.string().optional(),
@@ -150,7 +152,7 @@ const deIdentSchema = z
   })
   .strict();
 
-const consentSchema = z
+export const consentSchema = z
   .object({
     details: z.string().optional(),
     geneticOnly: z.boolean(),
@@ -164,7 +166,19 @@ const consentSchema = z
   })
   .strict();
 
-const subjectSchema = z
+export const subjectRefine = (data: any, ctx: z.RefinementCtx) => {
+  if (
+    (data.classificationCode && !data.scheme) ||
+    (!data.classificationCode && data.scheme)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Both classificationCode and scheme must be provided together",
+    });
+  }
+};
+
+export const subjectSchema = z
   .object({
     id: z.string().optional(),
     classificationCode: z.string().optional(),
@@ -175,30 +189,21 @@ const subjectSchema = z
     subject: z.string().min(1, "Subject is required"),
     valueUri: z.string().optional(),
   })
-  .strict()
-  .superRefine((data, ctx) => {
-    if (
-      (data.classificationCode && !data.scheme) ||
-      (!data.classificationCode && data.scheme)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Both classificationCode and scheme must be provided together",
-      });
-    }
-  });
+  .strict();
 
 export const DatasetMetadataDataManagementSchema = z
   .object({
     consent: consentSchema,
     deidentLevel: deIdentSchema,
-    subjects: z.array(subjectSchema).min(1, "At least one subject is required"),
+    subjects: z
+      .array(subjectSchema.superRefine(subjectRefine))
+      .min(1, "At least one subject is required"),
   })
   .strict();
 
-const aboutSchema = z.object({
+export const aboutSchema = z.object({
   id: z.string().optional(),
-  date: z.string().min(1, "Date is required"),
+  date: z.coerce.date(),
   deleted: z.boolean().optional(),
   information: z.string().optional(),
   type: z.string().refine((v) => dateTypeOptions.includes(v), {
@@ -206,7 +211,7 @@ const aboutSchema = z.object({
   }),
 });
 
-const descriptionSchema = z.object({
+export const descriptionSchema = z.object({
   id: z.string().optional(),
   deleted: z.boolean().optional(),
   description: z.string(),
@@ -215,7 +220,7 @@ const descriptionSchema = z.object({
   }),
 });
 
-const titleSchema = z.object({
+export const titleSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, "Title is required"),
   deleted: z.boolean().optional(),
@@ -238,7 +243,7 @@ export const DatasetMetadataGeneralInformationSchema = z.object({
   DatasetTitle: z.array(titleSchema).min(1, "At least Main title is required"),
 });
 
-const altIdentifierSchema = z
+export const altIdentifierSchema = z
   .object({
     id: z.string().optional(),
     deleted: z.boolean().optional(),
@@ -258,7 +263,7 @@ export const DatasetMetadataIdentifiersSchema = z
   })
   .strict();
 
-const relatedIdentSchema = z
+export const relatedIdentSchema = z
   .object({
     id: z.string().optional(),
     deleted: z.boolean().optional(),
@@ -274,26 +279,27 @@ const relatedIdentSchema = z
     schemeType: z.string().optional(),
     schemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
-  .strict()
-  .superRefine((data, context) => {
-    if (
-      (data.relationType === "IsMetadataFor" ||
-        data.relationType === "HasMetadata") &&
-      !data.relatedMetadataScheme
-    ) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "relatedMetadataScheme is required when relationType is IsMetadataFor or HasMetadata",
-        path: ["relatedMetadataScheme"],
-      });
-    }
-  });
+  .strict();
 
 export const DatasetMetadataRelatedIdentifiersSchema = z
   .object({
     relatedIdentifiers: z
-      .array(relatedIdentSchema)
+      .array(
+        relatedIdentSchema.superRefine((data, context) => {
+          if (
+            (data.relationType === "IsMetadataFor" ||
+              data.relationType === "HasMetadata") &&
+            !data.relatedMetadataScheme
+          ) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message:
+                "relatedMetadataScheme is required when relationType is IsMetadataFor or HasMetadata",
+              path: ["relatedMetadataScheme"],
+            });
+          }
+        }),
+      )
       .min(1, "At least one related identifier is required"),
   })
   .strict();
@@ -347,7 +353,15 @@ const affiliationSchema = z
 const baseCreatorObjectSchema = z
   .object({
     id: z.string().optional(),
-    affiliations: z.array(affiliationSchema).optional(),
+    affiliations: z
+      .union([
+        z.array(affiliationSchema),
+        z
+          .string()
+          .transform((val) => JSON.parse(val))
+          .pipe(z.array(affiliationSchema)),
+      ]) // Second union option allows for JSON.stringified input
+      .optional(),
     deleted: z.boolean().optional(),
     familyName: z.string(),
     givenName: z.string(),
@@ -371,20 +385,31 @@ const creatorSchema = baseCreatorObjectSchema.superRefine(
 );
 
 // Contributor schema is the same as creator schema but with an additional contributorType field
-const contributorSchema = baseCreatorObjectSchema
+export const contributorSchema = baseCreatorObjectSchema
   .extend({
     contributorType: z
       .string()
-      .trim()
-      .min(1, "Contributor type is required")
-      .refine((v) => contribTypeOptions.includes(v), {
-        message: `Contributor type must be one of: ${contribTypeOptions.join(", ")}`,
-        path: ["contributorType"],
+      .nullable()
+      .refine((v) => v === null || contribTypeOptions.includes(v), {
+        message: `Contributor type must be one of: ${contribTypeOptions.join(", ")} or null`,
       }),
   })
-  .superRefine(validateNameIdentifier);
+  .strict();
 
-const funderSchema = z
+export const healthsheetSchema = z
+  .object({
+    id: z.string(),
+    collection: z.string(),
+    composition: z.string(),
+    distribution: z.string(),
+    maintenance: z.string(),
+    motivation: z.string(),
+    preprocessing: z.string(),
+    uses: z.string(),
+  })
+  .strict();
+
+export const funderSchema = z
   .object({
     id: z.string().optional(),
     name: z.string().min(1, "Name is required"),
@@ -404,92 +429,97 @@ const funderSchema = z
       }),
     local: z.boolean().optional(),
   })
-  .strict()
-  .superRefine((data, ctx) => {
-    if (
-      (data.identifierType && !data.identifier) ||
-      (!data.identifierType && data.identifier)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Both identifierType and identifier must be provided together",
-      });
-    }
+  .strict();
 
-    if (
-      data.identifier &&
-      data.identifierType === "ORCID" &&
-      !isValidORCIDValue(data.identifier)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Identifier must be a valid ORCID value",
-        path: ["identifier"],
-      });
-    }
+export const managingOrgRefine = (data: any, ctx: z.RefinementCtx) => {
+  if (
+    (data.identifierScheme && !data.identifier) ||
+    (!data.identifierScheme && data.identifier)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Both identifierType and identifier must be provided together",
+    });
+  }
 
-    if (
-      data.identifier &&
-      data.identifierType === "ROR" &&
-      !isValidRORValue(data.identifier)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Identifier must be a valid ROR value",
-        path: ["identifier"],
-      });
-    }
-  });
+  if (
+    data.identifier &&
+    data.identifierScheme === "ORCID" &&
+    !isValidORCIDValue(data.identifier)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Identifier must be a valid ORCID value",
+      path: ["identifier"],
+    });
+  }
 
-const managingOrgSchema = z
+  if (
+    data.identifier &&
+    data.identifierScheme === "ROR" &&
+    !isValidRORValue(data.identifier)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Identifier must be a valid ROR value",
+      path: ["identifier"],
+    });
+  }
+};
+
+export const managingOrgSchema = z
   .object({
     name: z.string().trim().min(1, "Name is required"),
     identifier: z.string().trim().optional(),
     identifierScheme: z.string().trim().optional(),
     identifierSchemeUri: z.string().trim().optional(),
   })
-  .strict()
-  .superRefine((data, ctx) => {
-    if (
-      (data.identifierScheme && !data.identifier) ||
-      (!data.identifierScheme && data.identifier)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Both identifierType and identifier must be provided together",
-      });
-    }
-
-    if (
-      data.identifier &&
-      data.identifierScheme === "ORCID" &&
-      !isValidORCIDValue(data.identifier)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Identifier must be a valid ORCID value",
-        path: ["identifier"],
-      });
-    }
-
-    if (
-      data.identifier &&
-      data.identifierScheme === "ROR" &&
-      !isValidRORValue(data.identifier)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Identifier must be a valid ROR value",
-        path: ["identifier"],
-      });
-    }
-  });
+  .strict();
 
 export const DatasetMetadataTeamSchema = z
   .object({
-    contributors: z.array(contributorSchema),
+    contributors: z.array(
+      contributorSchema.superRefine(validateNameIdentifier),
+    ),
     creators: z.array(creatorSchema),
-    funders: z.array(funderSchema),
-    managingOrganization: managingOrgSchema,
+    funders: z.array(
+      funderSchema.superRefine((data, ctx) => {
+        if (
+          (data.identifierType && !data.identifier) ||
+          (!data.identifierType && data.identifier)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "Both identifierType and identifier must be provided together",
+          });
+        }
+
+        if (
+          data.identifier &&
+          data.identifierType === "ORCID" &&
+          !isValidORCIDValue(data.identifier)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Identifier must be a valid ORCID value",
+            path: ["identifier"],
+          });
+        }
+
+        if (
+          data.identifier &&
+          data.identifierType === "ROR" &&
+          !isValidRORValue(data.identifier)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Identifier must be a valid ROR value",
+            path: ["identifier"],
+          });
+        }
+      }),
+    ),
+    managingOrganization: managingOrgSchema.superRefine(),
   })
   .strict();

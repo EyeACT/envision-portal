@@ -40,7 +40,18 @@ export default defineEventHandler(async (event) => {
   // 1. Validate the dataset metadata
   const datasetValidation = await validateDatasetMetadata(datasetId, userId);
 
-  console.log("Dataset validation result:", datasetValidation);
+  // console.log("Dataset validation result:");
+  // console.log(JSON.stringify(datasetValidation.data, null, 2));
+
+  if (!datasetValidation.valid.success) {
+    throw createError({
+      data: datasetValidation,
+      statusCode: 400,
+      statusMessage: "Dataset validation failed",
+    });
+  }
+
+  return { ...datasetValidation };
   // 2. Validate the study metadata
   // 3. Validate the healthsheet
   // 4. Validate the dataset changelog
