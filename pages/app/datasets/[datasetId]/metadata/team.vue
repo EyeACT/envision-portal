@@ -327,7 +327,8 @@ const validate = (state: any): FormError[] => {
 
   // Validate contributors
   const activeContributors =
-    state.contributors?.filter((contributor: any) => !contributor.deleted) ?? [];
+    state.contributors?.filter((contributor: any) => !contributor.deleted) ??
+    [];
 
   if (activeContributors.length === 0) {
     errors.push({
@@ -459,7 +460,7 @@ const validate = (state: any): FormError[] => {
       if (
         funder.identifier &&
         funder.identifierType?.toUpperCase() === "CROSSREF_FUNDER_ID" &&
-        !/^10\.\d{4,9}\/.+$/.test(funder.identifier)
+        !isValidCrossRefValue(funder.identifier)
       ) {
         errors.push({
           name: `funders[${index}].identifier`,
