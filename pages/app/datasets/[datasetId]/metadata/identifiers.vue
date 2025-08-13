@@ -268,10 +268,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField :name="`secondary-identifier-${index}`" label="Identifier">
-                    <UInput v-model="item.identifier" placeholder="10.1000/182" />
+                  <UFormField
+                    :name="`secondary-identifier-${index}`"
+                    label="Identifier"
+                    required
+                  >
+                    <UInput
+                      v-model="item.identifier"
+                      placeholder="10.1000/182"
+                    />
                   </UFormField>
-                  <UFormField :name="`secondary-type-${index}`" label="Type">
+
+                  <UFormField
+                    :name="`secondary-type-${index}`"
+                    label="Type"
+                    required
+                  >
                     <USelect
                       v-model="item.type"
                       class="w-full"
