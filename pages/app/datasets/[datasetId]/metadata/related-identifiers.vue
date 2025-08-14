@@ -136,13 +136,6 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (!identifier.resourceType?.trim()) {
-      errors.push({
-        name: `identifiers[${index}].resourceType`,
-        message: "Resource type is required",
-      });
-    }
-
     // Validate ORCID/ROR format if identifier is provided
     if (identifier.identifier?.trim()) {
       const type = identifier.identifierType?.toUpperCase();
@@ -358,7 +351,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Resource Type"
                     :name="`identifiers[${index}].resourceType`"
-                    required
                   >
                     <USelect
                       v-model="item.resourceType"
