@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import "md-editor-v3/lib/style.css";
+
 const colorMode = useColorMode();
 
 const color = computed(() =>

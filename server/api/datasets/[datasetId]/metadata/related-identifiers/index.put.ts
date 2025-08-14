@@ -1,20 +1,4 @@
-import { z } from "zod";
-
-const DatasetMetadataRelatedIdentifiersSchema = z.object({
-  relatedIdentifiers: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      identifier: z.string(),
-      identifierType: z.string(),
-      relatedMetadataScheme: z.string(),
-      relationType: z.string(),
-      resourceType: z.string(),
-      schemeType: z.string(),
-      schemeUri: z.string(),
-    }),
-  ),
-});
+import { DatasetMetadataRelatedIdentifiersSchema } from "~/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -33,8 +17,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
@@ -71,7 +56,7 @@ export default defineEventHandler(async (event) => {
         datasetId,
         identifier: relatedIdentifier.identifier,
         identifierType: relatedIdentifier.identifierType,
-        relatedMetadataScheme: relatedIdentifier.relatedMetadataScheme,
+        relatedMetadataScheme: relatedIdentifier.relatedMetadataScheme || "",
         relationType: relatedIdentifier.relationType,
         resourceType: relatedIdentifier.resourceType,
         schemeType: relatedIdentifier.schemeType,

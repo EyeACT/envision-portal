@@ -23,7 +23,6 @@ export default defineEventHandler(async (event) => {
 
   const dataset: Dataset = {
     id: datasetid,
-    studyId: publishedDataset.studyId,
     title: publishedDataset.title,
     created: publishedDataset.created,
     data: datasetAdditionalData,
@@ -31,16 +30,21 @@ export default defineEventHandler(async (event) => {
     doi: publishedDataset.doi,
     external: publishedDataset.external,
     externalUrl: publishedDataset.externalUrl,
-    files: datasetFiles,
+    files:
+      typeof datasetFiles === "string"
+        ? JSON.parse(datasetFiles)
+        : datasetFiles,
+    labelingMethod: additionalData.labelingMethod,
     metadata: {
       contributors: datasetMetadata.contributors,
-      keywords: datasetMetadata.keywords,
       datasetDescription: datasetMetadata.datasetDescription,
       datasetStructureDescription: datasetMetadata.datasetStructureDescription,
       healthsheet: datasetMetadata.healthsheet,
+      keywords: datasetMetadata.keywords,
       readme: datasetMetadata.readme,
       studyDescription: datasetMetadata.studyDescription,
     },
+    validationInfo: additionalData?.validationInfo,
     versionTitle: publishedDataset.versionTitle,
   };
 

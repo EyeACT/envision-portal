@@ -118,7 +118,6 @@ const removeContact = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors = [];
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (state.studyCentralContacts.length === 0) {
     errors.push({
@@ -127,7 +126,18 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyCentralContacts.forEach((contact: any, index: number) => {
+  const activeContacts = state.studyCentralContacts.filter(
+    (contact: any) => !contact.deleted,
+  );
+
+  if (activeContacts.length === 0) {
+    errors.push({
+      name: "studyCentralContacts",
+      message: "At least one study central contact is required",
+    });
+  }
+
+  activeContacts.forEach((contact: any, index: number) => {
     if (contact.givenName.trim() === "") {
       errors.push({
         name: `givenName-${index}`,
@@ -157,13 +167,63 @@ const validate = (state: any): FormError[] => {
     }
 
     // Validate email format
-    if (
-      contact.emailAddress.trim() !== "" &&
-      !emailPattern.test(contact.emailAddress)
-    ) {
+    if (contact.emailAddress.trim() && !isValidEmail(contact.emailAddress)) {
       errors.push({
         name: `emailAddress-${index}`,
         message: "Email address is not valid",
+      });
+    }
+
+    if (
+      (contact.affiliationIdentifier.trim() !== "" &&
+        contact.affiliationIdentifierScheme.trim() === "") ||
+      (contact.affiliationIdentifier.trim() === "" &&
+        contact.affiliationIdentifierScheme.trim() !== "")
+    ) {
+      const messages = [
+        {
+          name: `affiliationIdentifier-${index}`,
+          message:
+            "Affiliation identifier and scheme must be provided together",
+        },
+        {
+          name: `affiliationIdentifierScheme-${index}`,
+          message:
+            "Affiliation identifier and scheme must be provided together",
+        },
+      ];
+
+      errors.push(...messages);
+    }
+
+    if (
+      contact.affiliationIdentifier &&
+      contact.affiliationIdentifierScheme.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(contact.affiliationIdentifier)
+    ) {
+      errors.push({
+        name: `affiliationIdentifier-${index}`,
+        message: "Must be a valid ORCID value",
+      });
+    }
+    if (
+      contact.affiliationIdentifier &&
+      contact.affiliationIdentifierScheme.toUpperCase() === "ROR" &&
+      !isValidRORValue(contact.affiliationIdentifier)
+    ) {
+      errors.push({
+        name: `affiliationIdentifier-${index}`,
+        message: "Must be a valid ROR value",
+      });
+    }
+
+    if (
+      contact.affiliationIdentifierSchemeUri.trim() &&
+      !isValidUrl(contact.affiliationIdentifierSchemeUri)
+    ) {
+      errors.push({
+        name: `affiliationIdentifierSchemeUri-${index}`,
+        message: "Affiliation identifier scheme URI must be a valid URL",
       });
     }
 
@@ -186,6 +246,38 @@ const validate = (state: any): FormError[] => {
       ];
 
       errors.push(...messages);
+    }
+
+    if (
+      contact.identifier &&
+      contact.identifierScheme.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(contact.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Must be a valid ORCID value",
+      });
+    }
+
+    if (
+      contact.identifier &&
+      contact.identifierScheme.toUpperCase() === "ROR" &&
+      !isValidRORValue(contact.identifier)
+    ) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Must be a valid ROR value",
+      });
+    }
+
+    if (
+      contact.identifierSchemeUri &&
+      !isValidUrl(contact.identifierSchemeUri)
+    ) {
+      errors.push({
+        name: `identifierSchemeUri-${index}`,
+        message: "Identifier scheme URI must be a valid URL",
+      });
     }
   });
 

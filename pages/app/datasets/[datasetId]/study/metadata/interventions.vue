@@ -99,7 +99,18 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  state.studyInterventions.forEach((intervention: any, index: number) => {
+  const activeInterventions = state.studyInterventions.filter(
+    (intervention: any) => !intervention.deleted,
+  );
+
+  if (activeInterventions.length === 0) {
+    errors.push({
+      name: "studyInterventions",
+      message: "At least one study intervention is required",
+    });
+  }
+
+  activeInterventions.forEach((intervention: any, index: number) => {
     if (intervention.name.trim() === "") {
       errors.push({
         name: `name-${index}`,

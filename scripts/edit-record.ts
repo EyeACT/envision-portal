@@ -14,13 +14,13 @@ const main = async () => {
   await prisma.publishedDataset.update({
     data: {
       title: DatasetRecord.title,
+      canonicalId: DatasetRecord.canonicalId,
       data: DatasetRecord.data,
       datasetId: DatasetRecord.datasetId,
       description: DatasetRecord.description,
       doi: DatasetRecord.doi,
       files: DatasetRecord.files,
       publishedMetadata: DatasetRecord.publishedMetadata,
-      studyId: DatasetRecord.studyId,
       studyTitle: DatasetRecord.studyTitle,
       versionTitle: DatasetRecord.versionTitle,
     },

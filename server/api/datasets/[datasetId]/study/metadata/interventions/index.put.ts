@@ -18,6 +18,7 @@ const StudyMetadataInterventionsSchema = z
               .string()
               .trim()
               .min(1, { message: "Description is required" }),
+            local: z.boolean().optional(),
             otherNameList: z.array(z.string()),
             type: z
               .string({

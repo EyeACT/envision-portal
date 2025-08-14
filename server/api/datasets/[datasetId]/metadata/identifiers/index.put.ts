@@ -1,15 +1,4 @@
-import { z } from "zod";
-
-const DatasetMetadataIdentifiersSchema = z.object({
-  DatasetAlternateIdentifier: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      identifier: z.string(),
-      type: z.string(),
-    }),
-  ),
-});
+import { DatasetMetadataIdentifiersSchema } from "~/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);

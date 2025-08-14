@@ -1,32 +1,4 @@
-import { z } from "zod";
-
-const DatasetMetadataAboutSchema = z.object({
-  DatasetDate: z.array(
-    z.object({
-      id: z.string().optional(),
-      date: z.string(),
-      deleted: z.boolean().optional(),
-      information: z.string(),
-      type: z.string(),
-    }),
-  ),
-  DatasetDescription: z.array(
-    z.object({
-      id: z.string().optional(),
-      deleted: z.boolean().optional(),
-      description: z.string(),
-      type: z.string(),
-    }),
-  ),
-  DatasetTitle: z.array(
-    z.object({
-      id: z.string().optional(),
-      title: z.string(),
-      deleted: z.boolean().optional(),
-      type: z.string(),
-    }),
-  ),
-});
+import { DatasetMetadataGeneralInformationSchema } from "~/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -40,13 +12,14 @@ export default defineEventHandler(async (event) => {
 
   // Validate the request body
   const body = await readValidatedBody(event, (b) =>
-    DatasetMetadataAboutSchema.safeParse(b),
+    DatasetMetadataGeneralInformationSchema.safeParse(b),
   );
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 

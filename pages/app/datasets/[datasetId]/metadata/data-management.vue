@@ -236,6 +236,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
   };
 
+  console.log(JSON.stringify(b, null, 2));
+
   await $fetch(`/api/datasets/${datasetId}/metadata/data-management`, {
     body: b,
     method: "PUT",

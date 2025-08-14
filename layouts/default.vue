@@ -6,24 +6,15 @@ const route = useRoute();
 
 const sidebarCollapsed = ref(false);
 const selectedDataset = computed(() => route.params.datasetId || null);
-const selectedStudy = computed(() => route.params.studyId || null);
-
-const datasetNavigationIsOpen = ref(true);
-const studyNavigationIsOpen = ref(false);
-
-const inStudy = ref(!!selectedStudy.value);
-const inDataset = ref(!!selectedDataset.value);
 
 const inStudyMetadata = computed(() => {
   return route.path.includes(
     `/datasets/${selectedDataset.value}/study/metadata`,
   );
 });
-
 const inDatasetMetadata = computed(() => {
   return route.path.includes(`/datasets/${selectedDataset.value}/metadata`);
 });
-
 const inHealthsheet = computed(() => {
   return route.path.includes(`/datasets/${selectedDataset.value}/healthsheet`);
 });
@@ -181,6 +172,16 @@ const datasetNavItems = [
     route: "metadata",
   },
   { name: "Files", icon: "ph:files-fill", route: "files" },
+  {
+    name: "Changelog",
+    icon: "material-symbols:history",
+    route: "changelog",
+  },
+  {
+    name: "Readme",
+    icon: "gg:readme",
+    route: "readme",
+  },
   {
     name: "Permissions",
     icon: "mdi:account-group-outline",

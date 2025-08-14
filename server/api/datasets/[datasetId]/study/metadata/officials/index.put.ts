@@ -1,5 +1,6 @@
 import { z } from "zod";
 import FORM_JSON from "~/assets/data/form.json";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
 
 const validRoles = FORM_JSON.studyMetadataContactsOverallOfficialRole.map(
   (opt) => opt.value,
@@ -14,7 +15,10 @@ const OfficialSchema = z
       .min(1, { message: "Affiliation is required" }),
     affiliationIdentifier: z.string().trim(),
     affiliationIdentifierScheme: z.string().trim(),
-    affiliationIdentifierSchemeUri: z.string().trim(),
+    affiliationIdentifierSchemeUri: z.union([
+      z.literal(""),
+      z.string().trim().url(),
+    ]),
     degree: z.string().trim(),
     deleted: z.boolean().optional(),
     familyName: z
@@ -24,7 +28,8 @@ const OfficialSchema = z
     givenName: z.string().trim().min(1, { message: "Given name is required" }),
     identifier: z.string().trim(),
     identifierScheme: z.string().trim(),
-    identifierSchemeUri: z.string().trim(),
+    identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
     role: z
       .string({
         invalid_type_error: "Role is required",
@@ -40,9 +45,12 @@ const OfficialSchema = z
     // affiliationIdentifier and affiliationIdentifierScheme if provided must be together
     const hasAffId = data.affiliationIdentifier !== "";
     const hasAffSch = data.affiliationIdentifierScheme !== "";
-    const hasAffSchUri = data.affiliationIdentifierSchemeUri !== "";
+    const hasId = data.identifier !== "";
+    const hasIdSch = data.identifierScheme !== "";
+    const idScheme = data.identifierScheme.toUpperCase();
+    const affilIdScheme = data.affiliationIdentifierScheme.toUpperCase();
 
-    if (hasAffId && (!hasAffSch || !hasAffSchUri)) {
+    if ((hasAffId && !hasAffSch) || (!hasAffId && hasAffSch)) {
       [
         "affiliationIdentifier",
         "affiliationIdentifierScheme",
@@ -51,17 +59,37 @@ const OfficialSchema = z
         context.addIssue({
           code: z.ZodIssueCode.custom,
           message:
-            "If affiliation identifier is provided, scheme and scheme URI must also be provided",
+            "Affiliation identifier and affiliation identifier scheme must be provided together",
           path: [path],
         }),
       );
     }
 
-    // identifier and identifierScheme if provided must be together
-    const hasId = data.identifier !== "";
-    const hasIdSch = data.identifierScheme !== "";
+    if (
+      hasAffId &&
+      affilIdScheme === "ORCID" &&
+      !isValidORCIDValue(data.affiliationIdentifier)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ORCID",
+        path: ["affiliationIdentifier"],
+      });
+    }
+    if (
+      hasAffId &&
+      affilIdScheme === "ROR" &&
+      !isValidRORValue(data.affiliationIdentifier)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ROR",
+        path: ["affiliationIdentifier"],
+      });
+    }
 
-    if (hasId !== hasIdSch) {
+    // identifier and identifierScheme if provided must be together
+    if ((hasId && !hasIdSch) || (!hasId && hasIdSch)) {
       ["identifier", "identifierScheme"].forEach((path) =>
         context.addIssue({
           code: z.ZodIssueCode.custom,
@@ -69,6 +97,21 @@ const OfficialSchema = z
           path: [path],
         }),
       );
+    }
+
+    if (hasId && idScheme === "ORCID" && !isValidORCIDValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ORCID",
+        path: ["identifier"],
+      });
+    }
+    if (hasId && idScheme === "ROR" && !isValidRORValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ROR",
+        path: ["identifier"],
+      });
     }
   });
 

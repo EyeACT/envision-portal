@@ -1,21 +1,4 @@
-import { z } from "zod";
-
-const DatasetMetadataAccessRightsSchema = z.object({
-  access: z.object({
-    description: z.string(),
-    type: z.string(),
-    url: z.string(),
-    urlLastChecked: z.string(),
-  }),
-  rights: z.object({
-    identifier: z.string(),
-    identifierScheme: z.string(),
-    identifierSchemeUri: z.string(),
-    licenseText: z.string(),
-    rights: z.string(),
-    uri: z.string(),
-  }),
-});
+import { DatasetMetadataAccessRightsSchema } from "@/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -34,8 +17,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 

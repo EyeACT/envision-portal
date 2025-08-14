@@ -22,6 +22,7 @@ const main = async () => {
       data: {
         id: parseInt(DatasetRecord.id),
         title: DatasetRecord.title,
+        canonicalId: DatasetRecord.canonicalId,
         data: DatasetRecord.data,
         datasetId: DatasetRecord.datasetId,
         description: DatasetRecord.description,
@@ -30,7 +31,6 @@ const main = async () => {
         externalUrl: DatasetRecord.externalUrl,
         files: DatasetRecord.files,
         publishedMetadata: DatasetRecord.publishedMetadata,
-        studyId: DatasetRecord.studyId,
         studyTitle: DatasetRecord.studyTitle,
         versionTitle: DatasetRecord.versionTitle,
       },

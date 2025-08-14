@@ -1,36 +1,4 @@
-import { z } from "zod";
-
-const DatasetMetadataDataManagementSchema = z.object({
-  consent: z.object({
-    details: z.string(),
-    geneticOnly: z.boolean(),
-    geogRestrict: z.boolean(),
-    noMethods: z.boolean(),
-    noncommercial: z.boolean(),
-    researchType: z.boolean(),
-    type: z.string(),
-  }),
-  deidentLevel: z.object({
-    dates: z.boolean(),
-    details: z.string(),
-    direct: z.boolean(),
-    hipaa: z.boolean(),
-    kAnon: z.boolean(),
-    nonarr: z.boolean(),
-    type: z.string(),
-  }),
-  subjects: z.array(
-    z.object({
-      id: z.string().optional(),
-      classificationCode: z.string(),
-      deleted: z.boolean().optional(),
-      scheme: z.string(),
-      schemeUri: z.string(),
-      subject: z.string(),
-      valueUri: z.string(),
-    }),
-  ),
-});
+import { DatasetMetadataDataManagementSchema } from "~/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -49,8 +17,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
@@ -78,12 +47,12 @@ export default defineEventHandler(async (event) => {
   for (const subject of subjectsToCreate) {
     await prisma.datasetSubject.create({
       data: {
-        classificationCode: subject.classificationCode,
+        classificationCode: subject.classificationCode || "",
         datasetId,
-        scheme: subject.scheme,
-        schemeUri: subject.schemeUri,
-        subject: subject.subject,
-        valueUri: subject.valueUri,
+        scheme: subject.scheme || "",
+        schemeUri: subject.schemeUri || "",
+        subject: subject.subject || "",
+        valueUri: subject.valueUri || "",
       },
     });
   }

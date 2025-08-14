@@ -1,67 +1,4 @@
-import { z } from "zod";
-
-const DatasetMetadataTeamSchema = z.object({
-  contributors: z.array(
-    z.object({
-      id: z.string().optional(),
-      affiliations: z.array(
-        z.object({
-          affiliation: z.string(),
-          identifier: z.string(),
-          identifierScheme: z.string(),
-          identifierSchemeUri: z.string(),
-        }),
-      ),
-      contributorType: z.string(),
-      deleted: z.boolean().optional(),
-      familyName: z.string(),
-      givenName: z.string(),
-      nameIdentifier: z.string(),
-      nameIdentifierScheme: z.string(),
-      nameIdentifierSchemeUri: z.string(),
-      nameType: z.string(),
-    }),
-  ),
-  creators: z.array(
-    z.object({
-      id: z.string().optional(),
-      affiliations: z.array(
-        z.object({
-          affiliation: z.string(),
-          identifier: z.string(),
-          identifierScheme: z.string(),
-          identifierSchemeUri: z.string(),
-        }),
-      ),
-      deleted: z.boolean().optional(),
-      familyName: z.string(),
-      givenName: z.string(),
-      nameIdentifier: z.string(),
-      nameIdentifierScheme: z.string(),
-      nameIdentifierSchemeUri: z.string(),
-      nameType: z.string(),
-    }),
-  ),
-  funders: z.array(
-    z.object({
-      id: z.string().optional(),
-      name: z.string(),
-      awardNumber: z.string(),
-      awardTitle: z.string(),
-      awardUri: z.string(),
-      deleted: z.boolean().optional(),
-      identifier: z.string(),
-      identifierSchemeUri: z.string(),
-      identifierType: z.string(),
-    }),
-  ),
-  managingOrganization: z.object({
-    name: z.string(),
-    identifier: z.string(),
-    identifierScheme: z.string(),
-    identifierSchemeUri: z.string(),
-  }),
-});
+import { DatasetMetadataTeamSchema } from "~/server/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -80,8 +17,9 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
+      data: body.error.format(),
       statusCode: 400,
-      statusMessage: "Invalid  data",
+      statusMessage: "Invalid data",
     });
   }
 
@@ -117,9 +55,9 @@ export default defineEventHandler(async (event) => {
         datasetId,
         familyName: creator.familyName,
         givenName: creator.givenName,
-        nameIdentifier: creator.nameIdentifier,
-        nameIdentifierScheme: creator.nameIdentifierScheme,
-        nameIdentifierSchemeUri: creator.nameIdentifierSchemeUri,
+        nameIdentifier: creator.nameIdentifier || "",
+        nameIdentifierScheme: creator.nameIdentifierScheme || "",
+        nameIdentifierSchemeUri: creator.nameIdentifierSchemeUri || "",
         nameType: creator.nameType,
       },
     });
@@ -170,9 +108,9 @@ export default defineEventHandler(async (event) => {
         datasetId,
         familyName: contributor.familyName,
         givenName: contributor.givenName,
-        nameIdentifier: contributor.nameIdentifier,
-        nameIdentifierScheme: contributor.nameIdentifierScheme,
-        nameIdentifierSchemeUri: contributor.nameIdentifierSchemeUri,
+        nameIdentifier: contributor.nameIdentifier || "",
+        nameIdentifierScheme: contributor.nameIdentifierScheme || "",
+        nameIdentifierSchemeUri: contributor.nameIdentifierSchemeUri || "",
         nameType: contributor.nameType,
       },
     });
@@ -211,13 +149,13 @@ export default defineEventHandler(async (event) => {
     await prisma.datasetFunder.create({
       data: {
         name: funder.name,
-        awardNumber: funder.awardNumber,
-        awardTitle: funder.awardTitle,
-        awardUri: funder.awardUri,
+        awardNumber: funder.awardNumber || "",
+        awardTitle: funder.awardTitle || "",
+        awardUri: funder.awardUri || "",
         datasetId,
-        identifier: funder.identifier,
-        identifierSchemeUri: funder.identifierSchemeUri,
-        identifierType: funder.identifierType,
+        identifier: funder.identifier || "",
+        identifierSchemeUri: funder.identifierSchemeUri || "",
+        identifierType: funder.identifierType || "",
       },
     });
   }

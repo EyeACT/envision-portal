@@ -2,7 +2,8 @@
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
-import FORM_JSON from "~/assets/data/form.json";
+import FORM_JSON from "@/assets/data/form.json";
+import { isValidUrl } from "~/utils/validations";
 
 definePageMeta({
   middleware: ["auth"],
@@ -215,11 +216,17 @@ const validate = (state: any): FormError[] => {
   const errors = [];
 
   if (!state.briefSummary) {
-    errors.push({ name: "briefSummary", message: "Required" });
+    errors.push({
+      name: "briefSummary",
+      message: "A brief summary is required",
+    });
   }
 
   if (!state.detailedDescription) {
-    errors.push({ name: "detailedDescription", message: "Required" });
+    errors.push({
+      name: "detailedDescription",
+      message: "A detailed description is required",
+    });
   }
 
   if (state.keywords.length === 0) {
@@ -227,80 +234,242 @@ const validate = (state: any): FormError[] => {
       name: "keywords",
       message: "At least one keyword is required",
     });
-  } else {
-    state.keywords.forEach((keyword: any) => {
-      if (!keyword.name) {
-        errors.push({ name: "keywords", message: "A name is required" });
-      }
+  }
+  const activeKeywords = state.keywords.filter((k: any) => !k.deleted);
 
-      // if classificationCode or scheme is provided, the other is also required
-      if (keyword.classificationCode && !keyword.scheme) {
-        errors.push({
-          name: "keywords",
-          message:
-            "Both identifier and scheme are required if either is provided ",
-        });
-      }
-
-      if (keyword.scheme && !keyword.classificationCode) {
-        errors.push({
-          name: "keywords",
-          message:
-            "Both identifier and scheme are required if either is provided",
-        });
-      }
+  if (activeKeywords.length === 0) {
+    errors.push({
+      name: "keywords",
+      message: "At least one keyword is required",
     });
   }
+
+  activeKeywords.forEach((keyword: any, index: number) => {
+    if (!keyword.name) {
+      errors.push({
+        name: `name-${index}`,
+        message: "A name is required",
+      });
+    }
+
+    // if classificationCode or scheme is provided, the other is also required
+    if (
+      (keyword.classificationCode && !keyword.scheme) ||
+      (!keyword.classificationCode && keyword.scheme)
+    ) {
+      const messages = [
+        {
+          name: `classificationCode-${index}`,
+          message:
+            "Both identifier and scheme are required if either is provided",
+        },
+        {
+          name: `scheme-${index}`,
+          message:
+            "Both identifier and scheme are required if either is provided",
+        },
+      ];
+
+      errors.push(...messages);
+    }
+
+    if (
+      keyword.classificationCode &&
+      keyword.scheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(keyword.classificationCode)
+    ) {
+      errors.push({
+        name: `classificationCode-${index}`,
+        message: "ORCID identifier must be a valid ORCID format",
+      });
+    }
+
+    if (
+      keyword.classificationCode &&
+      keyword.scheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(keyword.classificationCode)
+    ) {
+      errors.push({
+        name: `classificationCode-${index}`,
+        message: "ROR identifier must be a valid ROR format",
+      });
+    }
+
+    // Verify url for classificationCode and schemeUri
+    if (keyword.keywordUri && keyword.schemeUri) {
+      // validate url
+      if (!isValidUrl(keyword.keywordUri)) {
+        errors.push({
+          name: `schemeUri-${index}`,
+          message: "Invalid URL format",
+        });
+      }
+      if (!isValidUrl(keyword.schemeUri)) {
+        errors.push({
+          name: `keywordUri-${index}`,
+          message: "Invalid URL format",
+        });
+      }
+    }
+  });
 
   if (state.conditions.length === 0) {
     errors.push({
       name: "conditions",
       message: "At least one condition is required",
     });
-  } else {
-    state.conditions.forEach((condition: any) => {
-      if (!condition.name) {
-        errors.push({ name: "conditions", message: "Required" });
-      }
-    });
+  }
+  const activeConditions = state.conditions.filter((c: any) => !c.deleted);
 
-    state.conditions.forEach((condition: any) => {
-      if (condition.classificationCode && !condition.scheme) {
-        errors.push({ name: "conditions", message: "Required" });
-      }
-
-      if (condition.scheme && !condition.classificationCode) {
-        errors.push({ name: "conditions", message: "Required" });
-      }
+  if (activeConditions.length === 0) {
+    errors.push({
+      name: "conditions",
+      message: "At least one condition is required",
     });
   }
+
+  activeConditions.forEach((condition: any, index: number) => {
+    if (!condition.name) {
+      errors.push({ name: `name-${index}`, message: "Name is required" });
+    }
+
+    if (
+      (condition.classificationCode && !condition.scheme) ||
+      (!condition.classificationCode && condition.scheme)
+    ) {
+      const messages = [
+        {
+          name: `classificationCode-${index}`,
+          message:
+            "Both Identifier and scheme are required if either is provided",
+        },
+        {
+          name: `scheme-${index}`,
+          message:
+            "Both Identifier and scheme are required if either is provided",
+        },
+      ];
+
+      errors.push(...messages);
+    }
+
+    if (
+      condition.classificationCode &&
+      condition.scheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(condition.classificationCode)
+    ) {
+      errors.push({
+        name: `classificationCode-${index}`,
+        message: "ORCID identifier must be a valid ORCID format",
+      });
+    }
+
+    if (
+      condition.classificationCode &&
+      condition.scheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(condition.classificationCode)
+    ) {
+      errors.push({
+        name: `classificationCode-${index}`,
+        message: "ROR identifier must be a valid ROR format",
+      });
+    }
+
+    // Verify url for schemeuri and keyworduri
+    if (condition.conditionUri && !isValidUrl(condition.conditionUri)) {
+      // validate url
+      errors.push({
+        name: `schemeUri-${index}`,
+        message: "Invalid URL format",
+      });
+    }
+
+    if (condition.schemeUri && !isValidUrl(condition.schemeUri)) {
+      errors.push({
+        name: `keywordUri-${index}`,
+        message: "Invalid URL format",
+      });
+    }
+  });
 
   if (!state.primaryIdentifier.identifier) {
     errors.push({
       name: "primaryIdentifier.identifier",
-      message: "This field is required",
+      message: "Primary identifier is required",
     });
   }
 
   if (!state.primaryIdentifier.type) {
     errors.push({
       name: "primaryIdentifier.type",
-      message: "This field is required",
+      message: "Primary identifier type is required",
     });
   }
 
-  state.secondaryIdentifiers.forEach((identifier: any) => {
+  if (
+    state.primaryIdentifier.domain &&
+    !isValidUrl(state.primaryIdentifier.domain)
+  ) {
+    errors.push({
+      name: "primaryIdentifier.domain",
+      message: "Primary identifier domain must be a valid URL",
+    });
+  }
+
+  if (
+    state.primaryIdentifier.link &&
+    !isValidUrl(state.primaryIdentifier.link)
+  ) {
+    errors.push({
+      name: "primaryIdentifier.link",
+      message: "Primary identifier link must be a valid URL",
+    });
+  }
+
+  if (state.secondaryIdentifiers.length === 0) {
+    errors.push({
+      name: "secondaryIdentifiers",
+      message: "At least one secondary identifier is required",
+    });
+  }
+
+  const activeSecondaryIDs = state.secondaryIdentifiers.filter(
+    (i: any) => !i.deleted,
+  );
+
+  if (activeSecondaryIDs.length === 0) {
+    errors.push({
+      name: "secondaryIdentifiers",
+      message: "At least one second identifier is required",
+    });
+  }
+
+  activeSecondaryIDs.forEach((identifier: any, index: number) => {
     if (!identifier.identifier) {
       errors.push({
-        name: "secondaryIdentifiers",
-        message: "This field is required",
+        name: `identifier-${index}`,
+        message: "Identifier is required",
       });
     }
 
     if (!identifier.type) {
       errors.push({
-        name: "secondaryIdentifiers",
-        message: "This field is required",
+        name: `type-${index}`,
+        message: "Identifier type is required",
+      });
+    }
+
+    if (identifier.domain && !isValidUrl(identifier.domain)) {
+      errors.push({
+        name: `domain-${index}`,
+        message: "Invalid URL format",
+      });
+    }
+
+    if (identifier.link && !isValidUrl(identifier.link)) {
+      errors.push({
+        name: `link-${index}`,
+        message: "Invalid URL format",
       });
     }
   });
@@ -357,6 +526,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     ),
   };
 
+  console.log(JSON.stringify(b, null, 2));
+
   await $fetch(`/api/datasets/${datasetId}/study/metadata/about`, {
     body: b,
     method: "PUT",
@@ -376,12 +547,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       toast.add({
         title: "Error",
         color: "error",
-        description: "The form has been submitted.",
+        description: "Error occurred while submitting the form.",
       });
     })
     .finally(() => {
       // refresh the page
-      window.location.reload();
+      // window.location.reload();
 
       saveLoading.value = false;
     });
@@ -434,7 +605,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               Description
             </h2>
 
-            <UFormField label="Brief Summary" name="briefSummary">
+            <UFormField label="Brief Summary" name="briefSummary" required>
               <UTextarea
                 v-model="state.briefSummary"
                 class="w-full"
@@ -442,7 +613,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Detailed Description" name="detailedDescription">
+            <UFormField
+              label="Detailed Description"
+              name="detailedDescription"
+              required
+            >
               <UTextarea
                 v-model="state.detailedDescription"
                 class="w-full"
@@ -462,8 +637,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </h2>
 
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some keywords that describe the study. These will be
-                used to help find the study when searching for it.
+                Please add at least one keyword that describes the study. These
+                will be used to help find the study when searching for it.
               </p>
             </div>
 
@@ -487,32 +662,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" name="name">
+                  <UFormField label="Name" :name="`name-${index}`" required>
                     <UInput
                       v-model="item.name"
                       placeholder="Artifical Intelligence"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier" name="classificationCode">
+                  <UFormField
+                    label="Identifier"
+                    :name="`classificationCode-${index}`"
+                  >
                     <UInput
                       v-model="item.classificationCode"
                       placeholder="D001185"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Scheme" name="scheme">
+                  <UFormField
+                    label="Identifier Scheme"
+                    :name="`scheme-${index}`"
+                  >
                     <UInput v-model="item.scheme" placeholder="MeSH" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" name="schemeUri">
+                  <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
                     <UInput
                       v-model="item.schemeUri"
                       placeholder="https://meshb.nlm.nih.gov/"
                     />
                   </UFormField>
 
-                  <UFormField label="Keyword URI" name="keywordUri">
+                  <UFormField label="Keyword URI" :name="`keywordUri-${index}`">
                     <UInput
                       v-model="item.keywordUri"
                       placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
@@ -568,29 +749,35 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" name="name">
+                  <UFormField label="Name" :name="`name-${index}`" required>
                     <UInput v-model="item.name" placeholder="Glaucoma" />
                   </UFormField>
 
-                  <UFormField label="Identifier" name="classificationCode">
+                  <UFormField
+                    label="Identifier"
+                    :name="`classificationCode-${index}`"
+                  >
                     <UInput
                       v-model="item.classificationCode"
                       placeholder="D001185"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Scheme" name="scheme">
+                  <UFormField
+                    label="Identifier Scheme"
+                    :name="`scheme-${index}`"
+                  >
                     <UInput v-model="item.scheme" placeholder="MeSH" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" name="schemeUri">
+                  <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
                     <UInput
                       v-model="item.schemeUri"
                       placeholder="https://meshb.nlm.nih.gov/"
                     />
                   </UFormField>
 
-                  <UFormField label="Keyword URI" name="keywordUri">
+                  <UFormField label="Keyword URI" :name="`keywordUri-${index}`">
                     <UInput
                       v-model="item.conditionUri"
                       placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
@@ -618,7 +805,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               Primary Identifier
             </h2>
 
-            <UFormField label="Identifier" name="primaryIdentifier.identifier">
+            <UFormField
+              label="Identifier"
+              name="primaryIdentifier.identifier"
+              required
+            >
               <UInput
                 v-model="state.primaryIdentifier.identifier"
                 class="w-full"
@@ -626,7 +817,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Identifier Type" name="primaryIdentifier.type">
+            <UFormField
+              label="Identifier Type"
+              name="primaryIdentifier.type"
+              required
+            >
               <USelect
                 v-model="state.primaryIdentifier.type"
                 class="w-full"
@@ -692,14 +887,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Identifier" name="identifier">
+                  <UFormField
+                    label="Identifier"
+                    :name="`identifier-${index}`"
+                    required
+                  >
                     <UInput
                       v-model="item.identifier"
                       placeholder="10.1234/1234567890"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Type" name="type">
+                  <UFormField
+                    label="Identifier Type"
+                    :name="`type-${index}`"
+                    required
+                  >
                     <USelect
                       v-model="item.type"
                       class="w-full"
@@ -710,14 +913,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Domain" name="domain">
+                  <UFormField
+                    label="Identifier Domain"
+                    :name="`domain-${index}`"
+                  >
                     <UInput
                       v-model="item.domain"
                       placeholder="https://doi.org"
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Link" name="link">
+                  <UFormField label="Identifier Link" :name="`link-${index}`">
                     <UInput
                       v-model="item.link"
                       placeholder="https://doi.org/10.1234/1234567890"
