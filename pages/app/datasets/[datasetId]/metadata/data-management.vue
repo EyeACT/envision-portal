@@ -86,8 +86,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  // await navigateTo("/");
 }
 
 if (data.value) {
@@ -155,25 +153,11 @@ const validate = (state: any): FormError[] => {
     errors.push({ name: "consent.type", message: "Consent type is required" });
   }
 
-  if (!state.consent.details) {
-    errors.push({
-      name: "consent.details",
-      message: "Consent details are required",
-    });
-  }
-
   // De-identification section
-  if (state.deidentLevel.type === "DeIdentLevel") {
+  if (state.deidentLevel.type === "") {
     errors.push({
       name: "deidentLevel.type",
       message: "De-identification type is required",
-    });
-  }
-
-  if (!state.deidentLevel.details) {
-    errors.push({
-      name: "deidentLevel.details",
-      message: "De-identification details are required",
     });
   }
 
@@ -211,24 +195,14 @@ const validate = (state: any): FormError[] => {
         });
       }
 
-      if (!subject.schemeUri?.trim()) {
+      if (subject.schemeUri && !isValidUrl(subject.schemeUri)) {
         errors.push({
           name: `subjects[${index}].schemeUri`,
-          message: "Scheme URI is required",
-        });
-      } else if (!isValidUrl(subject.schemeUri)) {
-        errors.push({
-          name: `subjects[${index}].schemeUri`,
-          message: "Scheme URI must be a valid URL",
+          message: "Scheme URI must be a valid URL if provided",
         });
       }
 
-      if (!subject.valueUri?.trim()) {
-        errors.push({
-          name: `subjects[${index}].valueUri`,
-          message: "Value URI is required",
-        });
-      } else if (!isValidUrl(subject.valueUri)) {
+      if (subject.valueUri && !isValidUrl(subject.valueUri)) {
         errors.push({
           name: `subjects[${index}].valueUri`,
           message: "Value URI must be a valid URL",
@@ -354,6 +328,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only non-commercial use of the data?"
+                required
               >
                 <USwitch
                   v-model="state.consent.noncommercial"
@@ -363,6 +338,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only use of the data in a specific geographic location?"
+                required
               >
                 <USwitch
                   v-model="state.consent.geogRestrict"
@@ -372,6 +348,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only use of the data for a specific type of research?"
+                required
               >
                 <USwitch
                   v-model="state.consent.researchType"
@@ -381,6 +358,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only use of the data for genetic research?"
+                required
               >
                 <USwitch
                   v-model="state.consent.geneticOnly"
@@ -390,6 +368,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only use of the data for research that does not involve the development of methods or algorithms?"
+                required
               >
                 <USwitch
                   v-model="state.consent.noMethods"
@@ -397,7 +376,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Details" name="consent.details" required>
+              <UFormField label="Details" name="consent.details">
                 <UTextarea
                   v-model="state.consent.details"
                   placeholder="Provide further details about the consent details"
@@ -432,7 +411,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Were direct identifiers removed?">
+              <UFormField label="Were direct identifiers removed?" required>
                 <USwitch
                   v-model="state.deidentLevel.direct"
                   :label="state.deidentLevel.direct ? 'Yes' : 'No'"
@@ -441,6 +420,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Were US HIPAA de-identification rules applied?"
+                required
               >
                 <USwitch
                   v-model="state.deidentLevel.hipaa"
@@ -450,6 +430,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Were dates rebased and/or replaced by integers?"
+                required
               >
                 <USwitch
                   v-model="state.deidentLevel.dates"
@@ -457,21 +438,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Were narrative text fields removed?">
+              <UFormField label="Were narrative text fields removed?" required>
                 <USwitch
                   v-model="state.deidentLevel.nonarr"
                   :label="state.deidentLevel.nonarr ? 'Yes' : 'No'"
                 />
               </UFormField>
 
-              <UFormField label="Was k-anonymisation (k>=2) achieved?">
+              <UFormField label="Was k-anonymisation (k>=2) achieved?" required>
                 <USwitch
                   v-model="state.deidentLevel.kAnon"
                   :label="state.deidentLevel.kAnon ? 'Yes' : 'No'"
                 />
               </UFormField>
 
-              <UFormField label="Details" name="deidentLevel.details" required>
+              <UFormField label="Details" name="deidentLevel.details">
                 <UTextarea
                   v-model="state.deidentLevel.details"
                   placeholder="Enter de-identification details"
@@ -531,7 +512,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Classification Code"
                     :name="`subjects[${index}].classificationCode`"
-                    required
+                    :required="
+                      !!item.classificationCode?.trim() || !!item.scheme?.trim()
+                    "
                   >
                     <UInput
                       v-model="item.classificationCode"
@@ -545,7 +528,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Scheme"
                       :name="`subjects[${index}].scheme`"
                       class="w-full"
-                      required
+                      :required="
+                        !!item.classificationCode?.trim() ||
+                        !!item.scheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.scheme"
@@ -558,7 +544,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Scheme URI"
                       :name="`subjects[${index}].schemeUri`"
                       class="w-full"
-                      required
                     >
                       <UInput
                         v-model="item.schemeUri"
@@ -571,7 +556,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Value URI"
                     :name="`subjects[${index}].valueUri`"
-                    required
                   >
                     <UInput
                       v-model="item.valueUri"
