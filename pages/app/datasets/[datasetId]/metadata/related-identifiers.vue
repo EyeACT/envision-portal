@@ -365,6 +365,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Related Metadata Scheme"
                     :name="`identifiers[${index}].relatedMetadataScheme`"
+                    :required="
+                      item.relationType === 'IsMetadataFor' ||
+                      item.relationType === 'HasMetadata'
+                    "
                   >
                     <UInput
                       v-model="item.relatedMetadataScheme"
@@ -380,6 +384,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Scheme Type"
                     :name="`identifiers[${index}].schemeType`"
+                    :required="
+                      item.relationType === 'IsMetadataFor' ||
+                      item.relationType === 'HasMetadata'
+                    "
                   >
                     <UInput
                       v-model="item.schemeType"
@@ -395,6 +403,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Scheme URI"
                     :name="`identifiers[${index}].schemeUri`"
+                    :required="
+                      item.relationType === 'IsMetadataFor' ||
+                      item.relationType === 'HasMetadata'
+                    "
                   >
                     <UInput
                       v-model="item.schemeUri"
