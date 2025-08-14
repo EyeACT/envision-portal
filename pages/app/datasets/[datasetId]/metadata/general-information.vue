@@ -165,14 +165,83 @@ const removeDate = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors = [];
+  const errors: FormError[] = [];
 
-  if (state.titles.length === 0) {
+  const activeTitles = state.titles?.filter((item: any) => !item.deleted) ?? [];
+
+  if (activeTitles.length === 0) {
     errors.push({
-      message: "Please add at least one title",
-      path: "titles",
+      name: "titles",
+      message: "Please add at least one title.",
     });
   }
+
+  activeTitles.forEach((item: any, index: number) => {
+    if (!item.title?.trim()) {
+      errors.push({
+        name: `title-${index}`,
+        message: "Title value is required.",
+      });
+    }
+
+    if (!item.type?.trim()) {
+      errors.push({
+        name: `title-type-${index}`,
+        message: "Title type is required.",
+      });
+    }
+  });
+
+  const activeDescriptions =
+    state.descriptions?.filter((item: any) => !item.deleted) ?? [];
+
+  if (activeDescriptions.length === 0) {
+    errors.push({
+      name: "descriptions",
+      message: "At least one Abstract description is required.",
+    });
+  }
+
+  activeDescriptions.forEach((item: any, index: number) => {
+    if (!item.description?.trim()) {
+      errors.push({
+        name: `description-${index}`,
+        message: "Description value is required.",
+      });
+    }
+
+    if (!item.type?.trim()) {
+      errors.push({
+        name: `description-type-${index}`,
+        message: "Description type is required.",
+      });
+    }
+  });
+
+  const activeDates = state.dates?.filter((item: any) => !item.deleted) ?? [];
+
+  if (activeDates.length === 0) {
+    errors.push({
+      name: "dates",
+      message: "Please add at least one date.",
+    });
+  }
+
+  activeDates.forEach((item: any, index: number) => {
+    if (!item.date?.trim()) {
+      errors.push({
+        name: `date-${index}`,
+        message: "Date value is required.",
+      });
+    }
+
+    if (!item.type?.trim()) {
+      errors.push({
+        name: `date-type-${index}`,
+        message: "Date type is required.",
+      });
+    }
+  });
 
   return errors;
 };
@@ -322,14 +391,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" name="name">
+                  <UFormField :name="`title-${index}`" label="Name" required>
                     <UInput
                       v-model="item.title"
                       placeholder="Artifical Intelligence"
                     />
                   </UFormField>
 
-                  <UFormField label="Type" name="type">
+                  <UFormField :name="`title-type-${index}`" label="Type">
                     <USelect
                       v-model="item.type"
                       class="w-full"
@@ -387,7 +456,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" name="name">
+                  <UFormField
+                    :name="`description-${index}`"
+                    label="Name"
+                    required
+                  >
                     <UTextarea
                       v-model="item.description"
                       placeholder="Artifical Intelligence"
@@ -395,7 +468,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Type" name="type">
+                  <UFormField
+                    :name="`description-type-${index}`"
+                    label="Type"
+                    required
+                  >
                     <USelect
                       v-model="item.type"
                       class="w-full"
@@ -452,7 +529,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Date" name="date">
+                  <UFormField :name="`date-${index}`" label="Date" required>
                     <UInput
                       v-model="item.date"
                       placeholder="2021-01-01"
@@ -461,7 +538,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Type" name="type">
+                  <UFormField
+                    :name="`date-type-${index}`"
+                    label="Type"
+                    required
+                  >
                     <USelect
                       v-model="item.type"
                       class="w-full"

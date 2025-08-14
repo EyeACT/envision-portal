@@ -32,3 +32,9 @@ export const isValidRORValue = (ror: string): boolean => {
 
   return rorRegex.test(ror);
 };
+
+export const isValidCrossRefValue = (crossref: string): boolean => {
+  const crossRefRegex = /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+
+  return crossRefRegex.test(crossref);
+};

@@ -86,8 +86,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  // await navigateTo("/");
 }
 
 if (data.value) {
@@ -148,12 +146,68 @@ const removeSubject = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors = [];
+  const errors: FormError[] = [];
 
-  if (state.subjects.length === 0) {
+  // Consent section
+  if (state.consent.type === "Consent") {
+    errors.push({ name: "consent.type", message: "Consent type is required" });
+  }
+
+  // De-identification section
+  if (state.deidentLevel.type === "") {
     errors.push({
+      name: "deidentLevel.type",
+      message: "De-identification type is required",
+    });
+  }
+
+  // Subjects section
+  const activeSubjects = state.subjects?.filter((s: any) => !s.deleted) ?? [];
+
+  if (activeSubjects.length === 0) {
+    errors.push({
+      name: "subjects",
       message: "Please add at least one subject",
-      path: "subjects",
+    });
+  } else {
+    activeSubjects.forEach((subject: any, index: number) => {
+      if (!subject.subject?.trim()) {
+        errors.push({
+          name: `subjects[${index}].subject`,
+          message: "Subject is required",
+        });
+      }
+
+      // classificationCode / scheme pairing logic
+      const code = subject.classificationCode?.trim();
+      const scheme = subject.scheme?.trim();
+
+      if ((code && !scheme) || (!code && scheme)) {
+        errors.push({
+          name: `subjects[${index}].classificationCode`,
+          message:
+            "Classification code and scheme must both be provided together",
+        });
+        errors.push({
+          name: `subjects[${index}].scheme`,
+          message:
+            "Scheme and classification code must both be provided together",
+        });
+      }
+
+      if (subject.schemeUri && !isValidUrl(subject.schemeUri)) {
+        errors.push({
+          name: `subjects[${index}].schemeUri`,
+          message: "Scheme URI must be a valid URL if provided",
+        });
+      }
+
+      if (subject.valueUri && !isValidUrl(subject.valueUri)) {
+        errors.push({
+          name: `subjects[${index}].valueUri`,
+          message: "Value URI must be a valid URL",
+        });
+      }
     });
   }
 
@@ -206,7 +260,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       toast.add({
         title: "Error",
         color: "error",
-        description: "The form has been submitted.",
+        description: "The form was unable to be submitted.",
       });
     })
     .finally(() => {
@@ -265,7 +319,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Type" name="consent.type">
+              <UFormField label="Type" name="consent.type" required>
                 <USelect
                   v-model="state.consent.type"
                   class="w-full"
@@ -276,6 +330,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only non-commercial use of the data?"
+                required
               >
                 <USwitch
                   v-model="state.consent.noncommercial"
@@ -285,6 +340,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only use of the data in a specific geographic location?"
+                required
               >
                 <USwitch
                   v-model="state.consent.geogRestrict"
@@ -294,6 +350,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only use of the data for a specific type of research?"
+                required
               >
                 <USwitch
                   v-model="state.consent.researchType"
@@ -303,6 +360,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only use of the data for genetic research?"
+                required
               >
                 <USwitch
                   v-model="state.consent.geneticOnly"
@@ -312,6 +370,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Does the consent allow only use of the data for research that does not involve the development of methods or algorithms?"
+                required
               >
                 <USwitch
                   v-model="state.consent.noMethods"
@@ -345,7 +404,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Type" name="deidentLevel.type">
+              <UFormField label="Type" name="deidentLevel.type" required>
                 <USelect
                   v-model="state.deidentLevel.type"
                   class="w-full"
@@ -354,7 +413,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Were direct identifiers removed?">
+              <UFormField label="Were direct identifiers removed?" required>
                 <USwitch
                   v-model="state.deidentLevel.direct"
                   :label="state.deidentLevel.direct ? 'Yes' : 'No'"
@@ -363,6 +422,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Were US HIPAA de-identification rules applied?"
+                required
               >
                 <USwitch
                   v-model="state.deidentLevel.hipaa"
@@ -372,6 +432,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
               <UFormField
                 label="Were dates rebased and/or replaced by integers?"
+                required
               >
                 <USwitch
                   v-model="state.deidentLevel.dates"
@@ -379,14 +440,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Were narrative text fields removed?">
+              <UFormField label="Were narrative text fields removed?" required>
                 <USwitch
                   v-model="state.deidentLevel.nonarr"
                   :label="state.deidentLevel.nonarr ? 'Yes' : 'No'"
                 />
               </UFormField>
 
-              <UFormField label="Was k-anonymisation (k>=2) achieved?">
+              <UFormField label="Was k-anonymisation (k>=2) achieved?" required>
                 <USwitch
                   v-model="state.deidentLevel.kAnon"
                   :label="state.deidentLevel.kAnon ? 'Yes' : 'No'"
@@ -438,7 +499,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Subject" name="subject">
+                  <UFormField
+                    label="Subject"
+                    :name="`subjects[${index}].subject`"
+                    required
+                  >
                     <UInput
                       v-model="item.subject"
                       placeholder="Enter subject"
@@ -448,7 +513,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Classification Code"
-                    name="classificationCode"
+                    :name="`subjects[${index}].classificationCode`"
+                    :required="
+                      !!item.classificationCode?.trim() || !!item.scheme?.trim()
+                    "
                   >
                     <UInput
                       v-model="item.classificationCode"
@@ -458,7 +526,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </UFormField>
 
                   <div class="flex w-full gap-3">
-                    <UFormField label="Scheme" name="scheme" class="w-full">
+                    <UFormField
+                      label="Scheme"
+                      :name="`subjects[${index}].scheme`"
+                      class="w-full"
+                      :required="
+                        !!item.classificationCode?.trim() ||
+                        !!item.scheme?.trim()
+                      "
+                    >
                       <UInput
                         v-model="item.scheme"
                         placeholder="Enter scheme"
@@ -468,7 +544,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Scheme URI"
-                      name="schemeUri"
+                      :name="`subjects[${index}].schemeUri`"
                       class="w-full"
                     >
                       <UInput
@@ -479,7 +555,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField label="Value URI" name="valueUri">
+                  <UFormField
+                    label="Value URI"
+                    :name="`subjects[${index}].valueUri`"
+                  >
                     <UInput
                       v-model="item.valueUri"
                       placeholder="Enter value URI"
