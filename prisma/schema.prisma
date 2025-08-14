@@ -68,9 +68,10 @@ model Dataset {
     canonicalId String  @default(cuid()) // Used to identify different versions of the same dataset
     version     String? // Used to identify different versions of the same dataset
 
-    doi String? // Optional since the doi is not assigned until the dataset is published
+    doi         String? // Optional since the doi is not assigned until the dataset is published
+    publishedId Int? // Optional since the publishedId is not assigned until the dataset is published
 
-    status String @default("draft") // draft | inProgress | published
+    status String @default("draft") // draft | published
 
     changelog String @default("")
     readme    String @default("")
@@ -80,8 +81,9 @@ model Dataset {
 
     DatasetRequest DatasetRequest[]
 
-    DatasetMember     DatasetMember[]
-    DatasetInvitation DatasetInvitation[]
+    DatasetMember           DatasetMember[]
+    DatasetInvitation       DatasetInvitation[]
+    DatasetPublishingStatus DatasetPublishingStatus?
 
     DatasetAccess               DatasetAccess?
     DatasetAlternateIdentifier  DatasetAlternateIdentifier[]
@@ -99,22 +101,21 @@ model Dataset {
     DatasetSubject              DatasetSubject[]
     DatasetTitle                DatasetTitle[]
 
-    StudyDescription        StudyDescription?
-    StudyStatus             StudyStatus?
-    StudySponsors           StudySponsors?
-    StudyOversight          StudyOversight?
-    StudyDesign             StudyDesign?
-    StudyEligibility        StudyEligibility?
-    StudyIdentification     StudyIdentification[]
-    StudyCollaborators      StudyCollaborators[]
-    StudyConditions         StudyConditions[]
-    StudyKeywords           StudyKeywords[]
-    StudyArm                StudyArm[]
-    StudyIntervention       StudyIntervention[]
-    StudyCentralContact     StudyCentralContact[]
-    StudyOverallOfficials   StudyOverallOfficials[]
-    StudyLocation           StudyLocation[]
-    DatasetPublishingStatus DatasetPublishingStatus[]
+    StudyDescription      StudyDescription?
+    StudyStatus           StudyStatus?
+    StudySponsors         StudySponsors?
+    StudyOversight        StudyOversight?
+    StudyDesign           StudyDesign?
+    StudyEligibility      StudyEligibility?
+    StudyIdentification   StudyIdentification[]
+    StudyCollaborators    StudyCollaborators[]
+    StudyConditions       StudyConditions[]
+    StudyKeywords         StudyKeywords[]
+    StudyArm              StudyArm[]
+    StudyIntervention     StudyIntervention[]
+    StudyCentralContact   StudyCentralContact[]
+    StudyOverallOfficials StudyOverallOfficials[]
+    StudyLocation         StudyLocation[]
 }
 
 model DatasetMember {
@@ -744,7 +745,7 @@ model DatasetTitle {
 model DatasetPublishingStatus {
     id String @id @default(cuid())
 
-    datasetId String
+    datasetId String  @unique
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     status Int @default(0) // -1: failed, 0: not started, ...

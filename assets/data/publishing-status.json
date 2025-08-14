@@ -1,0 +1,63 @@
+{
+  "preparing": {
+    "title": "Preparing the publishing workflow",
+    "description": "We are preparing the publishing workflow. This may take a few seconds.",
+    "index": 0,
+    "supportsExpandedRow": false
+  },
+  "validating-dataset-metadata": {
+    "title": "Validating dataset metadata",
+    "description": "We are validating the dataset metadata. This may take a few seconds.",
+    "index": 1,
+    "supportsExpandedRow": false
+  },
+  "validating-study-metadata": {
+    "title": "Validating study metadata",
+    "description": "We are validating the study metadata. This may take a few seconds.",
+    "index": 2,
+    "supportsExpandedRow": false
+  },
+  "validating-healthsheet": {
+    "title": "Validating healthsheet",
+    "description": "We are validating the healthsheet. This may take a few seconds.",
+    "index": 3,
+    "supportsExpandedRow": false
+  },
+  "indexing-dataset": {
+    "title": "Indexing dataset",
+    "description": "We are indexing the dataset. This may take a few minutes.",
+    "index": 4,
+    "supportsExpandedRow": true
+  },
+  "moving-dataset-to-published-storage": {
+    "title": "Moving dataset to published storage",
+    "description": "We are moving the dataset to the published storage. This may take a few minutes.",
+    "index": 5,
+    "supportsExpandedRow": true
+  },
+  "generating-uploading-metadata-files": {
+    "title": "Generating and uploading metadata files",
+    "description": "We are generating and uploading the metadata files. This may take a few seconds.",
+    "index": 6,
+    "supportsExpandedRow": true
+  },
+  "registering-doi": {
+    "title": "Registering DOI",
+    "description": "We are registering the DOI. This may take a few seconds.",
+    "index": 7,
+    "supportsExpandedRow": false
+  },
+  "registering-dataset": {
+    "title": "Registering dataset",
+    "description": "We are registering the dataset. This may take a few seconds.",
+    "index": 8,
+    "supportsExpandedRow": false
+  },
+  "completed": {
+    "title": "Completed",
+    "description": "The dataset has been published successfully.",
+    "$comment": "Setting this to +2 for the frontend to show the completed icon",
+    "index": 10,
+    "supportsExpandedRow": false
+  }
+}

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DataLakeServiceClient } from "@azure/storage-file-datalake";
 
 const createDatasetSchema = z.object({
   title: z.string().min(1),
@@ -9,6 +10,7 @@ const createDatasetSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
+  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   const session = await requireUserSession(event);
 
   const { user } = session;
@@ -42,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
   const newDataset = await prisma.dataset.create({
     data: {
-      id: "cm880mrva00000cl20uo80c7e", // todo: remove this
+      // id: "cm880mrva00000cl20uo80c7e", // todo: remove this
       title: body.data.title,
       DatasetAccess: {
         create: {
@@ -215,6 +217,17 @@ export default defineEventHandler(async (event) => {
       version: body.data.version,
     },
   });
+
+  // Create a new container for the dataset
+  const datalakeServiceClient = DataLakeServiceClient.fromConnectionString(
+    AZURE_DRAFT_CONNECTION_STRING,
+  );
+
+  const fileSystemClient = datalakeServiceClient.getFileSystemClient(
+    newDataset.id,
+  );
+
+  await fileSystemClient.create();
 
   return {
     data: { datasetId: newDataset.id },

@@ -81,7 +81,7 @@ const timelineItems = ref<TimelineItem[]>([
     />
 
     <div class="flex w-full flex-col gap-6 pb-16">
-      <UTimeline
+      <UStepper
         orientation="horizontal"
         :default-value="2"
         :items="timelineItems"

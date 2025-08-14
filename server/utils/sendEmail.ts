@@ -4,12 +4,12 @@ export const sendEmail = async (to: string, subject: string, text: string) => {
   const config = useRuntimeConfig();
 
   const transporter = nodemailer.createTransport({
+    auth: {
+      pass: config.mailPass,
+      user: config.mailUser,
+    },
     host: config.mailHost,
     port: Number(config.mailPort),
-    auth: {
-      user: config.mailUser,
-      pass: config.mailPass,
-    },
   });
 
   const htmlContent = `
@@ -82,9 +82,9 @@ export const sendEmail = async (to: string, subject: string, text: string) => {
 
   await transporter.sendMail({
     from: config.mailFrom,
-    to: to,
-    subject: subject,
-    text: text,
     html: htmlContent,
+    subject,
+    text,
+    to,
   });
 };

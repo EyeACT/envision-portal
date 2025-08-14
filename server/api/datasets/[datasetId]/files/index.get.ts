@@ -96,7 +96,7 @@ function getFileIcon(filename: string): string {
 }
 
 export default defineEventHandler(async (event) => {
-  const { AZURE_CONNECTION_STRING } = useRuntimeConfig();
+  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   const session = await requireUserSession(event);
 
   // todo: add permissions check
@@ -122,12 +122,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const datalakeServiceClient = DataLakeServiceClient.fromConnectionString(
-    AZURE_CONNECTION_STRING,
+    AZURE_DRAFT_CONNECTION_STRING,
   );
 
-  const fileSystemClient = datalakeServiceClient.getFileSystemClient("test");
+  const fileSystemClient = datalakeServiceClient.getFileSystemClient(
+    dataset.id,
+  );
 
-  const i = 1;
   const paths: any[] = [];
 
   const iterator = fileSystemClient.listPaths({
@@ -136,9 +137,6 @@ export default defineEventHandler(async (event) => {
   let fileSystemItem = await iterator.next();
 
   while (!fileSystemItem.done) {
-    // console.log(
-    //   `Path ${i++}: ${fileSystemItem.value.name}, is directory: ${fileSystemItem.value.isDirectory}`,
-    // );
     paths.push(fileSystemItem.value);
 
     fileSystemItem = await iterator.next();

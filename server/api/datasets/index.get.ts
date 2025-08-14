@@ -5,6 +5,9 @@ export default defineEventHandler(async (event) => {
   const userId = user.id;
 
   const datasets = await prisma.dataset.findMany({
+    orderBy: {
+      updated: "desc",
+    },
     where: {
       DatasetMember: {
         some: {
