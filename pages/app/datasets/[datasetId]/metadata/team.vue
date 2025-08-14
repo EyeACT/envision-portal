@@ -322,6 +322,67 @@ const validate = (state: any): FormError[] => {
           message: "Invalid URL",
         });
       }
+
+      // Iterate through affiliations
+      creator.affiliations?.forEach((affiliation: any, affIndex: number) => {
+        if (!affiliation.name?.trim()) {
+          errors.push({
+            name: `creators[${index}].affiliations[${affIndex}].name`,
+            message: "Name is required",
+          });
+        }
+
+        if (
+          (affiliation.identifier?.trim() !== "" &&
+            affiliation.identifierType?.trim() === "") ||
+          (affiliation.identifier?.trim() === "" &&
+            affiliation.identifierType?.trim() !== "")
+        ) {
+          const messages = [
+            {
+              name: `creators[${index}].affiliations[${affIndex}].identifier`,
+              message:
+                "Identifier scheme is required when identifier scheme is provided",
+            },
+            {
+              name: `creators[${index}].affiliations[${affIndex}].identifierType`,
+              message:
+                "Identifier value is required when identifier value is provided",
+            },
+          ];
+
+          errors.push(...messages);
+        }
+        if (
+          affiliation.identifier &&
+          affiliation.identifierType.toUpperCase() === "ORCID" &&
+          !isValidORCIDValue(affiliation.identifier)
+        ) {
+          errors.push({
+            name: `creators[${index}].affiliations[${affIndex}].identifier`,
+            message: "Invalid ORCID value",
+          });
+        }
+        if (
+          affiliation.identifier &&
+          affiliation.identifierType.toUpperCase() === "ROR" &&
+          !isValidRORValue(affiliation.identifier)
+        ) {
+          errors.push({
+            name: `creators[${index}].affiliations[${affIndex}].identifier`,
+            message: "Invalid ROR value",
+          });
+        }
+        if (
+          affiliation.identifierSchemeUri &&
+          !isValidUrl(affiliation.identifierSchemeUri)
+        ) {
+          errors.push({
+            name: `creators[${index}].affiliations[${affIndex}].identifierSchemeUri`,
+            message: "Invalid URL",
+          });
+        }
+      });
     });
   }
 
@@ -405,6 +466,66 @@ const validate = (state: any): FormError[] => {
           message: "Invalid URL",
         });
       }
+
+      contributor.affiliations.forEach((affiliation: any, affIndex: number) => {
+        if (!affiliation.name?.trim()) {
+          errors.push({
+            name: `contributors[${index}].affiliations[${affIndex}].name`,
+            message: "Name is required",
+          });
+        }
+
+        if (
+          (affiliation.identifier?.trim() !== "" &&
+            affiliation.identifierType?.trim() === "") ||
+          (affiliation.identifier?.trim() === "" &&
+            affiliation.identifierType?.trim() !== "")
+        ) {
+          const messages = [
+            {
+              name: `contributors[${index}].affiliations[${affIndex}].identifier`,
+              message:
+                "Identifier scheme is required when identifier scheme is provided",
+            },
+            {
+              name: `contributors[${index}].affiliations[${affIndex}].identifierType`,
+              message:
+                "Identifier value is required when identifier value is provided",
+            },
+          ];
+
+          errors.push(...messages);
+        }
+        if (
+          affiliation.identifier &&
+          affiliation.identifierType.toUpperCase() === "ORCID" &&
+          !isValidORCIDValue(affiliation.identifier)
+        ) {
+          errors.push({
+            name: `contributors[${index}].affiliations[${affIndex}].identifier`,
+            message: "Invalid ORCID value",
+          });
+        }
+        if (
+          affiliation.identifier &&
+          affiliation.identifierType.toUpperCase() === "ROR" &&
+          !isValidRORValue(affiliation.identifier)
+        ) {
+          errors.push({
+            name: `contributors[${index}].affiliations[${affIndex}].identifier`,
+            message: "Invalid ROR value",
+          });
+        }
+        if (
+          affiliation.identifierSchemeUri &&
+          !isValidUrl(affiliation.identifierSchemeUri)
+        ) {
+          errors.push({
+            name: `contributors[${index}].affiliations[${affIndex}].identifierSchemeUri`,
+            message: "Invalid URL",
+          });
+        }
+      });
     });
   }
 
@@ -746,6 +867,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier"
                       :name="`creators[${index}].nameIdentifier`"
                       class="w-full"
+                      :required="
+                        !!item.nameIdentifier?.trim() ||
+                        !!item.nameIdentifierScheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.nameIdentifier"
@@ -758,6 +883,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier Scheme"
                       :name="`creators[${index}].nameIdentifierScheme`"
                       class="w-full"
+                      :required="
+                        !!item.nameIdentifier?.trim() ||
+                        !!item.nameIdentifierScheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
@@ -787,30 +916,62 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         class="mb-2 flex gap-2"
                       >
                         <div class="flex w-full flex-col gap-2">
-                          <UInput
-                            v-model="affiliation.affiliation"
-                            class="w-full"
-                            placeholder="University of Example"
-                          />
+                          <UFormField
+                            label="Name"
+                            :name="`creators[${index}].affiliations[${affIndex}].name`"
+                            required
+                          >
+                            <UInput
+                              v-model="affiliation.affiliation"
+                              class="w-full"
+                              placeholder="University of Example"
+                            />
+                          </UFormField>
 
                           <div class="flex w-full gap-2">
-                            <UInput
-                              v-model="affiliation.identifier"
+                            <UFormField
+                              label="Identifier"
+                              :name="`creators[${index}].affiliations[${affIndex}].identifier`"
                               class="w-full"
-                              placeholder="1234567890"
-                            />
+                              :required="
+                                !!affiliation.identifier?.trim() ||
+                                !!affiliation.identifierScheme?.trim()
+                              "
+                            >
+                              <UInput
+                                v-model="affiliation.identifier"
+                                class="w-full"
+                                placeholder="1234567890"
+                              />
+                            </UFormField>
 
-                            <UInput
-                              v-model="affiliation.identifierScheme"
+                            <UFormField
+                              label="Identifier Scheme"
+                              :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`"
                               class="w-full"
-                              placeholder="ROR"
-                            />
+                              :required="
+                                !!affiliation.identifier?.trim() ||
+                                !!affiliation.identifierScheme?.trim()
+                              "
+                            >
+                              <UInput
+                                v-model="affiliation.identifierScheme"
+                                class="w-full"
+                                placeholder="ROR"
+                              />
+                            </UFormField>
 
-                            <UInput
-                              v-model="affiliation.identifierSchemeUri"
+                            <UFormField
+                              label="Identifier Scheme URI"
+                              :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`"
                               class="w-full"
-                              placeholder="https://ror.org"
-                            />
+                            >
+                              <UInput
+                                v-model="affiliation.identifierSchemeUri"
+                                class="w-full"
+                                placeholder="https://ror.org"
+                              />
+                            </UFormField>
                           </div>
                         </div>
 
@@ -969,6 +1130,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier"
                       :name="`contributors[${index}].nameIdentifier`"
                       class="w-full"
+                      :required="
+                        !!item.nameIdentifier?.trim() ||
+                        !!item.nameIdentifierScheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.nameIdentifier"
@@ -981,6 +1146,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier Scheme"
                       :name="`contributors[${index}].nameIdentifierScheme`"
                       class="w-full"
+                      :required="
+                        !!item.nameIdentifier?.trim() ||
+                        !!item.nameIdentifierScheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
@@ -1010,30 +1179,59 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         class="mb-2 flex gap-2"
                       >
                         <div class="flex w-full flex-col gap-2">
-                          <UInput
-                            v-model="affiliation.affiliation"
-                            class="w-full"
-                            placeholder="University of Example"
-                          />
+                          <UFormField
+                            label="Name"
+                            :name="`contributors[${index}].affiliations[${affIndex}].name`"
+                            required
+                          >
+                            <UInput
+                              v-model="affiliation.affiliation"
+                              class="w-full"
+                              placeholder="University of Example"
+                            />
+                          </UFormField>
 
                           <div class="flex w-full gap-2">
-                            <UInput
-                              v-model="affiliation.identifier"
-                              class="w-full"
-                              placeholder="1234567890"
-                            />
+                            <UFormField
+                              label="Identifier"
+                              :name="`contributors[${index}].affiliations[${affIndex}].identifier`"
+                              :required="
+                                !!affiliation.identifier?.trim() ||
+                                !!affiliation.identifierScheme?.trim()
+                              "
+                            >
+                              <UInput
+                                v-model="affiliation.identifier"
+                                class="w-full"
+                                placeholder="1234567890"
+                              />
+                            </UFormField>
 
-                            <UInput
-                              v-model="affiliation.identifierScheme"
-                              class="w-full"
-                              placeholder="ROR"
-                            />
+                            <UFormField
+                              label="Identifier Scheme"
+                              :name="`contributors[${index}].affiliations[${affIndex}].identifierScheme`"
+                              :required="
+                                !!affiliation.identifier?.trim() ||
+                                !!affiliation.identifierScheme?.trim()
+                              "
+                            >
+                              <UInput
+                                v-model="affiliation.identifierScheme"
+                                class="w-full"
+                                placeholder="ROR"
+                              />
+                            </UFormField>
 
-                            <UInput
-                              v-model="affiliation.identifierSchemeUri"
-                              class="w-full"
-                              placeholder="https://ror.org"
-                            />
+                            <UFormField
+                              label="Identifier Scheme URI"
+                              :name="`contributors[${index}].affiliations[${affIndex}].identifierSchemeUri`"
+                            >
+                              <UInput
+                                v-model="affiliation.identifierSchemeUri"
+                                class="w-full"
+                                placeholder="https://ror.org"
+                              />
+                            </UFormField>
                           </div>
                         </div>
 
@@ -1147,6 +1345,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Identifier"
                       :name="`funders[${index}].identifier`"
                       class="w-full"
+                      :required="
+                        !!item.identifier?.trim() ||
+                        !!item.identifierType?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.identifier"
@@ -1159,6 +1361,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Identifier Type"
                       :name="`funders[${index}].identifierType`"
                       class="w-full"
+                      :required="
+                        !!item.identifier?.trim() ||
+                        !!item.identifierType?.trim()
+                      "
                     >
                       <USelect
                         v-model="item.identifierType"
@@ -1255,6 +1461,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier"
                 name="managingOrganization.identifier"
                 class="w-full"
+                :required="
+                  !!state.managingOrganization.identifier?.trim() ||
+                  !!state.managingOrganization.identifierScheme?.trim()
+                "
               >
                 <UInput
                   v-model="state.managingOrganization.identifier"
@@ -1267,6 +1477,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier Scheme"
                 name="managingOrganization.identifierScheme"
                 class="w-full"
+                :required="
+                  !!state.managingOrganization.identifier?.trim() ||
+                  !!state.managingOrganization.identifierScheme?.trim()
+                "
               >
                 <UInput
                   v-model="state.managingOrganization.identifierScheme"
@@ -1279,6 +1493,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier Scheme URI"
                 name="managingOrganization.identifierSchemeUri"
                 class="w-full"
+                :required="
+                  !!state.managingOrganization.identifier?.trim() ||
+                  !!state.managingOrganization.identifierScheme?.trim()
+                "
               >
                 <UInput
                   v-model="state.managingOrganization.identifierSchemeUri"
