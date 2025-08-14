@@ -241,160 +241,429 @@ const removeFunder = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors = [];
+  const errors: FormError[] = [];
 
   // Validate creators
-  if (state.creators.length === 0) {
+  const activeCreators =
+    state.creators?.filter((creator: any) => !creator.deleted) ?? [];
+
+  if (activeCreators.length === 0) {
     errors.push({
+      name: "creators",
       message: "Please add at least one creator",
-      path: "creators",
     });
   } else {
-    state.creators.forEach((creator: any, index: number) => {
+    activeCreators.forEach((creator: any, index: number) => {
       if (!creator.givenName) {
         errors.push({
-          message: "Given name is required for creator",
-          path: `creators`,
+          name: `creators[${index}].givenName`,
+          message: "Given name is required.",
+        });
+      }
+      if (!creator.familyName) {
+        errors.push({
+          name: `creators[${index}].familyName`,
+          message: "Family name is required.",
         });
       }
       if (!creator.nameType) {
         errors.push({
-          message: "Name type is required for creator",
-          path: `creators`,
+          name: `creators[${index}].nameType`,
+          message: "Name type is required.",
         });
       }
-      if (!creator.nameIdentifier) {
+      if (
+        (creator.nameIdentifier.trim() !== "" &&
+          creator.nameIdentifierScheme.trim() === "") ||
+        (creator.nameIdentifier.trim() === "" &&
+          creator.nameIdentifierScheme.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `creators[${index}].nameIdentifier`,
+            message:
+              "Identifier scheme is required when identifier scheme is provided",
+          },
+          {
+            name: `creators[${index}].nameIdentifierScheme`,
+            message:
+              "Identifier value is required when identifier value is provided",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+      if (
+        creator.nameIdentifier &&
+        creator.nameIdentifierScheme.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(creator.nameIdentifier)
+      ) {
         errors.push({
-          message: "Name identifier is required for creator",
-          path: `creators`,
+          name: `creators[${index}].nameIdentifier`,
+          message: "Invalid ORCID value",
         });
       }
-      if (!creator.nameIdentifierScheme) {
+      if (
+        creator.nameIdentifier &&
+        creator.nameIdentifierScheme.toUpperCase() === "ROR" &&
+        !isValidRORValue(creator.nameIdentifier)
+      ) {
         errors.push({
-          message: "Name identifier scheme is required for creator",
-          path: `creators`,
+          name: `creators[${index}].nameIdentifier`,
+          message: "Invalid ROR value",
         });
       }
-      if (!creator.nameIdentifierSchemeUri) {
+      if (
+        creator.nameIdentifierSchemeUri &&
+        !isValidUrl(creator.nameIdentifierSchemeUri)
+      ) {
         errors.push({
-          message: "Name identifier scheme URI is required for creator",
-          path: `creators`,
+          name: `creators[${index}].nameIdentifierSchemeUri`,
+          message: "Invalid URL",
         });
       }
+
+      // Iterate through affiliations
+      creator.affiliations?.forEach((affiliation: any, affIndex: number) => {
+        if (!affiliation.name?.trim()) {
+          errors.push({
+            name: `creators[${index}].affiliations[${affIndex}].name`,
+            message: "Name is required",
+          });
+        }
+
+        if (
+          (affiliation.identifier?.trim() !== "" &&
+            affiliation.identifierType?.trim() === "") ||
+          (affiliation.identifier?.trim() === "" &&
+            affiliation.identifierType?.trim() !== "")
+        ) {
+          const messages = [
+            {
+              name: `creators[${index}].affiliations[${affIndex}].identifier`,
+              message:
+                "Identifier scheme is required when identifier scheme is provided",
+            },
+            {
+              name: `creators[${index}].affiliations[${affIndex}].identifierType`,
+              message:
+                "Identifier value is required when identifier value is provided",
+            },
+          ];
+
+          errors.push(...messages);
+        }
+        if (
+          affiliation.identifier &&
+          affiliation.identifierType.toUpperCase() === "ORCID" &&
+          !isValidORCIDValue(affiliation.identifier)
+        ) {
+          errors.push({
+            name: `creators[${index}].affiliations[${affIndex}].identifier`,
+            message: "Invalid ORCID value",
+          });
+        }
+        if (
+          affiliation.identifier &&
+          affiliation.identifierType.toUpperCase() === "ROR" &&
+          !isValidRORValue(affiliation.identifier)
+        ) {
+          errors.push({
+            name: `creators[${index}].affiliations[${affIndex}].identifier`,
+            message: "Invalid ROR value",
+          });
+        }
+        if (
+          affiliation.identifierSchemeUri &&
+          !isValidUrl(affiliation.identifierSchemeUri)
+        ) {
+          errors.push({
+            name: `creators[${index}].affiliations[${affIndex}].identifierSchemeUri`,
+            message: "Invalid URL",
+          });
+        }
+      });
     });
   }
 
   // Validate contributors
-  state.contributors.forEach((contributor: any, index: number) => {
-    if (!contributor.givenName) {
-      errors.push({
-        message: "Given name is required for contributor",
-        path: `contributors`,
+  const activeContributors =
+    state.contributors?.filter((contributor: any) => !contributor.deleted) ??
+    [];
+
+  if (activeContributors.length === 0) {
+    errors.push({
+      name: "contributors",
+      message: "Please add at least one contributor",
+    });
+  } else {
+    activeContributors.forEach((contributor: any, index: number) => {
+      if (!contributor.givenName) {
+        errors.push({
+          name: `contributors[${index}].givenName`,
+          message: "Given name is required.",
+        });
+      }
+      if (!contributor.familyName) {
+        errors.push({
+          name: `contributors[${index}].familyName`,
+          message: "Family name is required.",
+        });
+      }
+      if (!contributor.nameType) {
+        errors.push({
+          name: `contributors[${index}].nameType`,
+          message: "Name type is required.",
+        });
+      }
+      if (
+        (contributor.nameIdentifier.trim() !== "" &&
+          contributor.nameIdentifierScheme.trim() === "") ||
+        (contributor.nameIdentifier.trim() === "" &&
+          contributor.nameIdentifierScheme.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `contributors[${index}].nameIdentifier`,
+            message:
+              "Identifier scheme is required when identifier scheme is provided",
+          },
+          {
+            name: `contributors[${index}].nameIdentifierScheme`,
+            message:
+              "Identifier value is required when identifier value is provided",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+      if (
+        contributor.nameIdentifier &&
+        contributor.nameIdentifierScheme.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(contributor.nameIdentifier)
+      ) {
+        errors.push({
+          name: `contributors[${index}].nameIdentifier`,
+          message: "Invalid ORCID value",
+        });
+      }
+      if (
+        contributor.nameIdentifier &&
+        contributor.nameIdentifierScheme.toUpperCase() === "ROR" &&
+        !isValidRORValue(contributor.nameIdentifier)
+      ) {
+        errors.push({
+          name: `contributors[${index}].nameIdentifier`,
+          message: "Invalid ROR value",
+        });
+      }
+      if (
+        contributor.nameIdentifierSchemeUri &&
+        !isValidUrl(contributor.nameIdentifierSchemeUri)
+      ) {
+        errors.push({
+          name: `contributors[${index}].nameIdentifierSchemeUri`,
+          message: "Invalid URL",
+        });
+      }
+
+      contributor.affiliations.forEach((affiliation: any, affIndex: number) => {
+        if (!affiliation.name?.trim()) {
+          errors.push({
+            name: `contributors[${index}].affiliations[${affIndex}].name`,
+            message: "Name is required",
+          });
+        }
+
+        if (
+          (affiliation.identifier?.trim() !== "" &&
+            affiliation.identifierType?.trim() === "") ||
+          (affiliation.identifier?.trim() === "" &&
+            affiliation.identifierType?.trim() !== "")
+        ) {
+          const messages = [
+            {
+              name: `contributors[${index}].affiliations[${affIndex}].identifier`,
+              message:
+                "Identifier scheme is required when identifier scheme is provided",
+            },
+            {
+              name: `contributors[${index}].affiliations[${affIndex}].identifierType`,
+              message:
+                "Identifier value is required when identifier value is provided",
+            },
+          ];
+
+          errors.push(...messages);
+        }
+        if (
+          affiliation.identifier &&
+          affiliation.identifierType.toUpperCase() === "ORCID" &&
+          !isValidORCIDValue(affiliation.identifier)
+        ) {
+          errors.push({
+            name: `contributors[${index}].affiliations[${affIndex}].identifier`,
+            message: "Invalid ORCID value",
+          });
+        }
+        if (
+          affiliation.identifier &&
+          affiliation.identifierType.toUpperCase() === "ROR" &&
+          !isValidRORValue(affiliation.identifier)
+        ) {
+          errors.push({
+            name: `contributors[${index}].affiliations[${affIndex}].identifier`,
+            message: "Invalid ROR value",
+          });
+        }
+        if (
+          affiliation.identifierSchemeUri &&
+          !isValidUrl(affiliation.identifierSchemeUri)
+        ) {
+          errors.push({
+            name: `contributors[${index}].affiliations[${affIndex}].identifierSchemeUri`,
+            message: "Invalid URL",
+          });
+        }
       });
-    }
-    if (!contributor.nameType) {
-      errors.push({
-        message: "Name type is required for contributor",
-        path: `contributors`,
-      });
-    }
-    if (!contributor.nameIdentifier) {
-      errors.push({
-        message: "Name identifier is required for contributor",
-        path: `contributors`,
-      });
-    }
-    if (!contributor.nameIdentifierScheme) {
-      errors.push({
-        message: "Name identifier scheme is required for contributor",
-        path: `contributors`,
-      });
-    }
-    if (!contributor.nameIdentifierSchemeUri) {
-      errors.push({
-        message: "Name identifier scheme URI is required for contributor",
-        path: `contributors`,
-      });
-    }
-    if (!contributor.contributorType) {
-      errors.push({
-        message: "Contributor type is required for contributor",
-        path: `contributors`,
-      });
-    }
-  });
+    });
+  }
 
   // Validate funders
-  state.funders.forEach((funder: any, index: number) => {
-    if (!funder.name) {
-      errors.push({
-        message: "Name is required for funder",
-        path: `funders`,
-      });
-    }
-    if (!funder.identifier) {
-      errors.push({
-        message: "Identifier is required for funder",
-        path: `funders`,
-      });
-    }
-    if (!funder.identifierType) {
-      errors.push({
-        message: "Identifier type is required for funder",
-        path: `funders`,
-      });
-    }
-    if (!funder.identifierSchemeUri) {
-      errors.push({
-        message: "Identifier scheme URI is required for funder",
-        path: `funders`,
-      });
-    }
-    if (!funder.awardNumber) {
-      errors.push({
-        message: "Award number is required for funder",
-        path: `funders`,
-      });
-    }
-    if (!funder.awardTitle) {
-      errors.push({
-        message: "Award title is required for funder",
-        path: `funders`,
-      });
-    }
-    if (!funder.awardUri) {
-      errors.push({
-        message: "Award URI is required for funder",
-        path: `funders`,
-      });
-    }
-  });
+  const activeFunders =
+    state.funders?.filter((funder: any) => !funder.deleted) ?? [];
+
+  if (activeFunders.length === 0) {
+    errors.push({
+      name: "funders",
+      message: "Please add at least one funder",
+    });
+  } else {
+    activeFunders.forEach((funder: any, index: number) => {
+      if (!funder.name?.trim()) {
+        errors.push({
+          name: `funders[${index}].name`,
+          message: "Name is required",
+        });
+      }
+
+      if (
+        (funder.identifier?.trim() !== "" &&
+          funder.identifierType?.trim() === "") ||
+        (funder.identifier?.trim() === "" &&
+          funder.identifierType?.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `funders[${index}].identifier`,
+            message: "Identifier type is required when identifier is provided",
+          },
+          {
+            name: `funders[${index}].identifierType`,
+            message: "Identifier is required when identifier type is provided",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+
+      if (
+        funder.identifier &&
+        funder.identifierType?.toUpperCase() === "ROR" &&
+        !isValidRORValue(funder.identifier)
+      ) {
+        errors.push({
+          name: `funders[${index}].identifier`,
+          message: "Invalid ROR value",
+        });
+      }
+
+      if (
+        funder.identifier &&
+        funder.identifierType?.toUpperCase() === "CROSSREF_FUNDER_ID" &&
+        !isValidCrossRefValue(funder.identifier)
+      ) {
+        errors.push({
+          name: `funders[${index}].identifier`,
+          message: "Invalid Crossref Funder ID",
+        });
+      }
+
+      if (
+        funder.identifierSchemeUri &&
+        !isValidUrl(funder.identifierSchemeUri)
+      ) {
+        errors.push({
+          name: `funders[${index}].identifierSchemeUri`,
+          message: "Invalid Identifier Scheme URI",
+        });
+      }
+
+      if (funder.awardUri && !isValidUrl(funder.awardUri)) {
+        errors.push({
+          name: `funders[${index}].awardUri`,
+          message: "Invalid Award URI",
+        });
+      }
+    });
+  }
 
   // Validate managing organization
-  if (!state.managingOrganization.name) {
+  if (!state.managingOrganization.name?.trim()) {
     errors.push({
-      message: "Name is required for managing organization",
-      path: "managingOrganization.name",
+      name: "managingOrganization.name",
+      message: "Name is required",
     });
   }
   if (
     (state.managingOrganization.identifier.trim() !== "" &&
-      !state.managingOrganization.identifierScheme) ||
-    (state.managingOrganization.identifierScheme.trim() !== "" &&
-      !state.managingOrganization.identifier)
+      state.managingOrganization.identifierScheme.trim() === "") ||
+    (state.managingOrganization.identifier.trim() === "" &&
+      state.managingOrganization.identifierScheme.trim() !== "")
   ) {
     const messages = [
       {
-        message: "Identifier scheme is required when identifier is provided",
-        path: "managingOrganization.identifier",
+        name: "managingOrganization.identifier",
+        message:
+          "Identifier scheme is required when identifier scheme is provided",
       },
       {
-        message: "Identifier scheme is required when identifier is provided",
-        path: "managingOrganization.identifierScheme",
+        name: "managingOrganization.identifierScheme",
+        message:
+          "Identifier value is required when identifier value is provided",
       },
     ];
 
     errors.push(...messages);
+  }
+  if (
+    state.managingOrganization.identifier &&
+    state.managingOrganization.identifierScheme.toUpperCase() === "ORCID" &&
+    !isValidORCIDValue(state.managingOrganization.identifier)
+  ) {
+    errors.push({
+      name: "managingOrganization.identifier",
+      message: "Invalid ORCID value",
+    });
+  }
+  if (
+    state.managingOrganization.identifier &&
+    state.managingOrganization.identifierScheme.toUpperCase() === "ROR" &&
+    !isValidRORValue(state.managingOrganization.identifier)
+  ) {
+    errors.push({
+      name: "managingOrganization.identifier",
+      message: "Invalid ROR value",
+    });
+  }
+  if (
+    state.managingOrganization.identifierSchemeUri &&
+    !isValidUrl(state.managingOrganization.identifierSchemeUri)
+  ) {
+    errors.push({
+      name: "managingOrganization.identifierSchemeUri",
+      message: "Invalid URL",
+    });
   }
 
   return errors;
@@ -449,8 +718,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       identifierSchemeUri: formData.managingOrganization.identifierSchemeUri,
     },
   };
-
-  console.log(JSON.stringify(b, null, 2));
 
   await $fetch(`/api/datasets/${datasetId}/metadata/team`, {
     body: b,
@@ -554,7 +821,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name Type" name="nameType">
+                  <UFormField
+                    label="Name Type"
+                    :name="`creators[${index}].nameType`"
+                    required
+                  >
                     <USelect
                       v-model="item.nameType"
                       class="w-full"
@@ -566,8 +837,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Given Name"
-                      name="givenName"
+                      :name="`creators[${index}].givenName`"
                       class="w-full"
+                      required
                     >
                       <UInput
                         v-model="item.givenName"
@@ -578,8 +850,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Family Name"
-                      name="familyName"
+                      :name="`creators[${index}].familyName`"
                       class="w-full"
+                      required
                     >
                       <UInput
                         v-model="item.familyName"
@@ -592,8 +865,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Name Identifier"
-                      name="nameIdentifier"
+                      :name="`creators[${index}].nameIdentifier`"
                       class="w-full"
+                      :required="
+                        !!item.nameIdentifier?.trim() ||
+                        !!item.nameIdentifierScheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.nameIdentifier"
@@ -604,8 +881,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Name Identifier Scheme"
-                      name="nameIdentifierScheme"
+                      :name="`creators[${index}].nameIdentifierScheme`"
                       class="w-full"
+                      :required="
+                        !!item.nameIdentifier?.trim() ||
+                        !!item.nameIdentifierScheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
@@ -616,7 +897,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Name Identifier Scheme URI"
-                      name="nameIdentifierSchemeUri"
+                      :name="`creators[${index}].nameIdentifierSchemeUri`"
                       class="w-full"
                     >
                       <UInput
@@ -635,30 +916,62 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         class="mb-2 flex gap-2"
                       >
                         <div class="flex w-full flex-col gap-2">
-                          <UInput
-                            v-model="affiliation.affiliation"
-                            class="w-full"
-                            placeholder="University of Example"
-                          />
+                          <UFormField
+                            label="Name"
+                            :name="`creators[${index}].affiliations[${affIndex}].name`"
+                            required
+                          >
+                            <UInput
+                              v-model="affiliation.affiliation"
+                              class="w-full"
+                              placeholder="University of Example"
+                            />
+                          </UFormField>
 
                           <div class="flex w-full gap-2">
-                            <UInput
-                              v-model="affiliation.identifier"
+                            <UFormField
+                              label="Identifier"
+                              :name="`creators[${index}].affiliations[${affIndex}].identifier`"
                               class="w-full"
-                              placeholder="1234567890"
-                            />
+                              :required="
+                                !!affiliation.identifier?.trim() ||
+                                !!affiliation.identifierScheme?.trim()
+                              "
+                            >
+                              <UInput
+                                v-model="affiliation.identifier"
+                                class="w-full"
+                                placeholder="1234567890"
+                              />
+                            </UFormField>
 
-                            <UInput
-                              v-model="affiliation.identifierScheme"
+                            <UFormField
+                              label="Identifier Scheme"
+                              :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`"
                               class="w-full"
-                              placeholder="ROR"
-                            />
+                              :required="
+                                !!affiliation.identifier?.trim() ||
+                                !!affiliation.identifierScheme?.trim()
+                              "
+                            >
+                              <UInput
+                                v-model="affiliation.identifierScheme"
+                                class="w-full"
+                                placeholder="ROR"
+                              />
+                            </UFormField>
 
-                            <UInput
-                              v-model="affiliation.identifierSchemeUri"
+                            <UFormField
+                              label="Identifier Scheme URI"
+                              :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`"
                               class="w-full"
-                              placeholder="https://ror.org"
-                            />
+                            >
+                              <UInput
+                                v-model="affiliation.identifierSchemeUri"
+                                class="w-full"
+                                placeholder="https://ror.org"
+                              />
+                            </UFormField>
                           </div>
                         </div>
 
@@ -758,7 +1071,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Contributor Type" name="contributorType">
+                  <UFormField
+                    label="Contributor Type"
+                    :name="`contributors[${index}].contributorType`"
+                    required
+                  >
                     <USelect
                       v-model="item.contributorType"
                       class="w-full"
@@ -767,7 +1084,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Name Type" name="nameType">
+                  <UFormField
+                    label="Name Type"
+                    :name="`contributors[${index}].nameType`"
+                    required
+                  >
                     <USelect
                       v-model="item.nameType"
                       class="w-full"
@@ -779,8 +1100,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Given Name"
-                      name="givenName"
+                      :name="`contributors[${index}].givenName`"
                       class="w-full"
+                      required
                     >
                       <UInput
                         v-model="item.givenName"
@@ -791,8 +1113,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Family Name"
-                      name="familyName"
+                      :name="`contributors[${index}].familyName`"
                       class="w-full"
+                      required
                     >
                       <UInput
                         v-model="item.familyName"
@@ -805,8 +1128,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Name Identifier"
-                      name="nameIdentifier"
+                      :name="`contributors[${index}].nameIdentifier`"
                       class="w-full"
+                      :required="
+                        !!item.nameIdentifier?.trim() ||
+                        !!item.nameIdentifierScheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.nameIdentifier"
@@ -817,8 +1144,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Name Identifier Scheme"
-                      name="nameIdentifierScheme"
+                      :name="`contributors[${index}].nameIdentifierScheme`"
                       class="w-full"
+                      :required="
+                        !!item.nameIdentifier?.trim() ||
+                        !!item.nameIdentifierScheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
@@ -829,7 +1160,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Name Identifier Scheme URI"
-                      name="nameIdentifierSchemeUri"
+                      :name="`contributors[${index}].nameIdentifierSchemeUri`"
                       class="w-full"
                     >
                       <UInput
@@ -848,30 +1179,59 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         class="mb-2 flex gap-2"
                       >
                         <div class="flex w-full flex-col gap-2">
-                          <UInput
-                            v-model="affiliation.affiliation"
-                            class="w-full"
-                            placeholder="University of Example"
-                          />
+                          <UFormField
+                            label="Name"
+                            :name="`contributors[${index}].affiliations[${affIndex}].name`"
+                            required
+                          >
+                            <UInput
+                              v-model="affiliation.affiliation"
+                              class="w-full"
+                              placeholder="University of Example"
+                            />
+                          </UFormField>
 
                           <div class="flex w-full gap-2">
-                            <UInput
-                              v-model="affiliation.identifier"
-                              class="w-full"
-                              placeholder="1234567890"
-                            />
+                            <UFormField
+                              label="Identifier"
+                              :name="`contributors[${index}].affiliations[${affIndex}].identifier`"
+                              :required="
+                                !!affiliation.identifier?.trim() ||
+                                !!affiliation.identifierScheme?.trim()
+                              "
+                            >
+                              <UInput
+                                v-model="affiliation.identifier"
+                                class="w-full"
+                                placeholder="1234567890"
+                              />
+                            </UFormField>
 
-                            <UInput
-                              v-model="affiliation.identifierScheme"
-                              class="w-full"
-                              placeholder="ROR"
-                            />
+                            <UFormField
+                              label="Identifier Scheme"
+                              :name="`contributors[${index}].affiliations[${affIndex}].identifierScheme`"
+                              :required="
+                                !!affiliation.identifier?.trim() ||
+                                !!affiliation.identifierScheme?.trim()
+                              "
+                            >
+                              <UInput
+                                v-model="affiliation.identifierScheme"
+                                class="w-full"
+                                placeholder="ROR"
+                              />
+                            </UFormField>
 
-                            <UInput
-                              v-model="affiliation.identifierSchemeUri"
-                              class="w-full"
-                              placeholder="https://ror.org"
-                            />
+                            <UFormField
+                              label="Identifier Scheme URI"
+                              :name="`contributors[${index}].affiliations[${affIndex}].identifierSchemeUri`"
+                            >
+                              <UInput
+                                v-model="affiliation.identifierSchemeUri"
+                                class="w-full"
+                                placeholder="https://ror.org"
+                              />
+                            </UFormField>
                           </div>
                         </div>
 
@@ -968,7 +1328,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" name="name">
+                  <UFormField
+                    label="Name"
+                    :name="`funders[${index}].name`"
+                    required
+                  >
                     <UInput
                       v-model="item.name"
                       placeholder="National Institutes of Health"
@@ -979,8 +1343,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <div class="flex w-full gap-3">
                     <UFormField
                       label="Identifier"
-                      name="identifier"
+                      :name="`funders[${index}].identifier`"
                       class="w-full"
+                      :required="
+                        !!item.identifier?.trim() ||
+                        !!item.identifierType?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.identifier"
@@ -991,8 +1359,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Type"
-                      name="identifierType"
+                      :name="`funders[${index}].identifierType`"
                       class="w-full"
+                      :required="
+                        !!item.identifier?.trim() ||
+                        !!item.identifierType?.trim()
+                      "
                     >
                       <USelect
                         v-model="item.identifierType"
@@ -1004,7 +1376,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                     <UFormField
                       label="Identifier Scheme URI"
-                      name="identifierSchemeUri"
+                      :name="`funders[${index}].identifierSchemeUri`"
                       class="w-full"
                     >
                       <UInput
@@ -1015,7 +1387,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField label="Award Number" name="awardNumber">
+                  <UFormField
+                    label="Award Number"
+                    :name="`funders[${index}].awardNumber`"
+                  >
                     <UInput
                       v-model="item.awardNumber"
                       placeholder="R01GM123456"
@@ -1023,7 +1398,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Award Title" name="awardTitle">
+                  <UFormField
+                    label="Award Title"
+                    :name="`funders[${index}].awardTitle`"
+                  >
                     <UInput
                       v-model="item.awardTitle"
                       placeholder="Research Project Grant"
@@ -1031,7 +1409,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Award URI" name="awardUri">
+                  <UFormField
+                    label="Award URI"
+                    :name="`funders[${index}].awardUri`"
+                  >
                     <UInput
                       v-model="item.awardUri"
                       placeholder="https://reporter.nih.gov/project-details/12345678"
@@ -1067,7 +1448,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Name" name="managingOrganization.name">
+            <UFormField label="Name" name="managingOrganization.name" required>
               <UInput
                 v-model="state.managingOrganization.name"
                 placeholder="University of Example"
@@ -1080,6 +1461,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier"
                 name="managingOrganization.identifier"
                 class="w-full"
+                :required="
+                  !!state.managingOrganization.identifier?.trim() ||
+                  !!state.managingOrganization.identifierScheme?.trim()
+                "
               >
                 <UInput
                   v-model="state.managingOrganization.identifier"
@@ -1092,6 +1477,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier Scheme"
                 name="managingOrganization.identifierScheme"
                 class="w-full"
+                :required="
+                  !!state.managingOrganization.identifier?.trim() ||
+                  !!state.managingOrganization.identifierScheme?.trim()
+                "
               >
                 <UInput
                   v-model="state.managingOrganization.identifierScheme"
@@ -1104,6 +1493,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Identifier Scheme URI"
                 name="managingOrganization.identifierSchemeUri"
                 class="w-full"
+                :required="
+                  !!state.managingOrganization.identifier?.trim() ||
+                  !!state.managingOrganization.identifierScheme?.trim()
+                "
               >
                 <UInput
                   v-model="state.managingOrganization.identifierSchemeUri"

@@ -267,8 +267,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
   const formData = event.data;
 
-  console.log(formData);
-
   const b = {
     exclusionCriteria: formData.exclusionCriteria.filter(
       (item) => item.trim() !== "",

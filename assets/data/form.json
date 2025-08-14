@@ -776,7 +776,7 @@
       "description": "indicates A is a portion of B; may be used for elements of a series"
     },
     {
-      "label": "Ha sPart",
+      "label": "Has Part",
       "value": "HasPart",
       "description": "indicates A includes the part B"
     },
