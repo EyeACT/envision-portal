@@ -334,9 +334,9 @@ const validate = (state: any): FormError[] => {
 
         if (
           (affiliation.identifier?.trim() !== "" &&
-            affiliation.identifierType?.trim() === "") ||
+            affiliation.identifierScheme?.trim() === "") ||
           (affiliation.identifier?.trim() === "" &&
-            affiliation.identifierType?.trim() !== "")
+            affiliation.identifierScheme?.trim() !== "")
         ) {
           const messages = [
             {
@@ -355,7 +355,7 @@ const validate = (state: any): FormError[] => {
         }
         if (
           affiliation.identifier &&
-          affiliation.identifierType.toUpperCase() === "ORCID" &&
+          affiliation.identifierScheme.toUpperCase() === "ORCID" &&
           !isValidORCIDValue(affiliation.identifier)
         ) {
           errors.push({
@@ -365,7 +365,7 @@ const validate = (state: any): FormError[] => {
         }
         if (
           affiliation.identifier &&
-          affiliation.identifierType.toUpperCase() === "ROR" &&
+          affiliation.identifierScheme.toUpperCase() === "ROR" &&
           !isValidRORValue(affiliation.identifier)
         ) {
           errors.push({
@@ -477,9 +477,9 @@ const validate = (state: any): FormError[] => {
 
         if (
           (affiliation.identifier?.trim() !== "" &&
-            affiliation.identifierType?.trim() === "") ||
+            affiliation.identifierScheme?.trim() === "") ||
           (affiliation.identifier?.trim() === "" &&
-            affiliation.identifierType?.trim() !== "")
+            affiliation.identifierScheme?.trim() !== "")
         ) {
           const messages = [
             {
@@ -498,7 +498,7 @@ const validate = (state: any): FormError[] => {
         }
         if (
           affiliation.identifier &&
-          affiliation.identifierType.toUpperCase() === "ORCID" &&
+          affiliation.identifierScheme.toUpperCase() === "ORCID" &&
           !isValidORCIDValue(affiliation.identifier)
         ) {
           errors.push({
@@ -508,7 +508,7 @@ const validate = (state: any): FormError[] => {
         }
         if (
           affiliation.identifier &&
-          affiliation.identifierType.toUpperCase() === "ROR" &&
+          affiliation.identifierScheme.toUpperCase() === "ROR" &&
           !isValidRORValue(affiliation.identifier)
         ) {
           errors.push({
@@ -883,10 +883,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Name Identifier Scheme"
                       :name="`creators[${index}].nameIdentifierScheme`"
                       class="w-full"
-                      :required="
-                        !!item.nameIdentifier?.trim() ||
-                        !!item.nameIdentifierScheme?.trim()
-                      "
                     >
                       <UInput
                         v-model="item.nameIdentifierScheme"
