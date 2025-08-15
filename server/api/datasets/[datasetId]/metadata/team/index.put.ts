@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
     await prisma.datasetContributor.update({
       data: {
         affiliations: JSON.stringify(creator.affiliations),
+        contributorType: null,
         familyName: creator.familyName,
         givenName: creator.givenName,
         nameIdentifier: creator.nameIdentifier,
