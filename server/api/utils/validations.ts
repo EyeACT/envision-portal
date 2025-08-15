@@ -10,10 +10,12 @@ import {
   deIdentSchema,
   descriptionSchema,
   funderSchema,
+  funderRefine,
   managingOrgSchema,
   managingOrgRefine,
   DatasetMetadataAboutSchema,
   relatedIdentSchema,
+  relatedIdentRefine,
   rightsSchema,
   subjectSchema,
   subjectRefine,
@@ -25,7 +27,7 @@ import {
 
 const DatasetSchema = z.object({
   id: z.string().cuid2("Invalid dataset ID"),
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, "Dataset title is required"),
   canonicalId: z.string().cuid2("Invalid canonical ID"),
   changelog: z.union([
     z.string().min(1, "Changelog is required"),
@@ -44,13 +46,15 @@ const DatasetSchema = z.object({
     })
     .passthrough(),
   DatasetDescription: z.array(descriptionSchema.passthrough()),
-  DatasetFunder: z.array(funderSchema.passthrough()),
+  DatasetFunder: z.array(funderSchema.passthrough().superRefine(funderRefine)),
   DatasetHealthsheet: healthsheetSchema.passthrough(),
   DatasetManagingOrganization: managingOrgSchema
     .passthrough()
     .superRefine(managingOrgRefine),
   DatasetOther: DatasetMetadataAboutSchema.passthrough(),
-  DatasetRelatedIdentifier: z.array(relatedIdentSchema.passthrough()),
+  DatasetRelatedIdentifier: z.array(
+    relatedIdentSchema.passthrough().superRefine(relatedIdentRefine),
+  ),
   DatasetRights: rightsSchema.passthrough(),
   DatasetSubject: z.array(
     subjectSchema.passthrough().superRefine(subjectRefine),
@@ -114,7 +118,7 @@ export async function validateDatasetMetadata(
 
   // console.log("Below is the dataset metadata gathered");
   // console.log(JSON.stringify(dataset, null, 2));
-  console.log(JSON.stringify(validationResult, null, 2));
+  // console.log(JSON.stringify(validationResult, null, 2));
 
   return {
     // data: dataset,
