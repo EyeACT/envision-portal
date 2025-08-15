@@ -3,6 +3,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { faker } from "@faker-js/faker";
 import DatasetRecords from "~/dev/datasetRecords.json";
 import PublishingStatus from "~/assets/data/publishing-status.json";
+import { validateDatasetMetadata } from "@/server/api/utils/validations";
 
 const getPublishingStatusIndex = (status: string) => {
   const statusObject =
@@ -175,6 +176,16 @@ export default defineEventHandler(async (event) => {
   publishingStatusIndex = getPublishingStatusIndex(
     "validating-dataset-metadata",
   );
+
+  const datasetValidation = await validateDatasetMetadata(datasetId, userId);
+
+  if (!datasetValidation.valid.success) {
+    throw createError({
+      data: datasetValidation,
+      statusCode: 400,
+      statusMessage: "Dataset validation failed",
+    });
+  }
 
   await prisma.datasetPublishingStatus.update({
     data: {
