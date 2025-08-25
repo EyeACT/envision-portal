@@ -35,7 +35,8 @@ model User {
     Notification      Notification[]
     DatasetMember     DatasetMember[]
     DatasetInvitation DatasetInvitation[]
-    DatasetRequest    DatasetRequest[]
+
+    ControlledDatasetRequest ControlledDatasetRequest[]
 
     @@index([emailAddress])
 }
@@ -101,21 +102,22 @@ model Dataset {
     DatasetSubject              DatasetSubject[]
     DatasetTitle                DatasetTitle[]
 
-    StudyDescription      StudyDescription?
-    StudyStatus           StudyStatus?
-    StudySponsors         StudySponsors?
-    StudyOversight        StudyOversight?
-    StudyDesign           StudyDesign?
-    StudyEligibility      StudyEligibility?
-    StudyIdentification   StudyIdentification[]
-    StudyCollaborators    StudyCollaborators[]
-    StudyConditions       StudyConditions[]
-    StudyKeywords         StudyKeywords[]
-    StudyArm              StudyArm[]
-    StudyIntervention     StudyIntervention[]
-    StudyCentralContact   StudyCentralContact[]
-    StudyOverallOfficials StudyOverallOfficials[]
-    StudyLocation         StudyLocation[]
+    StudyDescription         StudyDescription?
+    StudyStatus              StudyStatus?
+    StudySponsors            StudySponsors?
+    StudyOversight           StudyOversight?
+    StudyDesign              StudyDesign?
+    StudyEligibility         StudyEligibility?
+    StudyIdentification      StudyIdentification[]
+    StudyCollaborators       StudyCollaborators[]
+    StudyConditions          StudyConditions[]
+    StudyKeywords            StudyKeywords[]
+    StudyArm                 StudyArm[]
+    StudyIntervention        StudyIntervention[]
+    StudyCentralContact      StudyCentralContact[]
+    StudyOverallOfficials    StudyOverallOfficials[]
+    StudyLocation            StudyLocation[]
+    ControlledDatasetRequest ControlledDatasetRequest[]
 }
 
 model DatasetMember {
@@ -784,7 +786,7 @@ model PublishedDataset {
     created DateTime @default(now())
 }
 
-model DatasetRequest {
+model ControlledDatasetRequest {
     id String @id @default(cuid())
 
     userId String
@@ -792,6 +794,19 @@ model DatasetRequest {
 
     datasetId String
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    updated        DateTime        @updatedAt
+    created        DateTime        @default(now())
+    DatasetRequest DatasetRequest?
+}
+
+model DatasetRequest {
+    id String @id @default(cuid())
+
+    // This is used to link the request to the controlled dataset request if the dataset is controlled
+    isControlledDatasetRequest Boolean                   @default(false)
+    controlledDatasetRequestId String?                   @unique
+    controlledDatasetRequest   ControlledDatasetRequest? @relation(fields: [controlledDatasetRequestId], references: [id], onDelete: Cascade)
 
     givenName    String
     familyName   String
@@ -807,6 +822,8 @@ model DatasetRequest {
     updated DateTime @updatedAt
 
     DatasetRequestDetails DatasetRequestDetails[]
+    Dataset               Dataset?                @relation(fields: [datasetId], references: [id])
+    datasetId             String?
 }
 
 model DatasetRequestDetails {

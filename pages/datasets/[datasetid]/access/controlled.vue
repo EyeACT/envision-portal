@@ -65,7 +65,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   loading.value = true;
 
-  await $fetch(`/api/discover/datasets/${datasetid}/access/request`, {
+  await $fetch(`/api/discover/dataset/${datasetid}/access/request-controlled`, {
     body,
     method: "POST",
   })
