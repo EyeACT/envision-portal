@@ -1,0 +1,1153 @@
+import { z } from "zod";
+import FORM_JSON from "@/assets/data/form.json";
+import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
+
+const identTypeOptions =
+  FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions.map(
+    (opt) => opt.value,
+  );
+
+const typeOptions = FORM_JSON.studyMetadataArmsTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const studyTypeOptions = FORM_JSON.studyMetadataStudyTypeOptions.map(
+  (opt) => opt.value,
+);
+const validYesNo = ["Yes", "No"];
+const allocationOptions = FORM_JSON.studyMetadataAllocationOptions.map(
+  (opt) => opt.value,
+);
+const interventionModelOptions =
+  FORM_JSON.studyMetadataInterventionModelOptions.map((opt) => opt.value);
+const primaryPurposeOptions = FORM_JSON.studyMetadataPrimaryPurposeOptions.map(
+  (opt) => opt.value,
+);
+const maskingOptions = FORM_JSON.studyMetadataMaskingOptions.map(
+  (opt) => opt.value,
+);
+const whoMaskedOptions = FORM_JSON.studyMetadataWhoMaskedOptions.map(
+  (opt) => opt.value,
+);
+const phaseOptions = FORM_JSON.studyMetadataPhaseOptions.map(
+  (opt) => opt.value,
+);
+const enrollmentTypes = FORM_JSON.studyMetadataEnrollmentTypeOptions.map(
+  (opt) => opt.value,
+);
+
+const oberservationalModelOptions =
+  FORM_JSON.studyMetadataObservationalModelsOptions.map((opt) => opt.value);
+
+const timePerspectiveOptions =
+  FORM_JSON.studyMetadataTimePerspectiveOptions.map((opt) => opt.value);
+
+const bioRetentionOptions = FORM_JSON.studyMetadataBioSpecRetentionOptions.map(
+  (opt) => opt.value,
+);
+
+const sexEnumValues = FORM_JSON.studyMetadataEligibilityGenderOptions.map(
+  (opt) => opt.value,
+);
+const genderEnumValues =
+  FORM_JSON.studyMetadataEligibilityGenderBasedOptions.map((opt) => opt.value);
+const ageUnitEnumValues = FORM_JSON.studyMetadataEligibilityAgeUnitOptions.map(
+  (opt) => opt.value,
+);
+const validTypes = FORM_JSON.studyMetadataInterventionsTypeOptions.map(
+  (opt) => opt.value,
+);
+const validStatus = FORM_JSON.studyMetadataStatusOptions.map(
+  (opt) => opt.value,
+);
+const validRoles = FORM_JSON.studyMetadataContactsOverallOfficialRole.map(
+  (opt) => opt.value,
+);
+const validHumanStatuses =
+  FORM_JSON.studyMetadataHumanSubjectReviewStatusOptions.map(
+    (opt) => opt.value,
+  );
+
+const validStatuses = FORM_JSON.studyMetadataStatusOptions.map(
+  (opt) => opt.value,
+);
+
+const dateTypes = FORM_JSON.studyMetadataEnrollmentTypeOptions.map(
+  (opt) => opt.value,
+);
+const conditionalStatuses = ["Suspended", "Terminated", "Withdrawn"];
+const partyTypeOptions =
+  FORM_JSON.studyMetadataSponsorsResponsiblePartyTypeOptions.map(
+    (opt) => opt.value,
+  );
+
+const conditionsSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    classificationCode: z.string().optional(),
+    conditionUri: z.union([z.literal(""), z.string().trim().url()]),
+    deleted: z.boolean().optional(),
+    local: z.boolean().optional(),
+    scheme: z.string().optional(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .strict();
+
+const keywordsSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    classificationCode: z.string().optional(),
+    deleted: z.boolean().optional(),
+    keywordUri: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
+    scheme: z.string().optional(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    if (
+      (data.classificationCode && !data.scheme) ||
+      (!data.classificationCode && data.scheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Both classificationCode and scheme are required if either is provided",
+      });
+    }
+
+    if (
+      data.classificationCode &&
+      data.scheme?.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(data.classificationCode)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ORCID identifier must be a valid ORCID format",
+      });
+    }
+
+    if (
+      data.classificationCode &&
+      data.scheme?.toUpperCase() === "ROR" &&
+      !isValidRORValue(data.classificationCode)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ROR identifier must be a valid ROR format",
+      });
+    }
+  });
+
+const secondaryIdentifierSchema = z
+  .object({
+    id: z.string().optional(),
+    deleted: z.boolean().optional(),
+    domain: z.union([z.literal(""), z.string().trim().url()]),
+    identifier: z.string(),
+    link: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
+    type: z.string().refine((v) => identTypeOptions.includes(v), {
+      message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+    }),
+  })
+  .strict();
+
+export const StudyMetadataAboutSchema = z
+  .object({
+    briefSummary: z.string().min(1, "Brief summary is required"),
+    conditions: z
+      .array(conditionsSchema)
+      .min(1, "At least one condition is required"),
+    detailedDescription: z.string().min(1, "Detailed description is required"),
+    keywords: z
+      .array(keywordsSchema)
+      .min(1, "At least one keyword is required"),
+    primaryIdentifier: z.object({
+      domain: z.union([z.literal(""), z.string().trim().url()]),
+      identifier: z.string(),
+      link: z.union([z.literal(""), z.string().trim().url()]),
+      type: z.string().refine((v) => identTypeOptions.includes(v), {
+        message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+      }),
+    }),
+    secondaryIdentifiers: z
+      .array(secondaryIdentifierSchema)
+      .min(1, "At least one secondary identifier is required"),
+  })
+  .strict();
+
+export const StudyMetadataArmsSchema = z
+  .object({
+    studyArms: z
+      .array(
+        z
+          .object({
+            id: z.string().trim().optional(),
+            deleted: z.boolean().optional(),
+            description: z
+              .string()
+              .trim()
+              .min(1, { message: "Description is required" }),
+            interventionList: z.array(z.string()),
+            label: z.string().trim().min(1, { message: "Label is required" }),
+            local: z.boolean().optional(),
+            type: z.preprocess(
+              (val) => {
+                // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+                if (typeof val === "string" && val.trim() === "") {
+                  return undefined;
+                }
+
+                return val;
+              },
+              z
+                .string()
+                .trim()
+                .refine((val) => typeOptions.includes(val), {
+                  message: `Type must be one of: ${typeOptions.join(", ")}`,
+                })
+                .optional(),
+            ),
+          })
+          .strict(),
+      )
+      .min(1, { message: "At least one study arm is required" }),
+  })
+  .strict();
+
+const contractSchema = z
+  .object({
+    id: z.string().optional(),
+    affiliation: z
+      .string()
+      .trim()
+      .min(1, { message: "Affiliation is required" }),
+    affiliationIdentifier: z.string(),
+    affiliationIdentifierScheme: z.string(),
+    affiliationIdentifierSchemeUri: z.union([
+      z.literal(""),
+      z.string().trim().url(),
+    ]),
+    degree: z.string(),
+    deleted: z.boolean().optional(),
+    emailAddress: z
+      .string()
+      .trim()
+      .min(1, { message: "Email address is required" })
+      .email({ message: "Email address is not valid" }),
+    familyName: z
+      .string()
+      .trim()
+      .min(1, { message: "Family name is required" }),
+    givenName: z.string().trim().min(1, { message: "Given name is required" }),
+    identifier: z.string(),
+    identifierScheme: z.string(),
+    identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
+    phone: z.string(),
+    phoneExt: z.string(),
+  })
+  .strict()
+  .superRefine((data, context) => {
+    const id = data.identifier.trim();
+    const sch = data.identifierScheme.trim();
+    const idScheme = data.identifierScheme.toUpperCase();
+    const affiliationId = data.affiliationIdentifier.trim();
+    const affilIdScheme = data.affiliationIdentifierScheme.toUpperCase();
+
+    if ((id === "" && sch !== "") || (id !== "" && sch === "")) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier and Identifier scheme must be provided together",
+        path: ["identifier"],
+      });
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier and Identifier scheme must be provided together",
+        path: ["identifierScheme"],
+      });
+    }
+
+    if (id && idScheme === "ORCID" && !isValidORCIDValue(id)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ORCID value",
+        path: ["identifier"],
+      });
+    }
+    if (id && idScheme === "ROR" && !isValidRORValue(id)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ROR value",
+        path: ["identifier"],
+      });
+    }
+
+    if (
+      affiliationId &&
+      affilIdScheme === "ORCID" &&
+      !isValidORCIDValue(affiliationId)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ORCID value",
+        path: ["affiliationIdentifier"],
+      });
+    }
+    if (
+      affiliationId &&
+      affilIdScheme === "ROR" &&
+      !isValidRORValue(affiliationId)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ROR value",
+        path: ["affiliationIdentifier"],
+      });
+    }
+  });
+
+export const StudyMetadataContactsSchema = z
+  .object({
+    studyContacts: z.array(contractSchema).min(1, {
+      message: "At least one study central contact is required",
+    }),
+  })
+  .strict();
+
+export const StudyMetadataDesignSchema = z
+  .object({
+    allocation: z.string().trim(),
+    bioSpecDescription: z.string().trim(),
+    bioSpecRetention: z.string().trim(),
+    enrollmentCount: z.number(),
+    enrollmentType: z.string().trim(),
+    interventionModel: z.string().trim(),
+    interventionModelDescription: z.string().trim(),
+    isPatientRegistry: z.string().trim(),
+    masking: z.string().trim(),
+    maskingDescription: z.string().trim(),
+    numberOfArms: z.number(),
+    oberservationalModelList: z.array(z.string().trim()),
+    phaseList: z.array(z.string().trim()),
+    primaryPurpose: z.string().trim(),
+    studyType: z.string().refine((val) => studyTypeOptions.includes(val), {
+      message: `Study type must be one of: ${studyTypeOptions.join(", ")}`,
+    }),
+    targetDuration: z.number(),
+    targetDurationUnit: z.string().trim(),
+    timePerspectiveList: z.array(z.string().trim()),
+    whoMaskedList: z.array(z.string().trim()),
+  })
+  .strict()
+  .superRefine((data, context) => {
+    // studyType required
+    if (!data.studyType) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Study type is required",
+        path: ["studyType"],
+      });
+    }
+
+    // Observational
+    if (data.studyType === "Observational") {
+      if (!data.isPatientRegistry) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Is patient registry is required",
+          path: ["isPatientRegistry"],
+        });
+      }
+      if (!validYesNo.includes(data.isPatientRegistry)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Is patient registry must be one of: ${validYesNo.join(", ")}`,
+          path: ["isPatientRegistry"],
+        });
+      }
+      if (data.oberservationalModelList.length === 0) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Observational model is required",
+          path: ["oberservationalModelList"],
+        });
+      } else {
+        data.oberservationalModelList.forEach((model) => {
+          if (!oberservationalModelOptions.includes(model)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Observational model must be one of: ${oberservationalModelOptions.join(", ")}`,
+              path: ["oberservationalModelList", model],
+            });
+          }
+        });
+      }
+      if (data.timePerspectiveList.length === 0) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Time perspective is required",
+          path: ["timePerspectiveList"],
+        });
+      } else {
+        data.timePerspectiveList.forEach((perspective) => {
+          if (!timePerspectiveOptions.includes(perspective)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Time perspective must be one of: ${timePerspectiveOptions.join(", ")}`,
+              path: ["timePerspectiveList", perspective],
+            });
+          }
+        });
+      }
+      if (!data.bioSpecRetention) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Bio specification retention is required",
+          path: ["bioSpecRetention"],
+        });
+      }
+      if (!bioRetentionOptions.includes(data.bioSpecRetention)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Bio specification retention must be one of: ${bioRetentionOptions.join(", ")}`,
+          path: ["bioSpecRetention"],
+        });
+      }
+      if (!data.bioSpecDescription) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Bio specification description is required",
+          path: ["bioSpecDescription"],
+        });
+      }
+      if (data.targetDuration <= 0) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Target duration must be greater than 0",
+          path: ["targetDuration"],
+        });
+      }
+      if (!data.targetDurationUnit) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Target duration unit is required",
+          path: ["targetDurationUnit"],
+        });
+      }
+    }
+
+    // Interventional
+    if (data.studyType === "Interventional") {
+      if (!data.allocation) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Allocation is required",
+          path: ["allocation"],
+        });
+      }
+      if (!allocationOptions.includes(data.allocation)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Allocation must be one of: ${allocationOptions.join(", ")}`,
+          path: ["allocation"],
+        });
+      }
+      if (!data.interventionModel) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Intervention model is required",
+          path: ["interventionModel"],
+        });
+      }
+      if (!interventionModelOptions.includes(data.interventionModel)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Intervention model must be one of: ${interventionModelOptions.join(", ")}`,
+          path: ["interventionModel"],
+        });
+      }
+      if (!data.primaryPurpose) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Primary purpose is required",
+          path: ["primaryPurpose"],
+        });
+      }
+      if (!primaryPurposeOptions.includes(data.primaryPurpose)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Primary purpose must be one of: ${primaryPurposeOptions.join(", ")}`,
+          path: ["primaryPurpose"],
+        });
+      }
+      if (!data.masking) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Masking is required",
+          path: ["masking"],
+        });
+      }
+      if (!maskingOptions.includes(data.masking)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Masking must be one of: ${maskingOptions.join(", ")}`,
+          path: ["masking"],
+        });
+      }
+      if (data.whoMaskedList.length === 0) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Who masked is required",
+          path: ["whoMaskedList"],
+        });
+      } else {
+        data.whoMaskedList.forEach((whoMasked) => {
+          if (!whoMaskedOptions.includes(whoMasked)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Who masked must be one of: ${whoMaskedOptions.join(", ")}`,
+              path: ["whoMaskedList", whoMasked],
+            });
+          }
+        });
+      }
+      if (data.phaseList.length === 0) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Phase is required",
+          path: ["phaseList"],
+        });
+      } else {
+        data.phaseList.forEach((phase) => {
+          if (!phaseOptions.includes(phase)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Phase must be one of: ${phaseOptions.join(", ")}`,
+              path: ["phaseList", phase],
+            });
+          }
+        });
+      }
+      if (data.numberOfArms <= 0) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Number of arms must be greater than 0",
+          path: ["numberOfArms"],
+        });
+      }
+    }
+
+    if (data.enrollmentCount <= 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enrollment count must be greater than 0",
+        path: ["enrollmentCount"],
+      });
+    }
+    if (!data.enrollmentType) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enrollment type is required",
+        path: ["enrollmentType"],
+      });
+    }
+    if (!enrollmentTypes.includes(data.enrollmentType)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Enrollment type must be one of: ${enrollmentTypes.join(", ")}`,
+        path: ["enrollmentType"],
+      });
+    }
+  });
+
+export const StudyMetadataEligibilitySchema = z
+  .object({
+    exclusionCriteria: z
+      .array(z.string().trim().min(1, { message: "Field cannot be empty" }))
+      .min(1, { message: "At least one exclusion criteria is required" }),
+    genderBased: z
+      .string()
+      .trim()
+      .min(1, { message: "Gender based is required" })
+      .refine((v) => genderEnumValues.includes(v), {
+        message: `Gender based must be one of: ${genderEnumValues.join(", ")}`,
+      }),
+    genderDescription: z.string(),
+    healthyVolunteers: z
+      .string()
+      .trim()
+      .min(1, { message: "Healthy volunteers is required" })
+      .refine((v) => validYesNo.includes(v), {
+        message: `Healthy volunteers must be one of: ${validYesNo.join(", ")}`,
+      }),
+    inclusionCriteria: z
+      .array(z.string().trim().min(1, { message: "Field cannot be empty" }))
+      .min(1, { message: "At least one inclusion criteria is required" }),
+    maximumAgeUnit: z
+      .string()
+      .trim()
+      .min(1, { message: "Maximum age unit is required" })
+      .refine((v) => ageUnitEnumValues.includes(v), {
+        message: `Maximum age unit must be one of: ${ageUnitEnumValues.join(
+          ", ",
+        )}`,
+      }),
+    maximumAgeValue: z
+      .number()
+      .gt(0, { message: "Maximum age value must be greater than 0" }),
+    minimumAgeUnit: z
+      .string()
+      .trim()
+      .min(1, { message: "Minimum age unit is required" })
+      .refine((v) => ageUnitEnumValues.includes(v), {
+        message: `Minimum age unit must be one of: ${ageUnitEnumValues.join(
+          ", ",
+        )}`,
+      }),
+    minimumAgeValue: z
+      .number()
+      .gt(0, { message: "Minimum age value must be greater than 0" }),
+    samplingMethod: z.string(),
+    sex: z
+      .string()
+      .trim()
+      .min(1, { message: "Sex is required" })
+      .refine((v) => sexEnumValues.includes(v), {
+        message: `Sex must be one of: ${sexEnumValues.join(", ")}`,
+      }),
+    studyPopulation: z.string(),
+  })
+  .strict();
+
+export const StudyMetadataInterventionsSchema = z
+  .object({
+    studyInterventions: z
+      .array(
+        z
+          .object({
+            id: z.string().optional(),
+            name: z.string().trim().min(1, { message: "Name is required" }),
+            deleted: z.boolean().optional(),
+            description: z
+              .string()
+              .trim()
+              .min(1, { message: "Description is required" }),
+            local: z.boolean().optional(),
+            otherNameList: z.array(z.string()),
+            type: z
+              .string({
+                invalid_type_error: "Type is required",
+                required_error: "Type is required",
+              })
+              .refine((v) => validTypes.includes(v), {
+                message: "Type must be a valid option",
+              }),
+          })
+          .strict(),
+        {
+          invalid_type_error: "`studyInterventions` must be an array",
+          required_error: "`studyInterventions` array is required",
+        },
+      )
+      .min(1, { message: "At least one study intervention is required" }),
+  })
+  .strict();
+
+const LocationSchema = z
+  .object({
+    id: z.string().optional(),
+    city: z.string().trim().min(1, { message: "City is required" }),
+    country: z.string().trim().min(1, { message: "Country is required" }),
+    deleted: z.boolean().optional(),
+    facility: z.string().trim().min(1, { message: "Facility is required" }),
+    identifier: z.string().trim(),
+    identifierScheme: z.string().trim(),
+    identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
+    state: z.string().trim().min(1, { message: "State is required" }),
+    status: z
+      .string({
+        invalid_type_error: "Status is required",
+        required_error: "Status is required",
+      })
+      .trim()
+      .refine((v) => validStatus.includes(v), {
+        message: "Status must be a valid option",
+      }),
+    zip: z.string().trim(),
+  })
+  .superRefine((data, context) => {
+    const hasId = data.identifier !== "";
+    const hasScheme = data.identifierScheme !== "";
+    const scheme = data.identifierScheme.toUpperCase();
+
+    if ((hasId && !hasScheme) || (!hasId && hasScheme)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier and Identifier Scheme must be provided together",
+        path: ["identifier"],
+      });
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier and Identifier Scheme must be provided together",
+        path: ["identifierScheme"],
+      });
+    }
+
+    if (hasId && scheme === "ORCID" && !isValidORCIDValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid ORCID identifier",
+        path: ["identifier"],
+      });
+    }
+    if (hasId && scheme === "ROR" && !isValidRORValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid ROR identifier",
+        path: ["identifier"],
+      });
+    }
+  });
+
+export const StudyMetadataLocationsSchema = z.object({
+  studyLocations: z
+    .array(LocationSchema, {
+      invalid_type_error: "`studyLocations` must be an array",
+      required_error: "`studyLocations` array is required",
+    })
+    .min(1, { message: "At least one study location is required" }),
+});
+
+const OfficialSchema = z
+  .object({
+    id: z.string().optional(),
+    affiliation: z
+      .string()
+      .trim()
+      .min(1, { message: "Affiliation is required" }),
+    affiliationIdentifier: z.string().trim(),
+    affiliationIdentifierScheme: z.string().trim(),
+    affiliationIdentifierSchemeUri: z.union([
+      z.literal(""),
+      z.string().trim().url(),
+    ]),
+    degree: z.string().trim(),
+    deleted: z.boolean().optional(),
+    familyName: z
+      .string()
+      .trim()
+      .min(1, { message: "Family name is required" }),
+    givenName: z.string().trim().min(1, { message: "Given name is required" }),
+    identifier: z.string().trim(),
+    identifierScheme: z.string().trim(),
+    identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
+    local: z.boolean().optional(),
+    role: z
+      .string({
+        invalid_type_error: "Role is required",
+        required_error: "Role is required",
+      })
+      .trim()
+      .refine((v) => validRoles.includes(v), {
+        message: `Role must be one of the following: ${validRoles.join(", ")}`,
+      }),
+  })
+  .strict()
+  .superRefine((data, context) => {
+    // affiliationIdentifier and affiliationIdentifierScheme if provided must be together
+    const hasAffId = data.affiliationIdentifier !== "";
+    const hasAffSch = data.affiliationIdentifierScheme !== "";
+    const hasId = data.identifier !== "";
+    const hasIdSch = data.identifierScheme !== "";
+    const idScheme = data.identifierScheme.toUpperCase();
+    const affilIdScheme = data.affiliationIdentifierScheme.toUpperCase();
+
+    if ((hasAffId && !hasAffSch) || (!hasAffId && hasAffSch)) {
+      [
+        "affiliationIdentifier",
+        "affiliationIdentifierScheme",
+        "affiliationIdentifierSchemeUri",
+      ].forEach((path) =>
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "Affiliation identifier and affiliation identifier scheme must be provided together",
+          path: [path],
+        }),
+      );
+    }
+
+    if (
+      hasAffId &&
+      affilIdScheme === "ORCID" &&
+      !isValidORCIDValue(data.affiliationIdentifier)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ORCID",
+        path: ["affiliationIdentifier"],
+      });
+    }
+    if (
+      hasAffId &&
+      affilIdScheme === "ROR" &&
+      !isValidRORValue(data.affiliationIdentifier)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Affiliation identifier must be a valid ROR",
+        path: ["affiliationIdentifier"],
+      });
+    }
+
+    // identifier and identifierScheme if provided must be together
+    if ((hasId && !hasIdSch) || (!hasId && hasIdSch)) {
+      ["identifier", "identifierScheme"].forEach((path) =>
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Identifier and Identifier scheme must be provided together",
+          path: [path],
+        }),
+      );
+    }
+
+    if (hasId && idScheme === "ORCID" && !isValidORCIDValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ORCID",
+        path: ["identifier"],
+      });
+    }
+    if (hasId && idScheme === "ROR" && !isValidRORValue(data.identifier)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Identifier must be a valid ROR",
+        path: ["identifier"],
+      });
+    }
+  });
+
+export const StudyMetadataOverallOfficialsSchema = z.object({
+  studyOverallOfficials: z
+    .array(OfficialSchema, {
+      invalid_type_error: "`studyOverallOfficials` must be an array",
+      required_error: "`studyOverallOfficials` array is required",
+    })
+    .min(1, {
+      message: "At least one study overall official is required",
+    }),
+});
+
+export const StudyMetadataOversightSchema = z
+  .object({
+    humanSubjectReviewStatus: z
+      .string({
+        invalid_type_error: "Human Subject Review Status is required.",
+        required_error: "Human Subject Review Status is required.",
+      })
+      .trim()
+      .refine((v) => validHumanStatuses.includes(v), {
+        message: `Invalid Human Subject Review Status. Must be one of: ${validHumanStatuses.join(", ")}`,
+      }),
+
+    isFDARegulatedDevice: z.preprocess(
+      (val) => {
+        // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+        if (typeof val === "string" && val.trim() === "") {
+          return undefined;
+        }
+
+        return val;
+      },
+      z
+        .string({
+          invalid_type_error: "FDA Regulated Device selection is required.",
+          required_error: "FDA Regulated Device selection is required.",
+        })
+        .trim()
+        .refine((v) => validYesNo.includes(v as (typeof validYesNo)[number]), {
+          message: `Invalid option for FDA Regulated Device. Must be one of: ${validYesNo.join(", ")}`,
+        })
+        .optional(),
+    ),
+
+    isFDARegulatedDrug: z.preprocess(
+      (val) => {
+        // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+        if (typeof val === "string" && val.trim() === "") {
+          return undefined;
+        }
+
+        return val;
+      },
+      z
+        .string({
+          invalid_type_error: "FDA Regulated Drug selection is required.",
+          required_error: "FDA Regulated Drug selection is required.",
+        })
+        .trim()
+        .refine((v) => validYesNo.includes(v), {
+          message: `Invalid option for FDA Regulated Drug. Must be one of: ${validYesNo.join(", ")}`,
+        })
+        .optional(),
+    ),
+
+    oversightHasDMC: z.preprocess(
+      (val) => {
+        // if incoming value is a string that’s just empty/whitespace, treat it as undefined
+        if (typeof val === "string" && val.trim() === "") {
+          return undefined;
+        }
+
+        return val;
+      },
+      z
+        .string({
+          invalid_type_error: "Has DMC selection is required.",
+          required_error: `Has DMC selection is required. Must be one of: ${validYesNo.join(", ")}`,
+        })
+        .trim()
+        .refine((v) => validYesNo.includes(v), {
+          message: `Invalid option for Has DMC. Must be one of: ${validYesNo.join(", ")}`,
+        })
+        .optional(),
+    ),
+  })
+  .strict();
+
+export const StudyMetadataStatusSchema = z
+  .object({
+    completionDate: z
+      .string({
+        invalid_type_error: "Completion date is required",
+        required_error: "Completion date is required",
+      })
+      .date("Date must be in YYYY-MM-DD format")
+      .trim(),
+    completionDateType: z
+      .string({
+        invalid_type_error: "Completion date type is required",
+        required_error: "Completion date type is required",
+      })
+      .trim()
+      .refine((v) => dateTypes.includes(v), {
+        message: `Completion date type must be one of: ${dateTypes.join(", ")}`,
+      }),
+    overallStatus: z
+      .string({
+        invalid_type_error: "Overall status is required",
+        required_error: "Overall status is required",
+      })
+      .trim()
+      .refine((v) => validStatuses.includes(v), {
+        message: `Overall status must be one of: ${validStatuses.join(", ")}`,
+      }),
+    startDate: z
+      .string({
+        invalid_type_error: "Start date is required",
+        required_error: "Start date is required",
+      })
+      .date("Date must be in YYYY-MM-DD format")
+      .trim(),
+    startDateType: z
+      .string({
+        invalid_type_error: "Start date type is required",
+        required_error: "Start date type is required",
+      })
+      .trim()
+      .refine((v) => dateTypes.includes(v), {
+        message: `Start date type must be one of: ${dateTypes.join(", ")}`,
+      }),
+    whyStopped: z.string().trim().optional(),
+  })
+  .strict()
+  .superRefine((data, context) => {
+    if (conditionalStatuses.includes(data.overallStatus) && !data.whyStopped) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "A valid reason is required when the study is suspended, terminated or withdrawn",
+        path: ["whyStopped"],
+      });
+    }
+  });
+
+const CollaboratorSchema = z
+  .object({
+    id: z.string().optional(),
+    name: z.string(),
+    deleted: z.boolean().optional(),
+    identifier: z.string().optional(),
+    scheme: z.string().optional(),
+    schemeUri: z.union([z.literal(""), z.string().trim().url()]),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    // If scheme is provided, schemeUri must also be provided
+    if (
+      (data.scheme && !data.identifier) ||
+      (!data.scheme && data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "If scheme is provided, schemeUri must also be provided",
+      });
+    }
+  });
+
+export const StudyMetadataSponsorsSchema = z
+  .object({
+    collaborators: z
+      .array(CollaboratorSchema)
+      .min(1, "At least one collaborator is required"),
+    leadSponsorIdentifier: z.string().trim().optional(),
+    leadSponsorIdentifierScheme: z.string().trim().optional(),
+    leadSponsorIdentifierSchemeUri: z.union([
+      z.literal(""),
+      z.string().trim().url(),
+    ]),
+    leadSponsorName: z.string().trim().optional(),
+    responsiblePartyInvestigatorAffiliationIdentifier: z
+      .string()
+      .trim()
+      .optional(),
+    responsiblePartyInvestigatorAffiliationIdentifierScheme: z
+      .string()
+      .trim()
+      .optional(),
+    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z.union([
+      z.literal(""),
+      z.string().trim().url(),
+    ]),
+    responsiblePartyInvestigatorAffiliationName: z.string().trim().optional(),
+    responsiblePartyInvestigatorFamilyName: z.string().trim().optional(),
+    responsiblePartyInvestigatorGivenName: z.string().trim().optional(),
+    responsiblePartyInvestigatorIdentifierScheme: z.string().trim().optional(),
+    responsiblePartyInvestigatorIdentifierValue: z.string().trim().optional(),
+    responsiblePartyInvestigatorTitle: z.string().trim().optional(),
+    responsiblePartyType: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (v) =>
+          partyTypeOptions.includes(v as (typeof partyTypeOptions)[number]),
+        {
+          message: `Responsible party type must be one of: ${partyTypeOptions.join(", ")}`,
+        },
+      ),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    const leadSponsID = data.leadSponsorIdentifier?.trim();
+    const leadSponsScheme = data.leadSponsorIdentifierScheme
+      ?.trim()
+      .toUpperCase();
+    const respPartyInvestigatorAffilID =
+      data.responsiblePartyInvestigatorAffiliationIdentifier?.trim();
+    const respPartyInvestigatorAffilScheme =
+      data.responsiblePartyInvestigatorAffiliationIdentifierScheme
+        ?.trim()
+        .toUpperCase();
+
+    const respPartyInvestigatorID =
+      data.responsiblePartyInvestigatorIdentifierValue?.trim();
+    const respPartyInvestigatorScheme =
+      data.responsiblePartyInvestigatorIdentifierScheme?.trim().toUpperCase();
+
+    // If identifierscheme is provided, identifierSchemeUri must also be provided
+    if (
+      (data.leadSponsorIdentifier && !data.leadSponsorIdentifierScheme) ||
+      (!data.leadSponsorIdentifier && data.leadSponsorIdentifierScheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "If lead sponsor identifier scheme is provided, identifier scheme URI must also be provided",
+      });
+    }
+
+    if (
+      (data.responsiblePartyInvestigatorAffiliationIdentifier &&
+        !data.responsiblePartyInvestigatorAffiliationIdentifierScheme) ||
+      (!data.responsiblePartyInvestigatorAffiliationIdentifier &&
+        data.responsiblePartyInvestigatorAffiliationIdentifierScheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "If responsible party investigator affiliation identifier scheme is provided, identifier scheme URI must also be provided",
+      });
+    }
+
+    if (
+      leadSponsID &&
+      leadSponsScheme === "ORCID" &&
+      !isValidORCIDValue(leadSponsID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Lead sponsor identifier must be a valid ORCID value",
+      });
+    }
+    if (
+      leadSponsID &&
+      leadSponsScheme === "ROR" &&
+      !isValidRORValue(leadSponsID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Lead sponsor identifier must be a valid ROR value",
+      });
+    }
+
+    if (
+      respPartyInvestigatorAffilID &&
+      respPartyInvestigatorAffilScheme === "ORCID" &&
+      !isValidORCIDValue(respPartyInvestigatorAffilID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator affiliation identifier must be a valid ORCID value",
+      });
+    }
+    if (
+      respPartyInvestigatorAffilID &&
+      respPartyInvestigatorAffilScheme === "ROR" &&
+      !isValidRORValue(respPartyInvestigatorAffilID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator affiliation identifier must be a valid ROR value",
+      });
+    }
+
+    if (
+      respPartyInvestigatorID &&
+      respPartyInvestigatorScheme === "ORCID" &&
+      !isValidORCIDValue(respPartyInvestigatorID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator identifier value must be a valid ORCID value",
+      });
+    }
+    if (
+      respPartyInvestigatorID &&
+      respPartyInvestigatorScheme === "ROR" &&
+      !isValidRORValue(respPartyInvestigatorID)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator identifier value must be a valid ROR value",
+      });
+    }
+  });
