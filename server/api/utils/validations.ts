@@ -68,6 +68,10 @@ const DatasetSchema = z.object({
   version: z.string(),
 });
 
+const StudyMetadataSchema = z.object({
+  id: z.string().cuid2("Invalid dataset ID"),
+});
+
 /**
  * Validate a dataset's metadata before publishing.
  * @param datasetId - The id of the dataset to validate
@@ -122,6 +126,55 @@ export async function validateDatasetMetadata(
 
   return {
     // data: dataset,
+    valid: validationResult,
+    validations: validationResult?.error?.format(),
+  };
+}
+
+export async function validateStudyMetadata(datasetId: string, userId: string) {
+  // Get the study from the database
+  const study = await prisma.dataset.findUnique({
+    include: {
+      StudyArm: true,
+      StudyCentralContact: true,
+      StudyCollaborators: true,
+      StudyConditions: true,
+      StudyDescription: true,
+      StudyDesign: true,
+      StudyEligibility: true,
+      StudyIdentification: true,
+      StudyIntervention: true,
+      StudyKeywords: true,
+      StudyLocation: true,
+      StudyOverallOfficials: true,
+      StudyOversight: true,
+      StudySponsors: true,
+      StudyStatus: true,
+    },
+    where: {
+      id: datasetId,
+      DatasetMember: {
+        some: {
+          userId,
+        },
+      },
+    },
+  });
+
+  if (!study) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Study not found",
+    });
+  }
+
+  // Validate the study metadata
+  const validationResult = StudyMetadataSchema.safeParse(study);
+  // console.log("Below is the study metadata gathered");
+  // console.log(JSON.stringify(study, null, 2));
+  // console.log(JSON.stringify(validationResult, null, 2));
+
+  return {
     valid: validationResult,
     validations: validationResult?.error?.format(),
   };
