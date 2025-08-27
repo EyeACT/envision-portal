@@ -228,7 +228,6 @@ const dropdownItems = ref([
           v-for="dataset in datasets"
           :key="dataset.id"
           :to="`/app/datasets/${dataset.id}`"
-          :disabled="dataset.status === 'published'"
         >
           <UCard
             class="transition-shadow hover:shadow-md"

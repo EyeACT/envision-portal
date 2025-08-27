@@ -102,21 +102,22 @@ model Dataset {
     DatasetSubject              DatasetSubject[]
     DatasetTitle                DatasetTitle[]
 
-    StudyDescription         StudyDescription?
-    StudyStatus              StudyStatus?
-    StudySponsors            StudySponsors?
-    StudyOversight           StudyOversight?
-    StudyDesign              StudyDesign?
-    StudyEligibility         StudyEligibility?
-    StudyIdentification      StudyIdentification[]
-    StudyCollaborators       StudyCollaborators[]
-    StudyConditions          StudyConditions[]
-    StudyKeywords            StudyKeywords[]
-    StudyArm                 StudyArm[]
-    StudyIntervention        StudyIntervention[]
-    StudyCentralContact      StudyCentralContact[]
-    StudyOverallOfficials    StudyOverallOfficials[]
-    StudyLocation            StudyLocation[]
+    StudyDescription      StudyDescription?
+    StudyStatus           StudyStatus?
+    StudySponsors         StudySponsors?
+    StudyOversight        StudyOversight?
+    StudyDesign           StudyDesign?
+    StudyEligibility      StudyEligibility?
+    StudyIdentification   StudyIdentification[]
+    StudyCollaborators    StudyCollaborators[]
+    StudyConditions       StudyConditions[]
+    StudyKeywords         StudyKeywords[]
+    StudyArm              StudyArm[]
+    StudyIntervention     StudyIntervention[]
+    StudyCentralContact   StudyCentralContact[]
+    StudyOverallOfficials StudyOverallOfficials[]
+    StudyLocation         StudyLocation[]
+
     ControlledDatasetRequest ControlledDatasetRequest[]
 }
 

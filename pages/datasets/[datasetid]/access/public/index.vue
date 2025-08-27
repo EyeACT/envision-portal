@@ -13,11 +13,6 @@ const toast = useToast();
 const { loggedIn, user } = useUserSession();
 
 const loading = ref(false);
-const receivedInformation = ref(false);
-
-const azureUri = ref(
-  "DefaultEndpointsProtocol=https;AccountName=envisionportal;AccountKey=9UGBTsgoIVNVasG5h7DP5RwcfePgVLuz6sUyD/RdxE7CElVAIOwJ1xnFkQ7bCT1L/zR+zjFn0coVj6w2PY23NySMc0uOVdwFYT29X8oQEj2uifHyt+oU/6qrBTIjfClFd==;EndpointSuffix=core.windows.net",
-);
 
 const { datasetid } = route.params as { datasetid: string };
 
@@ -59,25 +54,6 @@ const state = reactive<Partial<Schema>>({
   reasonForAccess: faker.lorem.sentences(6),
 });
 
-const copyToClipboard = (text: string) => {
-  if (!navigator.clipboard) {
-    toast.add({
-      title: "Clipboard not supported",
-      color: "error",
-      description: "Please try again later",
-      icon: "material-symbols:error",
-    });
-  }
-
-  navigator.clipboard.writeText(text);
-
-  toast.add({
-    title: "Copied to clipboard",
-    color: "success",
-    icon: "material-symbols:content-copy",
-  });
-};
-
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   const body = {
     affiliation: event.data.affiliation,
@@ -89,18 +65,18 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   loading.value = true;
 
-  await $fetch(`/api/discover/dataset/${datasetid}/access/request-public`, {
+  await $fetch(`/api/discover/dataset/${datasetid}/access/public`, {
     body,
     method: "POST",
   })
-    .then(() => {
+    .then(async (response) => {
       toast.add({
         title: "Request submitted",
         description: "Your request has been submitted",
         icon: "material-symbols:check-circle-outline",
       });
 
-      receivedInformation.value = true;
+      await navigateTo(`/datasets/${datasetid}/access/public/${response.id}`);
     })
     .catch((error) => {
       console.error(error);
@@ -211,110 +187,41 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </div>
         </div>
 
-        <div v-if="!receivedInformation" class="flex flex-col gap-6">
-          <USeparator class="my-3" />
+        <USeparator class="my-3" />
 
-          <h2 class="text-lg font-medium">
-            This dataset requires some information to be submitted. Your request
-            will be approved automatically.
-          </h2>
+        <h2 class="text-lg font-medium">
+          This dataset requires some information to be submitted. Your request
+          will be approved automatically.
+        </h2>
 
-          <UForm
-            :schema="schema"
-            :state="state"
-            class="space-y-4"
-            @submit="onSubmit"
-          >
-            <UFormField label="Given Name" name="givenName">
-              <UInput v-model="state.givenName" />
-            </UFormField>
+        <UForm
+          :schema="schema"
+          :state="state"
+          class="space-y-4"
+          @submit="onSubmit"
+        >
+          <UFormField label="Given Name" name="givenName">
+            <UInput v-model="state.givenName" />
+          </UFormField>
 
-            <UFormField label="Family Name" name="familyName">
-              <UInput v-model="state.familyName" />
-            </UFormField>
+          <UFormField label="Family Name" name="familyName">
+            <UInput v-model="state.familyName" />
+          </UFormField>
 
-            <UFormField label="Affiliation" name="affiliation">
-              <UInput v-model="state.affiliation" />
-            </UFormField>
+          <UFormField label="Affiliation" name="affiliation">
+            <UInput v-model="state.affiliation" />
+          </UFormField>
 
-            <UFormField label="Email" name="email">
-              <UInput v-model="state.email" :disabled="loggedIn" />
-            </UFormField>
+          <UFormField label="Email" name="email">
+            <UInput v-model="state.email" :disabled="loggedIn" />
+          </UFormField>
 
-            <UFormField label="Reason for Access" name="reasonForAccess">
-              <UTextarea v-model="state.reasonForAccess" class="w-full" />
-            </UFormField>
+          <UFormField label="Reason for Access" name="reasonForAccess">
+            <UTextarea v-model="state.reasonForAccess" class="w-full" />
+          </UFormField>
 
-            <UButton type="submit"> Submit </UButton>
-          </UForm>
-        </div>
-
-        <div v-if="receivedInformation" class="flex flex-col gap-6">
-          <USeparator class="my-3" />
-
-          <div class="mt-3 flex flex-col gap-4">
-            <div class="w-max">
-              <h2 class="text-lg font-medium">How to download</h2>
-            </div>
-
-            <ul class="flex list-inside list-decimal flex-col gap-3">
-              <li>
-                Download and install
-                <a
-                  href="https://azure.microsoft.com/en-us/features/storage-explorer/"
-                  target="_blank"
-                  class="text-blue-500"
-                >
-                  Azure Storage Explorer</a
-                >.
-              </li>
-
-              <li>
-                Open Azure Storage Explorer and connect to your Azure account.
-              </li>
-
-              <li>Navigate to the following URI to access the dataset:</li>
-
-              <div class="relative">
-                <UTextarea
-                  v-model="azureUri"
-                  class="w-full"
-                  :rows="4"
-                  disabled
-                  autoresize
-                />
-
-                <UButton
-                  label="Copy to clipboard"
-                  icon="material-symbols:content-copy"
-                  size="xs"
-                  variant="outline"
-                  class="absolute right-0 bottom-0 z-10 m-1 p-2"
-                  @click="copyToClipboard(azureUri)"
-                />
-              </div>
-
-              <li>
-                Open the dataset URI in Azure Storage Explorer to browse the
-                contents.
-              </li>
-
-              <li>
-                Select the files you wish to download and choose "Download" from
-                the context menu.
-
-                <UAlert
-                  color="info"
-                  variant="subtle"
-                  title="Heads up!"
-                  description="You need to have free space on your device to download the files."
-                  icon="i-lucide-terminal"
-                  class="mt-2"
-                />
-              </li>
-            </ul>
-          </div>
-        </div>
+          <UButton type="submit"> Submit </UButton>
+        </UForm>
       </div>
     </UContainer>
   </div>

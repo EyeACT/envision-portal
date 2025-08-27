@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Add the request to the database
-  await prisma.datasetRequest.create({
+  const request = await prisma.datasetRequest.create({
     data: {
       affiliation: body.data.affiliation,
       controlledDatasetRequestId: null,
@@ -73,6 +73,7 @@ export default defineEventHandler(async (event) => {
   });
 
   return {
+    id: request.id,
     statusCode: 201,
     statusMessage: "Request saved",
   };
