@@ -304,6 +304,14 @@ const dropdownItems = ref([
                   class="h-3"
                 />
 
+                <p v-if="dataset.version">Version: {{ dataset.version }}</p>
+
+                <USeparator
+                  v-if="dataset.version"
+                  orientation="vertical"
+                  class="h-3"
+                />
+
                 <p>
                   Updated:
                   {{ displayDateDifference(dataset.updated) }} ago

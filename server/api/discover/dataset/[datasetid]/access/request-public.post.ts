@@ -8,8 +8,6 @@ const requestSchema = z.object({
   reasonForAccess: z.string().min(1, "Must be at least 1 character"),
 });
 
-const DEV_ID = "cm880mrva00000cl20uo80c7e";
-
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
 
@@ -38,10 +36,10 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  if (!publicDataset || !publicDataset?.datasetId) {
+  if (!publicDataset) {
     throw createError({
       statusCode: 404,
-      statusMessage: "Dataset not found",
+      statusMessage: "Public dataset not found",
     });
   }
 

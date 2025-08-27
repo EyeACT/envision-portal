@@ -515,7 +515,7 @@ export default defineEventHandler(async (event) => {
       title: dataset.title,
       canonicalId: dataset.canonicalId,
       data: firstEntry.data,
-      datasetId: createId(),
+      datasetId: dataset.id,
       description: dataset.description,
       doi: `10.1000/envision.${faker.string.alphanumeric(10)}`,
       external: false,

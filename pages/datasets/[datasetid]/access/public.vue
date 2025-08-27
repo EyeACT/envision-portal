@@ -130,11 +130,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         ]"
       />
 
-      <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-6 pt-4">
         <div class="grid grid-cols-12 gap-6">
           <div class="col-span-11">
             <div class="flex flex-col gap-1">
-              <h1>
+              <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
                 {{ dataset?.title }}
               </h1>
 
@@ -158,6 +158,54 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                     .briefSummary ||
                   dataset?.description
                 }}
+              </p>
+
+              <div
+                class="w-max border-b border-dashed border-slate-300 font-medium"
+              >
+                Keywords
+              </div>
+
+              <div class="flex gap-2">
+                <UBadge
+                  v-for="item in dataset?.metadata?.studyDescription
+                    ?.conditionsModule?.keywordList"
+                  :key="item.keywordValue"
+                  color="primary"
+                  size="sm"
+                  variant="outline"
+                >
+                  {{ item.keywordValue }}
+                </UBadge>
+              </div>
+
+              <div
+                class="w-max border-b border-dashed border-slate-300 font-medium"
+              >
+                Conditions
+              </div>
+
+              <div class="flex gap-2">
+                <UBadge
+                  v-for="item in dataset?.metadata?.studyDescription
+                    .conditionsModule?.conditionList"
+                  :key="item.conditionName"
+                  color="primary"
+                  size="sm"
+                  variant="outline"
+                >
+                  {{ item.conditionName }}
+                </UBadge>
+              </div>
+
+              <div
+                class="w-max border-b border-dashed border-slate-300 font-medium"
+              >
+                License
+              </div>
+
+              <p class="text-sm text-gray-500">
+                {{ dataset?.metadata.datasetDescription.rights[0].rightsName }}
               </p>
             </div>
           </div>
@@ -206,7 +254,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
           <div class="mt-3 flex flex-col gap-4">
             <div class="w-max">
-              <h2>How to download</h2>
+              <h2 class="text-lg font-medium">How to download</h2>
             </div>
 
             <ul class="flex list-inside list-decimal flex-col gap-3">

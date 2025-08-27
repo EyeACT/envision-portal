@@ -763,9 +763,10 @@ model DatasetPublishingStatus {
 model PublishedDataset {
     id Int @id @default(autoincrement())
 
-    // This field isn't attached because it can be deleted from the source side. 
-    datasetId   String?
-    canonicalId String?
+    // This field isn't attached because it can be deleted from the source side.
+    // TODO: datasetId might need to be unique
+    datasetId   String
+    canonicalId String
 
     doi String
 
