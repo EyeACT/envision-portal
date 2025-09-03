@@ -222,13 +222,6 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (!state.detailedDescription) {
-    errors.push({
-      name: "detailedDescription",
-      message: "A detailed description is required",
-    });
-  }
-
   if (state.keywords.length === 0) {
     errors.push({
       name: "keywords",
@@ -613,11 +606,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField
-              label="Detailed Description"
-              name="detailedDescription"
-              required
-            >
+            <UFormField label="Detailed Description" name="detailedDescription">
               <UTextarea
                 v-model="state.detailedDescription"
                 class="w-full"
