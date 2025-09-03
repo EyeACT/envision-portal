@@ -621,7 +621,7 @@ export const StudyMetadataEligibilitySchema = z
     minimumAgeValue: z
       .number()
       .gt(0, { message: "Minimum age value must be greater than 0" }),
-    samplingMethod: z.string(),
+    samplingMethod: z.string().optional(),
     sex: z
       .string()
       .trim()
@@ -629,7 +629,7 @@ export const StudyMetadataEligibilitySchema = z
       .refine((v) => sexEnumValues.includes(v), {
         message: `Sex must be one of: ${sexEnumValues.join(", ")}`,
       }),
-    studyPopulation: z.string(),
+    studyPopulation: z.string().optional(),
   })
   .strict();
 

@@ -245,20 +245,6 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (!state.samplingMethod) {
-    errors.push({
-      name: "samplingMethod",
-      message: "Sampling Method is required",
-    });
-  }
-
-  if (!state.studyPopulation) {
-    errors.push({
-      name: "studyPopulation",
-      message: "Study Population is required",
-    });
-  }
-
   return errors;
 };
 
@@ -539,11 +525,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField
-              label="Study Population"
-              name="studyPopulation"
-              required
-            >
+            <UFormField label="Study Population" name="studyPopulation">
               <UInput
                 v-model="state.studyPopulation"
                 class="w-full"
@@ -551,7 +533,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Sampling Method" name="samplingMethod" required>
+            <UFormField label="Sampling Method" name="samplingMethod">
               <USelect
                 v-model="state.samplingMethod"
                 class="w-full"
