@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     briefSummary,
     conditions,
     detailedDescription,
-    keywords,
+    keywords = [],
     primaryIdentifier,
     secondaryIdentifiers,
   } = body.data;
