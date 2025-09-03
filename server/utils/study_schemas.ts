@@ -85,6 +85,52 @@ const partyTypeOptions =
     (opt) => opt.value,
   );
 
+export const conditionsRefine = (data: any, ctx: z.RefinementCtx) => {
+  if (
+    (data.classificationCode && !data.scheme) ||
+    (!data.classificationCode && data.scheme)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "Both classificationCode and scheme are required if either is provided",
+      path: ["classificationCode", "scheme"],
+    });
+  }
+
+  if (
+    data.classificationCode &&
+    data.scheme?.toUpperCase() === "ORCID" &&
+    !isValidORCIDValue(data.classificationCode)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "ORCID identifier must be a valid ORCID format",
+      path: ["classificationCode"],
+    });
+  }
+
+  if (
+    data.classificationCode &&
+    data.scheme?.toUpperCase() === "ROR" &&
+    !isValidRORValue(data.classificationCode)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "ROR identifier must be a valid ROR format",
+      path: ["classificationCode"],
+    });
+  }
+
+  if (data.conditionUri && !isValidUrl(data.conditionUri)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Condition URI must be a valid URL",
+      path: ["conditionUri"],
+    });
+  }
+};
+
 export const conditionsSchema = z
   .object({
     id: z.string().optional(),
@@ -164,7 +210,7 @@ export const StudyMetadataAboutSchema = z
   .object({
     briefSummary: z.string().min(1, "Brief summary is required"),
     conditions: z
-      .array(conditionsSchema)
+      .array(conditionsSchema.superRefine(conditionsRefine))
       .min(1, "At least one condition is required"),
     detailedDescription: z.string().optional(),
     keywords: z.array(keywordsSchema.superRefine(keywordsRefine)).optional(),
@@ -857,9 +903,7 @@ export const officialSchema = z
 export const StudyMetadataOverallOfficialsSchema = z.object({
   studyOverallOfficials: z
     .array(officialSchema.superRefine(officialSchemaRefine))
-    .min(1, {
-      message: "At least one study overall official is required",
-    }),
+    .optional(),
 });
 
 export const StudyMetadataOversightSchema = z
@@ -1328,7 +1372,9 @@ export const StudyMetadataPublishValidation = z.object({
   StudyCollaborators: z
     .array(CollaboratorSchema.strip().superRefine(collaboratorSchemaRefine))
     .optional(),
-  StudyConditions: z.array(conditionsSchema.strip()).min(1),
+  StudyConditions: z
+    .array(conditionsSchema.strip().superRefine(conditionsRefine))
+    .min(1, { message: "At least one study condition is required" }),
 
   StudyDescription: StudyDescriptionOnlySchema.strip(),
   StudyDesign: DesignBase.strip().superRefine(designRefine),
@@ -1341,9 +1387,7 @@ export const StudyMetadataPublishValidation = z.object({
   StudyLocation: z
     .array(LocationSchema)
     .min(1, { message: "At least one study location is required" }),
-  StudyOverallOfficials: z
-    .array(officialSchema)
-    .min(1, { message: "At least one study overall official is required" }),
+  StudyOverallOfficials: z.array(officialSchema).optional(),
   StudyOversight: z
     .object({})
     .passthrough()
