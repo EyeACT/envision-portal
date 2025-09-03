@@ -69,6 +69,7 @@ export default defineEventHandler(async (event) => {
       isControlledDatasetRequest: false,
       reasonForAccess: body.data.reasonForAccess,
       status: "approved",
+      userId: userId ?? null,
     },
   });
 

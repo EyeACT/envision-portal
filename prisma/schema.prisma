@@ -37,6 +37,7 @@ model User {
     DatasetInvitation DatasetInvitation[]
 
     ControlledDatasetRequest ControlledDatasetRequest[]
+    DatasetRequest           DatasetRequest[]
 
     @@index([emailAddress])
 }
@@ -791,15 +792,14 @@ model PublishedDataset {
 model ControlledDatasetRequest {
     id String @id @default(cuid())
 
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
     datasetId String
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
     updated        DateTime        @updatedAt
     created        DateTime        @default(now())
     DatasetRequest DatasetRequest?
+    User           User?           @relation(fields: [userId], references: [id])
+    userId         String?
 }
 
 model DatasetRequest {
@@ -823,8 +823,11 @@ model DatasetRequest {
     created DateTime @default(now())
     updated DateTime @updatedAt
 
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
     DatasetRequestDetails DatasetRequestDetails[]
-    Dataset               Dataset?                @relation(fields: [datasetId], references: [id])
+    Dataset               Dataset?                @relation(fields: [datasetId], references: [id], onDelete: SetNull)
     datasetId             String?
 }
 
@@ -839,7 +842,7 @@ model DatasetRequestDetails {
     submitterSignedDataUseAgreement String? // link to submitter signed data use agreement
     signedDataUseAgreement          String? // link to signed data use agreement
 
-    status String @default("pending")
+    status String @default("pending") // pending | approved | rejected | expired
 
     invalidatedOn DateTime? // when the data owner wants to invalidate the request
     expiresAt     DateTime?
