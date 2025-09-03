@@ -157,13 +157,6 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (location.state.trim() === "") {
-      errors.push({
-        name: `state-${index}`,
-        message: "State is required",
-      });
-    }
-
     // If identifier is provided, then identifierScheme must also be provided or vice versa
     if (
       (location.identifier.trim() !== "" &&

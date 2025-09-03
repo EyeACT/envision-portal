@@ -316,9 +316,9 @@ export const contractSchema = z
 
 export const StudyMetadataContactsSchema = z
   .object({
-    studyContacts: z.array(contractSchema.superRefine(contractRefine)).min(1, {
-      message: "At least one study central contact is required",
-    }),
+    studyContacts: z
+      .array(contractSchema.superRefine(contractRefine))
+      .optional(),
   })
   .strict();
 
@@ -717,7 +717,7 @@ export const LocationSchema = z
     identifierScheme: z.string().trim(),
     identifierSchemeUri: z.union([z.literal(""), z.string().trim().url()]),
     local: z.boolean().optional(),
-    state: z.string().trim().min(1, { message: "State is required" }),
+    state: z.string().trim().optional(),
     status: z
       .string({
         invalid_type_error: "Status is required",
@@ -1324,9 +1324,7 @@ export const StudyMetadataPublishValidation = z.object({
   StudyArm: z
     .array(studyArmSchema.strip())
     .min(1, { message: "At least one study arm is required" }),
-  StudyCentralContact: z
-    .array(contractSchema.strip())
-    .min(1, { message: "At least one study central contact is required" }),
+  StudyCentralContact: z.array(contractSchema.strip()).optional(),
   StudyCollaborators: z
     .array(CollaboratorSchema.strip().superRefine(collaboratorSchemaRefine))
     .optional(),
