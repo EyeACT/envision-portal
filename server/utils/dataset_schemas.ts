@@ -522,3 +522,44 @@ export const DatasetMetadataTeamSchema = z
     managingOrganization: managingOrgSchema.superRefine(managingOrgRefine),
   })
   .strict();
+
+export const DatasetMetadataPublishSchema = z.object({
+  id: z.string().cuid2("Invalid dataset ID"),
+  title: z.string().min(1, "Dataset title is required"),
+  canonicalId: z.string().cuid2("Invalid canonical ID"),
+  changelog: z.union([
+    z.string().min(1, "Changelog is required"),
+    z.literal(""),
+  ]),
+  DatasetAccess: accessSchema.strip(),
+  DatasetAlternateIdentifier: z.array(altIdentifierSchema.strip()),
+  DatasetConsent: consentSchema.strip(),
+  DatasetContributor: z.array(
+    contributorSchema.strip().superRefine(validateNameIdentifier),
+  ),
+  DatasetDate: z.array(aboutSchema),
+  DatasetDeIdentLevel: deIdentSchema
+    .extend({
+      details: z.union([z.literal(""), z.string().min(1)]),
+    })
+    .strip(),
+  DatasetDescription: z.array(descriptionSchema.strip()),
+  DatasetFunder: z.array(funderSchema.strip().superRefine(funderRefine)),
+  DatasetHealthsheet: healthsheetSchema.strip(),
+  DatasetManagingOrganization: managingOrgSchema
+    .strip()
+    .superRefine(managingOrgRefine),
+  DatasetOther: DatasetMetadataAboutSchema.strip(),
+  DatasetRelatedIdentifier: z.array(
+    relatedIdentSchema.strip().superRefine(relatedIdentRefine),
+  ),
+  DatasetRights: rightsSchema.strip(),
+  DatasetSubject: z.array(subjectSchema.strip().superRefine(subjectRefine)),
+  DatasetTitle: z.array(titleSchema.strip()),
+  description: z.string().min(1, "Description is required"),
+  doi: z.string().nullable(),
+  imageUrl: z.string().url("Image URL must be a valid URL"),
+  readme: z.union([z.string().min(1, "README is required"), z.literal("")]),
+  status: z.enum(["draft", "published"]),
+  version: z.string(),
+});

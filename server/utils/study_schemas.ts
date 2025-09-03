@@ -1198,3 +1198,59 @@ export const PrimaryIdentifierSchema = z.object({
     message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
   }),
 });
+
+export const StudyMetadataPublishValidation = z.object({
+  id: z.string().cuid2("Invalid dataset ID"),
+  title: z.string().min(1, "Dataset title is required"),
+  canonicalId: z.string().cuid2("Invalid canonical ID"),
+  changelog: z.union([
+    z.string().min(1, "Changelog is required"),
+    z.literal(""),
+  ]),
+  description: z.string(),
+  doi: z.string().nullable(),
+  imageUrl: z.string().url("Image URL must be a valid URL"),
+  primaryIdentifier: PrimaryIdentifierSchema.passthrough().optional(),
+  publishedId: z.string().nullable().optional(),
+  readme: z.union([z.string().min(1, "README is required"), z.literal("")]),
+  secondaryIdentifiers: z.array(secondaryIdentifierSchema).optional(),
+  status: z.enum(["draft", "published"]),
+  StudyArm: z
+    .array(studyArmSchema.strip())
+    .min(1, { message: "At least one study arm is required" }),
+  StudyCentralContact: z
+    .array(contractSchema.strip())
+    .min(1, { message: "At least one study central contact is required" }),
+  StudyCollaborators: z.array(CollaboratorSchema.strip()).min(1),
+  StudyConditions: z.array(conditionsSchema.strip()).min(1),
+
+  StudyDescription: StudyDescriptionOnlySchema.strip(),
+  StudyDesign: DesignBase.strip().superRefine(designRefine),
+  StudyEligibility: StudyMetadataEligibilitySchema.strip(),
+  StudyIdentification: z.array(IdentificationRowSchema).min(1).optional(),
+  StudyIntervention: z
+    .array(InterventionRowSchema)
+    .min(1, { message: "At least one study intervention is required" }),
+  StudyKeywords: z.array(keywordsSchema.strip()).optional(),
+  StudyLocation: z
+    .array(LocationSchema)
+    .min(1, { message: "At least one study location is required" }),
+  StudyOverallOfficials: z
+    .array(officialSchema)
+    .min(1, { message: "At least one study overall official is required" }),
+  StudyOversight: z
+    .object({})
+    .passthrough()
+    .transform((o: any) => ({
+      humanSubjectReviewStatus: o.humanSubjectReviewStatus,
+      isFDARegulatedDevice: o.isFDARegulatedDevice ?? o.fdaRegulatedDevice,
+      isFDARegulatedDrug: o.isFDARegulatedDrug ?? o.fdaRegulatedDrug,
+      oversightHasDMC: o.oversightHasDMC ?? o.hasDmc,
+    }))
+    .pipe(StudyMetadataOversightSchema),
+  StudySponsors: SponsorsBase.omit({ collaborators: true })
+    .strip()
+    .superRefine(SponsorRefine),
+  StudyStatus: StatusBase.strip().superRefine(StatusSchemaRefine),
+  type: z.string().min(1, "Type is required"),
+});
