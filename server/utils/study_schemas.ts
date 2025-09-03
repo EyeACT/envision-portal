@@ -163,9 +163,7 @@ export const StudyMetadataAboutSchema = z
       .array(conditionsSchema)
       .min(1, "At least one condition is required"),
     detailedDescription: z.string().optional(),
-    keywords: z
-      .array(keywordsSchema.superRefine(keywordsRefine))
-      .min(1, "At least one keyword is required"),
+    keywords: z.array(keywordsSchema.superRefine(keywordsRefine)).optional(),
     primaryIdentifier: z.object({
       domain: z.union([z.literal(""), z.string().trim().url()]),
       identifier: z.string(),
