@@ -205,6 +205,16 @@ const validate = (state: any): FormError[] => {
         message: "Identifier must be a valid ROR",
       });
     }
+
+    if (
+      location.identifierSchemeUri &&
+      !isValidUrl(location.identifierSchemeUri)
+    ) {
+      errors.push({
+        name: `identifierSchemeUri-${index}`,
+        message: "Identifier Scheme URI must be a valid URL",
+      });
+    }
   });
 
   return errors;
