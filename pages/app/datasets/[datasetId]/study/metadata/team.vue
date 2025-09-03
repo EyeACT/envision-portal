@@ -406,67 +406,64 @@ const validate = (state: any): FormError[] => {
   );
 
   if (activeCollaborators.length === 0) {
-    errors.push({
-      name: "collaborators",
-      message: "At least one collaborator is required.",
+    activeCollaborators.forEach((c: any, index: number) => {
+      if (!c.name?.trim()) {
+        errors.push({
+          name: `name-${index}`,
+          message: `Collaborator name is required`,
+        });
+      }
+
+      // If either official identifier or identifier scheme is provided, both must be provided
+      if (
+        (c.identifier.trim() !== "" && c.scheme.trim() === "") ||
+        (c.identifier.trim() === "" && c.scheme.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `identifier-${index}`,
+            message:
+              "Identifier and Identifier scheme must be provided together",
+          },
+          {
+            name: `identifierScheme-${index}`,
+            message:
+              "Identifier and Identifier scheme must be provided together",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+
+      if (
+        c.identifier &&
+        c.scheme.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(c.identifier)
+      ) {
+        errors.push({
+          name: `identifier-${index}`,
+          message: "Invalid ORCID value",
+        });
+      }
+      if (
+        c.identifier &&
+        c.scheme.toUpperCase() === "ROR" &&
+        !isValidRORValue(c.identifier)
+      ) {
+        errors.push({
+          name: `identifier-${index}`,
+          message: "Invalid ROR value",
+        });
+      }
+
+      if (c.schemeUri && !isValidUrl(c.schemeUri)) {
+        errors.push({
+          name: `schemeUri-${index}`,
+          message: "Invalid URL",
+        });
+      }
     });
   }
-
-  activeCollaborators.forEach((c: any, index: number) => {
-    if (!c.deleted && !c.name?.trim()) {
-      errors.push({
-        name: `name-${index}`,
-        message: `Collaborator name is required`,
-      });
-    }
-
-    // If either official identifier or identifier scheme is provided, both must be provided
-    if (
-      (c.identifier.trim() !== "" && c.scheme.trim() === "") ||
-      (c.identifier.trim() === "" && c.scheme.trim() !== "")
-    ) {
-      const messages = [
-        {
-          name: `identifier-${index}`,
-          message: "Identifier and Identifier scheme must be provided together",
-        },
-        {
-          name: `identifierScheme-${index}`,
-          message: "Identifier and Identifier scheme must be provided together",
-        },
-      ];
-
-      errors.push(...messages);
-    }
-
-    if (
-      c.identifier &&
-      c.scheme.toUpperCase() === "ORCID" &&
-      !isValidORCIDValue(c.identifier)
-    ) {
-      errors.push({
-        name: `identifier-${index}`,
-        message: "Invalid ORCID value",
-      });
-    }
-    if (
-      c.identifier &&
-      c.scheme.toUpperCase() === "ROR" &&
-      !isValidRORValue(c.identifier)
-    ) {
-      errors.push({
-        name: `identifier-${index}`,
-        message: "Invalid ROR value",
-      });
-    }
-
-    if (c.schemeUri && !isValidUrl(c.schemeUri)) {
-      errors.push({
-        name: `schemeUri-${index}`,
-        message: "Invalid URL",
-      });
-    }
-  });
 
   return errors;
 };

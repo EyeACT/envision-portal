@@ -1,6 +1,10 @@
 import { z } from "zod";
 import FORM_JSON from "@/assets/data/form.json";
-import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
+import {
+  isValidORCIDValue,
+  isValidRORValue,
+  isValidUrl,
+} from "~/utils/validations";
 
 const identTypeOptions =
   FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions.map(
@@ -974,12 +978,74 @@ export const StudyMetadataStatusSchema =
   StatusBase.strict().superRefine(StatusSchemaRefine);
 
 const collaboratorSchemaRefine = (data: any, ctx: z.RefinementCtx) => {
-  // If scheme is provided, schemeUri must also be provided
-  if ((data.scheme && !data.identifier) || (!data.scheme && data.identifier)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "If scheme is provided, schemeUri must also be provided",
-    });
+  if (!data.deleted) {
+    if (!data.name || data.name.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Name is required for active collaborators",
+        path: ["collaborators", "name"],
+      });
+    }
+
+    if (
+      (data.identifier && !data.scheme) ||
+      (!data.identifier && data.scheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "If scheme is provided, schemeUri must also be provided",
+        path: ["collaborators", "schemeUri"],
+      });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "If schemeUri is provided, scheme must also be provided",
+        path: ["collaborators", "scheme"],
+      });
+    }
+
+    if (
+      data.identifier &&
+      data.scheme.toUpperCase() === "ORCID" &&
+      !isValidORCIDValue(data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid ORCID identifier",
+        path: ["collaborators", "identifier"],
+      });
+    }
+
+    if (
+      data.identifier &&
+      data.scheme.toUpperCase() === "ROR" &&
+      !isValidRORValue(data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid ROR identifier",
+        path: ["collaborators", "identifier"],
+      });
+    }
+
+    if (data.schemeUri && !isValidUrl(data.schemeUri)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Scheme URI must be a valid URL",
+        path: ["collaborators", "schemeUri"],
+      });
+    }
+
+    // If scheme is provided, schemeUri must also be provided
+    if (
+      (data.scheme && !data.identifier) ||
+      (!data.scheme && data.identifier)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "If scheme is provided, schemeUri must also be provided",
+        path: ["collaborators", "schemeUri"],
+      });
+    }
   }
 };
 
@@ -1147,7 +1213,7 @@ export const SponsorRefine = (data: any, ctx: z.RefinementCtx) => {
 export const SponsorsBase = z.object({
   collaborators: z
     .array(CollaboratorSchema.superRefine(collaboratorSchemaRefine))
-    .min(1, "At least one collaborator is required"),
+    .optional(),
   leadSponsorIdentifier: z.string().trim().optional(),
   leadSponsorIdentifierScheme: z.string().trim().optional(),
   leadSponsorIdentifierSchemeUri: z.union([
@@ -1261,7 +1327,9 @@ export const StudyMetadataPublishValidation = z.object({
   StudyCentralContact: z
     .array(contractSchema.strip())
     .min(1, { message: "At least one study central contact is required" }),
-  StudyCollaborators: z.array(CollaboratorSchema.strip()).min(1),
+  StudyCollaborators: z
+    .array(CollaboratorSchema.strip().superRefine(collaboratorSchemaRefine))
+    .optional(),
   StudyConditions: z.array(conditionsSchema.strip()).min(1),
 
   StudyDescription: StudyDescriptionOnlySchema.strip(),
