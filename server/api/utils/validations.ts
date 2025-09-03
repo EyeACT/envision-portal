@@ -25,6 +25,26 @@ import {
   validateNameIdentifier,
 } from "@/server/utils/dataset_schemas";
 
+import {
+  PrimaryIdentifierSchema,
+  secondaryIdentifierSchema,
+  contractSchema,
+  CollaboratorSchema,
+  conditionsSchema,
+  IdentificationRowSchema,
+  InterventionRowSchema,
+  keywordsSchema,
+  LocationSchema,
+  officialSchema,
+  StudyDescriptionOnlySchema,
+  DesignBase,
+  designRefine,
+  SponsorRefine,
+  SponsorsBase,
+  StatusSchemaRefine,
+  StatusBase,
+} from "@/server/utils/study_schemas";
+
 const DatasetSchema = z.object({
   id: z.string().cuid2("Invalid dataset ID"),
   title: z.string().min(1, "Dataset title is required"),
@@ -33,33 +53,31 @@ const DatasetSchema = z.object({
     z.string().min(1, "Changelog is required"),
     z.literal(""),
   ]),
-  DatasetAccess: accessSchema.passthrough(),
-  DatasetAlternateIdentifier: z.array(altIdentifierSchema.passthrough()),
-  DatasetConsent: consentSchema.passthrough(),
+  DatasetAccess: accessSchema.strip(),
+  DatasetAlternateIdentifier: z.array(altIdentifierSchema.strip()),
+  DatasetConsent: consentSchema.strip(),
   DatasetContributor: z.array(
-    contributorSchema.passthrough().superRefine(validateNameIdentifier),
+    contributorSchema.strip().superRefine(validateNameIdentifier),
   ),
   DatasetDate: z.array(aboutSchema),
   DatasetDeIdentLevel: deIdentSchema
     .extend({
       details: z.union([z.literal(""), z.string().min(1)]),
     })
-    .passthrough(),
-  DatasetDescription: z.array(descriptionSchema.passthrough()),
-  DatasetFunder: z.array(funderSchema.passthrough().superRefine(funderRefine)),
-  DatasetHealthsheet: healthsheetSchema.passthrough(),
+    .strip(),
+  DatasetDescription: z.array(descriptionSchema.strip()),
+  DatasetFunder: z.array(funderSchema.strip().superRefine(funderRefine)),
+  DatasetHealthsheet: healthsheetSchema.strip(),
   DatasetManagingOrganization: managingOrgSchema
-    .passthrough()
+    .strip()
     .superRefine(managingOrgRefine),
-  DatasetOther: DatasetMetadataAboutSchema.passthrough(),
+  DatasetOther: DatasetMetadataAboutSchema.strip(),
   DatasetRelatedIdentifier: z.array(
-    relatedIdentSchema.passthrough().superRefine(relatedIdentRefine),
+    relatedIdentSchema.strip().superRefine(relatedIdentRefine),
   ),
-  DatasetRights: rightsSchema.passthrough(),
-  DatasetSubject: z.array(
-    subjectSchema.passthrough().superRefine(subjectRefine),
-  ),
-  DatasetTitle: z.array(titleSchema.passthrough()),
+  DatasetRights: rightsSchema.strip(),
+  DatasetSubject: z.array(subjectSchema.strip().superRefine(subjectRefine)),
+  DatasetTitle: z.array(titleSchema.strip()),
   description: z.string().min(1, "Description is required"),
   doi: z.string().nullable(),
   imageUrl: z.string().url("Image URL must be a valid URL"),
@@ -68,8 +86,60 @@ const DatasetSchema = z.object({
   version: z.string(),
 });
 
-const StudyMetadataSchema = z.object({
+export const StudyMetadataSchema = z.object({
   id: z.string().cuid2("Invalid dataset ID"),
+  title: z.string().min(1, "Dataset title is required"),
+  canonicalId: z.string().cuid2("Invalid canonical ID"),
+  changelog: z.union([
+    z.string().min(1, "Changelog is required"),
+    z.literal(""),
+  ]),
+  description: z.string(),
+  doi: z.string().nullable(),
+  imageUrl: z.string().url("Image URL must be a valid URL"),
+  primaryIdentifier: PrimaryIdentifierSchema.passthrough().optional(),
+  publishedId: z.string().nullable().optional(),
+  readme: z.union([z.string().min(1, "README is required"), z.literal("")]),
+  secondaryIdentifiers: z.array(secondaryIdentifierSchema).optional(),
+  status: z.enum(["draft", "published"]),
+  StudyArm: z
+    .array(studyArmSchema.strip())
+    .min(1, { message: "At least one study arm is required" }),
+  StudyCentralContact: z
+    .array(contractSchema.strip())
+    .min(1, { message: "At least one study central contact is required" }),
+  StudyCollaborators: z.array(CollaboratorSchema.strip()).min(1),
+  StudyConditions: z.array(conditionsSchema.strip()).min(1),
+
+  StudyDescription: StudyDescriptionOnlySchema.strip(),
+  StudyDesign: DesignBase.strip().superRefine(designRefine),
+  StudyEligibility: StudyMetadataEligibilitySchema.strip(),
+  StudyIdentification: z.array(IdentificationRowSchema).min(1).optional(),
+  StudyIntervention: z
+    .array(InterventionRowSchema)
+    .min(1, { message: "At least one study intervention is required" }),
+  StudyKeywords: z.array(keywordsSchema.strip()).min(1),
+  StudyLocation: z
+    .array(LocationSchema)
+    .min(1, { message: "At least one study location is required" }),
+  StudyOverallOfficials: z
+    .array(officialSchema)
+    .min(1, { message: "At least one study overall official is required" }),
+  StudyOversight: z
+    .object({})
+    .passthrough()
+    .transform((o: any) => ({
+      humanSubjectReviewStatus: o.humanSubjectReviewStatus,
+      isFDARegulatedDevice: o.isFDARegulatedDevice ?? o.fdaRegulatedDevice,
+      isFDARegulatedDrug: o.isFDARegulatedDrug ?? o.fdaRegulatedDrug,
+      oversightHasDMC: o.oversightHasDMC ?? o.hasDmc,
+    }))
+    .pipe(StudyMetadataOversightSchema),
+  StudySponsors: SponsorsBase.omit({ collaborators: true })
+    .strip()
+    .superRefine(SponsorRefine),
+  StudyStatus: StatusBase.strip().superRefine(StatusSchemaRefine),
+  type: z.string().min(1, "Type is required"),
 });
 
 /**
@@ -170,12 +240,14 @@ export async function validateStudyMetadata(datasetId: string, userId: string) {
 
   // Validate the study metadata
   const validationResult = StudyMetadataSchema.safeParse(study);
-  // console.log("Below is the study metadata gathered");
+
+  console.log("Below is the study metadata gathered");
   // console.log(JSON.stringify(study, null, 2));
-  // console.log(JSON.stringify(validationResult, null, 2));
+  console.log(JSON.stringify(validationResult, null, 2));
 
   return {
-    valid: validationResult,
-    validations: validationResult?.error?.format(),
+    success: true,
+    // valid: validationResult,
+    // validations: validationResult?.error?.format(),
   };
 }
