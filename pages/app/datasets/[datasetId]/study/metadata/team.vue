@@ -275,12 +275,10 @@ const validate = (state: any): FormError[] => {
   }
 
   if (
-    (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() !== "" &&
-      state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() ===
-        "") ||
-    (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() === "" &&
-      state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() !==
-        "")
+    (state.responsiblePartyInvestigatorAffiliationIdentifier !== "" &&
+      state.responsiblePartyInvestigatorAffiliationIdentifierScheme === "") ||
+    (state.responsiblePartyInvestigatorAffiliationIdentifier === "" &&
+      state.responsiblePartyInvestigatorAffiliationIdentifierScheme !== "")
   ) {
     const messages = [
       {
@@ -416,7 +414,7 @@ const validate = (state: any): FormError[] => {
 
     if (
       c.identifier &&
-      c.identifierScheme.toUpperCase() === "ORCID" &&
+      c.scheme.toUpperCase() === "ORCID" &&
       !isValidORCIDValue(c.identifier)
     ) {
       errors.push({
@@ -426,7 +424,7 @@ const validate = (state: any): FormError[] => {
     }
     if (
       c.identifier &&
-      c.identifierScheme.toUpperCase() === "ROR" &&
+      c.scheme.toUpperCase() === "ROR" &&
       !isValidRORValue(c.identifier)
     ) {
       errors.push({
@@ -744,7 +742,7 @@ const validate = (state: any): FormError[] => {
                     label="Identifier Scheme"
                     :name="`identifierScheme-${index}`"
                   >
-                    <UInput v-model="item.scheme" placeholder="Scheme" />
+                    <UInput v-model="item.scheme" placeholder="ORCID" />
                   </UFormField>
 
                   <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
