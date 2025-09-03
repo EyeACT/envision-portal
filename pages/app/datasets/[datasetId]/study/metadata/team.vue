@@ -275,6 +275,33 @@ const validate = (state: any): FormError[] => {
   }
 
   if (
+    ["Sponsor-Investigator", "Principal Investigator"].includes(
+      state.responsiblePartyType,
+    )
+  ) {
+    if (!state.responsiblePartyInvestigatorFamilyName) {
+      errors.push({
+        name: "responsiblePartyInvestigatorFamilyName",
+        message: "Family name is required",
+      });
+    }
+
+    if (!state.responsiblePartyInvestigatorAffiliationIdentifier) {
+      errors.push({
+        name: "responsiblePartyInvestigatorAffiliationIdentifier",
+        message: "Affiliation Identifier is required",
+      });
+    }
+
+    if (!state.responsiblePartyInvestigatorAffiliationName) {
+      errors.push({
+        name: "responsiblePartyInvestigatorAffiliationName",
+        message: "Affiliation Name is required",
+      });
+    }
+  }
+
+  if (
     (state.responsiblePartyInvestigatorAffiliationIdentifier !== "" &&
       state.responsiblePartyInvestigatorAffiliationIdentifierScheme === "") ||
     (state.responsiblePartyInvestigatorAffiliationIdentifier === "" &&
@@ -514,7 +541,16 @@ const validate = (state: any): FormError[] => {
             </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Given Name" name="givenName" class="w-full">
+              <UFormField
+                label="Given Name"
+                name="givenName"
+                class="w-full"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
+              >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorGivenName"
                   placeholder="Annie"
@@ -522,7 +558,16 @@ const validate = (state: any): FormError[] => {
                 />
               </UFormField>
 
-              <UFormField label="Family Name" name="familyName" class="w-full">
+              <UFormField
+                label="Family Name"
+                name="familyName"
+                class="w-full"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
+              >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorFamilyName"
                   placeholder="Leonhart"
@@ -531,7 +576,16 @@ const validate = (state: any): FormError[] => {
               </UFormField>
             </div>
 
-            <UFormField label="Title" name="title" class="w-full">
+            <UFormField
+              label="Title"
+              name="title"
+              class="w-full"
+              :required="
+                ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                  state.responsiblePartyType,
+                )
+              "
+            >
               <UInput
                 v-model="state.responsiblePartyInvestigatorTitle"
                 placeholder="Warrior Candidate"
@@ -540,7 +594,16 @@ const validate = (state: any): FormError[] => {
             </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Affiliation" name="affiliation" class="w-full">
+              <UFormField
+                label="Affiliation"
+                name="affiliation"
+                class="w-full"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
+              >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorAffiliationName"
                   placeholder="Marleyan Military"

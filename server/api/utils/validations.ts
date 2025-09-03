@@ -1,7 +1,3 @@
-// Build the dataset metadata validation schema by importing the schemas in server/api/utils/dataset_schemas.ts
-// This schema will use all the schemas defined in dataset_schemas.ts
-// Thus we will need to create a new schema that combines all the schemas
-
 import { StudyMetadataPublishValidation } from "@/server/utils/study_schemas";
 import { DatasetMetadataPublishSchema } from "@/server/utils/dataset_schemas";
 

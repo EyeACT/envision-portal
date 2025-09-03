@@ -1011,6 +1011,46 @@ export const SponsorRefine = (data: any, ctx: z.RefinementCtx) => {
   const respPartyInvestigatorScheme =
     data.responsiblePartyInvestigatorIdentifierScheme?.trim().toUpperCase();
 
+  if (
+    ["Sponsor-Investigator", "Principal Investigator"].includes(
+      data.responsiblePartyType,
+    )
+  ) {
+    // first, last name, title and affiliation required
+    if (!data.responsiblePartyInvestigatorFamilyName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Responsible party investigator family name is required",
+        path: ["responsiblePartyInvestigatorFamilyName"],
+      });
+    }
+
+    if (!data.responsiblePartyInvestigatorGivenName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Responsible party investigator given name is required",
+        path: ["responsiblePartyInvestigatorGivenName"],
+      });
+    }
+
+    if (!data.responsiblePartyInvestigatorTitle) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Responsible party investigator title is required",
+        path: ["responsiblePartyInvestigatorTitle"],
+      });
+    }
+
+    if (!data.responsiblePartyInvestigatorAffiliationIdentifier) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Responsible party investigator affiliation identifier is required",
+        path: ["responsiblePartyInvestigatorAffiliationIdentifier"],
+      });
+    }
+  }
+
   // If identifierscheme is provided, identifierSchemeUri must also be provided
   if (
     (data.leadSponsorIdentifier && !data.leadSponsorIdentifierScheme) ||
