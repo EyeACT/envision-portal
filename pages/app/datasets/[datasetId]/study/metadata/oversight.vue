@@ -87,6 +87,27 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  if (state.fda_regulated_device.trim() === "") {
+    errors.push({
+      name: "fda_regulated_device",
+      message: "FDA Regulated Device is required.",
+    });
+  }
+
+  if (state.fda_regulated_drug.trim() === "") {
+    errors.push({
+      name: "fda_regulated_drug",
+      message: "FDA Regulated Drug is required.",
+    });
+  }
+
+  if (state.has_dmc.trim() === "") {
+    errors.push({
+      name: "has_dmc",
+      message: "Has DMC is required.",
+    });
+  }
+
   return errors;
 };
 
@@ -188,6 +209,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField
               label="Is this clinical study studying a drug product?"
               name="fda_regulated_drug"
+              required
             >
               <USelect
                 v-model="state.fda_regulated_drug"
@@ -201,6 +223,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField
               label="Is this clinical study studying a medical device?"
               name="fda_regulated_device"
+              required
             >
               <USelect
                 v-model="state.fda_regulated_device"
@@ -214,6 +237,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <UFormField
               label="Does this study have a Data Monitoring Committee (DMC)?"
               name="has_dmc"
+              required
             >
               <USelect
                 v-model="state.has_dmc"
