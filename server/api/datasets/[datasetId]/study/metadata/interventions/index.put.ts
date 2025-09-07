@@ -1,43 +1,4 @@
-import { z } from "zod";
-import FORM_JSON from "~/assets/data/form.json";
-
-const validTypes = FORM_JSON.studyMetadataInterventionsTypeOptions.map(
-  (opt) => opt.value,
-);
-
-const StudyMetadataInterventionsSchema = z
-  .object({
-    studyInterventions: z
-      .array(
-        z
-          .object({
-            id: z.string().optional(),
-            name: z.string().trim().min(1, { message: "Name is required" }),
-            deleted: z.boolean().optional(),
-            description: z
-              .string()
-              .trim()
-              .min(1, { message: "Description is required" }),
-            local: z.boolean().optional(),
-            otherNameList: z.array(z.string()),
-            type: z
-              .string({
-                invalid_type_error: "Type is required",
-                required_error: "Type is required",
-              })
-              .refine((v) => validTypes.includes(v), {
-                message: "Type must be a valid option",
-              }),
-          })
-          .strict(),
-        {
-          invalid_type_error: "`studyInterventions` must be an array",
-          required_error: "`studyInterventions` array is required",
-        },
-      )
-      .min(1, { message: "At least one study intervention is required" }),
-  })
-  .strict();
+import { StudyMetadataInterventionsSchema } from "@/server/utils/study_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);

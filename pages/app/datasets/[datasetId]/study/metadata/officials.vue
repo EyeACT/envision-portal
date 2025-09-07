@@ -106,176 +106,166 @@ const removeOfficial = (index: number) => {
 };
 
 const validate = (state: any): FormError[] => {
-  const errors = [];
+  const errors: FormError<string>[] = [];
   const enumValues = FORM_JSON.studyMetadataContactsOverallOfficialRole.map(
     (option) => option.value,
   );
-
-  if (state.studyOverallOfficials.length === 0) {
-    errors.push({
-      name: "studyOverallOfficials",
-      message: "At least one study overall official is required",
-    });
-  }
 
   const activeOfficials = state.studyOverallOfficials.filter(
     (official: any) => !official.deleted,
   );
 
-  if (activeOfficials.length === 0) {
-    errors.push({
-      name: "studyOverallOfficials",
-      message: "At least one study overall official is required",
+  if (activeOfficials.length > 0) {
+    activeOfficials.forEach((official: any, index: number) => {
+      if (official.givenName.trim() === "") {
+        errors.push({
+          name: `givenName-${index}`,
+          message: "Given name is required",
+        });
+      }
+
+      if (official.familyName.trim() === "") {
+        errors.push({
+          name: `familyName-${index}`,
+          message: "Family name is required",
+        });
+      }
+
+      if (official.affiliation.trim() === "") {
+        errors.push({
+          name: `affiliation-${index}`,
+          message: "Affiliation is required",
+        });
+      }
+
+      // If affiliation identifier is provided, scheme and scheme URI must also be provided
+      if (
+        (official.affiliationIdentifier.trim() !== "" &&
+          official.affiliationIdentifierScheme.trim() === "") ||
+        (official.affiliationIdentifier.trim() === "" &&
+          official.affiliationIdentifierScheme.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `affiliationIdentifier-${index}`,
+            message:
+              "Affiliation identifier and scheme must be provided together",
+          },
+          {
+            name: `affiliationIdentifierScheme-${index}`,
+            message:
+              "Affiliation identifier and scheme must be provided together",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+
+      if (
+        official.affiliationIdentifier &&
+        official.affiliationIdentifierScheme?.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(official.affiliationIdentifier)
+      ) {
+        errors.push({
+          name: `affiliationIdentifier-${index}`,
+          message: "Affiliation identifier must be a valid ORCID",
+        });
+      }
+      if (
+        official.affiliationIdentifier &&
+        official.affiliationIdentifierScheme?.toUpperCase() === "ROR" &&
+        !isValidRORValue(official.affiliationIdentifier)
+      ) {
+        errors.push({
+          name: `affiliationIdentifier-${index}`,
+          message: "Affiliation identifier must be a valid ROR",
+        });
+      }
+
+      if (
+        official.affiliationIdentifierSchemeUri.trim() !== "" &&
+        !isValidUrl(official.affiliationIdentifierSchemeUri)
+      ) {
+        errors.push({
+          name: `affiliationIdentifierSchemeUri-${index}`,
+          message: "Affiliation identifier scheme URI must be a valid URI",
+        });
+      }
+
+      // If either official identifier or identifier scheme is provided, both must be provided
+      if (
+        (official.identifier.trim() !== "" &&
+          official.identifierScheme.trim() === "") ||
+        (official.identifier.trim() === "" &&
+          official.identifierScheme.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `identifier-${index}`,
+            message:
+              "Identifier and Identifier scheme must be provided together",
+          },
+          {
+            name: `identifierScheme-${index}`,
+            message:
+              "Identifier and Identifier scheme must be provided together",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+
+      if (
+        official.identifier &&
+        official.identifierScheme?.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(official.identifier)
+      ) {
+        errors.push({
+          name: `identifier-${index}`,
+          message: "Identifier must be a valid ORCID",
+        });
+      }
+
+      if (
+        official.identifier &&
+        official.identifierScheme?.toUpperCase() === "ROR" &&
+        !isValidRORValue(official.identifier)
+      ) {
+        errors.push({
+          name: `identifier-${index}`,
+          message: "Identifier must be a valid ROR",
+        });
+      }
+
+      if (
+        official.identifierSchemeUri &&
+        !isValidUrl(official.identifierSchemeUri)
+      ) {
+        errors.push({
+          name: `identifierSchemeUri-${index}`,
+          message: "Identifier scheme URI must be a valid URL",
+        });
+      }
+
+      // Official role must be one of the predefined options
+      if (
+        official.role.trim() !== "" &&
+        !enumValues.includes(official.role.trim())
+      ) {
+        errors.push({
+          name: `role-${index}`,
+          message: `Role must be one of the following: ${enumValues.join(", ")}`,
+        });
+      }
+
+      if (official.role.trim() === "") {
+        errors.push({
+          name: `role-${index}`,
+          message: "Role is required",
+        });
+      }
     });
   }
-
-  activeOfficials.forEach((official: any, index: number) => {
-    if (official.givenName.trim() === "") {
-      errors.push({
-        name: `givenName-${index}`,
-        message: "Given name is required",
-      });
-    }
-
-    if (official.familyName.trim() === "") {
-      errors.push({
-        name: `familyName-${index}`,
-        message: "Family name is required",
-      });
-    }
-
-    if (official.affiliation.trim() === "") {
-      errors.push({
-        name: `affiliation-${index}`,
-        message: "Affiliation is required",
-      });
-    }
-
-    // If affiliation identifier is provided, scheme and scheme URI must also be provided
-    if (
-      (official.affiliationIdentifier.trim() !== "" &&
-        official.affiliationIdentifierScheme.trim() === "") ||
-      (official.affiliationIdentifier.trim() === "" &&
-        official.affiliationIdentifierScheme.trim() !== "")
-    ) {
-      const messages = [
-        {
-          name: `affiliationIdentifier-${index}`,
-          message:
-            "Affiliation identifier and scheme must be provided together",
-        },
-        {
-          name: `affiliationIdentifierScheme-${index}`,
-          message:
-            "Affiliation identifier and scheme must be provided together",
-        },
-      ];
-
-      errors.push(...messages);
-    }
-
-    if (
-      official.affiliationIdentifier &&
-      official.affiliationIdentifierScheme?.toUpperCase() === "ORCID" &&
-      !isValidORCIDValue(official.affiliationIdentifier)
-    ) {
-      errors.push({
-        name: `affiliationIdentifier-${index}`,
-        message: "Affiliation identifier must be a valid ORCID",
-      });
-    }
-    if (
-      official.affiliationIdentifier &&
-      official.affiliationIdentifierScheme?.toUpperCase() === "ROR" &&
-      !isValidRORValue(official.affiliationIdentifier)
-    ) {
-      errors.push({
-        name: `affiliationIdentifier-${index}`,
-        message: "Affiliation identifier must be a valid ROR",
-      });
-    }
-
-    if (
-      official.affiliationIdentifierSchemeUri.trim() !== "" &&
-      !isValidUrl(official.affiliationIdentifierSchemeUri)
-    ) {
-      errors.push({
-        name: `affiliationIdentifierSchemeUri-${index}`,
-        message: "Affiliation identifier scheme URI must be a valid URI",
-      });
-    }
-
-    // If either official identifier or identifier scheme is provided, both must be provided
-    if (
-      (official.identifier.trim() !== "" &&
-        official.identifierScheme.trim() === "") ||
-      (official.identifier.trim() === "" &&
-        official.identifierScheme.trim() !== "")
-    ) {
-      const messages = [
-        {
-          name: `identifier-${index}`,
-          message: "Identifier and Identifier scheme must be provided together",
-        },
-        {
-          name: `identifierScheme-${index}`,
-          message: "Identifier and Identifier scheme must be provided together",
-        },
-      ];
-
-      errors.push(...messages);
-    }
-
-    if (
-      official.identifier &&
-      official.identifierScheme?.toUpperCase() === "ORCID" &&
-      !isValidORCIDValue(official.identifier)
-    ) {
-      errors.push({
-        name: `identifier-${index}`,
-        message: "Identifier must be a valid ORCID",
-      });
-    }
-
-    if (
-      official.identifier &&
-      official.identifierScheme?.toUpperCase() === "ROR" &&
-      !isValidRORValue(official.identifier)
-    ) {
-      errors.push({
-        name: `identifier-${index}`,
-        message: "Identifier must be a valid ROR",
-      });
-    }
-
-    if (
-      official.identifierSchemeUri &&
-      !isValidUrl(official.identifierSchemeUri)
-    ) {
-      errors.push({
-        name: `identifierSchemeUri-${index}`,
-        message: "Identifier scheme URI must be a valid URL",
-      });
-    }
-
-    // Official role must be one of the predefined options
-    if (
-      official.role.trim() !== "" &&
-      !enumValues.includes(official.role.trim())
-    ) {
-      errors.push({
-        name: `role-${index}`,
-        message: `Role must be one of the following: ${enumValues.join(", ")}`,
-      });
-    }
-
-    if (official.role.trim() === "") {
-      errors.push({
-        name: `role-${index}`,
-        message: "Role is required",
-      });
-    }
-  });
 
   return errors;
 };

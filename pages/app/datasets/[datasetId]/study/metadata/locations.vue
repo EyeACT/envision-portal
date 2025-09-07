@@ -157,13 +157,6 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (location.state.trim() === "") {
-      errors.push({
-        name: `state-${index}`,
-        message: "State is required",
-      });
-    }
-
     // If identifier is provided, then identifierScheme must also be provided or vice versa
     if (
       (location.identifier.trim() !== "" &&
@@ -203,6 +196,16 @@ const validate = (state: any): FormError[] => {
       errors.push({
         name: `identifier-${index}`,
         message: "Identifier must be a valid ROR",
+      });
+    }
+
+    if (
+      location.identifierSchemeUri &&
+      !isValidUrl(location.identifierSchemeUri)
+    ) {
+      errors.push({
+        name: `identifierSchemeUri-${index}`,
+        message: "Identifier Scheme URI must be a valid URL",
       });
     }
   });

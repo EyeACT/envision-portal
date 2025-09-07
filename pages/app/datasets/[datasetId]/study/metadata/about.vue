@@ -222,96 +222,77 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (!state.detailedDescription) {
-    errors.push({
-      name: "detailedDescription",
-      message: "A detailed description is required",
-    });
-  }
+  if (state.keywords.length > 0) {
+    const activeKeywords = state.keywords.filter((k: any) => !k.deleted);
 
-  if (state.keywords.length === 0) {
-    errors.push({
-      name: "keywords",
-      message: "At least one keyword is required",
-    });
-  }
-  const activeKeywords = state.keywords.filter((k: any) => !k.deleted);
+    activeKeywords.forEach((keyword: any, index: number) => {
+      if (!keyword.name) {
+        errors.push({
+          name: `name-${index}`,
+          message: "A name is required",
+        });
+      }
+      // if classificationCode or scheme is provided, the other is also required
+      if (
+        (keyword.classificationCode && !keyword.scheme) ||
+        (!keyword.classificationCode && keyword.scheme)
+      ) {
+        const messages = [
+          {
+            name: `classificationCode-${index}`,
+            message:
+              "Both identifier and scheme are required if either is provided",
+          },
+          {
+            name: `scheme-${index}`,
+            message:
+              "Both identifier and scheme are required if either is provided",
+          },
+        ];
 
-  if (activeKeywords.length === 0) {
-    errors.push({
-      name: "keywords",
-      message: "At least one keyword is required",
-    });
-  }
+        errors.push(...messages);
+      }
 
-  activeKeywords.forEach((keyword: any, index: number) => {
-    if (!keyword.name) {
-      errors.push({
-        name: `name-${index}`,
-        message: "A name is required",
-      });
-    }
-
-    // if classificationCode or scheme is provided, the other is also required
-    if (
-      (keyword.classificationCode && !keyword.scheme) ||
-      (!keyword.classificationCode && keyword.scheme)
-    ) {
-      const messages = [
-        {
+      if (
+        keyword.classificationCode &&
+        keyword.scheme?.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(keyword.classificationCode)
+      ) {
+        errors.push({
           name: `classificationCode-${index}`,
-          message:
-            "Both identifier and scheme are required if either is provided",
-        },
-        {
-          name: `scheme-${index}`,
-          message:
-            "Both identifier and scheme are required if either is provided",
-        },
-      ];
-
-      errors.push(...messages);
-    }
-
-    if (
-      keyword.classificationCode &&
-      keyword.scheme?.toUpperCase() === "ORCID" &&
-      !isValidORCIDValue(keyword.classificationCode)
-    ) {
-      errors.push({
-        name: `classificationCode-${index}`,
-        message: "ORCID identifier must be a valid ORCID format",
-      });
-    }
-
-    if (
-      keyword.classificationCode &&
-      keyword.scheme?.toUpperCase() === "ROR" &&
-      !isValidRORValue(keyword.classificationCode)
-    ) {
-      errors.push({
-        name: `classificationCode-${index}`,
-        message: "ROR identifier must be a valid ROR format",
-      });
-    }
-
-    // Verify url for classificationCode and schemeUri
-    if (keyword.keywordUri && keyword.schemeUri) {
-      // validate url
-      if (!isValidUrl(keyword.keywordUri)) {
-        errors.push({
-          name: `schemeUri-${index}`,
-          message: "Invalid URL format",
+          message: "ORCID identifier must be a valid ORCID format",
         });
       }
-      if (!isValidUrl(keyword.schemeUri)) {
+
+      if (
+        keyword.classificationCode &&
+        keyword.scheme?.toUpperCase() === "ROR" &&
+        !isValidRORValue(keyword.classificationCode)
+      ) {
         errors.push({
-          name: `keywordUri-${index}`,
-          message: "Invalid URL format",
+          name: `classificationCode-${index}`,
+          message: "ROR identifier must be a valid ROR format",
         });
       }
-    }
-  });
+
+      // Verify url for classificationCode and schemeUri
+      if (keyword.keywordUri && keyword.schemeUri) {
+        // validate url
+        if (!isValidUrl(keyword.keywordUri)) {
+          errors.push({
+            name: `schemeUri-${index}`,
+            message: "Invalid URL format",
+          });
+        }
+        if (!isValidUrl(keyword.schemeUri)) {
+          errors.push({
+            name: `keywordUri-${index}`,
+            message: "Invalid URL format",
+          });
+        }
+      }
+    });
+  }
 
   if (state.conditions.length === 0) {
     errors.push({
@@ -613,11 +594,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField
-              label="Detailed Description"
-              name="detailedDescription"
-              required
-            >
+            <UFormField label="Detailed Description" name="detailedDescription">
               <UTextarea
                 v-model="state.detailedDescription"
                 class="w-full"

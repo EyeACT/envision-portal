@@ -3,7 +3,10 @@ import { createId } from "@paralleldrive/cuid2";
 import { faker } from "@faker-js/faker";
 import DatasetRecords from "~/dev/datasetRecords.json";
 import PublishingStatus from "~/assets/data/publishing-status.json";
-import { validateDatasetMetadata } from "@/server/api/utils/validations";
+import {
+  validateDatasetMetadata,
+  validateStudyMetadata,
+} from "@/server/api/utils/validations";
 
 const getPublishingStatusIndex = (status: string) => {
   const statusObject =
@@ -198,6 +201,16 @@ export default defineEventHandler(async (event) => {
   // 2. Validate the study metadata
 
   publishingStatusIndex = getPublishingStatusIndex("validating-study-metadata");
+
+  const studyValidation = await validateStudyMetadata(datasetId, userId);
+
+  if (!studyValidation.valid.success) {
+    throw createError({
+      data: studyValidation,
+      statusCode: 400,
+      statusMessage: "Study validation failed",
+    });
+  }
 
   await prisma.datasetPublishingStatus.update({
     data: {

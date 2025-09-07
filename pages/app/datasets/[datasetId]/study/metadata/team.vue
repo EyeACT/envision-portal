@@ -275,12 +275,37 @@ const validate = (state: any): FormError[] => {
   }
 
   if (
-    (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() !== "" &&
-      state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() ===
-        "") ||
-    (state.responsiblePartyInvestigatorAffiliationIdentifier.trim() === "" &&
-      state.responsiblePartyInvestigatorAffiliationIdentifierScheme.trim() !==
-        "")
+    ["Sponsor-Investigator", "Principal Investigator"].includes(
+      state.responsiblePartyType,
+    )
+  ) {
+    if (!state.responsiblePartyInvestigatorFamilyName) {
+      errors.push({
+        name: "responsiblePartyInvestigatorFamilyName",
+        message: "Family name is required",
+      });
+    }
+
+    if (!state.responsiblePartyInvestigatorAffiliationIdentifier) {
+      errors.push({
+        name: "responsiblePartyInvestigatorAffiliationIdentifier",
+        message: "Affiliation Identifier is required",
+      });
+    }
+
+    if (!state.responsiblePartyInvestigatorAffiliationName) {
+      errors.push({
+        name: "responsiblePartyInvestigatorAffiliationName",
+        message: "Affiliation Name is required",
+      });
+    }
+  }
+
+  if (
+    (state.responsiblePartyInvestigatorAffiliationIdentifier !== "" &&
+      state.responsiblePartyInvestigatorAffiliationIdentifierScheme === "") ||
+    (state.responsiblePartyInvestigatorAffiliationIdentifier === "" &&
+      state.responsiblePartyInvestigatorAffiliationIdentifierScheme !== "")
   ) {
     const messages = [
       {
@@ -381,67 +406,64 @@ const validate = (state: any): FormError[] => {
   );
 
   if (activeCollaborators.length === 0) {
-    errors.push({
-      name: "collaborators",
-      message: "At least one collaborator is required.",
+    activeCollaborators.forEach((c: any, index: number) => {
+      if (!c.name?.trim()) {
+        errors.push({
+          name: `name-${index}`,
+          message: `Collaborator name is required`,
+        });
+      }
+
+      // If either official identifier or identifier scheme is provided, both must be provided
+      if (
+        (c.identifier.trim() !== "" && c.scheme.trim() === "") ||
+        (c.identifier.trim() === "" && c.scheme.trim() !== "")
+      ) {
+        const messages = [
+          {
+            name: `identifier-${index}`,
+            message:
+              "Identifier and Identifier scheme must be provided together",
+          },
+          {
+            name: `identifierScheme-${index}`,
+            message:
+              "Identifier and Identifier scheme must be provided together",
+          },
+        ];
+
+        errors.push(...messages);
+      }
+
+      if (
+        c.identifier &&
+        c.scheme.toUpperCase() === "ORCID" &&
+        !isValidORCIDValue(c.identifier)
+      ) {
+        errors.push({
+          name: `identifier-${index}`,
+          message: "Invalid ORCID value",
+        });
+      }
+      if (
+        c.identifier &&
+        c.scheme.toUpperCase() === "ROR" &&
+        !isValidRORValue(c.identifier)
+      ) {
+        errors.push({
+          name: `identifier-${index}`,
+          message: "Invalid ROR value",
+        });
+      }
+
+      if (c.schemeUri && !isValidUrl(c.schemeUri)) {
+        errors.push({
+          name: `schemeUri-${index}`,
+          message: "Invalid URL",
+        });
+      }
     });
   }
-
-  activeCollaborators.forEach((c: any, index: number) => {
-    if (!c.deleted && !c.name?.trim()) {
-      errors.push({
-        name: `name-${index}`,
-        message: `Collaborator name is required`,
-      });
-    }
-
-    // If either official identifier or identifier scheme is provided, both must be provided
-    if (
-      (c.identifier.trim() !== "" && c.scheme.trim() === "") ||
-      (c.identifier.trim() === "" && c.scheme.trim() !== "")
-    ) {
-      const messages = [
-        {
-          name: `identifier-${index}`,
-          message: "Identifier and Identifier scheme must be provided together",
-        },
-        {
-          name: `identifierScheme-${index}`,
-          message: "Identifier and Identifier scheme must be provided together",
-        },
-      ];
-
-      errors.push(...messages);
-    }
-
-    if (
-      c.identifier &&
-      c.identifierScheme.toUpperCase() === "ORCID" &&
-      !isValidORCIDValue(c.identifier)
-    ) {
-      errors.push({
-        name: `identifier-${index}`,
-        message: "Invalid ORCID value",
-      });
-    }
-    if (
-      c.identifier &&
-      c.identifierScheme.toUpperCase() === "ROR" &&
-      !isValidRORValue(c.identifier)
-    ) {
-      errors.push({
-        name: `identifier-${index}`,
-        message: "Invalid ROR value",
-      });
-    }
-
-    if (c.schemeUri && !isValidUrl(c.schemeUri)) {
-      errors.push({
-        name: `schemeUri-${index}`,
-        message: "Invalid URL",
-      });
-    }
-  });
 
   return errors;
 };
@@ -516,7 +538,16 @@ const validate = (state: any): FormError[] => {
             </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Given Name" name="givenName" class="w-full">
+              <UFormField
+                label="Given Name"
+                name="givenName"
+                class="w-full"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
+              >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorGivenName"
                   placeholder="Annie"
@@ -524,7 +555,16 @@ const validate = (state: any): FormError[] => {
                 />
               </UFormField>
 
-              <UFormField label="Family Name" name="familyName" class="w-full">
+              <UFormField
+                label="Family Name"
+                name="familyName"
+                class="w-full"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
+              >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorFamilyName"
                   placeholder="Leonhart"
@@ -533,7 +573,16 @@ const validate = (state: any): FormError[] => {
               </UFormField>
             </div>
 
-            <UFormField label="Title" name="title" class="w-full">
+            <UFormField
+              label="Title"
+              name="title"
+              class="w-full"
+              :required="
+                ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                  state.responsiblePartyType,
+                )
+              "
+            >
               <UInput
                 v-model="state.responsiblePartyInvestigatorTitle"
                 placeholder="Warrior Candidate"
@@ -542,7 +591,16 @@ const validate = (state: any): FormError[] => {
             </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField label="Affiliation" name="affiliation" class="w-full">
+              <UFormField
+                label="Affiliation"
+                name="affiliation"
+                class="w-full"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
+              >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorAffiliationName"
                   placeholder="Marleyan Military"
@@ -744,7 +802,7 @@ const validate = (state: any): FormError[] => {
                     label="Identifier Scheme"
                     :name="`identifierScheme-${index}`"
                   >
-                    <UInput v-model="item.scheme" placeholder="Scheme" />
+                    <UInput v-model="item.scheme" placeholder="ORCID" />
                   </UFormField>
 
                   <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
