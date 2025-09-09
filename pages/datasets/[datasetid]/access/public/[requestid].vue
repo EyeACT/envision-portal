@@ -158,67 +158,103 @@ const copyToClipboard = (text: string) => {
 
         <USeparator class="my-3" />
 
-        <div class="mt-3 flex flex-col gap-4">
-          <div class="w-max">
-            <h2 class="text-lg font-medium">How to download</h2>
-          </div>
+        <div class="rounded-xl dark:bg-gray-900">
+          <h2 class="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+            Access Instructions
+          </h2>
 
-          <ul class="flex list-inside list-decimal flex-col gap-3">
-            <li>
-              Download and install
-              <a
-                href="https://azure.microsoft.com/en-us/features/storage-explorer/"
-                target="_blank"
-                class="text-blue-500"
-              >
-                Azure Storage Explorer</a
-              >.
-            </li>
+          <div class="space-y-6">
+            <!-- Download Storage Explorer -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                Download Storage Explorer
+              </h3>
 
-            <li>
-              Open Azure Storage Explorer and connect to your Azure account.
-            </li>
+              <p class="text-gray-600 dark:text-gray-400">
+                Azure Storage Explorer is a free tool that makes it easy to
+                manage your files in Azure storage. It provides a user-friendly
+                interface for uploading, downloading, and managing your data.
+              </p>
 
-            <li>Navigate to the following URI to access the dataset:</li>
+              <div class="flex flex-wrap gap-3">
+                <UButton
+                  to="https://azure.microsoft.com/en-us/products/storage/storage-explorer/#download"
+                  target="_blank"
+                  color="primary"
+                  variant="soft"
+                  icon="i-mdi-microsoft-windows"
+                >
+                  Windows
+                </UButton>
 
-            <div class="relative">
-              <UTextarea
-                v-model="azureUri"
-                class="w-full"
-                :rows="4"
-                disabled
-                autoresize
-              />
+                <UButton
+                  to="https://azure.microsoft.com/en-us/products/storage/storage-explorer/#download"
+                  target="_blank"
+                  color="primary"
+                  variant="soft"
+                  icon="i-mdi-apple"
+                >
+                  macOS
+                </UButton>
 
-              <UButton
-                label="Copy to clipboard"
-                icon="material-symbols:content-copy"
-                size="xs"
-                variant="outline"
-                class="absolute right-0 bottom-0 z-10 m-1 p-2"
-                @click="copyToClipboard(azureUri)"
-              />
+                <UButton
+                  to="https://azure.microsoft.com/en-us/products/storage/storage-explorer/#download"
+                  target="_blank"
+                  color="primary"
+                  variant="soft"
+                  icon="i-mdi-linux"
+                >
+                  Linux
+                </UButton>
+              </div>
+
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                System Requirements: Windows 10/11, macOS 10.15+, or Linux
+                (Ubuntu 18.04+)
+              </p>
             </div>
 
-            <li>
-              Open the dataset URI in Azure Storage Explorer to browse the
-              contents.
-            </li>
+            <USeparator />
 
-            <li>
-              Select the files you wish to download and choose "Download" from
-              the context menu.
+            <!-- Access Azure Storage -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                Access Azure Storage
+              </h3>
 
-              <UAlert
-                color="info"
-                variant="subtle"
-                title="Heads up!"
-                description="You need to have free space on your device to download the files."
-                icon="i-lucide-terminal"
-                class="mt-2"
-              />
-            </li>
-          </ul>
+              <p class="text-gray-600 dark:text-gray-400">
+                Use the following Azure storage URL to connect to your study's
+                storage container. You'll need this URL when setting up Azure
+                Storage Explorer.
+              </p>
+
+              <div
+                class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800"
+              >
+                <pre
+                  class="flex-1 overflow-x-auto rounded font-mono text-sm break-all text-gray-900 dark:text-white"
+                  >{{ azureUri }}</pre
+                >
+
+                <UButton
+                  icon="i-mdi-content-copy"
+                  color="neutral"
+                  variant="ghost"
+                  class="flex-shrink-0"
+                  @click="copyToClipboard(azureUri)"
+                />
+              </div>
+
+              <div class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                <p>This URL will expire at {{ new Date().toISOString() }}.</p>
+
+                <p>
+                  Tip: Save this URL for future reference. You'll need it each
+                  time you want to access your study's storage.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </UContainer>
