@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   const requests = await prisma.datasetRequest.findMany({
     include: {
       Dataset: true,
+      PublishedDataset: true,
     },
     orderBy: {
       updated: "desc",

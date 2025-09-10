@@ -249,7 +249,12 @@ onUnmounted(() => {
       />
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-        <UTable :data="tableData" :columns="columns" class="flex-1" loading />
+        <UTable
+          :data="tableData"
+          :columns="columns"
+          class="flex-1"
+          :loading="publishLoading"
+        />
       </div>
 
       <UModal
@@ -281,7 +286,7 @@ onUnmounted(() => {
           class="w-full"
           size="lg"
           :loading="publishLoading"
-          label="Publish"
+          label="Start the publishing process"
           icon="i-lucide-arrow-right"
           @click="publishDataset"
         />

@@ -44,22 +44,6 @@ const filteredRequests = computed(() => {
   );
 });
 
-// Get status display text
-const getStatusText = (status: string) => {
-  switch (status?.toLowerCase()) {
-    case "approved":
-      return "Approved";
-    case "rejected":
-      return "Rejected";
-    case "pending":
-      return "Pending Review";
-    case "under_review":
-      return "Under Review";
-    default:
-      return status || "Unknown";
-  }
-};
-
 const dropdownItems = ref([
   {
     icon: "i-lucide-user",
@@ -152,6 +136,14 @@ const dropdownItems = ref([
                 </div>
 
                 <UBadge
+                  v-if="request.PublishedDataset.public"
+                  variant="subtle"
+                  size="lg"
+                >
+                  Public Dataset
+                </UBadge>
+
+                <UBadge
                   :color="
                     request.status === 'approved'
                       ? 'success'
@@ -165,7 +157,7 @@ const dropdownItems = ref([
                   "
                   variant="subtle"
                   size="lg"
-                  class="flex-shrink-0 capitalize"
+                  class="capitalize"
                 >
                   {{ request.status }}
                 </UBadge>

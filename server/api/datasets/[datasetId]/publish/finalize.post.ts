@@ -14,14 +14,15 @@ const getPublishingStatusIndex = (status: string) => {
 
 function convertPathsToTree(paths: any[]) {
   const tree: any[] = [];
-  const pathMap = new Map();
 
   // Sort paths to ensure directories come before their files
   const sortedPaths = paths.sort((a, b) => {
     const aDepth = (a.name.match(/\//g) || []).length;
     const bDepth = (b.name.match(/\//g) || []).length;
 
-    if (aDepth !== bDepth) return aDepth - bDepth;
+    if (aDepth !== bDepth) {
+      return aDepth - bDepth;
+    }
 
     return a.name.localeCompare(b.name);
   });
@@ -110,6 +111,8 @@ export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING, AZURE_PUBLISHED_CONNECTION_STRING } =
     useRuntimeConfig();
 
+  const { environment } = useRuntimeConfig().public;
+
   const session = await requireUserSession(event);
 
   const { user } = session;
@@ -177,14 +180,16 @@ export default defineEventHandler(async (event) => {
     "validating-dataset-metadata",
   );
 
-  const datasetValidation = await validateDatasetMetadata(datasetId, userId);
+  if (environment !== "development") {
+    const datasetValidation = await validateDatasetMetadata(datasetId, userId);
 
-  if (!datasetValidation.valid.success) {
-    throw createError({
-      data: datasetValidation,
-      statusCode: 400,
-      statusMessage: "Dataset validation failed",
-    });
+    if (!datasetValidation.valid.success) {
+      throw createError({
+        data: datasetValidation,
+        statusCode: 400,
+        statusMessage: "Dataset validation failed",
+      });
+    }
   }
 
   await prisma.datasetPublishingStatus.update({
@@ -514,6 +519,7 @@ export default defineEventHandler(async (event) => {
     data: {
       title: dataset.title,
       canonicalId: dataset.canonicalId,
+      containerId: publishedContainerName,
       data: firstEntry.data,
       datasetId: dataset.id,
       description: dataset.description,
@@ -521,7 +527,9 @@ export default defineEventHandler(async (event) => {
       external: false,
       externalUrl: null,
       files: JSON.stringify(fileTree),
+      public: true,
       publishedMetadata: firstEntry.publishedMetadata,
+      status: "ready",
       studyTitle: firstEntry.studyTitle,
       versionTitle: faker.system.semver() || "",
     },

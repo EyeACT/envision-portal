@@ -26,10 +26,8 @@ if (data.value) {
     title: `Request - ${data.value.Dataset?.title || "Unknown Dataset"}`,
   });
 
-  // Set SAS URL and expiration if available (this would come from the actual request data)
-  sasUrl.value =
-    "https://eptest.dfs.core.windows.net/cmf24s70b0000hzyg9ie8r3qf?sv=2025-05-05&st=2025-09-03T01%3A02%3A06Z&se=2025-09-03T02%3A02%3A06Z&sr=c&sp=racwdl&sig=y65t7ruiu8yk9o7l3erw4iuyk8jeruyjikeyujiewyuji";
-  expiration.value = "2025-09-03T02:02:06Z";
+  sasUrl.value = data.value.sasUrl;
+  expiration.value = data.value.expiration;
 }
 
 const copyToClipboard = async (text: string) => {
@@ -141,12 +139,22 @@ const formatDate = (dateString: string | undefined) => {
               </p>
             </div>
 
-            <!-- Status Badge -->
-            <div v-if="data?.status" class="flex-shrink-0">
+            <div class="flex items-center gap-2">
               <UBadge
+                v-if="data?.PublishedDataset.public"
+                variant="subtle"
+                size="lg"
+              >
+                Public Dataset
+              </UBadge>
+
+              <!-- Status Badge -->
+
+              <UBadge
+                v-if="data?.status"
                 variant="soft"
                 size="lg"
-                class="px-4 py-2 text-sm font-medium"
+                :color="getStatusInfo(data.status).color as any"
               >
                 {{ getStatusInfo(data.status).text }}
               </UBadge>

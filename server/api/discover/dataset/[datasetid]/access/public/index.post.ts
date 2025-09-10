@@ -43,6 +43,14 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Check if the dataset is public
+  if (!publicDataset.public) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Dataset is not public",
+    });
+  }
+
   // Check if the dataset exists in the management side
   const dataset = await prisma.dataset.findUnique({
     where: {
@@ -68,6 +76,7 @@ export default defineEventHandler(async (event) => {
       givenName: body.data.givenName,
       isControlledDatasetRequest: false,
       reasonForAccess: body.data.reasonForAccess,
+      publishedDatasetId: publicDatasetId,
       status: "approved",
       userId: userId ?? null,
     },

@@ -10,9 +10,8 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const azureUri = ref(
-  "DefaultEndpointsProtocol=https;AccountName=envisionportal;AccountKey=9UGBTsgoIVNVasG5h7DP5RwcfePgVLuz6sUyD/RdxE7CElVAIOwJ1xnFkQ7bCT1L/zR+zjFn0coVj6w2PY23NySMc0uOVdwFYT29X8oQEj2uifHyt+oU/6qrBTIjfClFd==;EndpointSuffix=core.windows.net",
-);
+const azureUri = ref("");
+const expiration = ref("");
 
 const { datasetid, requestid } = route.params as {
   datasetid: string;
@@ -37,6 +36,9 @@ if (dataset.value) {
   useSeoMeta({
     title: dataset.value.title,
   });
+
+  azureUri.value = dataset.value.sasUrl;
+  expiration.value = dataset.value.expiration;
 }
 
 const copyToClipboard = (text: string) => {
@@ -246,7 +248,7 @@ const copyToClipboard = (text: string) => {
               </div>
 
               <div class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                <p>This URL will expire at {{ new Date().toISOString() }}.</p>
+                <p>This URL will expire at {{ expiration }}.</p>
 
                 <p>
                   Tip: Save this URL for future reference. You'll need it each

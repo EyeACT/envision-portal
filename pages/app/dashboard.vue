@@ -43,7 +43,7 @@ const newDatasetState = reactive({
   description: faker.lorem.sentences(3),
   imageUrl: faker.image.url(),
   type: "Dataset",
-  version: "1.0.0",
+  version: faker.system.semver(),
 });
 
 const openNewVersionModal = (datasetId: string) => {

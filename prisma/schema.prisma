@@ -778,6 +778,12 @@ model PublishedDataset {
     versionTitle String
     studyTitle   String
 
+    public Boolean @default(false)
+
+    // Keep track of the status of the publishing process (used to show the progress bar or badge on the portal)
+    status      String  @default("") // "moving-dataset-to-published-storage" | "ready"
+    containerId String? @unique
+
     publishedMetadata Json
     files             Json
     data              Json
@@ -787,6 +793,8 @@ model PublishedDataset {
 
     updated DateTime @updatedAt
     created DateTime @default(now())
+
+    DatasetRequest DatasetRequest[]
 }
 
 model ControlledDatasetRequest {
@@ -795,11 +803,13 @@ model ControlledDatasetRequest {
     datasetId String
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
 
-    updated        DateTime        @updatedAt
-    created        DateTime        @default(now())
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+
     DatasetRequest DatasetRequest?
-    User           User?           @relation(fields: [userId], references: [id])
-    userId         String?
+
+    User   User?   @relation(fields: [userId], references: [id])
+    userId String?
 }
 
 model DatasetRequest {
@@ -827,8 +837,12 @@ model DatasetRequest {
     user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
     DatasetRequestDetails DatasetRequestDetails[]
-    Dataset               Dataset?                @relation(fields: [datasetId], references: [id], onDelete: SetNull)
-    datasetId             String?
+
+    Dataset   Dataset? @relation(fields: [datasetId], references: [id], onDelete: SetNull)
+    datasetId String?
+
+    PublishedDataset   PublishedDataset @relation(fields: [publishedDatasetId], references: [id], onDelete: Cascade)
+    publishedDatasetId Int
 }
 
 model DatasetRequestDetails {
