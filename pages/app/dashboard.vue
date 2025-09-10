@@ -43,7 +43,7 @@ const newDatasetState = reactive({
   description: faker.lorem.sentences(3),
   imageUrl: faker.image.url(),
   type: "Dataset",
-  version: "1.0.0",
+  version: faker.system.semver(),
 });
 
 const openNewVersionModal = (datasetId: string) => {
@@ -228,7 +228,6 @@ const dropdownItems = ref([
           v-for="dataset in datasets"
           :key="dataset.id"
           :to="`/app/datasets/${dataset.id}`"
-          :disabled="dataset.status === 'published'"
         >
           <UCard
             class="transition-shadow hover:shadow-md"
@@ -300,6 +299,14 @@ const dropdownItems = ref([
 
                 <USeparator
                   v-if="dataset.doi"
+                  orientation="vertical"
+                  class="h-3"
+                />
+
+                <p v-if="dataset.version">Version: {{ dataset.version }}</p>
+
+                <USeparator
+                  v-if="dataset.version"
                   orientation="vertical"
                   class="h-3"
                 />

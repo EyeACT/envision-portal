@@ -66,8 +66,6 @@ export default defineEventHandler(async (event) => {
   // replace the string `sp=r` with `sp=rl`
   // sasUrl = sasUrl.replace("sp=racwm&", "sp=racwml&");
 
-  console.log("SAS URL:", sasUrl);
-
   return {
     ...dataset,
     expiration: expiresOn.toISOString(),

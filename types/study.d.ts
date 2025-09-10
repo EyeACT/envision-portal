@@ -513,6 +513,7 @@ interface Dataset {
   validationInfo: string;
   license: string;
   publishedMetadata?: PublishedMetadata;
+  versions: VersionArray;
 }
 
 interface DatasetArray extends Array<Dataset> {}

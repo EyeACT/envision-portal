@@ -186,14 +186,17 @@ const filteredDatasets = computed(() => {
               <template #header>
                 <div class="flex flex-col">
                   <div class="mb-1 flex items-center gap-2">
-                    <UBadge color="primary" variant="outline">v1.2</UBadge>
+                    <UBadge color="primary" variant="outline">
+                      Version {{ dataset.versionTitle }}
+                    </UBadge>
 
                     <UBadge
                       v-if="dataset.external"
                       color="warning"
-                      variant="outline"
-                      >External Dataset</UBadge
+                      variant="soft"
                     >
+                      External Dataset
+                    </UBadge>
                   </div>
 
                   <h2 class="text-xl font-semibold text-blue-400">

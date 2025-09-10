@@ -56,50 +56,6 @@ const tabItems = [
   },
 ];
 
-const treeItems = ref([
-  {
-    children: [
-      {
-        children: [
-          {
-            icon: "i-vscode-icons-file-type-typescript",
-            label: "useAuth.ts",
-          },
-          {
-            icon: "i-vscode-icons-file-type-typescript",
-            label: "useUser.ts",
-          },
-        ],
-        label: "composables/",
-      },
-      {
-        children: [
-          {
-            icon: "i-vscode-icons-file-type-vue",
-            label: "Card.vue",
-          },
-          {
-            icon: "i-vscode-icons-file-type-vue",
-            label: "Button.vue",
-          },
-        ],
-        defaultExpanded: true,
-        label: "components/",
-      },
-    ],
-    defaultExpanded: true,
-    label: "app/",
-  },
-  {
-    icon: "i-vscode-icons-file-type-vue",
-    label: "app.vue",
-  },
-  {
-    icon: "i-vscode-icons-file-type-nuxt",
-    label: "nuxt.config.ts",
-  },
-]);
-
 const { datasetid } = route.params as { datasetid: string };
 
 const { data: dataset, error } = await useFetch(
@@ -136,7 +92,7 @@ if (dataset.value) {
 
       <div class="flex flex-col gap-6 pt-4">
         <div class="grid grid-cols-12 gap-6">
-          <div class="col-span-10">
+          <div class="col-span-9">
             <div class="flex flex-col gap-1">
               <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
                 {{ dataset?.title }}
@@ -214,7 +170,7 @@ if (dataset.value) {
             </div>
           </div>
 
-          <div class="col-span-2">
+          <div class="col-span-3">
             <div class="flex flex-col gap-2">
               <NuxtLink
                 v-if="dataset?.external"
@@ -258,6 +214,14 @@ if (dataset.value) {
                   color="primary"
                 />
               </UDropdownMenu>
+
+              <UButton
+                label="Get access to dataset"
+                icon="line-md:download-loop"
+                size="xl"
+                color="primary"
+                :to="`/datasets/${datasetid}/access/public`"
+              />
 
               <UButton
                 v-if="!dataset?.external"
@@ -323,7 +287,10 @@ if (dataset.value) {
             </template>
 
             <template #versions>
-              <DatasetVersions :metadata="dataset?.versionTitle" />
+              <SideVersionSelector
+                :id="dataset?.id || ''"
+                :versions="dataset?.versions || []"
+              />
             </template>
           </UTabs>
         </div>

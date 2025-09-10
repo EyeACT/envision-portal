@@ -245,6 +245,24 @@ watch(sidebarCollapsed, (newVal) => {
             </ULink>
           </li>
 
+          <li>
+            <ULink
+              to="/app/requests"
+              class="mt-2 flex items-center gap-3 rounded-lg p-2 transition-all"
+              active-class="bg-gray-200 dark:bg-gray-700"
+              :class="[sidebarCollapsed ? 'justify-center' : 'justify-start']"
+              inactive-class="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Icon name="i-heroicons-inbox-stack-20-solid" size="20" />
+
+              <span
+                :class="[sidebarCollapsed ? 'hidden opacity-0' : 'opacity-100']"
+              >
+                My Requests
+              </span>
+            </ULink>
+          </li>
+
           <hr class="my-2 border-gray-200 dark:border-gray-700" />
         </ul>
 

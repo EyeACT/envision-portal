@@ -35,7 +35,9 @@ model User {
     Notification      Notification[]
     DatasetMember     DatasetMember[]
     DatasetInvitation DatasetInvitation[]
-    DatasetRequest    DatasetRequest[]
+
+    ControlledDatasetRequest ControlledDatasetRequest[]
+    DatasetRequest           DatasetRequest[]
 
     @@index([emailAddress])
 }
@@ -116,6 +118,8 @@ model Dataset {
     StudyCentralContact   StudyCentralContact[]
     StudyOverallOfficials StudyOverallOfficials[]
     StudyLocation         StudyLocation[]
+
+    ControlledDatasetRequest ControlledDatasetRequest[]
 }
 
 model DatasetMember {
@@ -761,9 +765,10 @@ model DatasetPublishingStatus {
 model PublishedDataset {
     id Int @id @default(autoincrement())
 
-    // This field isn't attached because it can be deleted from the source side. 
-    datasetId   String?
-    canonicalId String?
+    // This field isn't attached because it can be deleted from the source side.
+    // TODO: datasetId might need to be unique
+    datasetId   String
+    canonicalId String
 
     doi String
 
@@ -772,6 +777,12 @@ model PublishedDataset {
 
     versionTitle String
     studyTitle   String
+
+    public Boolean @default(false)
+
+    // Keep track of the status of the publishing process (used to show the progress bar or badge on the portal)
+    status      String  @default("") // "moving-dataset-to-published-storage" | "ready"
+    containerId String? @unique
 
     publishedMetadata Json
     files             Json
@@ -782,16 +793,32 @@ model PublishedDataset {
 
     updated DateTime @updatedAt
     created DateTime @default(now())
+
+    DatasetRequest DatasetRequest[]
+}
+
+model ControlledDatasetRequest {
+    id String @id @default(cuid())
+
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+
+    DatasetRequest DatasetRequest?
+
+    User   User?   @relation(fields: [userId], references: [id])
+    userId String?
 }
 
 model DatasetRequest {
     id String @id @default(cuid())
 
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    datasetId String
-    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+    // This is used to link the request to the controlled dataset request if the dataset is controlled
+    isControlledDatasetRequest Boolean                   @default(false)
+    controlledDatasetRequestId String?                   @unique
+    controlledDatasetRequest   ControlledDatasetRequest? @relation(fields: [controlledDatasetRequestId], references: [id], onDelete: Cascade)
 
     givenName    String
     familyName   String
@@ -806,7 +833,16 @@ model DatasetRequest {
     created DateTime @default(now())
     updated DateTime @updatedAt
 
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
     DatasetRequestDetails DatasetRequestDetails[]
+
+    Dataset   Dataset? @relation(fields: [datasetId], references: [id], onDelete: SetNull)
+    datasetId String?
+
+    PublishedDataset   PublishedDataset @relation(fields: [publishedDatasetId], references: [id], onDelete: Cascade)
+    publishedDatasetId Int
 }
 
 model DatasetRequestDetails {
@@ -820,7 +856,7 @@ model DatasetRequestDetails {
     submitterSignedDataUseAgreement String? // link to submitter signed data use agreement
     signedDataUseAgreement          String? // link to signed data use agreement
 
-    status String @default("pending")
+    status String @default("pending") // pending | approved | rejected | expired
 
     invalidatedOn DateTime? // when the data owner wants to invalidate the request
     expiresAt     DateTime?

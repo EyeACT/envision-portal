@@ -21,5 +21,9 @@ export default defineNuxtConfig({
     mailPass: process.env.MAIL_PASS,
     mailPort: process.env.MAIL_PORT,
     mailUser: process.env.MAIL_USER,
+    public: {
+      baseUrl: process.env.NUXT_SITE_URL,
+      environment: process.env.NUXT_SITE_ENV,
+    },
   },
 });
