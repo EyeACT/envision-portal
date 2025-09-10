@@ -207,14 +207,16 @@ export default defineEventHandler(async (event) => {
 
   publishingStatusIndex = getPublishingStatusIndex("validating-study-metadata");
 
-  const studyValidation = await validateStudyMetadata(datasetId, userId);
+  if (environment !== "development") {
+    const studyValidation = await validateStudyMetadata(datasetId, userId);
 
-  if (!studyValidation.valid.success) {
-    throw createError({
-      data: studyValidation,
-      statusCode: 400,
-      statusMessage: "Study validation failed",
-    });
+    if (!studyValidation.valid.success) {
+      throw createError({
+        data: studyValidation,
+        statusCode: 400,
+        statusMessage: "Study validation failed",
+      });
+    }
   }
 
   await prisma.datasetPublishingStatus.update({
