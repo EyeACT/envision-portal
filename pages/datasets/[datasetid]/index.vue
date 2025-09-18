@@ -6,22 +6,22 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 
-const downloadDropdownItems = ref([
-  {
-    icon: "material-symbols:public",
-    label: "Download public dataset",
-    onSelect: () => {
-      navigateTo(`/datasets/${datasetid}/access/public`);
-    },
-  },
-  {
-    icon: "ri:git-repository-private-fill",
-    label: "Request access to controlled dataset",
-    onSelect: () => {
-      navigateTo(`/datasets/${datasetid}/access/controlled`);
-    },
-  },
-]);
+// const downloadDropdownItems = ref([
+//   {
+//     icon: "material-symbols:public",
+//     label: "Download public dataset",
+//     onSelect: () => {
+//       navigateTo(`/datasets/${datasetid}/access/public`);
+//     },
+//   },
+//   {
+//     icon: "ri:git-repository-private-fill",
+//     label: "Request access to controlled dataset",
+//     onSelect: () => {
+//       navigateTo(`/datasets/${datasetid}/access/controlled`);
+//     },
+//   },
+// ]);
 
 const tabItems = [
   {
@@ -195,7 +195,7 @@ if (dataset.value) {
                 </UPopover>
               </NuxtLink>
 
-              <UDropdownMenu
+              <!-- <UDropdownMenu
                 v-else
                 :items="downloadDropdownItems"
                 :content="{
@@ -213,7 +213,7 @@ if (dataset.value) {
                   size="xl"
                   color="primary"
                 />
-              </UDropdownMenu>
+              </UDropdownMenu> -->
 
               <UButton
                 label="Get access to dataset"

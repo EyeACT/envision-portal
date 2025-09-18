@@ -256,6 +256,56 @@ const copyToClipboard = (text: string) => {
                 </p>
               </div>
             </div>
+
+            <USeparator />
+
+            <!-- Connect to Storage Explorer -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                Connect to Storage Explorer
+              </h3>
+
+              <p class="text-gray-600 dark:text-gray-400">
+                Follow these steps to connect Azure Storage Explorer to your
+                dataset:
+              </p>
+
+              <ol class="list-inside list-decimal space-y-3">
+                <li class="text-gray-900 dark:text-white">
+                  Click <strong>"Attach to resource"</strong> in the "Get
+                  Started" tab of Storage Explorer
+                </li>
+                <li class="text-gray-900 dark:text-white">
+                  Select <strong>"ADLS Gen2 container or directory"</strong>
+                </li>
+                <li class="text-gray-900 dark:text-white">
+                  Choose
+                  <strong>"Shared access signature URL (SAS)"</strong>
+                </li>
+                <li class="text-gray-900 dark:text-white">
+                  Paste the Azure storage URL from above and provide a display
+                  name if desired
+                </li>
+              </ol>
+
+              <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+                <div class="flex gap-3">
+                  <UIcon
+                    name="i-mdi-information"
+                    class="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400"
+                  />
+                  <div class="text-sm text-blue-800 dark:text-blue-200">
+                    <p class="font-medium">Pro Tip:</p>
+                    <p>
+                      You can give your connection a descriptive name like "{{
+                        dataset?.title
+                      }}
+                      Dataset" to easily identify it in Storage Explorer.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

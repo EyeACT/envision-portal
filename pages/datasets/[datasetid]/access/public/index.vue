@@ -7,6 +7,8 @@ definePageMeta({
   layout: "public",
 });
 
+const { environment } = useRuntimeConfig().public;
+
 const route = useRoute();
 const toast = useToast();
 
@@ -47,11 +49,16 @@ const schema = z.object({
 type Schema = z.output<typeof schema>;
 
 const state = reactive<Partial<Schema>>({
-  affiliation: faker.company.name(),
-  email: loggedIn.value ? user.value?.emailAddress : faker.internet.email(),
-  familyName: faker.person.lastName(),
-  givenName: faker.person.firstName(),
-  reasonForAccess: faker.lorem.sentences(6),
+  affiliation: environment === "development" ? faker.company.name() : "",
+  email: loggedIn.value
+    ? user.value?.emailAddress
+    : environment === "development"
+      ? faker.internet.email()
+      : "",
+  familyName: environment === "development" ? faker.person.lastName() : "",
+  givenName: environment === "development" ? faker.person.firstName() : "",
+  reasonForAccess:
+    environment === "development" ? faker.lorem.sentences(6) : "",
 });
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
