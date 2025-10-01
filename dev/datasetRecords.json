@@ -1,6 +1,6 @@
 [
   {
-    "id": "1",
+    "id": 1,
     "canonicalId": "cm880mrva00000cl20uo80c7e",
     "datasetId": "cm880mrva00000cl20uo80c7e",
     "doi": "10.60775/envision.1",
@@ -110,11 +110,21 @@
             }
           ],
           "keywordList": [
-            { "keywordValue": "Retinal OCT Imaging" },
-            { "keywordValue": "Deep Learning in Ophthalmology" },
-            { "keywordValue": "AI-based Eye Disease Prediction" },
-            { "keywordValue": "Fundus Photography Analysis" },
-            { "keywordValue": "Automated Glaucoma Detection" }
+            {
+              "keywordValue": "Retinal OCT Imaging"
+            },
+            {
+              "keywordValue": "Deep Learning in Ophthalmology"
+            },
+            {
+              "keywordValue": "AI-based Eye Disease Prediction"
+            },
+            {
+              "keywordValue": "Fundus Photography Analysis"
+            },
+            {
+              "keywordValue": "Automated Glaucoma Detection"
+            }
           ]
         },
         "designModule": {
@@ -122,8 +132,12 @@
           "isPatientRegistry": "Yes",
           "designInfo": {
             "designAllocation": "Non-Randomized",
-            "designObservationalModelList": ["Case-Control"],
-            "designTimePerspectiveList": ["Prospective"]
+            "designObservationalModelList": [
+              "Case-Control"
+            ],
+            "designTimePerspectiveList": [
+              "Prospective"
+            ]
           },
           "enrollmentInfo": {
             "enrollmentType": "Actual",
@@ -137,22 +151,30 @@
             {
               "armGroupLabel": "Healthy Controls",
               "armGroupDescription": "Participants with no diagnosed eye diseases or vision impairments.",
-              "armGroupInterventionList": ["OCT Imaging Protocol"]
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
             },
             {
               "armGroupLabel": "Glaucoma",
               "armGroupDescription": "Participants diagnosed with early, moderate, or advanced glaucoma.",
-              "armGroupInterventionList": ["OCT Imaging Protocol"]
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
             },
             {
               "armGroupLabel": "Age-Related Macular Degeneration (AMD)",
               "armGroupDescription": "Participants diagnosed with early, intermediate, or advanced AMD.",
-              "armGroupInterventionList": ["OCT Imaging Protocol"]
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
             },
             {
               "armGroupLabel": "Other Retinal Disorders",
               "armGroupDescription": "Participants with other retinal conditions such as retinal vein occlusion, central serous retinopathy, or inherited retinal diseases.",
-              "armGroupInterventionList": ["OCT Imaging Protocol"]
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
             }
           ],
           "interventionList": [
@@ -471,7 +493,10 @@
         "publisher": {
           "publisherName": "FAIRhub"
         },
-        "size": ["2.01 TB", "165,051 files"],
+        "size": [
+          "2.01 TB",
+          "165,051 files"
+        ],
         "fundingReference": [
           {
             "funderName": "National Institutes of Health",
@@ -487,7 +512,11 @@
             "awardTitle": "Bridge2AI: Salutogenesis Data Generation Project"
           }
         ],
-        "format": ["image/DICOM", "text/markdown", "table/csv"]
+        "format": [
+          "image/DICOM",
+          "text/markdown",
+          "table/csv"
+        ]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -1279,8 +1308,12 @@
               }
             ],
             "relatedTerm": [
-              { "relatedTermValue": "smartwatch" },
-              { "relatedTermValue": "activity monitoring" }
+              {
+                "relatedTermValue": "smartwatch"
+              },
+              {
+                "relatedTermValue": "activity monitoring"
+              }
             ],
             "relatedStandard": [
               {
@@ -2157,7 +2190,7 @@
     "created": "1731060000"
   },
   {
-    "id": "2",
+    "id": 2,
     "canonicalId": "cm880mrva00000cl20uo80c7e",
     "datasetId": "cm880mrva00000cl20uo80c7f",
     "doi": "10.60775/envision.2",
@@ -2316,8 +2349,12 @@
           "isPatientRegistry": "No",
           "designInfo": {
             "designAllocation": "Non-Randomized",
-            "designObservationalModelList": ["Cohort"],
-            "designTimePerspectiveList": ["Retrospective"]
+            "designObservationalModelList": [
+              "Cohort"
+            ],
+            "designTimePerspectiveList": [
+              "Retrospective"
+            ]
           },
           "enrollmentInfo": {
             "enrollmentType": "Actual",
@@ -2331,17 +2368,23 @@
             {
               "armGroupLabel": "CNV",
               "armGroupDescription": "Participants diagnosed with Choroidal Neovascularization based on OCT imaging.",
-              "armGroupInterventionList": ["OCT Imaging Protocol"]
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
             },
             {
               "armGroupLabel": "DME",
               "armGroupDescription": "Participants diagnosed with Diabetic Macular Edema confirmed through OCT scans.",
-              "armGroupInterventionList": ["OCT Imaging Protocol"]
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
             },
             {
               "armGroupLabel": "DRUSEN",
               "armGroupDescription": "Participants showing signs of drusen deposits consistent with early age-related macular degeneration.",
-              "armGroupInterventionList": ["OCT Imaging Protocol"]
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
             },
             {
               "armGroupLabel": "NORMAL",
@@ -2598,7 +2641,10 @@
         "publisher": {
           "publisherName": "Mendeley Data"
         },
-        "size": ["2.01 TB", "165,051 files"],
+        "size": [
+          "2.01 TB",
+          "165,051 files"
+        ],
         "fundingReference": [
           {
             "funderName": "National Institutes of Health",
@@ -2614,7 +2660,11 @@
             "awardTitle": "NIH BIDS-funded Biomedical Research and Development"
           }
         ],
-        "format": ["image/DICOM", "text/markdown", "table/csv"]
+        "format": [
+          "image/DICOM",
+          "text/markdown",
+          "table/csv"
+        ]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -3406,8 +3456,12 @@
               }
             ],
             "relatedTerm": [
-              { "relatedTermValue": "smartwatch" },
-              { "relatedTermValue": "activity monitoring" }
+              {
+                "relatedTermValue": "smartwatch"
+              },
+              {
+                "relatedTermValue": "activity monitoring"
+              }
             ],
             "relatedStandard": [
               {
@@ -4282,5 +4336,1019 @@
     "external": true,
     "externalUrl": "https://data.mendeley.com/datasets/rscbjbr9sj/3",
     "created": "1731860000"
+  },
+  {
+    "id": 3,
+    "canonicalId": "n6l94ql8oga1ggbu1ku80kvc",
+    "datasetId": "n6l94ql8oga1ggbu1ku80kvc",
+    "doi": "10.17632/trghs22fpg.1",
+    "title": "A Composite Retinal Fundus and OCT Dataset along with Detailed Clinical Markings for Extracting Retinal Layers, Retinal Lesions and Screening Macular and Glaucomatous Disorders",
+    "description": "This repository contains composite retinal fundus and OCT dataset for analyzing retinal layers, retinal lesions, and to diagnose normal and abnormal retinal diseases like Macular Edema, Central Serous Retinopathy, Age-related Macular Degeneration, and Glaucoma.",
+    "versionTitle": "1",
+    "studyTitle": "",
+    "publishedMetadata": {
+      "studyDescription": {
+        "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
+        "identificationModule": {
+          "officialTitle": "Deep Learning for Diagnosis from OCT and Chest X-Ray Imaging",
+          "acronym": "DL-OCT-CXR",
+          "orgStudyIdInfo": {
+            "orgStudyId": "IMG2025001",
+            "orgStudyIdType": "NIH Biomedical Imaging Grant",
+            "orgStudyIdLink": "https://report.nih.gov/project-details/IMG2025001"
+          },
+          "secondaryIdInfoList": [
+            {
+              "secondaryId": "NCT12349876",
+              "secondaryIdType": "ClinicalTrials.gov",
+              "secondaryIdLink": "https://clinicaltrials.gov/show/NCT12349876"
+            }
+          ]
+        },
+        "statusModule": {
+          "overallStatus": "Completed",
+          "startDateStruct": {
+            "startDate": "2022-01-10",
+            "startDateType": "Actual"
+          },
+          "completionDateStruct": {
+            "completionDate": "2024-08-30",
+            "completionDateType": "Actual"
+          }
+        },
+        "sponsorCollaboratorsModule": {
+          "leadSponsor": {
+            "leadSponsorName": "University of California, San Diego",
+            "leadSponsorIdentifier": {
+              "leadSponsorIdentifierValue": "https://ror.org/01an7q238",
+              "leadSponsorIdentifierScheme": "ROR",
+              "schemeURI": "https://ror.org/"
+            }
+          },
+          "responsibleParty": {
+            "responsiblePartyType": "Principal Investigator",
+            "responsiblePartyInvestigatorFirstName": "Rajiv",
+            "responsiblePartyInvestigatorLastName": "Patel",
+            "responsiblePartyInvestigatorTitle": "Professor of Biomedical Imaging",
+            "responsiblePartyInvestigatorIdentifier": [
+              {
+                "responsiblePartyInvestigatorIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
+                "responsiblePartyInvestigatorIdentifierScheme": "ORCID",
+                "schemeURI": "https://orcid.org/"
+              }
+            ],
+            "responsiblePartyInvestigatorAffiliation": {
+              "responsiblePartyInvestigatorAffiliationName": "University of California, San Diego",
+              "responsiblePartyInvestigatorAffiliationIdentifier": {
+                "responsiblePartyInvestigatorAffiliationIdentifierValue": "https://ror.org/01an7q238",
+                "responsiblePartyInvestigatorAffiliationIdentifierScheme": "ROR",
+                "schemeURI": "https://ror.org/"
+              }
+            }
+          },
+          "collaboratorList": [
+            {
+              "collaboratorName": "National Eye Institute",
+              "collaboratorNameIdentifier": {
+                "collaboratorNameIdentifierValue": "https://ror.org/02v7yja52",
+                "collaboratorNameIdentifierScheme": "ROR",
+                "schemeURI": "https://ror.org/"
+              }
+            },
+            {
+              "collaboratorName": "Massachusetts General Hospital",
+              "collaboratorNameIdentifier": {
+                "collaboratorNameIdentifierValue": "https://ror.org/05p7s8t03",
+                "collaboratorNameIdentifierScheme": "ROR",
+                "schemeURI": "https://ror.org/"
+              }
+            }
+          ]
+        },
+        "oversightModule": {
+          "isFDARegulatedDrug": "No",
+          "isFDARegulatedDevice": "No",
+          "humanSubjectReviewStatus": "Approved by Institutional Review Board (IRB)",
+          "oversightHasDMC": "Not Applicable"
+        },
+        "descriptionModule": {
+          "briefSummary": "This study compiles a large dataset of Optical Coherence Tomography (OCT) and Chest X-Ray images labeled for various conditions, supporting the development of deep learning models for medical diagnosis.",
+          "detailedDescription": "This dataset was designed to support research in AI-based medical image analysis, particularly focusing on retinal and pulmonary conditions. It includes thousands of expertly labeled OCT and Chest X-Ray images sourced from independent patients and categorized into four classes: CNV, DME, DRUSEN, and NORMAL. The dataset mirrors the imaging data described in the publication 'Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning', and is structured to facilitate reproducibility and benchmarking in deep learning workflows."
+        },
+        "conditionsModule": {
+          "conditionList": [
+            {
+              "conditionName": "Choroidal Neovascularization",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D015812",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D015812"
+              }
+            },
+            {
+              "conditionName": "Diabetic Macular Edema",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D003920",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D003920"
+              }
+            },
+            {
+              "conditionName": "Drusen",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D017240",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D017240"
+              }
+            },
+            {
+              "conditionName": "Pneumonia",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D011014",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D011014"
+              }
+            }
+          ],
+          "keywordList": [
+            {
+              "keywordValue": "OCT Imaging"
+            },
+            {
+              "keywordValue": "Chest X-Ray"
+            },
+            {
+              "keywordValue": "AI in Medical Imaging"
+            },
+            {
+              "keywordValue": "Retinal Disease Classification"
+            },
+            {
+              "keywordValue": "Pneumonia Detection"
+            }
+          ]
+        },
+        "designModule": {
+          "studyType": "Observational",
+          "isPatientRegistry": "No",
+          "designInfo": {
+            "designAllocation": "Non-Randomized",
+            "designObservationalModelList": [
+              "Cohort"
+            ],
+            "designTimePerspectiveList": [
+              "Retrospective"
+            ]
+          },
+          "enrollmentInfo": {
+            "enrollmentType": "Actual",
+            "enrollmentCount": 10800
+          },
+          "targetDuration": "2 Years",
+          "numberGroupsCohorts": 4
+        },
+        "armsInterventionsModule": {
+          "armGroupList": [
+            {
+              "armGroupLabel": "CNV",
+              "armGroupDescription": "Participants diagnosed with Choroidal Neovascularization based on OCT imaging.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
+            },
+            {
+              "armGroupLabel": "DME",
+              "armGroupDescription": "Participants diagnosed with Diabetic Macular Edema confirmed through OCT scans.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
+            },
+            {
+              "armGroupLabel": "DRUSEN",
+              "armGroupDescription": "Participants showing signs of drusen deposits consistent with early age-related macular degeneration.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
+            },
+            {
+              "armGroupLabel": "NORMAL",
+              "armGroupDescription": "Participants with no pathological findings in OCT or chest X-ray images.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol",
+                "Chest X-Ray Imaging Protocol"
+              ]
+            }
+          ],
+          "interventionList": [
+            {
+              "interventionType": "Diagnostic Test",
+              "interventionName": "OCT Imaging Protocol",
+              "interventionDescription": "Optical Coherence Tomography (OCT) performed under standardized imaging conditions for retinal evaluation."
+            },
+            {
+              "interventionType": "Diagnostic Test",
+              "interventionName": "Chest X-Ray Imaging Protocol",
+              "interventionDescription": "Posterior-anterior chest radiography acquired using a standard protocol for pulmonary condition screening."
+            }
+          ]
+        },
+        "eligibilityModule": {
+          "sex": "All",
+          "genderBased": "No",
+          "minimumAge": "18 Years",
+          "maximumAge": "90 Years",
+          "healthyVolunteers": "Yes",
+          "eligibilityCriteria": {
+            "eligibilityCriteriaInclusion": [
+              "Adults aged 18 years or older",
+              "Individuals with and without diagnosed retinal or pulmonary conditions",
+              "Able to provide informed consent",
+              "Willing and able to undergo OCT and/or chest X-ray imaging"
+            ],
+            "eligibilityCriteriaExclusion": [
+              "Individuals over 90 years of age",
+              "Pregnant individuals (due to X-ray imaging exposure)",
+              "History of retinal or thoracic surgery within the last 6 months",
+              "Any condition that prevents safe participation in imaging procedures"
+            ]
+          },
+          "studyPopulation": "Participants will be categorized into four diagnostic groups based on OCT and chest X-ray imaging: 1) CNV, 2) DME, 3) DRUSEN, and 4) NORMAL. The dataset includes patients from diverse ethnic backgrounds across multiple clinical centers. Subjects include both healthy individuals and patients with retinal diseases or lung abnormalities. The population is stratified by age, sex, and ethnicity to ensure balanced representation for deep learning model training and validation.",
+          "samplingMethod": "Non-Probability Sample"
+        },
+        "contactsLocationsModule": {
+          "centralContactList": [
+            {
+              "centralContactFirstName": "Rajiv",
+              "centralContactLastName": "Patel",
+              "centralContactDegree": "MD, PhD",
+              "centralContactIdentifier": [
+                {
+                  "centralContactIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
+                  "centralContactIdentifierScheme": "ORCID",
+                  "schemeURI": "https://orcid.org"
+                }
+              ],
+              "centralContactAffiliation": {
+                "centralContactAffiliationName": "University of California, San Diego",
+                "centralContactAffiliationIdentifier": {
+                  "centralContactAffiliationIdentifierValue": "https://ror.org/01an7q238",
+                  "centralContactAffiliationScheme": "ROR",
+                  "schemeURI": "https://ror.org"
+                }
+              },
+              "centralContactEMail": "contact@ucsdvisionstudy.org"
+            }
+          ],
+          "overallOfficialList": [
+            {
+              "overallOfficialFirstName": "Rajiv",
+              "overallOfficialLastName": "Patel",
+              "overallOfficialDegree": "MD, PhD",
+              "overallOfficialIdentifier": [
+                {
+                  "overallOfficialIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
+                  "overallOfficialIdentifierScheme": "ORCID",
+                  "schemeURI": "https://orcid.org"
+                }
+              ],
+              "overallOfficialAffiliation": {
+                "overallOfficialAffiliationName": "University of California, San Diego",
+                "overallOfficialAffiliationIdentifier": {
+                  "overallOfficialAffiliationIdentifierValue": "https://ror.org/01an7q238",
+                  "overallOfficialAffiliationScheme": "ROR",
+                  "schemeURI": "https://ror.org"
+                }
+              },
+              "overallOfficialRole": "Study Principal Investigator"
+            }
+          ]
+        }
+      },
+      "readme": "This repository contains composite retinal fundus and OCT dataset for analyzing retinal layers, retinal lesions, and to diagnose normal and abnormal retinal diseases like Macular Edema, Central Serous Retinopathy, Age-related Macular Degeneration, and Glaucoma",
+      "datasetDescription": {
+        "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
+        "identifier": {
+          "identifierValue": "10.17632/trghs22fpg.1",
+          "identifierType": "DOI"
+        },
+        "title": [
+          {
+            "titleValue": "A Composite Retinal Fundus and OCT Dataset along with Detailed Clinical Markings for Extracting Retinal Layers, Retinal Lesions and Screening Macular and Glaucomatous Disorders"
+          }
+        ],
+        "version": "1",
+        "creator": [
+          {
+            "creatorName": "Taimur Hassan",
+            "nameType": "Personal"
+          },
+          {
+            "creatorName": "Muhammad Usman Akram",
+            "nameType": "Personal",
+            "affiliation": [
+              {
+                "affiliationName": "National University of Sciences and Technology"
+              }
+            ]
+          },
+          {
+            "creatorName": "Muhammad Noman Nazir",
+            "nameType": "Personal",
+            "affiliation": [
+              {
+                "affiliationName": "Armed Forces Institute of Ophthalmology"
+              }
+            ]
+          }
+        ],
+        "publicationYear": "2021",
+        "date": [
+          {
+            "dateValue": "2021-03-18",
+            "dateType": "Available",
+            "dateInformation": "Date dataset made available on Mendeley Data"
+          }
+        ],
+        "resourceType": {
+          "resourceTypeValue": "Retinal Fundus and OCT Dataset",
+          "resourceTypeGeneral": "Dataset"
+        },
+        "datasetDeIdentLevel": {
+          "deIdentType": "NoDeIdentification",
+          "deIdentDirect": true,
+          "deIdentHIPAA": true,
+          "deIdentDates": false,
+          "deIdentNonarr": false,
+          "deIdentKAnon": false,
+          "deIdentDetails": ""
+        },
+        "datasetConsent": {
+          "consentType": "ConsentSpecifiedNotElsewhereCategorised",
+          "consentNoncommercial": false,
+          "consentGeogRestrict": false,
+          "consentResearchType": false,
+          "consentGeneticOnly": false,
+          "consentNoMethods": false,
+          "consentsDetails": ""
+        },
+        "description": [
+          {
+            "descriptionValue": "This repository contains composite retinal fundus and OCT dataset for analyzing retinal layers, retinal lesions, and to diagnose normal and abnormal retinal diseases like Macular Edema, Central Serous Retinopathy, Age-related Macular Degeneration, and Glaucoma.",
+            "descriptionType": "Abstract"
+          }
+        ],
+        "language": "en",
+        "relatedIdentifier": [
+          {
+            "relatedIdentifierValue": "https://ieeexplore.ieee.org/document/9049083",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://doi.org/10.1007/s10916-018-1078-3",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://ieeexplore.ieee.org/document/8425990",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://doi.org/10.1016/j.compbiomed.2018.12.015",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://doi.org/10.1364/AO.55.000454",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://doi.org/10.1364/JOSAA.33.000455",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://ieeexplore.ieee.org/document/7294517",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          }
+        ],
+        "subject": [
+          {
+            "subjectValue": "Ophthalmology"
+          },
+          {
+            "subjectValue": "Retina"
+          },
+          {
+            "subjectValue": "Glaucoma"
+          },
+          {
+            "subjectValue": "Central Serous Chorioretinopathy"
+          },
+          {
+            "subjectValue": "Cystoid Macular Edema"
+          },
+          {
+            "subjectValue": "Age-Related Macular Degeneration"
+          },
+          {
+            "subjectValue": "Optical Coherence Tomography"
+          },
+          {
+            "subjectValue": "Fundus Imaging"
+          }
+        ],
+        "managingOrganization": {
+          "name": ""
+        },
+        "accessType": "PublicOnScreenAccessAndDownload",
+        "accessDetails": {
+          "description": ""
+        },
+        "rights": [
+          {
+            "rightsName": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": {
+              "rightsIdentifierValue": "https://creativecommons.org/licenses/by/4.0/",
+              "rightsIdentifierScheme": "CC BY 4.0",
+              "schemeURI": "https://creativecommons.org/licenses/by/4.0/"
+            }
+          }
+        ],
+        "publisher": {
+          "publisherName": "Mendeley Data"
+        },
+        "size": [
+          "1.44 GB",
+          "1000 images"
+        ],
+        "fundingReference": [
+          {
+            "funderName": "",
+            "awardNumber": {
+              "awardNumberValue": "",
+              "awardURI": ""
+            },
+            "awardTitle": ""
+          }
+        ],
+        "format": [
+          "image/DICOM"
+        ]
+      },
+      "datasetStructureDescription": {
+        "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
+        "directoryList": [],
+        "metadataFileList": []
+      },
+      "healthsheet": {
+        "generalInformation": [],
+        "versioning": [],
+        "motivation": [],
+        "composition": [],
+        "devices": [],
+        "challenge": [],
+        "demographicInformation": [],
+        "preprocessing": [],
+        "labeling": [],
+        "collection": [],
+        "inclusion": [],
+        "uses": [],
+        "distribution": [],
+        "maintenance": []
+      }
+    },
+    "files": [],
+    "data": {
+      "size": 1430000,
+      "fileCount": 1,
+      "viewCount": 0,
+      "labelingMethod": "",
+      "validationInfo": ""
+    },
+    "external": true,
+    "externalUrl": "https://data.mendeley.com/datasets/trghs22fpg/1",
+    "created": "1616050800"
+  },
+  {
+    "id": 4,
+    "canonicalId": "n6l94ql8oga1ggbu1ku80kvc",
+    "datasetId": "shcf0nviaoabxwx6rfo1za7i",
+    "doi": "10.17632/trghs22fpg.2",
+    "title": "A Composite Retinal Fundus and OCT Dataset along with Detailed Clinical Markings for Extracting Retinal Layers, Retinal Lesions and Screening Macular and Glaucomatous Disorders",
+    "description": "This repository contains composite retinal fundus and OCT dataset for analyzing retinal layers, retinal lesions, and to diagnose normal and abnormal retinal diseases like Macular Edema, Central Serous Retinopathy, Age-related Macular Degeneration, and Glaucoma.",
+    "versionTitle": "1",
+    "studyTitle": "",
+    "publishedMetadata": {
+      "studyDescription": {
+        "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
+        "identificationModule": {
+          "officialTitle": "Deep Learning for Diagnosis from OCT and Chest X-Ray Imaging",
+          "acronym": "DL-OCT-CXR",
+          "orgStudyIdInfo": {
+            "orgStudyId": "IMG2025001",
+            "orgStudyIdType": "NIH Biomedical Imaging Grant",
+            "orgStudyIdLink": "https://report.nih.gov/project-details/IMG2025001"
+          },
+          "secondaryIdInfoList": [
+            {
+              "secondaryId": "NCT12349876",
+              "secondaryIdType": "ClinicalTrials.gov",
+              "secondaryIdLink": "https://clinicaltrials.gov/show/NCT12349876"
+            }
+          ]
+        },
+        "statusModule": {
+          "overallStatus": "Completed",
+          "startDateStruct": {
+            "startDate": "2022-01-10",
+            "startDateType": "Actual"
+          },
+          "completionDateStruct": {
+            "completionDate": "2024-08-30",
+            "completionDateType": "Actual"
+          }
+        },
+        "sponsorCollaboratorsModule": {
+          "leadSponsor": {
+            "leadSponsorName": "University of California, San Diego",
+            "leadSponsorIdentifier": {
+              "leadSponsorIdentifierValue": "https://ror.org/01an7q238",
+              "leadSponsorIdentifierScheme": "ROR",
+              "schemeURI": "https://ror.org/"
+            }
+          },
+          "responsibleParty": {
+            "responsiblePartyType": "Principal Investigator",
+            "responsiblePartyInvestigatorFirstName": "Rajiv",
+            "responsiblePartyInvestigatorLastName": "Patel",
+            "responsiblePartyInvestigatorTitle": "Professor of Biomedical Imaging",
+            "responsiblePartyInvestigatorIdentifier": [
+              {
+                "responsiblePartyInvestigatorIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
+                "responsiblePartyInvestigatorIdentifierScheme": "ORCID",
+                "schemeURI": "https://orcid.org/"
+              }
+            ],
+            "responsiblePartyInvestigatorAffiliation": {
+              "responsiblePartyInvestigatorAffiliationName": "University of California, San Diego",
+              "responsiblePartyInvestigatorAffiliationIdentifier": {
+                "responsiblePartyInvestigatorAffiliationIdentifierValue": "https://ror.org/01an7q238",
+                "responsiblePartyInvestigatorAffiliationIdentifierScheme": "ROR",
+                "schemeURI": "https://ror.org/"
+              }
+            }
+          },
+          "collaboratorList": [
+            {
+              "collaboratorName": "National Eye Institute",
+              "collaboratorNameIdentifier": {
+                "collaboratorNameIdentifierValue": "https://ror.org/02v7yja52",
+                "collaboratorNameIdentifierScheme": "ROR",
+                "schemeURI": "https://ror.org/"
+              }
+            },
+            {
+              "collaboratorName": "Massachusetts General Hospital",
+              "collaboratorNameIdentifier": {
+                "collaboratorNameIdentifierValue": "https://ror.org/05p7s8t03",
+                "collaboratorNameIdentifierScheme": "ROR",
+                "schemeURI": "https://ror.org/"
+              }
+            }
+          ]
+        },
+        "oversightModule": {
+          "isFDARegulatedDrug": "No",
+          "isFDARegulatedDevice": "No",
+          "humanSubjectReviewStatus": "Approved by Institutional Review Board (IRB)",
+          "oversightHasDMC": "Not Applicable"
+        },
+        "descriptionModule": {
+          "briefSummary": "This study compiles a large dataset of Optical Coherence Tomography (OCT) and Chest X-Ray images labeled for various conditions, supporting the development of deep learning models for medical diagnosis.",
+          "detailedDescription": "This dataset was designed to support research in AI-based medical image analysis, particularly focusing on retinal and pulmonary conditions. It includes thousands of expertly labeled OCT and Chest X-Ray images sourced from independent patients and categorized into four classes: CNV, DME, DRUSEN, and NORMAL. The dataset mirrors the imaging data described in the publication 'Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning', and is structured to facilitate reproducibility and benchmarking in deep learning workflows."
+        },
+        "conditionsModule": {
+          "conditionList": [
+            {
+              "conditionName": "Choroidal Neovascularization",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D015812",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D015812"
+              }
+            },
+            {
+              "conditionName": "Diabetic Macular Edema",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D003920",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D003920"
+              }
+            },
+            {
+              "conditionName": "Drusen",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D017240",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D017240"
+              }
+            },
+            {
+              "conditionName": "Pneumonia",
+              "conditionIdentifier": {
+                "conditionClassificationCode": "D011014",
+                "conditionScheme": "Medical Subject Headings (MeSH)",
+                "schemeURI": "https://meshb.nlm.nih.gov/",
+                "conditionURI": "https://meshb.nlm.nih.gov/record/ui?ui=D011014"
+              }
+            }
+          ],
+          "keywordList": [
+            {
+              "keywordValue": "OCT Imaging"
+            },
+            {
+              "keywordValue": "Chest X-Ray"
+            },
+            {
+              "keywordValue": "AI in Medical Imaging"
+            },
+            {
+              "keywordValue": "Retinal Disease Classification"
+            },
+            {
+              "keywordValue": "Pneumonia Detection"
+            }
+          ]
+        },
+        "designModule": {
+          "studyType": "Observational",
+          "isPatientRegistry": "No",
+          "designInfo": {
+            "designAllocation": "Non-Randomized",
+            "designObservationalModelList": [
+              "Cohort"
+            ],
+            "designTimePerspectiveList": [
+              "Retrospective"
+            ]
+          },
+          "enrollmentInfo": {
+            "enrollmentType": "Actual",
+            "enrollmentCount": 10800
+          },
+          "targetDuration": "2 Years",
+          "numberGroupsCohorts": 4
+        },
+        "armsInterventionsModule": {
+          "armGroupList": [
+            {
+              "armGroupLabel": "CNV",
+              "armGroupDescription": "Participants diagnosed with Choroidal Neovascularization based on OCT imaging.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
+            },
+            {
+              "armGroupLabel": "DME",
+              "armGroupDescription": "Participants diagnosed with Diabetic Macular Edema confirmed through OCT scans.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
+            },
+            {
+              "armGroupLabel": "DRUSEN",
+              "armGroupDescription": "Participants showing signs of drusen deposits consistent with early age-related macular degeneration.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol"
+              ]
+            },
+            {
+              "armGroupLabel": "NORMAL",
+              "armGroupDescription": "Participants with no pathological findings in OCT or chest X-ray images.",
+              "armGroupInterventionList": [
+                "OCT Imaging Protocol",
+                "Chest X-Ray Imaging Protocol"
+              ]
+            }
+          ],
+          "interventionList": [
+            {
+              "interventionType": "Diagnostic Test",
+              "interventionName": "OCT Imaging Protocol",
+              "interventionDescription": "Optical Coherence Tomography (OCT) performed under standardized imaging conditions for retinal evaluation."
+            },
+            {
+              "interventionType": "Diagnostic Test",
+              "interventionName": "Chest X-Ray Imaging Protocol",
+              "interventionDescription": "Posterior-anterior chest radiography acquired using a standard protocol for pulmonary condition screening."
+            }
+          ]
+        },
+        "eligibilityModule": {
+          "sex": "All",
+          "genderBased": "No",
+          "minimumAge": "18 Years",
+          "maximumAge": "90 Years",
+          "healthyVolunteers": "Yes",
+          "eligibilityCriteria": {
+            "eligibilityCriteriaInclusion": [
+              "Adults aged 18 years or older",
+              "Individuals with and without diagnosed retinal or pulmonary conditions",
+              "Able to provide informed consent",
+              "Willing and able to undergo OCT and/or chest X-ray imaging"
+            ],
+            "eligibilityCriteriaExclusion": [
+              "Individuals over 90 years of age",
+              "Pregnant individuals (due to X-ray imaging exposure)",
+              "History of retinal or thoracic surgery within the last 6 months",
+              "Any condition that prevents safe participation in imaging procedures"
+            ]
+          },
+          "studyPopulation": "Participants will be categorized into four diagnostic groups based on OCT and chest X-ray imaging: 1) CNV, 2) DME, 3) DRUSEN, and 4) NORMAL. The dataset includes patients from diverse ethnic backgrounds across multiple clinical centers. Subjects include both healthy individuals and patients with retinal diseases or lung abnormalities. The population is stratified by age, sex, and ethnicity to ensure balanced representation for deep learning model training and validation.",
+          "samplingMethod": "Non-Probability Sample"
+        },
+        "contactsLocationsModule": {
+          "centralContactList": [
+            {
+              "centralContactFirstName": "Rajiv",
+              "centralContactLastName": "Patel",
+              "centralContactDegree": "MD, PhD",
+              "centralContactIdentifier": [
+                {
+                  "centralContactIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
+                  "centralContactIdentifierScheme": "ORCID",
+                  "schemeURI": "https://orcid.org"
+                }
+              ],
+              "centralContactAffiliation": {
+                "centralContactAffiliationName": "University of California, San Diego",
+                "centralContactAffiliationIdentifier": {
+                  "centralContactAffiliationIdentifierValue": "https://ror.org/01an7q238",
+                  "centralContactAffiliationScheme": "ROR",
+                  "schemeURI": "https://ror.org"
+                }
+              },
+              "centralContactEMail": "contact@ucsdvisionstudy.org"
+            }
+          ],
+          "overallOfficialList": [
+            {
+              "overallOfficialFirstName": "Rajiv",
+              "overallOfficialLastName": "Patel",
+              "overallOfficialDegree": "MD, PhD",
+              "overallOfficialIdentifier": [
+                {
+                  "overallOfficialIdentifierValue": "https://orcid.org/0000-0002-4567-8910",
+                  "overallOfficialIdentifierScheme": "ORCID",
+                  "schemeURI": "https://orcid.org"
+                }
+              ],
+              "overallOfficialAffiliation": {
+                "overallOfficialAffiliationName": "University of California, San Diego",
+                "overallOfficialAffiliationIdentifier": {
+                  "overallOfficialAffiliationIdentifierValue": "https://ror.org/01an7q238",
+                  "overallOfficialAffiliationScheme": "ROR",
+                  "schemeURI": "https://ror.org"
+                }
+              },
+              "overallOfficialRole": "Study Principal Investigator"
+            }
+          ]
+        }
+      },
+      "readme": "This repository contains composite retinal fundus and OCT dataset for analyzing retinal layers, retinal lesions, and to diagnose normal and abnormal retinal diseases like Macular Edema, Central Serous Retinopathy, Age-related Macular Degeneration, and Glaucoma",
+      "datasetDescription": {
+        "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
+        "identifier": {
+          "identifierValue": "10.17632/trghs22fpg.2",
+          "identifierType": "DOI"
+        },
+        "title": [
+          {
+            "titleValue": "A Composite Retinal Fundus and OCT Dataset along with Detailed Clinical Markings for Extracting Retinal Layers, Retinal Lesions and Screening Macular and Glaucomatous Disorders"
+          }
+        ],
+        "version": "2",
+        "creator": [
+          {
+            "creatorName": "Taimur Hassan",
+            "nameType": "Personal"
+          },
+          {
+            "creatorName": "Muhammad Usman Akram",
+            "nameType": "Personal",
+            "affiliation": [
+              {
+                "affiliationName": "National University of Sciences and Technology"
+              }
+            ]
+          },
+          {
+            "creatorName": "Muhammad Noman Nazir",
+            "nameType": "Personal",
+            "affiliation": [
+              {
+                "affiliationName": "Armed Forces Institute of Ophthalmology"
+              }
+            ]
+          }
+        ],
+        "publicationYear": "2021",
+        "date": [
+          {
+            "dateValue": "2021-03-18",
+            "dateType": "Available",
+            "dateInformation": "Date dataset made available on Mendeley Data"
+          }
+        ],
+        "resourceType": {
+          "resourceTypeValue": "Retinal Fundus and OCT Dataset",
+          "resourceTypeGeneral": "Dataset"
+        },
+        "datasetDeIdentLevel": {
+          "deIdentType": "NoDeIdentification",
+          "deIdentDirect": true,
+          "deIdentHIPAA": true,
+          "deIdentDates": false,
+          "deIdentNonarr": false,
+          "deIdentKAnon": false,
+          "deIdentDetails": ""
+        },
+        "datasetConsent": {
+          "consentType": "ConsentSpecifiedNotElsewhereCategorised",
+          "consentNoncommercial": false,
+          "consentGeogRestrict": false,
+          "consentResearchType": false,
+          "consentGeneticOnly": false,
+          "consentNoMethods": false,
+          "consentsDetails": ""
+        },
+        "description": [
+          {
+            "descriptionValue": "This repository contains composite retinal fundus and OCT dataset for analyzing retinal layers, retinal lesions, and to diagnose normal and abnormal retinal diseases like Macular Edema, Central Serous Retinopathy, Age-related Macular Degeneration, and Glaucoma.",
+            "descriptionType": "Abstract"
+          }
+        ],
+        "language": "en",
+        "relatedIdentifier": [
+          {
+            "relatedIdentifierValue": "https://ieeexplore.ieee.org/document/9049083",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://doi.org/10.1007/s10916-018-1078-3",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://ieeexplore.ieee.org/document/8425990",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://doi.org/10.1016/j.compbiomed.2018.12.015",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://doi.org/10.1364/AO.55.000454",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://doi.org/10.1364/JOSAA.33.000455",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          },
+          {
+            "relatedIdentifierValue": "https://ieeexplore.ieee.org/document/7294517",
+            "relatedIdentifierType": "URL",
+            "relationType": "Cites",
+            "resourceTypeGeneral": "JournalArticle"
+          }
+        ],
+        "subject": [
+          {
+            "subjectValue": "Ophthalmology"
+          },
+          {
+            "subjectValue": "Retina"
+          },
+          {
+            "subjectValue": "Glaucoma"
+          },
+          {
+            "subjectValue": "Central Serous Chorioretinopathy"
+          },
+          {
+            "subjectValue": "Cystoid Macular Edema"
+          },
+          {
+            "subjectValue": "Age-Related Macular Degeneration"
+          },
+          {
+            "subjectValue": "Optical Coherence Tomography"
+          },
+          {
+            "subjectValue": "Fundus Imaging"
+          }
+        ],
+        "managingOrganization": {
+          "name": ""
+        },
+        "accessType": "PublicOnScreenAccessAndDownload",
+        "accessDetails": {
+          "description": ""
+        },
+        "rights": [
+          {
+            "rightsName": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": {
+              "rightsIdentifierValue": "https://creativecommons.org/licenses/by/4.0/",
+              "rightsIdentifierScheme": "CC BY 4.0",
+              "schemeURI": "https://creativecommons.org/licenses/by/4.0/"
+            }
+          }
+        ],
+        "publisher": {
+          "publisherName": "Mendeley Data"
+        },
+        "size": [
+          "1.44 GB",
+          "1000 images"
+        ],
+        "fundingReference": [
+          {
+            "funderName": "",
+            "awardNumber": {
+              "awardNumberValue": "",
+              "awardURI": ""
+            },
+            "awardTitle": ""
+          }
+        ],
+        "format": [
+          "image/DICOM"
+        ]
+      },
+      "datasetStructureDescription": {
+        "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
+        "directoryList": [],
+        "metadataFileList": []
+      },
+      "healthsheet": {
+        "generalInformation": [],
+        "versioning": [],
+        "motivation": [],
+        "composition": [],
+        "devices": [],
+        "challenge": [],
+        "demographicInformation": [],
+        "preprocessing": [],
+        "labeling": [],
+        "collection": [],
+        "inclusion": [],
+        "uses": [],
+        "distribution": [],
+        "maintenance": []
+      }
+    },
+    "files": [],
+    "data": {
+      "size": 1430000,
+      "fileCount": 1,
+      "viewCount": 0,
+      "labelingMethod": "",
+      "validationInfo": ""
+    },
+    "external": true,
+    "externalUrl": "https://data.mendeley.com/datasets/trghs22fpg/1",
+    "created": "1616310000"
   }
 ]

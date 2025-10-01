@@ -184,6 +184,7 @@ if (dataset.value) {
                     size="xl"
                     variant="subtle"
                     color="warning"
+                    class="w-full"
                   />
 
                   <template #content>
@@ -216,6 +217,7 @@ if (dataset.value) {
               </UDropdownMenu> -->
 
               <UButton
+                v-if="!dataset?.external"
                 label="Get access to dataset"
                 icon="line-md:download-loop"
                 size="xl"
