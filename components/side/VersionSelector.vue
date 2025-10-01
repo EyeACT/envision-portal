@@ -40,7 +40,7 @@ defineProps({
         </div>
 
         <p class="text-right text-xs text-gray-500">
-          {{ $dayjs.unix(version.createdAt).format("MMM D, YYYY") }}
+          {{ $dayjs.unix(version.createdAt / 1000).format("MMM D, YYYY") }}
         </p>
       </div>
     </div>
