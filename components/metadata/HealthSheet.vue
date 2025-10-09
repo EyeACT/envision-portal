@@ -64,6 +64,7 @@ const healthsheetData = [
   <div class="space-y-6">
     <CardCollapsibleContent
       v-for="(item, index) in healthsheetData"
+      v-show="item.data.length > 0"
       :key="index"
       :title="item.title"
       :collapse="index > 0"
