@@ -237,28 +237,115 @@ const filteredDatasets = computed(() => {
                   </div>
                 </div>
 
-                <div class="flex flex-wrap gap-x-4 text-gray-700">
-                  <p class="flex items-center gap-1">
-                    <Icon name="charm:person" size="15" />
-                    Creators:
-                    <span
-                      v-if="
-                        dataset.publishedMetadata?.datasetDescription
-                          ?.creator &&
-                        dataset.publishedMetadata.datasetDescription.creator
-                          .length
-                      "
-                    >
+                <div class="space-y-2">
+                  <div class="flex items-center gap-3 text-sm">
+                    <Icon name="charm:person" size="14" class="text-blue-500" />
+
+                    <span class="min-w-[100px] font-medium text-gray-600">
+                      Creators:
+                    </span>
+
+                    <span class="text-gray-700">
                       <span
-                        v-for="(creator, index) in dataset.publishedMetadata
-                          .datasetDescription.creator"
+                        v-if="
+                          dataset.publishedMetadata?.datasetDescription
+                            ?.creator &&
+                          dataset.publishedMetadata.datasetDescription.creator
+                            .length
+                        "
+                      >
+                        <span
+                          v-for="(creator, index) in dataset.publishedMetadata
+                            .datasetDescription.creator"
+                          :key="index"
+                        >
+                          {{ creator.creatorName
+                          }}<span
+                            v-if="
+                              index <
+                              dataset.publishedMetadata.datasetDescription
+                                .creator.length -
+                                1
+                            "
+                            >,
+                          </span>
+                        </span>
+                      </span>
+
+                      <span v-else class="text-gray-400 italic">
+                        No creators available
+                      </span>
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-3 text-sm">
+                    <Icon name="mdi:label" size="14" class="text-green-500" />
+
+                    <span class="min-w-[100px] font-medium text-gray-600"
+                      >Method:</span
+                    >
+
+                    <span class="text-gray-700">
+                      <span v-if="dataset.labelingMethod">
+                        {{ dataset.labelingMethod }}
+                      </span>
+
+                      <span v-else class="text-gray-400 italic">
+                        Not specified
+                      </span>
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-3 text-sm">
+                    <Icon
+                      name="mdi:check-circle"
+                      size="14"
+                      class="text-purple-500"
+                    />
+
+                    <span class="min-w-[100px] font-medium text-gray-600"
+                      >Validation:</span
+                    >
+
+                    <span class="text-gray-700">
+                      <span v-if="dataset.validationInfo">
+                        {{ dataset.validationInfo }}
+                      </span>
+
+                      <span v-else class="text-gray-400 italic">
+                        Not specified
+                      </span>
+                    </span>
+                  </div>
+
+                  <div
+                    v-if="
+                      dataset.publishedMetadata?.datasetDescription.rights
+                        ?.length
+                    "
+                    class="flex items-center gap-3 text-sm"
+                  >
+                    <Icon
+                      name="mdi:file-document"
+                      size="14"
+                      class="text-orange-500"
+                    />
+
+                    <span class="min-w-[100px] font-medium text-gray-600"
+                      >License:</span
+                    >
+
+                    <span class="text-gray-700">
+                      <span
+                        v-for="(right, index) in dataset.publishedMetadata
+                          .datasetDescription.rights"
                         :key="index"
                       >
-                        {{ creator.creatorName
-                        }}<span
+                        {{ right.rightsName }}
+                        <span
                           v-if="
                             index <
-                            dataset.publishedMetadata.datasetDescription.creator
+                            dataset.publishedMetadata.datasetDescription.rights
                               .length -
                               1
                           "
@@ -266,46 +353,7 @@ const filteredDatasets = computed(() => {
                         </span>
                       </span>
                     </span>
-
-                    <span v-else>No creators available</span>
-                  </p>
-
-                  <p class="flex items-center gap-1">
-                    <Icon name="mdi:label" size="15" />
-                    Labeling Method: {{ dataset.data.labelingMethod }}
-                  </p>
-
-                  <p class="flex items-center gap-1">
-                    <Icon name="mdi:check-circle" size="15" />
-                    Validation Info: {{ dataset.data.validationInfo }}
-                  </p>
-
-                  <p
-                    v-if="
-                      dataset.publishedMetadata?.datasetDescription.rights
-                        ?.length
-                    "
-                    class="flex items-center gap-1"
-                  >
-                    <Icon name="mdi:file-document" size="15" />
-                    License:
-                    <span
-                      v-for="(right, index) in dataset.publishedMetadata
-                        .datasetDescription.rights"
-                      :key="index"
-                    >
-                      {{ right.rightsName }}
-                      <span
-                        v-if="
-                          index <
-                          dataset.publishedMetadata.datasetDescription.rights
-                            .length -
-                            1
-                        "
-                        >,
-                      </span>
-                    </span>
-                  </p>
+                  </div>
                 </div>
               </div>
             </UCard>

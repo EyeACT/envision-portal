@@ -102,8 +102,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 </script>
 
 <template>
-  <div>
-    <UContainer>
+  <div class="min-h-screen w-full">
+    <UContainer class="relative min-h-full">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -113,107 +113,42 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         ]"
       />
 
-      <div class="flex flex-col gap-6 pt-4">
-        <div class="grid grid-cols-12 gap-6">
-          <div class="col-span-11">
-            <div class="flex flex-col gap-1">
-              <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-                {{ dataset?.title }}
-              </h1>
+      <div class="flex flex-1 flex-col gap-6 pt-4">
+        <div class="flex flex-col gap-1">
+          <UBadge class="w-max" color="primary" variant="outline">
+            Version {{ dataset?.versionTitle }}
+          </UBadge>
 
-              <UBadge class="w-max" color="primary" variant="outline">
-                Version {{ dataset?.versionTitle }}
-              </UBadge>
-            </div>
-
-            <div class="mt-3 flex flex-col gap-2">
-              <div
-                class="w-max border-b border-dashed border-slate-300 font-medium"
-              >
-                Description
-              </div>
-
-              <p class="text-sm text-gray-500">
-                {{
-                  dataset?.metadata.studyDescription.descriptionModule
-                    .detailedDescription ||
-                  dataset?.metadata.studyDescription.descriptionModule
-                    .briefSummary ||
-                  dataset?.description
-                }}
-              </p>
-
-              <div
-                class="w-max border-b border-dashed border-slate-300 font-medium"
-              >
-                Keywords
-              </div>
-
-              <div class="flex gap-2">
-                <UBadge
-                  v-for="item in dataset?.metadata?.studyDescription
-                    ?.conditionsModule?.keywordList"
-                  :key="item.keywordValue"
-                  color="primary"
-                  size="sm"
-                  variant="outline"
-                >
-                  {{ item.keywordValue }}
-                </UBadge>
-              </div>
-
-              <div
-                class="w-max border-b border-dashed border-slate-300 font-medium"
-              >
-                Conditions
-              </div>
-
-              <div class="flex gap-2">
-                <UBadge
-                  v-for="item in dataset?.metadata?.studyDescription
-                    .conditionsModule?.conditionList"
-                  :key="item.conditionName"
-                  color="primary"
-                  size="sm"
-                  variant="outline"
-                >
-                  {{ item.conditionName }}
-                </UBadge>
-              </div>
-
-              <div
-                class="w-max border-b border-dashed border-slate-300 font-medium"
-              >
-                License
-              </div>
-
-              <p class="text-sm text-gray-500">
-                {{ dataset?.metadata.datasetDescription.rights[0].rightsName }}
-              </p>
-            </div>
-          </div>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            {{ dataset?.title }}
+          </h1>
         </div>
 
         <USeparator class="my-3" />
 
-        <h2 class="text-lg font-medium">
-          This dataset requires some information to be submitted. Your request
-          will be approved automatically.
-        </h2>
+        <UAlert
+          icon="material-symbols:info"
+          color="info"
+          variant="soft"
+          title="Request Access to Dataset"
+          description="Please provide the following information to request access to this dataset. Your request will be approved automatically."
+        />
 
         <UForm
           :schema="schema"
           :state="state"
-          class="space-y-4"
+          class="space-y-6"
           @submit="onSubmit"
         >
-          <UFormField label="Given Name" name="givenName">
-            <UInput v-model="state.givenName" />
-          </UFormField>
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <UFormField label="Given Name" name="givenName">
+              <UInput v-model="state.givenName" />
+            </UFormField>
 
-          <UFormField label="Family Name" name="familyName">
-            <UInput v-model="state.familyName" />
-          </UFormField>
+            <UFormField label="Family Name" name="familyName">
+              <UInput v-model="state.familyName" />
+            </UFormField>
+          </div>
 
           <UFormField label="Affiliation" name="affiliation">
             <UInput v-model="state.affiliation" />
@@ -224,10 +159,35 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </UFormField>
 
           <UFormField label="Reason for Access" name="reasonForAccess">
-            <UTextarea v-model="state.reasonForAccess" class="w-full" />
+            <UTextarea
+              v-model="state.reasonForAccess"
+              class="w-full"
+              placeholder="Please describe your intended use of this dataset..."
+            />
           </UFormField>
 
-          <UButton type="submit"> Submit </UButton>
+          <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <UButton
+              type="button"
+              size="lg"
+              variant="outline"
+              class="w-full sm:w-auto"
+              icon="i-lucide-arrow-left"
+              @click="navigateTo(`/datasets/${datasetid}`)"
+            >
+              Back
+            </UButton>
+
+            <UButton
+              type="submit"
+              size="lg"
+              class="w-full sm:w-auto"
+              :loading="loading"
+              icon="i-lucide-send"
+            >
+              Request Access
+            </UButton>
+          </div>
         </UForm>
       </div>
     </UContainer>
