@@ -14,15 +14,16 @@ const main = async () => {
   for (const DatasetRecord of DatasetRecords) {
     await prisma.publishedDataset.deleteMany({
       where: {
-        id: parseInt(DatasetRecord.id),
+        id: DatasetRecord.id,
       },
     });
 
     await prisma.publishedDataset.create({
       data: {
-        id: parseInt(DatasetRecord.id),
+        id: DatasetRecord.id,
         title: DatasetRecord.title,
         canonicalId: DatasetRecord.canonicalId,
+        created: new Date(parseInt(DatasetRecord.created) * 1000),
         data: DatasetRecord.data,
         datasetId: DatasetRecord.datasetId,
         description: DatasetRecord.description,
@@ -32,6 +33,7 @@ const main = async () => {
         files: DatasetRecord.files,
         publishedMetadata: DatasetRecord.publishedMetadata,
         studyTitle: DatasetRecord.studyTitle,
+        updated: new Date(parseInt(DatasetRecord.created) * 1000),
         versionTitle: DatasetRecord.versionTitle,
       },
     });

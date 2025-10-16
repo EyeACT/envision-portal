@@ -40,11 +40,11 @@ const creatorColumns: TableColumn<DatasetDescription["creator"][number]>[] = [
       if (affiliation) {
         // Join all the affiliation names from the array
         return affiliation
-          .map((affiliation) => affiliation?.affiliationIdentifier)
+          .map((affiliation) => affiliation?.affiliationName ?? "")
           .join(", ");
       }
 
-      return "";
+      return "N/A";
     },
     header: "Affiliation",
   },
@@ -82,12 +82,10 @@ const contributorColumns: TableColumn<
       const affiliations = row.original.affiliation;
 
       if (Array.isArray(affiliations)) {
-        return affiliations
-          .map((aff) => aff.affiliationIdentifier ?? "")
-          .join(", ");
+        return affiliations.map((aff) => aff.affiliationName ?? "").join(", ");
       }
 
-      return "";
+      return "N/A";
     },
     header: "Affiliation",
   },

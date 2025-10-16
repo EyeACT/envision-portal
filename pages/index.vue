@@ -176,228 +176,6 @@ definePageMeta({
     </UContainer>
 
     <UContainer class="py-12">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8">
-        <div class="text-center">
-          <h1 class="text-2xl font-bold text-gray-900">
-            Snapshot of the One-Stop Solution
-          </h1>
-
-          <p class="mt-2 text-lg text-gray-600">
-            Some key numbers from the project
-          </p>
-        </div>
-
-        <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          <div
-            class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
-          >
-            <h2 class="text-4xl font-bold text-blue-400">150+</h2>
-
-            <p class="mt-2 text-gray-700">Eye Imaging Datasets</p>
-          </div>
-
-          <div
-            class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
-          >
-            <h2 class="text-4xl font-bold text-blue-400">1.2+ Million</h2>
-
-            <p class="mt-2 text-gray-700">Eye Images Curated</p>
-          </div>
-
-          <div
-            class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
-          >
-            <h2 class="text-4xl font-bold text-blue-400">100+</h2>
-
-            <p class="mt-2 text-gray-700">Universities & Research Centers</p>
-          </div>
-
-          <div
-            class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
-          >
-            <h2 class="text-4xl font-bold text-blue-400">800,000+</h2>
-
-            <p class="mt-2 text-gray-700">Dataset Downloads</p>
-          </div>
-
-          <div
-            class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
-          >
-            <h2 class="text-4xl font-bold text-blue-400">1,800,000+</h2>
-
-            <p class="mt-2 text-gray-700">API Requests</p>
-          </div>
-
-          <div
-            class="rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-400"
-          >
-            <h2 class="text-4xl font-bold text-blue-400">200+</h2>
-
-            <p class="mt-2 text-gray-700">
-              Research Papers Citing our Datasets
-            </p>
-          </div>
-        </div>
-      </div>
-    </UContainer>
-
-    <UContainer class="py-12">
-      <div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
-        <div class="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
-          <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">Our Blog</h2>
-
-          <p class="sm:text-xl">
-            Learn about updates to the platform and other news regarding the
-            FAIRification of eye imaging data.
-          </p>
-        </div>
-
-        <div class="grid gap-8 lg:grid-cols-2">
-          <article
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-md"
-          >
-            <div class="mb-5 flex items-center justify-between">
-              <span
-                class="bg-primary-100 text-primary-800 inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium"
-              >
-                <svg
-                  class="mr-1 h-3 w-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z"
-                    clip-rule="evenodd"
-                  ></path>
-
-                  <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"></path>
-                </svg>
-                Article
-              </span>
-
-              <span class="text-sm">14 days ago</span>
-            </div>
-
-            <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">
-              <a href="#">Linking Retinal Changes to Brain Health</a>
-            </h2>
-
-            <p class="mb-5 text-gray-500">
-              Researchers are using eye imaging data to track changes in retinal
-              structure and vascular features to detect neurological risks. The
-              Anderson Lab at the University of California, San Francisco, is
-              using this data to study the effects of aging on a population of
-              mice.
-            </p>
-
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4 text-gray-500">
-                <img
-                  class="h-7 w-7 rounded-full"
-                  src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/jese-leos.png"
-                  alt="Jese Leos avatar"
-                />
-
-                <span class="font-medium"> Fujibayashi Naoue </span>
-              </div>
-
-              <a
-                href="#"
-                class="text-primary-600 inline-flex items-center font-medium hover:underline"
-              >
-                Read more
-                <svg
-                  class="ml-2 h-4 w-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </a>
-            </div>
-          </article>
-
-          <article
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-md"
-          >
-            <div class="mb-5 flex items-center justify-between text-gray-500">
-              <span
-                class="bg-primary-100 text-primary-800 inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium"
-              >
-                <svg
-                  class="mr-1 h-3 w-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z"
-                    clip-rule="evenodd"
-                  ></path>
-
-                  <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"></path>
-                </svg>
-                Article
-              </span>
-
-              <span class="text-sm">20 days ago</span>
-            </div>
-
-            <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">
-              <a href="#"> Updates to the Envision Portal </a>
-            </h2>
-
-            <p class="mb-5 font-light text-gray-500">
-              We recently updated the Envision Portal to include new features
-              and improved functionality. The new features include the ability
-              to upload and manage multiple datasets, as well as the ability to
-              view and analyze data from multiple studies.
-            </p>
-
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4 text-gray-500">
-                <img
-                  class="h-7 w-7 rounded-full"
-                  src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-                  alt="Bonnie Green avatar"
-                />
-
-                <span class="font-medium"> Bonnie Green </span>
-              </div>
-
-              <a
-                href="#"
-                class="text-primary-600 inline-flex items-center font-medium hover:underline"
-              >
-                Read more
-                <svg
-                  class="ml-2 h-4 w-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </UContainer>
-
-    <UContainer class="py-12">
       <div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
         <div class="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
           <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">
@@ -411,7 +189,7 @@ definePageMeta({
         </div>
 
         <ol class="relative border-s border-gray-200 dark:border-gray-700">
-          <li class="ms-6 mb-10">
+          <li class="ms-6">
             <span
               class="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900"
             >
@@ -431,7 +209,7 @@ definePageMeta({
             <h3
               class="mb-1 flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white"
             >
-              Envision Portal v0.3.0
+              Envision Portal v0.1.0
               <span
                 class="rounded-sm bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300"
               >
@@ -442,108 +220,44 @@ definePageMeta({
             <time
               class="mb-2 block text-sm leading-none font-normal text-gray-400 dark:text-gray-500"
             >
-              Released on December 13th, 2025
-            </time>
-
-            <p
-              class="mb-4 text-base font-normal text-gray-500 dark:text-gray-400"
-            >
-              Added a new uploading tool that allows users to upload their own
-              datasets. The uploading tool includes a drag-and-drop interface, a
-              progress bar, and a file preview. It also includes a documentation
-              page that provides detailed instructions on how to upload
-              datasets.
-            </p>
-
-            <UButton
-              to="/"
-              icon="line-md:upload-loop"
-              size="xl"
-              color="primary"
-              variant="outline"
-            >
-              Upload Dataset
-            </UButton>
-          </li>
-
-          <li class="ms-6 mb-10">
-            <span
-              class="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900"
-            >
-              <svg
-                class="h-2.5 w-2.5 text-blue-800 dark:text-blue-300"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
-                />
-              </svg>
-            </span>
-
-            <h3
-              class="mb-1 text-lg font-semibold text-gray-900 dark:text-white"
-            >
-              Envision Portal v0.2.0
-            </h3>
-
-            <time
-              class="mb-2 block text-sm leading-none font-normal text-gray-400 dark:text-gray-500"
-            >
-              Released on July 7th, 2025
+              Current Development Version
             </time>
 
             <p class="text-base font-normal text-gray-500 dark:text-gray-400">
-              The Envision Portal v0.2.0 is a significant update that includes
-              new features, improved usability, and enhanced security. The
-              dashboard has been redesigned to provide a more intuitive and
-              user-friendly interface. The data explorer has been updated to
-              include new features and improved functionality. The visualization
-              tool has been improved to provide more customization options and
-              better integration with other tools.
+              The first version of the Envision Portal includes comprehensive
+              features for eye imaging data management. Users can create
+              accounts with email verification, manage datasets through an
+              intuitive dashboard, and upload files using Azure Data Lake
+              integration. The platform supports rich metadata collection
+              including study descriptions, dataset descriptions, and health
+              sheets for AI-ready data documentation. Access control features
+              allow for both public and controlled dataset access with request
+              management. The platform includes dataset publishing workflows,
+              version management, and comprehensive search and discovery
+              capabilities for finding eye imaging datasets.
             </p>
-          </li>
 
-          <li class="ms-6">
-            <span
-              class="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900"
-            >
-              <svg
-                class="h-2.5 w-2.5 text-blue-800 dark:text-blue-300"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
+            <div class="mt-4 flex flex-wrap gap-2">
+              <UButton
+                to="/app/dashboard"
+                icon="ri-dashboard-line"
+                size="sm"
+                color="primary"
+                variant="outline"
               >
-                <path
-                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
-                />
-              </svg>
-            </span>
+                Dashboard
+              </UButton>
 
-            <h3
-              class="mb-1 text-lg font-semibold text-gray-900 dark:text-white"
-            >
-              Envision Portal v0.1.0
-            </h3>
-
-            <time
-              class="mb-2 block text-sm leading-none font-normal text-gray-400 dark:text-gray-500"
-            >
-              Released on May 2nd, 2025
-            </time>
-
-            <p class="text-base font-normal text-gray-500 dark:text-gray-400">
-              The first version of the Envision Portal is now available for
-              testing. It includes a dashboard, a data explorer, and a
-              visualization tool. The dashboard allows users to view and analyze
-              their data, while the data explorer provides a user-friendly
-              interface for uploading, managing, and sharing datasets. The
-              visualization tool enables users to create and share
-              visualizations of their data.
-            </p>
+              <UButton
+                to="/datasets"
+                icon="ri-eye-line"
+                size="sm"
+                color="primary"
+                variant="outline"
+              >
+                Browse Datasets
+              </UButton>
+            </div>
           </li>
         </ol>
       </div>
