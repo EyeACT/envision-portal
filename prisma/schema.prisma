@@ -864,3 +864,18 @@ model DatasetRequestDetails {
     created DateTime @default(now())
     updated DateTime @updatedAt
 }
+
+model ContactMessage {
+    id String @id @default(cuid(2))
+
+    name      String
+    email     String
+    subject   String
+    message   String
+    status    String  @default("unread") // unread | read | replied
+    ipAddress String?
+    userAgent String?
+
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+}
