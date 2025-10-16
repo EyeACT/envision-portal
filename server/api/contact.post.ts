@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Get client IP and user agent for tracking
-    const clientIP = getClientIP(event);
+    const clientIP = getRequestIP(event);
     const userAgent = getHeader(event, "user-agent");
 
     // Create contact message in database
