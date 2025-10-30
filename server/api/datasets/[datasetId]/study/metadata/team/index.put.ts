@@ -1,4 +1,4 @@
-import { StudyMetadataSponsorsSchema } from "@/server/utils/study_schemas";
+import { StudyMetadataSponsorsSchema } from "#shared/utils/study_schemas";
 
 export default defineEventHandler(async (event) => {
   const { datasetId } = event.context.params as { datasetId: string };

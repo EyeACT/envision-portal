@@ -1,4 +1,4 @@
-import { StudyMetadataArmsSchema } from "@/server/utils/study_schemas";
+import { StudyMetadataArmsSchema } from "#shared/utils/study_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);

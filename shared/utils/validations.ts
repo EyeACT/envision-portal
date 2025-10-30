@@ -1,5 +1,5 @@
-import { StudyMetadataPublishValidation } from "@/server/utils/study_schemas";
-import { DatasetMetadataPublishSchema } from "@/server/utils/dataset_schemas";
+import { StudyMetadataPublishValidation } from "#shared/utils/study_schemas";
+import { DatasetMetadataPublishSchema } from "#shared/utils/dataset_schemas";
 
 /**
  * Validate a dataset's metadata before publishing.

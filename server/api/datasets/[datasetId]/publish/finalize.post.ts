@@ -1,12 +1,12 @@
 import { DataLakeServiceClient } from "@azure/storage-file-datalake";
 import { createId } from "@paralleldrive/cuid2";
 import { faker } from "@faker-js/faker";
-import DatasetRecords from "~/dev/datasetRecords.json";
+import DatasetRecords from "~~/dev/datasetRecords.json";
 import PublishingStatus from "~/assets/data/publishing-status.json";
 import {
   validateDatasetMetadata,
   validateStudyMetadata,
-} from "@/server/api/utils/validations";
+} from "#shared/utils/validations";
 
 const getPublishingStatusIndex = (status: string) => {
   const statusObject =
