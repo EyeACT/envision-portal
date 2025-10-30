@@ -1,4 +1,4 @@
-import { DatasetMetadataRelatedIdentifiersSchema } from "~/server/utils/dataset_schemas";
+import { DatasetMetadataRelatedIdentifiersSchema } from "#shared/utils/dataset_schemas";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);

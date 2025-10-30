@@ -1,4 +1,4 @@
-import { StudyMetadataOversightSchema } from "@/server/utils/study_schemas";
+import { StudyMetadataOversightSchema } from "#shared/utils/study_schemas";
 
 export default defineEventHandler(async (event) => {
   const { datasetId } = event.context.params as { datasetId: string };

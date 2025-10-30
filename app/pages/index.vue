@@ -282,7 +282,7 @@ definePageMeta({
             class="rounded-2xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 dark:bg-gray-800"
           >
             <img
-              src="public/images/brain-health.jpg"
+              src="/images/brain-health.jpg"
               alt="Retinal & Brain Health"
               class="mb-4 h-40 w-full rounded-lg object-cover"
             />
@@ -307,7 +307,7 @@ definePageMeta({
             class="rounded-2xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 dark:bg-gray-800"
           >
             <img
-              src="public/images/data.jpg"
+              src="/images/data.jpg"
               alt="Longitudinal Data"
               class="mb-4 h-40 w-full rounded-lg object-cover"
             />
@@ -332,7 +332,7 @@ definePageMeta({
             class="rounded-2xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 dark:bg-gray-800"
           >
             <img
-              src="public/images/data-modeling.jpg"
+              src="/images/data-modeling.jpg"
               alt="Predictive Modeling"
               class="mb-4 h-40 w-full rounded-lg object-cover"
             />
