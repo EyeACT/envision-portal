@@ -13,7 +13,6 @@ definePageMeta({
 
 const sections = [
   { id: 'summary', label: 'Summary' },
-  { id: 'about', label: 'About the Envision Portal & Eye ACT' },
   { id: 'transparency', label: 'Transparency' },
   { id: 'responsibility', label: 'Responsibility' },
   { id: 'user-focus', label: 'User Focus' },
@@ -115,36 +114,6 @@ onBeforeUnmount(() => {
 <template>
   <UContainer class="py-12">
     <div class="flex flex-col gap-10 md:flex-row">
-      <!-- nav -->
-      <aside class="md:w-64 md:flex-shrink-0">
-        <!-- Mobile -->
-        <div class="mb-6 flex gap-2 overflow-x-auto md:hidden">
-          <button v-for="section in sections" :key="section.id" type="button"
-            class="whitespace-nowrap rounded-full px-3 py-2 text-xs" :class="section.id === activeId
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              " @click="scrollToSection(section.id)">
-            {{ section.label }}
-          </button>
-        </div>
-
-        <!-- Desktop -->
-        <div class="hidden md:block sticky top-24">
-          <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Document sections
-          </p>
-          <ul class="space-y-1 border-l border-gray-200 pl-2">
-            <li v-for="section in sections" :key="section.id">
-              <button type="button" class="w-full rounded-md px-3 py-2 text-left text-sm transition-colors" :class="section.id === activeId
-                ? 'bg-blue-50 text-blue-700 font-medium'
-                : 'text-gray-700 hover:bg-gray-50'
-                " @click="scrollToSection(section.id)">
-                {{ section.label }}
-              </button>
-            </li>
-          </ul>
-        </div>
-      </aside>
       <div class="prose prose-lg max-w-none">
         <section id="summary" class="mb-10 ">
           <h1 class="mb-6 text-3xl font-bold">TRUST Principles</h1>
@@ -165,41 +134,6 @@ onBeforeUnmount(() => {
             </NuxtLink>
             (Transparency, Responsibility, User Focus, Sustainability, and
             Technology) and points to public evidence of our implementation.
-          </p>
-        </section>
-
-        <!-- About Envision Portal & Eye ACT -->
-        <section id="about" class="mb-10 rounded-lg border border-gray-200 bg-gray-50 p-5">
-          <h2 class="mb-3 mt-3 text-xl font-semibold">
-            About the Envision Portal &amp; Eye ACT
-          </h2>
-          <p class="mb-3">
-            The Envision Portal is a cloud-based, open-source platform that
-            provides tools for sharing, discovering, and reusing eye imaging
-            datasets. It focuses on dataset sharing with guided submission
-            workflows, data standardization and de-identification, rich metadata
-            collection, access control for public and controlled datasets, and
-            alignment with FAIR (Findable, Accessible, Interoperable, Reusable)
-            data principles.
-          </p>
-          <p class="mb-3">
-            The Envision Portal is developed by the FAIR Data Innovations Hub team
-            as part of the Eye ACT study, in collaboration with the University of
-            Washington and Kaiser Permanente Washington. The Eye ACT study aims to
-            understand how ophthalmic conditions such as macular degeneration and
-            diabetic retinopathy can provide early clues to Alzheimer’s disease
-            and other neurodegenerative conditions.
-          </p>
-          <p class="mb-0">
-            You can learn more on our
-            <NuxtLink to="/about" class="text-blue-600 underline hover:text-blue-800">
-              About page
-            </NuxtLink>
-            and explore publicly listed datasets at
-            <NuxtLink to="/datasets" class="text-blue-600 underline hover:text-blue-800">
-              /datasets
-            </NuxtLink>
-            .
           </p>
         </section>
 
@@ -624,6 +558,36 @@ onBeforeUnmount(() => {
           </div>
         </section>
       </div>
+      <!-- nav -->
+      <aside class="md:w-64 md:flex-shrink-0">
+        <!-- Mobile -->
+        <div class="mb-6 flex gap-2 overflow-x-auto md:hidden">
+          <button v-for="section in sections" :key="section.id" type="button"
+            class="whitespace-nowrap rounded-full px-3 py-2 text-xs" :class="section.id === activeId
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              " @click="scrollToSection(section.id)">
+            {{ section.label }}
+          </button>
+        </div>
+
+        <!-- Desktop -->
+        <div class="hidden md:block sticky top-24">
+          <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Document sections
+          </p>
+          <ul class="space-y-1 border-l border-gray-200 pl-2">
+            <li v-for="section in sections" :key="section.id">
+              <button type="button" class="w-full rounded-md px-3 py-2 text-left text-sm transition-colors" :class="section.id === activeId
+                ? 'bg-blue-50 text-blue-700 font-medium'
+                : 'text-gray-700 hover:bg-gray-50'
+                " @click="scrollToSection(section.id)">
+                {{ section.label }}
+              </button>
+            </li>
+          </ul>
+        </div>
+      </aside>
     </div>
   </UContainer>
 </template>
