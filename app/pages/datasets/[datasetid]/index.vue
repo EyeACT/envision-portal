@@ -1,8 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: "public",
-});
-
 const route = useRoute();
 const toast = useToast();
 
@@ -165,7 +161,10 @@ if (dataset.value) {
               </div>
 
               <p class="text-sm text-gray-500">
-                {{ dataset?.metadata.datasetDescription.rights[0].rightsName }}
+                {{
+                  dataset?.metadata.datasetDescription.rights[0]?.rightsName ||
+                  "No license found"
+                }}
               </p>
             </div>
           </div>

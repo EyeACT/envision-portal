@@ -3,10 +3,6 @@ import * as z from "zod";
 import { faker } from "@faker-js/faker";
 import type { FormSubmitEvent } from "@nuxt/ui";
 
-definePageMeta({
-  layout: "public",
-});
-
 const { environment } = useRuntimeConfig().public;
 
 const route = useRoute();

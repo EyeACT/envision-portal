@@ -2,8 +2,6 @@
 import dayjs from "dayjs";
 import type { AccordionItem } from "@nuxt/ui";
 
-definePageMeta({ layout: "public" });
-
 useSeoMeta({
   title: "All Datasets",
 });
