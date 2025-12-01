@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
+
+// Determine if we're on a public route (not /app/*)
+const isPublicRoute = computed(() => {
+  return !route.path.startsWith("/app/");
+});
 
 const sidebarCollapsed = ref(false);
 const selectedDataset = computed(() => route.params.datasetId || null);
@@ -213,7 +218,20 @@ watch(sidebarCollapsed, (newVal) => {
 </script>
 
 <template>
+  <!-- Public Layout -->
+  <div v-if="isPublicRoute">
+    <AppPublicHeader />
+
+    <main class="my-4">
+      <slot />
+    </main>
+
+    <AppPublicFooter />
+  </div>
+
+  <!-- Default/App Layout -->
   <div
+    v-else
     class="flex min-h-screen w-full overflow-hidden bg-gray-100 dark:bg-gray-900"
   >
     <!-- Sidebar -->

@@ -113,7 +113,7 @@ const logout = async () => {
 
           <div v-else class="flex items-center justify-center gap-3">
             <UButton to="/login" color="neutral" variant="outline">
-              Sign in
+              Sign in dashboard
             </UButton>
 
             <UButton to="/signup" color="neutral">
