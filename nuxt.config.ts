@@ -8,7 +8,13 @@ export default defineNuxtConfig({
     plugins: ["relativeTime", "utc", "timezone"],
   },
   devtools: { enabled: true },
-  modules: ["@nuxt/ui", "nuxt-auth-utils", "dayjs-nuxt", "@nuxt/eslint"],
+  modules: [
+    "@nuxt/ui",
+    "nuxt-auth-utils",
+    "dayjs-nuxt",
+    "@nuxt/eslint",
+    "@nuxt/content",
+  ],
   runtimeConfig: {
     AZURE_DRAFT_ACCOUNT_KEY: process.env.AZURE_DRAFT_ACCOUNT_KEY,
     AZURE_DRAFT_CONNECTION_STRING: process.env.AZURE_DRAFT_CONNECTION_STRING,
