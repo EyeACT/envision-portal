@@ -125,7 +125,7 @@ The Portal may link to or integrate with third-party services, platforms, or res
 
 We may update these Terms from time to time. When we do so, we will update the "last updated" date below and may provide additional notice as appropriate. Your continued use of the Portal after changes take effect constitutes your acceptance of the revised Terms.
 
-_Last updated: [Month Day, Year]_
+_Last updated: December 2, 2025_
 
 ## 15. Contact
 
