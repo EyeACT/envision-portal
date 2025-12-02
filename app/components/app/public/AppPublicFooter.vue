@@ -37,10 +37,12 @@
             </h2>
             <ul class="flex flex-col gap-1">
               <li>
-                <a href="#" class="hover:underline">Privacy Policy</a>
+                <a href="/privacy" class="hover:underline">Privacy Policy</a>
               </li>
               <li>
-                <a href="#" class="hover:underline">Terms &amp; Conditions</a>
+                <a href="/terms" class="hover:underline"
+                  >Terms &amp; Conditions</a
+                >
               </li>
             </ul>
           </div>

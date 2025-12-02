@@ -36,7 +36,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     body: event.data,
     method: "POST",
   })
-    .then((response) => {
+    .then((response: any) => {
       toast.add({
         title: "Message sent successfully!",
         description: response.message,
@@ -77,47 +77,25 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     </div>
 
     <UCard class="border border-slate-200 shadow-lg dark:border-slate-800">
-      <UForm
-        :schema="schema"
-        :state="state"
-        class="space-y-6"
-        @submit="onSubmit"
-      >
+      <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <UFormField label="Name" name="name">
-            <UInput
-              v-model="state.name"
-              placeholder="Your full name"
-              icon="i-heroicons-user"
-            />
+            <UInput v-model="state.name" placeholder="Your full name" icon="i-heroicons-user" />
           </UFormField>
 
           <UFormField label="Email" name="email">
-            <UInput
-              v-model="state.email"
-              type="email"
-              placeholder="your.email@example.com"
-              icon="i-heroicons-envelope"
-            />
+            <UInput v-model="state.email" type="email" placeholder="your.email@example.com"
+              icon="i-heroicons-envelope" />
           </UFormField>
         </div>
 
         <UFormField label="Subject" name="subject">
-          <UInput
-            v-model="state.subject"
-            placeholder="What's this about?"
-            icon="i-heroicons-chat-bubble-left-right"
-          />
+          <UInput v-model="state.subject" placeholder="What's this about?" icon="i-heroicons-chat-bubble-left-right" />
         </UFormField>
 
         <UFormField label="Message" name="message">
-          <UTextarea
-            v-model="state.message"
-            placeholder="Tell us more about your question or concern..."
-            :rows="6"
-            class="w-full"
-            resize
-          />
+          <UTextarea v-model="state.message" placeholder="Tell us more about your question or concern..." :rows="6"
+            class="w-full" resize />
         </UFormField>
 
         <UButton type="submit" class="w-full" :loading="loading" size="lg">
@@ -132,10 +110,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <div class="text-center text-sm text-gray-500 dark:text-gray-400">
           <p>
             You can also reach us directly at
-            <a
-              href="mailto:info@envisionportal.io"
-              class="text-primary-500 font-medium hover:underline"
-            >
+            <a href="mailto:info@envisionportal.io" class="text-primary-500 font-medium hover:underline">
               info@envisionportal.io
             </a>
           </p>
