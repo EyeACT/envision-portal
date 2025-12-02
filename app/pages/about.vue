@@ -2,6 +2,10 @@
 useSeoMeta({
   title: "About",
 });
+
+definePageMeta({
+  layout: "public",
+});
 </script>
 
 <template>

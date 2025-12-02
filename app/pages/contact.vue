@@ -6,6 +6,10 @@ useSeoMeta({
   title: "Contact Us",
 });
 
+definePageMeta({
+  layout: "public",
+});
+
 const toast = useToast();
 const loading = ref(false);
 

@@ -4,6 +4,7 @@ import { faker } from "@faker-js/faker";
 import type { FormSubmitEvent } from "@nuxt/ui";
 
 definePageMeta({
+  layout: "public",
   middleware: ["auth"],
 });
 
