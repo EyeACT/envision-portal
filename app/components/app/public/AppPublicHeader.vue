@@ -39,7 +39,7 @@ const logout = async () => {
         </NuxtLink>
 
         <NuxtLink
-          to="/docs"
+          to="https://docs.envision.io"
           class="inline-flex items-center gap-1 text-base font-medium transition-colors hover:text-sky-500"
         >
           Documentation
