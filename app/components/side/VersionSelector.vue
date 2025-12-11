@@ -19,7 +19,7 @@ defineProps({
         :key="version.id"
         class="flex justify-between rounded-md px-4 py-2 transition-all hover:bg-blue-50"
         :class="{
-          '!bg-sky-100': version.id === id,
+          '!bg-teal-100': version.id === id,
         }"
       >
         <div class="flex flex-col space-y-1">

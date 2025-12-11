@@ -31,7 +31,7 @@ const uiClasses = computed(() => ({
         class="flex items-center justify-between p-4"
         @click="toggleCollapse"
       >
-        <h3 class="text-lg font-semibold text-sky-600">{{ title }}</h3>
+        <h3 class="text-lg font-semibold text-teal-600">{{ title }}</h3>
 
         <UButton
           color="primary"

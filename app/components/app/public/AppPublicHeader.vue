@@ -19,35 +19,35 @@ const logout = async () => {
       <div class="flex items-center justify-center gap-4">
         <NuxtLink
           to="/app/dashboard"
-          class="text-base font-medium transition-colors hover:text-sky-500"
+          class="text-base font-medium transition-colors hover:text-teal-500"
         >
           Share data
         </NuxtLink>
 
         <NuxtLink
           to="/datasets"
-          class="text-base font-medium transition-colors hover:text-sky-500"
+          class="text-base font-medium transition-colors hover:text-teal-500"
         >
           Find data
         </NuxtLink>
 
         <NuxtLink
           to="/about"
-          class="text-base font-medium transition-colors hover:text-sky-500"
+          class="text-base font-medium transition-colors hover:text-teal-500"
         >
           About
         </NuxtLink>
 
         <NuxtLink
           to="/trust"
-          class="text-base font-medium transition-colors hover:text-sky-500"
+          class="text-base font-medium transition-colors hover:text-teal-500"
         >
           Trust & Safety
         </NuxtLink>
 
         <NuxtLink
           to="https://docs.envision.io"
-          class="inline-flex items-center gap-1 text-base font-medium transition-colors hover:text-sky-500"
+          class="inline-flex items-center gap-1 text-base font-medium transition-colors hover:text-teal-500"
         >
           Documentation
           <Icon name="tabler:external-link" size="18" />
@@ -55,7 +55,7 @@ const logout = async () => {
 
         <NuxtLink
           to="/contact"
-          class="text-base font-medium transition-colors hover:text-sky-500"
+          class="text-base font-medium transition-colors hover:text-teal-500"
         >
           Contact us
         </NuxtLink>
