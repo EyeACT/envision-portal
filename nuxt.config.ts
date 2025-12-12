@@ -1,7 +1,29 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  app: {
+    head: {
+      title: "Envision Portal",
+      meta: [
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1",
+        },
+      ],
+      script: [
+        {
+          async: true,
+          "data-website-id":
+            process.env.NUXT_SITE_ENV === "production"
+              ? "dd7449f0-ad92-480a-bb86-78c9daba61a4"
+              : "df7cf3a6-0b7b-4f50-9e5e-c7ad8211d28b",
+          src: "https://umami.fairdataihub.org/mushroom",
+        },
+      ],
+    },
+  },
   compatibilityDate: "2025-01-16",
   css: ["~/assets/css/main.css"],
+
   dayjs: {
     defaultLocale: "en",
     defaultTimezone: "America/Los_Angeles",
