@@ -46,14 +46,6 @@ const logout = async () => {
         </NuxtLink>
 
         <NuxtLink
-          to="https://docs.envision.io"
-          class="inline-flex items-center gap-1 text-base font-medium transition-colors hover:text-teal-500"
-        >
-          Documentation
-          <Icon name="tabler:external-link" size="18" />
-        </NuxtLink>
-
-        <NuxtLink
           to="/contact"
           class="text-base font-medium transition-colors hover:text-teal-500"
         >
@@ -61,26 +53,36 @@ const logout = async () => {
         </NuxtLink>
       </div>
 
-      <AuthState v-slot="{ loggedIn }">
-        <div v-if="loggedIn" class="flex items-center justify-center gap-3">
-          <UButton color="neutral" variant="outline" @click="logout">
-            Logout
-          </UButton>
-        </div>
+      <div class="flex items-center justify-center gap-3">
+        <AuthState v-slot="{ loggedIn }">
+          <NuxtLink
+            to="https://docs.envision.io"
+            class="mr-3 inline-flex items-center gap-1 text-base font-medium transition-colors hover:text-teal-500"
+          >
+            Docs
+            <Icon name="tabler:external-link" size="18" />
+          </NuxtLink>
 
-        <div v-else class="flex items-center justify-center gap-3">
-          <UButton to="/login" color="neutral" variant="outline">
-            Sign in
-          </UButton>
+          <div v-if="loggedIn" class="flex items-center justify-center gap-3">
+            <UButton color="neutral" variant="outline" @click="logout">
+              Logout
+            </UButton>
+          </div>
 
-          <UButton to="/signup" color="neutral">
-            <template #trailing>
-              <Icon name="i-heroicons-arrow-right-20-solid" size="20" />
-            </template>
-            Sign up
-          </UButton>
-        </div>
-      </AuthState>
+          <div v-else class="flex items-center justify-center gap-3">
+            <UButton to="/login" color="neutral" variant="outline">
+              Sign in
+            </UButton>
+
+            <UButton to="/signup" color="neutral">
+              <template #trailing>
+                <Icon name="i-heroicons-arrow-right-20-solid" size="20" />
+              </template>
+              Sign up
+            </UButton>
+          </div>
+        </AuthState>
+      </div>
     </div>
   </header>
 </template>

@@ -120,6 +120,23 @@ model Dataset {
     StudyLocation         StudyLocation[]
 
     ControlledDatasetRequest ControlledDatasetRequest[]
+
+    DatasetRegistrationDetails DatasetRegistrationDetails[]
+}
+
+model DatasetRegistrationDetails {
+    // A table to store where we registered the dataset from. Mainly used for external datasets.
+    id String @id @default(cuid(2))
+
+    datasetId String  @unique
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    datasetSource     String // "zenodo" | "pubmed" | ...
+    extractionMethod  String // "manual" | "ep-extraction-script" | ...
+    extractionVersion String? // "1.0.0" | 
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model DatasetMember {

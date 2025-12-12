@@ -18,13 +18,11 @@
             </h2>
             <ul class="flex flex-col gap-1">
               <li>
-                <a href="/" class="hover:underline"> About the project </a>
+                <a href="/about" class="hover:underline"> About the project </a>
               </li>
+
               <li>
-                <a href="/" class="hover:underline"> How to upload files </a>
-              </li>
-              <li>
-                <a href="/" class="hover:underline"> Contact us </a>
+                <a href="/contact" class="hover:underline"> Contact us </a>
               </li>
             </ul>
           </div>
