@@ -32,6 +32,8 @@ const selectedLabelingMethod = ref<string>("");
 const selectedValidationInfo = ref<string>("");
 const selectedKeyword = ref<string>("");
 
+const searchQuery = ref<string>("");
+
 const keywords = computed(() => {
   const allKeywords =
     datasets.value?.flatMap(
@@ -97,6 +99,11 @@ const filteredDatasets = computed(() => {
 
   return list;
 });
+
+const searchDatasets = () => {
+  // todo: implement search
+  console.log(searchQuery.value);
+};
 </script>
 
 <template>
@@ -175,6 +182,22 @@ const filteredDatasets = computed(() => {
         </div>
 
         <div class="flex w-full flex-col gap-4 md:w-4/5">
+          <!-- search bar -->
+          <div class="flex items-center gap-2">
+            <UInput
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search datasets..."
+            />
+
+            <UButton
+              color="primary"
+              variant="soft"
+              icon="material-symbols:search"
+              @click="searchDatasets"
+            />
+          </div>
+
           <NuxtLink
             v-for="dataset in filteredDatasets"
             :key="dataset.id"
@@ -185,18 +208,33 @@ const filteredDatasets = computed(() => {
             >
               <template #header>
                 <div class="flex flex-col">
-                  <div class="mb-1 flex items-center gap-2">
-                    <UBadge color="primary" variant="outline">
-                      Version {{ dataset.versionTitle }}
-                    </UBadge>
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="mb-1 flex items-center gap-2">
+                      <UBadge color="primary" variant="outline">
+                        Version {{ dataset.versionTitle }}
+                      </UBadge>
 
-                    <UBadge
-                      v-if="dataset.external"
-                      color="warning"
-                      variant="soft"
+                      <UBadge
+                        v-if="dataset.external"
+                        color="warning"
+                        variant="soft"
+                      >
+                        External Dataset
+                      </UBadge>
+                    </div>
+
+                    <UTooltip
+                      text="This dataset was found via our automated discovery process."
                     >
-                      External Dataset
-                    </UBadge>
+                      <UBadge
+                        color="primary"
+                        variant="soft"
+                        class="cursor-help"
+                      >
+                        <Icon name="material-symbols:auto-mode" size="14" />
+                        Found via automated discovery
+                      </UBadge>
+                    </UTooltip>
                   </div>
 
                   <h2 class="text-xl font-semibold text-blue-400">
