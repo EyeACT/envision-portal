@@ -19,7 +19,7 @@
     "prisma:db:push": "prisma db push",
     "prisma:db:pull": "prisma db pull",
     "postinstall": "nuxt prepare && prisma generate",
-    "reset": "rimraf node_modules .nuxt .output dist && yarn install",
+    "reset": "rm -rf node_modules .nuxt .output dist && yarn install",
     "prune-branches": "npx git-removed-branches --prune --force",
     "scripts:edit:record": "tsx ./scripts/edit-record.ts",
     "scripts:create:record": "tsx ./scripts/create-record.ts"
