@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
 import type { AccordionItem } from "@nuxt/ui";
+import type { DiscoveryDatasetList } from "#shared/types/dataset";
 
 definePageMeta({ layout: "public" });
 
@@ -10,7 +11,7 @@ useSeoMeta({
 
 const toast = useToast();
 
-const { data: datasets, error } = await useFetch<Dataset[]>(
+const { data: datasets, error } = await useFetch<DiscoveryDatasetList[]>(
   "/api/discover/dataset",
 );
 
@@ -33,18 +34,6 @@ const selectedValidationInfo = ref<string>("");
 const selectedKeyword = ref<string>("");
 
 const searchQuery = ref<string>("");
-
-const keywords = computed(() => {
-  const allKeywords =
-    datasets.value?.flatMap(
-      (ds) =>
-        ds.publishedMetadata?.studyDescription?.conditionsModule?.keywordList?.map(
-          (kw: { keywordValue: string }) => kw.keywordValue,
-        ) || [],
-    ) || [];
-
-  return Array.from(new Set(allKeywords));
-});
 
 const labelingMethods = computed(() =>
   Array.from(
@@ -77,10 +66,9 @@ const filteredDatasets = computed(() => {
 
   if (selectedKeyword.value) {
     list = list.filter((dataset) =>
-      dataset.publishedMetadata?.studyDescription?.conditionsModule?.keywordList?.some(
-        (keyword: { keywordValue: string }) =>
-          keyword.keywordValue.toLowerCase() ===
-          selectedKeyword.value.toLowerCase(),
+      dataset.keywords.some(
+        (keyword) =>
+          keyword.toLowerCase() === selectedKeyword.value.toLowerCase(),
       ),
     );
   }
@@ -123,7 +111,9 @@ const searchDatasets = () => {
                 class="flex flex-wrap gap-2 p-2"
               >
                 <UBadge
-                  v-for="keyword in keywords"
+                  v-for="keyword in Array.from(
+                    new Set(filteredDatasets.flatMap((ds) => ds.keywords)),
+                  )"
                   :key="keyword"
                   variant="soft"
                   class="cursor-pointer transition-all hover:bg-blue-100"
@@ -232,7 +222,11 @@ const searchDatasets = () => {
                         class="cursor-help"
                       >
                         <Icon name="material-symbols:auto-mode" size="14" />
-                        Found via automated discovery
+                        {{
+                          dataset.registrationSource === "Manual Registration"
+                            ? "Registered manually"
+                            : "Automated Discovery"
+                        }}
                       </UBadge>
                     </UTooltip>
                   </div>
@@ -264,13 +258,12 @@ const searchDatasets = () => {
 
                   <div class="flex flex-wrap gap-2">
                     <UBadge
-                      v-for="keyword in dataset.publishedMetadata
-                        ?.studyDescription?.conditionsModule?.keywordList ?? []"
-                      :key="keyword.keywordValue"
+                      v-for="keyword in dataset.keywords"
+                      :key="keyword"
                       variant="outline"
                       class="text-xs"
                     >
-                      {{ keyword.keywordValue }}
+                      {{ keyword }}
                     </UBadge>
                   </div>
                 </div>
@@ -285,26 +278,14 @@ const searchDatasets = () => {
 
                     <span class="text-gray-700">
                       <span
-                        v-if="
-                          dataset.publishedMetadata?.datasetDescription
-                            ?.creator &&
-                          dataset.publishedMetadata.datasetDescription.creator
-                            .length
-                        "
+                        v-if="dataset.creators && dataset.creators.length > 0"
                       >
                         <span
-                          v-for="(creator, index) in dataset.publishedMetadata
-                            .datasetDescription.creator"
+                          v-for="(creator, index) in dataset.creators"
                           :key="index"
                         >
                           {{ creator.creatorName
-                          }}<span
-                            v-if="
-                              index <
-                              dataset.publishedMetadata.datasetDescription
-                                .creator.length -
-                                1
-                            "
+                          }}<span v-if="index < dataset.creators.length - 1"
                             >,
                           </span>
                         </span>
@@ -357,10 +338,7 @@ const searchDatasets = () => {
                   </div>
 
                   <div
-                    v-if="
-                      dataset.publishedMetadata?.datasetDescription.rights
-                        ?.length
-                    "
+                    v-if="dataset.rights && dataset.rights.length > 0"
                     class="flex items-center gap-3 text-sm"
                   >
                     <Icon
@@ -375,21 +353,30 @@ const searchDatasets = () => {
 
                     <span class="text-gray-700">
                       <span
-                        v-for="(right, index) in dataset.publishedMetadata
-                          .datasetDescription.rights"
+                        v-for="(right, index) in dataset.rights"
                         :key="index"
                       >
-                        {{ right.rightsName }}
-                        <span
-                          v-if="
-                            index <
-                            dataset.publishedMetadata.datasetDescription.rights
-                              .length -
-                              1
-                          "
-                          >,
-                        </span>
+                        {{ right }}
+                        <span v-if="index < dataset.rights.length - 1">, </span>
                       </span>
+                    </span>
+                  </div>
+
+                  <div
+                    class="flex items-center gap-3 text-sm"
+                    v-if="dataset.versionCount > 0"
+                  >
+                    <Icon
+                      name="mdi:file-document-multiple"
+                      size="14"
+                      class="text-blue-500"
+                    />
+                    <span class="min-w-[100px] font-medium text-gray-600"
+                      >Versions:</span
+                    >
+                    <span class="text-gray-700">
+                      This dataset has {{ dataset.versionCount }} other
+                      version{{ dataset.versionCount > 1 ? "s" : "" }}.
                     </span>
                   </div>
                 </div>
