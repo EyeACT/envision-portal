@@ -68,8 +68,8 @@ const validationInfos = computed(() =>
 
 const items = ref<AccordionItem[]>([
   { content: "", label: "Keywords" },
-  { content: "", label: "Method" },
-  { content: "", label: "Validation" },
+  // { content: "", label: "Method" },
+  // { content: "", label: "Validation" },
 ]);
 
 const filteredDatasets = computed(() => {
@@ -198,6 +198,34 @@ const searchDatasets = () => {
             />
           </div>
 
+          <!-- Dataset counts -->
+          <div class="flex justify-end gap-4 text-sm text-gray-600">
+            <span>
+              Showing
+              <strong class="text-gray-900">{{
+                filteredDatasets.length
+              }}</strong>
+              <span v-if="filteredDatasets.length !== (datasets?.length ?? 0)">
+                of
+                <strong class="text-gray-900">{{
+                  datasets?.length ?? 0
+                }}</strong>
+              </span>
+              {{ filteredDatasets.length === 1 ? "dataset" : "datasets" }}
+            </span>
+
+            <span
+              v-if="
+                selectedKeyword ||
+                selectedLabelingMethod ||
+                selectedValidationInfo
+              "
+              class="text-gray-400"
+            >
+              (filtered)
+            </span>
+          </div>
+
           <NuxtLink
             v-for="dataset in filteredDatasets"
             :key="dataset.id"
@@ -316,7 +344,7 @@ const searchDatasets = () => {
                     </span>
                   </div>
 
-                  <div class="flex items-center gap-3 text-sm">
+                  <!-- <div class="flex items-center gap-3 text-sm">
                     <Icon name="mdi:label" size="14" class="text-green-500" />
 
                     <span class="min-w-[100px] font-medium text-gray-600"
@@ -354,7 +382,7 @@ const searchDatasets = () => {
                         Not specified
                       </span>
                     </span>
-                  </div>
+                  </div> -->
 
                   <div
                     v-if="
