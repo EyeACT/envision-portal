@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@azure/storage-file-datalake": "^12.26.0",
+    "@internationalized/date": "^3.10.1",
     "@nuxt/content": "3.9.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@vueuse/core": "14.1.0",
