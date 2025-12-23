@@ -6,6 +6,63 @@ useSeoMeta({
 definePageMeta({
   layout: "public",
 });
+
+const timelineItems = [
+  {
+    title: "Architecture, standards, and base platform",
+    list: [
+      "Define the technical architecture and user workflow to align internally on major design decisions",
+      "Indentify data standards to make datasets FAIR and AI-ready (CDS structure, DICOM for imaging, OMOP for clinical tables)",
+      "Create initial wireframes and begin building the base code for the platform",
+      "Set up initial developer approach for open-source development (public GitHub, contribution-friendly structure)",
+    ],
+  },
+  {
+    title: "Data access and initial launch",
+    list: [
+      "Manually standardize one new dataset and publish it through the platform",
+      "Build core dataset sharing services: storage, DOI minting, dataset landing pages, and data access workflow",
+      "Index about 10 external eye imaging datasets from other repositories into the Envision Portal database",
+      "Launch Envision Portal for users to access the new dataset and discover indexed external datasets",
+      "Establish user and developer documentation and begin ongoing maintenance of docs",
+      "Start community outreach through conferences and webinars",
+    ],
+  },
+  {
+    title: "Uploader workflows and automation foundations",
+    list: [
+      "Build user-facing workflows to upload, manage, standardize, and share datasets through Envision Portal",
+      "Start automated tooling for data standardization and preparation",
+      "Implement PHI detection and removal tooling, plus validation support",
+      "Add dataset versioning workflows",
+      "Develop an automated pipeline to detect and index eye imaging datasets from other repositories",
+      "Define federated learning approach with the Alzheimer's Disease Data Initiative (ADDI)",
+      "If needed, build a desktop upload and download app to improve user experience",
+    ],
+  },
+  {
+    title: "Controlled access, advanced discovery, and reuse",
+    list: [
+      "Continue improving data standardization tooling",
+      "Implement advanced data access features, including controlled access request workflows",
+      "Add advanced dataset discovery features, including robust search and filtering",
+      "Deliver a robust API for integration with AI and ML pipelines",
+      "Add in-portal preview and visualization for common formats (CSV, XLSX, DICOM, BMP, and image formats) before download",
+      "Build initial federated learning capabilities",
+      "Support datasets shared by external groups and expand the number of indexed external datasets",
+    ],
+  },
+  {
+    title: "Scale, security validation, and long-term sustainability",
+    list: [
+      "Complete federated learning capabilities",
+      "Conduct full security validation to prepare for large-scale independent submissions and sharing",
+      "Establish contribution guidelines and support community-driven extensions of the platform",
+      "Pursue outreach for wide adoption and formal recognition as a trusted domain repository",
+      "Execute the sustainability plan to support development and operations beyond current funding",
+    ],
+  },
+];
 </script>
 
 <template>
@@ -188,78 +245,39 @@ definePageMeta({
           </p>
         </div>
 
-        <ol class="relative border-s border-gray-200 dark:border-gray-700">
-          <li class="ms-6">
-            <span
-              class="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900"
-            >
-              <svg
-                class="h-2.5 w-2.5 text-blue-800 dark:text-blue-300"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
+        <UiTimeline
+          :items="[
+            { id: 'year-0', label: 'Year 1' },
+            { id: 'year-1', label: 'Year 2' },
+            { id: 'year-2', label: 'Year 3' },
+            { id: 'year-3', label: 'Year 4' },
+            { id: 'year-4', label: 'Year 5' },
+          ]"
+        >
+          <!-- Loop through timelineItems to create templates -->
+          <template
+            v-for="(item, index) in timelineItems"
+            :key="index"
+            v-slot:[`year-${index}`]
+          >
+            <div class="md:pl-20">
+              <div class="relative w-full pr-4 pl-20 md:pl-4">
+                <h3
+                  class="mb-4 block text-left text-2xl font-bold text-teal-600 dark:text-neutral-500"
+                >
+                  {{ item.title }}
+                </h3>
+              </div>
+              <ul
+                class="list-disc space-y-2 pl-8 text-gray-600 dark:text-gray-300"
               >
-                <path
-                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
-                />
-              </svg>
-            </span>
-
-            <h3
-              class="mb-1 flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white"
-            >
-              Envision Portal v0.1.0
-              <span
-                class="rounded-sm bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-              >
-                Latest
-              </span>
-            </h3>
-
-            <time
-              class="mb-2 block text-sm leading-none font-normal text-gray-400 dark:text-gray-500"
-            >
-              Current Development Version
-            </time>
-
-            <p class="text-base font-normal text-gray-500 dark:text-gray-400">
-              The first version of the Envision Portal includes comprehensive
-              features for eye imaging data management. Users can create
-              accounts with email verification, manage datasets through an
-              intuitive dashboard, and upload files using Azure Data Lake
-              integration. The platform supports rich metadata collection
-              including study descriptions, dataset descriptions, and health
-              sheets for AI-ready data documentation. Access control features
-              allow for both public and controlled dataset access with request
-              management. The platform includes dataset publishing workflows,
-              version management, and comprehensive search and discovery
-              capabilities for finding eye imaging datasets.
-            </p>
-
-            <div class="mt-4 flex flex-wrap gap-2">
-              <UButton
-                to="/app/dashboard"
-                icon="ri-dashboard-line"
-                size="sm"
-                color="primary"
-                variant="outline"
-              >
-                Dashboard
-              </UButton>
-
-              <UButton
-                to="/datasets"
-                icon="ri-eye-line"
-                size="sm"
-                color="primary"
-                variant="outline"
-              >
-                Browse Datasets
-              </UButton>
+                <li v-for="(task, taskIndex) in item.list" :key="taskIndex">
+                  {{ task }}
+                </li>
+              </ul>
             </div>
-          </li>
-        </ol>
+          </template>
+        </UiTimeline>
       </div>
     </UContainer>
 
