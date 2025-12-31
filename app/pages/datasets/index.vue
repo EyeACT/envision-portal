@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
+import {
+  CalendarDate,
+  DateFormatter,
+  getLocalTimeZone,
+} from "@internationalized/date";
 import type { AccordionItem } from "@nuxt/ui";
+import type { DiscoveryDatasetList } from "#shared/types/dataset";
 
 definePageMeta({ layout: "public" });
 
@@ -10,7 +16,7 @@ useSeoMeta({
 
 const toast = useToast();
 
-const { data: datasets, error } = await useFetch<Dataset[]>(
+const { data: datasets, error } = await useFetch<DiscoveryDatasetList[]>(
   "/api/discover/dataset",
 );
 
@@ -28,48 +34,21 @@ const getDaysAgo = (date: string | Date): string => {
   return daysAgo === 0 ? "Today" : `${Math.abs(daysAgo)} days ago`;
 };
 
-const selectedLabelingMethod = ref<string>("");
-const selectedValidationInfo = ref<string>("");
 const selectedKeyword = ref<string>("");
-
 const searchQuery = ref<string>("");
 
-const keywords = computed(() => {
-  const allKeywords =
-    datasets.value?.flatMap(
-      (ds) =>
-        ds.publishedMetadata?.studyDescription?.conditionsModule?.keywordList?.map(
-          (kw: { keywordValue: string }) => kw.keywordValue,
-        ) || [],
-    ) || [];
-
-  return Array.from(new Set(allKeywords));
+const df = new DateFormatter("en-US", {
+  dateStyle: "medium",
 });
 
-const labelingMethods = computed(() =>
-  Array.from(
-    new Set(
-      (datasets.value || [])
-        .map((ds) => ds.labelingMethod)
-        .filter((v): v is string => typeof v === "string" && v.trim() !== ""),
-    ),
-  ),
-);
-
-const validationInfos = computed(() =>
-  Array.from(
-    new Set(
-      (datasets.value || [])
-        .map((ds) => ds.validationInfo)
-        .filter((v): v is string => typeof v === "string" && v.trim() !== ""),
-    ),
-  ),
-);
+const dateRange = shallowRef({
+  start: new CalendarDate(2020, 1, 1),
+  end: new CalendarDate(2025, 12, 31),
+});
 
 const items = ref<AccordionItem[]>([
   { content: "", label: "Keywords" },
-  // { content: "", label: "Method" },
-  // { content: "", label: "Validation" },
+  { content: "", label: "Date Range" },
 ]);
 
 const filteredDatasets = computed(() => {
@@ -77,24 +56,28 @@ const filteredDatasets = computed(() => {
 
   if (selectedKeyword.value) {
     list = list.filter((dataset) =>
-      dataset.publishedMetadata?.studyDescription?.conditionsModule?.keywordList?.some(
-        (keyword: { keywordValue: string }) =>
-          keyword.keywordValue.toLowerCase() ===
-          selectedKeyword.value.toLowerCase(),
+      dataset.keywords.some(
+        (keyword) =>
+          keyword.toLowerCase() === selectedKeyword.value.toLowerCase(),
       ),
     );
   }
 
-  if (selectedLabelingMethod.value) {
-    list = list.filter(
-      (dataset) => dataset.labelingMethod === selectedLabelingMethod.value,
-    );
-  }
+  if (dateRange.value?.start && dateRange.value?.end) {
+    const startDate = dateRange.value.start.toDate(getLocalTimeZone());
+    const endDate = dateRange.value.end.toDate(getLocalTimeZone());
 
-  if (selectedValidationInfo.value) {
-    list = list.filter(
-      (dataset) => dataset.validationInfo === selectedValidationInfo.value,
-    );
+    list = list.filter((dataset) => {
+      const datasetDate = dayjs(dataset.created).toDate();
+      return datasetDate >= startDate && datasetDate <= endDate;
+    });
+  } else if (dateRange.value?.start) {
+    const startDate = dateRange.value.start.toDate(getLocalTimeZone());
+
+    list = list.filter((dataset) => {
+      const datasetDate = dayjs(dataset.created).toDate();
+      return datasetDate >= startDate;
+    });
   }
 
   return list;
@@ -123,7 +106,9 @@ const searchDatasets = () => {
                 class="flex flex-wrap gap-2 p-2"
               >
                 <UBadge
-                  v-for="keyword in keywords"
+                  v-for="keyword in Array.from(
+                    new Set(filteredDatasets.flatMap((ds) => ds.keywords)),
+                  )"
                   :key="keyword"
                   variant="soft"
                   class="cursor-pointer transition-all hover:bg-blue-100"
@@ -136,46 +121,42 @@ const searchDatasets = () => {
                 </UBadge>
               </div>
 
-              <div
-                v-else-if="item.label === 'Method'"
-                class="flex flex-wrap gap-2 p-2"
-              >
-                <UBadge
-                  v-for="method in labelingMethods"
-                  :key="method || 'unknown-method'"
-                  variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
-                  :color="
-                    method === selectedLabelingMethod ? 'primary' : 'neutral'
-                  "
-                  @click="
-                    selectedLabelingMethod =
-                      method === selectedLabelingMethod ? '' : method
-                  "
-                >
-                  {{ method }}
-                </UBadge>
-              </div>
+              <div v-else-if="item.label === 'Date Range'" class="p-2">
+                <UPopover>
+                  <UButton
+                    color="neutral"
+                    variant="subtle"
+                    icon="i-lucide-calendar"
+                    class="w-full"
+                  >
+                    <template v-if="dateRange?.start">
+                      <template v-if="dateRange?.end">
+                        {{
+                          df.format(dateRange.start.toDate(getLocalTimeZone()))
+                        }}
+                        -
+                        {{
+                          df.format(dateRange.end.toDate(getLocalTimeZone()))
+                        }}
+                      </template>
+                      <template v-else>
+                        {{
+                          df.format(dateRange.start.toDate(getLocalTimeZone()))
+                        }}
+                      </template>
+                    </template>
+                    <template v-else> Pick a date </template>
+                  </UButton>
 
-              <div
-                v-else-if="item.label === 'Validation'"
-                class="flex flex-wrap gap-2 p-2"
-              >
-                <UBadge
-                  v-for="info in validationInfos"
-                  :key="info || 'unknown-validation'"
-                  variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
-                  :color="
-                    info === selectedValidationInfo ? 'primary' : 'neutral'
-                  "
-                  @click="
-                    selectedValidationInfo =
-                      info === selectedValidationInfo ? '' : info
-                  "
-                >
-                  {{ info }}
-                </UBadge>
+                  <template #content>
+                    <UCalendar
+                      v-model="dateRange"
+                      class="text-sm"
+                      :number-of-months="2"
+                      range
+                    />
+                  </template>
+                </UPopover>
               </div>
             </template>
           </UAccordion>
@@ -260,7 +241,11 @@ const searchDatasets = () => {
                         class="cursor-help"
                       >
                         <Icon name="material-symbols:auto-mode" size="14" />
-                        Found via automated discovery
+                        {{
+                          dataset.registrationSource === "Manual Registration"
+                            ? "Registered manually"
+                            : "Automated Discovery"
+                        }}
                       </UBadge>
                     </UTooltip>
                   </div>
@@ -292,13 +277,12 @@ const searchDatasets = () => {
 
                   <div class="flex flex-wrap gap-2">
                     <UBadge
-                      v-for="keyword in dataset.publishedMetadata
-                        ?.studyDescription?.conditionsModule?.keywordList ?? []"
-                      :key="keyword.keywordValue"
+                      v-for="keyword in dataset.keywords"
+                      :key="keyword"
                       variant="outline"
                       class="text-xs"
                     >
-                      {{ keyword.keywordValue }}
+                      {{ keyword }}
                     </UBadge>
                   </div>
                 </div>
@@ -313,26 +297,14 @@ const searchDatasets = () => {
 
                     <span class="text-gray-700">
                       <span
-                        v-if="
-                          dataset.publishedMetadata?.datasetDescription
-                            ?.creator &&
-                          dataset.publishedMetadata.datasetDescription.creator
-                            .length
-                        "
+                        v-if="dataset.creators && dataset.creators.length > 0"
                       >
                         <span
-                          v-for="(creator, index) in dataset.publishedMetadata
-                            .datasetDescription.creator"
+                          v-for="(creator, index) in dataset.creators"
                           :key="index"
                         >
                           {{ creator.creatorName
-                          }}<span
-                            v-if="
-                              index <
-                              dataset.publishedMetadata.datasetDescription
-                                .creator.length -
-                                1
-                            "
+                          }}<span v-if="index < dataset.creators.length - 1"
                             >,
                           </span>
                         </span>
@@ -385,10 +357,7 @@ const searchDatasets = () => {
                   </div> -->
 
                   <div
-                    v-if="
-                      dataset.publishedMetadata?.datasetDescription.rights
-                        ?.length
-                    "
+                    v-if="dataset.rights && dataset.rights.length > 0"
                     class="flex items-center gap-3 text-sm"
                   >
                     <Icon
@@ -403,21 +372,30 @@ const searchDatasets = () => {
 
                     <span class="text-gray-700">
                       <span
-                        v-for="(right, index) in dataset.publishedMetadata
-                          .datasetDescription.rights"
+                        v-for="(right, index) in dataset.rights"
                         :key="index"
                       >
-                        {{ right.rightsName }}
-                        <span
-                          v-if="
-                            index <
-                            dataset.publishedMetadata.datasetDescription.rights
-                              .length -
-                              1
-                          "
-                          >,
-                        </span>
+                        {{ right }}
+                        <span v-if="index < dataset.rights.length - 1">, </span>
                       </span>
+                    </span>
+                  </div>
+
+                  <div
+                    class="flex items-center gap-3 text-sm"
+                    v-if="dataset.versionCount > 0"
+                  >
+                    <Icon
+                      name="mdi:file-document-multiple"
+                      size="14"
+                      class="text-blue-500"
+                    />
+                    <span class="min-w-[100px] font-medium text-gray-600"
+                      >Versions:</span
+                    >
+                    <span class="text-gray-700">
+                      This dataset has {{ dataset.versionCount }} other
+                      version{{ dataset.versionCount > 1 ? "s" : "" }}.
                     </span>
                   </div>
                 </div>
