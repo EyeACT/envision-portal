@@ -41,10 +41,7 @@ const df = new DateFormatter("en-US", {
   dateStyle: "medium",
 });
 
-const dateRange = shallowRef({
-  start: new CalendarDate(2020, 1, 1),
-  end: new CalendarDate(2025, 12, 31),
-});
+const dateRange = shallowRef();
 
 const items = ref<AccordionItem[]>([
   { content: "", label: "Keywords" },
@@ -87,6 +84,15 @@ const searchDatasets = () => {
   // todo: implement search
   console.log(searchQuery.value);
 };
+
+const resetFilters = () => {
+  selectedKeyword.value = "";
+  dateRange.value = undefined;
+};
+
+const hasActiveFilters = computed(() => {
+  return selectedKeyword.value !== "" || dateRange.value !== undefined;
+});
 </script>
 
 <template>
@@ -122,36 +128,64 @@ const searchDatasets = () => {
               </div>
 
               <div v-else-if="item.label === 'Date Range'" class="p-2">
-                <UPopover>
+                <UPopover :popper="{ placement: 'bottom-start' }">
                   <UButton
                     color="neutral"
-                    variant="subtle"
+                    variant="soft"
                     icon="i-lucide-calendar"
-                    class="w-full"
+                    class="hover:border-primary-300 hover:bg-primary-50 w-full justify-start gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm transition-all"
+                    :ui="{
+                      base: 'text-gray-700 hover:text-primary-600',
+                      icon: { size: { sm: 'h-4 w-4' } },
+                    }"
                   >
                     <template v-if="dateRange?.start">
                       <template v-if="dateRange?.end">
-                        {{
-                          df.format(dateRange.start.toDate(getLocalTimeZone()))
-                        }}
-                        -
-                        {{
-                          df.format(dateRange.end.toDate(getLocalTimeZone()))
-                        }}
+                        <span class="font-medium">
+                          {{
+                            df.format(
+                              dateRange.start.toDate(getLocalTimeZone()),
+                            )
+                          }}
+                        </span>
+                        <span class="text-gray-400">-</span>
+                        <span class="font-medium">
+                          {{
+                            df.format(dateRange.end.toDate(getLocalTimeZone()))
+                          }}
+                        </span>
                       </template>
                       <template v-else>
-                        {{
-                          df.format(dateRange.start.toDate(getLocalTimeZone()))
-                        }}
+                        <span class="font-medium">
+                          {{
+                            df.format(
+                              dateRange.start.toDate(getLocalTimeZone()),
+                            )
+                          }}
+                        </span>
                       </template>
                     </template>
-                    <template v-else> Pick a date </template>
+                    <template v-else>
+                      <span class="text-gray-400">Pick a date</span>
+                    </template>
                   </UButton>
 
                   <template #content>
                     <UCalendar
                       v-model="dateRange"
-                      class="text-sm"
+                      class="rounded-lg border border-gray-200 bg-white p-3 shadow-lg"
+                      :ui="{
+                        base: 'text-sm',
+                        cell: {
+                          base: 'rounded-md transition-all',
+                          selected:
+                            'bg-primary-500 text-white hover:bg-primary-600',
+                          range: 'bg-primary-100',
+                        },
+                        header: {
+                          base: 'text-gray-700 font-semibold',
+                        },
+                      }"
                       :number-of-months="2"
                       range
                     />
@@ -179,32 +213,43 @@ const searchDatasets = () => {
             />
           </div>
 
-          <!-- Dataset counts -->
-          <div class="flex justify-end gap-4 text-sm text-gray-600">
-            <span>
-              Showing
-              <strong class="text-gray-900">{{
-                filteredDatasets.length
-              }}</strong>
-              <span v-if="filteredDatasets.length !== (datasets?.length ?? 0)">
-                of
-                <strong class="text-gray-900">{{
-                  datasets?.length ?? 0
-                }}</strong>
-              </span>
-              {{ filteredDatasets.length === 1 ? "dataset" : "datasets" }}
-            </span>
+          <!-- Dataset counts and reset button -->
+          <div class="flex items-center justify-between gap-4">
+            <div v-if="hasActiveFilters">
+              <UButton
+                color="neutral"
+                variant="soft"
+                icon="i-lucide-x"
+                size="sm"
+                class="transition-all hover:bg-red-50 hover:text-red-600"
+                @click="resetFilters"
+              >
+                Reset filters
+              </UButton>
+            </div>
+            <div v-else class="flex-1"></div>
 
-            <span
-              v-if="
-                selectedKeyword ||
-                selectedLabelingMethod ||
-                selectedValidationInfo
-              "
-              class="text-gray-400"
-            >
-              (filtered)
-            </span>
+            <div class="flex gap-4 text-sm text-gray-600">
+              <span>
+                Showing
+                <strong class="text-gray-900">{{
+                  filteredDatasets.length
+                }}</strong>
+                <span
+                  v-if="filteredDatasets.length !== (datasets?.length ?? 0)"
+                >
+                  of
+                  <strong class="text-gray-900">{{
+                    datasets?.length ?? 0
+                  }}</strong>
+                </span>
+                {{ filteredDatasets.length === 1 ? "dataset" : "datasets" }}
+              </span>
+
+              <span v-if="hasActiveFilters" class="text-gray-400">
+                (filtered)
+              </span>
+            </div>
           </div>
 
           <NuxtLink
