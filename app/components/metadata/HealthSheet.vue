@@ -58,10 +58,22 @@ const healthsheetData = [
     data: props.metadata.maintenance,
   },
 ];
+
+// Check if all healthsheet data is empty
+const isHealthsheetEmpty = computed(() => {
+  return healthsheetData.every((item) => item.data.length === 0);
+});
 </script>
 
 <template>
   <div class="space-y-6">
+    <p
+      v-if="isHealthsheetEmpty"
+      class="my-20 flex justify-center font-semibold text-gray-400 italic"
+    >
+      Unavailable
+    </p>
+
     <CardCollapsibleContent
       v-for="(item, index) in healthsheetData"
       v-show="item.data.length > 0"
@@ -89,7 +101,10 @@ const healthsheetData = [
       </div>
     </CardCollapsibleContent>
 
-    <CardCollapsibleContent title="View the full Healthsheet file">
+    <CardCollapsibleContent
+      v-if="!isHealthsheetEmpty"
+      title="View the full Healthsheet file"
+    >
       <pre>{{ props.metadata }}</pre>
     </CardCollapsibleContent>
   </div>
