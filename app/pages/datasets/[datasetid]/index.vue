@@ -285,7 +285,19 @@ if (dataset.value) {
             </template>
 
             <template #files>
-              <UTree multiple :items="dataset?.files || []" />
+              <UTree
+                v-if="!dataset?.external"
+                multiple
+                :items="dataset?.files || []"
+              />
+
+              <div
+                v-else
+                class="my-20 flex justify-center font-semibold text-gray-400 italic"
+              >
+                This dataset is hosted on an external platform. Click on the
+                "Access Dataset" button above to get the dataset files.
+              </div>
             </template>
 
             <template #versions>
