@@ -71,7 +71,7 @@ const isHealthsheetEmpty = computed(() => {
       v-if="isHealthsheetEmpty"
       class="my-20 flex justify-center font-semibold text-gray-400 italic"
     >
-      Unavailable
+      No Healthsheet information available for this dataset.
     </p>
 
     <CardCollapsibleContent
