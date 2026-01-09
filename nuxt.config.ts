@@ -18,6 +18,10 @@ export default defineNuxtConfig({
               : "df7cf3a6-0b7b-4f50-9e5e-c7ad8211d28b",
           src: "https://umami.fairdataihub.org/mushroom",
         },
+        {
+          src: "https://tally.so/widgets/embed.js",
+          async: true,
+        },
       ],
     },
   },
