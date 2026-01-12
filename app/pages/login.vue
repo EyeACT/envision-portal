@@ -85,7 +85,16 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     <UCard
       class="w-full max-w-sm self-center bg-white/75 backdrop-blur dark:bg-white/5"
     >
-      <div class="w-full max-w-sm px-4 py-5 sm:p-6">
+      <div class="w-full max-w-sm px-4 py-5 sm:p-2">
+        <UAlert
+          color="warning"
+          variant="subtle"
+          title="This platform is currently invite only"
+          description="As we are still in development, we are only allowing invited users to access the platform"
+          class="mb-6"
+          icon="material-symbols:lock-outline"
+        />
+
         <div class="flex flex-col items-center justify-center">
           <Icon name="iconoir:lock" :size="40" />
 
@@ -155,17 +164,17 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             Terms of Service</NuxtLink
           >.
         </p>
+
+        <hr class="my-4 border-gray-200" />
+
+        <p class="text-center text-sm text-slate-600">
+          Want to share an external dataset? No sign up required! Just
+          <NuxtLink to="/share-dataset" class="text-primary-500 font-medium"
+            >click here</NuxtLink
+          >
+          to fill a simple form and point us to your data.
+        </p>
       </template>
     </UCard>
-
-    <div class="mt-4 text-center text-sm text-slate-600">
-      <p>
-        Want to share an external dataset? No sign up required! Just
-        <NuxtLink to="/share-dataset" class="text-primary-500 font-medium"
-          >click here</NuxtLink
-        >
-        to fill a simple form and point us to your data.
-      </p>
-    </div>
   </div>
 </template>
