@@ -112,10 +112,19 @@ const consentTypeOptions = [
   <UContainer class="py-8">
     <div class="mx-auto max-w-4xl">
       <h1 class="mb-2 text-3xl font-bold">Register External Dataset</h1>
-      <p class="mb-8 text-gray-600 dark:text-gray-400">
+      <p class="mb-4 text-gray-600 dark:text-gray-400">
         Share an external dataset with the Envision Portal community. Fill in
         the required information below.
       </p>
+
+      <UAlert
+        color="info"
+        variant="soft"
+        title="Review Process"
+        description="Your submission will be placed under review and published after approval by our team."
+        class="mb-8"
+        icon="material-symbols:info-outline"
+      />
 
       <UForm
         :schema="schema"
