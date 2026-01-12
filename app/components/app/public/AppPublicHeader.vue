@@ -55,13 +55,13 @@ const logout = async () => {
 
       <div class="flex items-center justify-center gap-3">
         <AuthState v-slot="{ loggedIn }">
-          <NuxtLink
+          <!-- <NuxtLink
             to="https://docs.envision.io"
             class="mr-3 inline-flex items-center gap-1 text-base font-medium transition-colors hover:text-teal-500"
           >
             Docs
             <Icon name="tabler:external-link" size="18" />
-          </NuxtLink>
+          </NuxtLink> -->
 
           <div v-if="loggedIn" class="flex items-center justify-center gap-3">
             <UButton color="neutral" variant="outline" @click="logout">
