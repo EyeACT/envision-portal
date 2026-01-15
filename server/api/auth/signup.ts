@@ -13,6 +13,15 @@ const signupSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
+  const { environment } = config.public;
+
+  if (environment === "production" || environment === "staging") {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Signup has been disabled",
+    });
+  }
+
   const body = await readValidatedBody(event, (b) => signupSchema.safeParse(b));
 
   if (!body.success) {
@@ -33,6 +42,20 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 401,
       statusMessage: "Email address already in use",
+    });
+  }
+
+  // Check if the user has a platform invitation
+  const platformInvitation = await prisma.platformInvitation.findFirst({
+    where: {
+      emailAddress: body.data.emailAddress,
+    },
+  });
+
+  if (!platformInvitation) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "User does not have a platform invitation",
     });
   }
 
