@@ -37,7 +37,8 @@ COPY --from=builder /app/.output ./
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-
+# Copy the Prisma schema & migrations, so `prisma migrate deploy` can see them
+COPY --from=builder /app/prisma ./prisma
 
 # Create startup script that runs migrations before starting the app
 RUN echo '#!/bin/sh' > /app/start.sh && \
@@ -47,3 +48,4 @@ RUN echo '#!/bin/sh' > /app/start.sh && \
 
 EXPOSE 3000
 
+CMD ["/bin/sh", "/app/start.sh"]
