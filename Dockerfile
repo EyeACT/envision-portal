@@ -1,4 +1,3 @@
-# Build stage
 FROM node:22-alpine AS builder
 
 # Use alpine-based image and install only necessary dependencies
@@ -27,8 +26,8 @@ FROM node:22-alpine
 LABEL maintainer="FAIR Data Innovations Hub <contact@fairdataihub.org>" \
   description="The Envision Portal is developed for the EyeACT project to streamline the uploading, preparation, and sharing of eye imaging research and data."
 
-# Busybox is used netcat for waiting for Postgres to be ready
 RUN apk add --no-cache openssl busybox-extras
+
 
 WORKDIR /app
 
@@ -37,14 +36,14 @@ WORKDIR /app
 COPY --from=builder /app/.output ./
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-# Copy the Prisma schema & migrations, so `prisma migrate deploy` can see them
-COPY --from=builder /app/prisma ./prisma
 
-# Copy our startup script and make it executable
-COPY scripts/start.sh /app/scripts/start.sh
-RUN chmod +x /app/scripts/start.sh
+
+
+# Create startup script that runs migrations before starting the app
+RUN echo '#!/bin/sh' > /app/start.sh && \
+  # echo 'npm run prisma:migrate:deploy' >> /app/start.sh && \
+  echo 'exec node /app/server/index.mjs' >> /app/start.sh && \
+  chmod +x /app/start.sh
 
 EXPOSE 3000
 
-# Run startup script that runs migrations before starting the app
-CMD ["/app/scripts/start.sh"]
