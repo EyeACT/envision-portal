@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { z } from "zod";
 import type { FormSubmitEvent } from "#ui/types";
-import { faker } from "@faker-js/faker";
 
 const { loggedIn } = useUserSession();
 const { environment } = useRuntimeConfig().public;
@@ -33,10 +32,10 @@ const schema = z.object({
 type Schema = z.output<typeof schema>;
 
 const state = reactive({
-  emailAddress: environment === "development" ? faker.internet.email() : "",
-  familyName: environment === "development" ? faker.person.lastName() : "",
-  givenName: environment === "development" ? faker.person.firstName() : "",
-  password: environment === "development" ? faker.internet.password() : "",
+  emailAddress: environment === "development" ? "rick@example.com" : "",
+  familyName: environment === "development" ? "Sanchez" : "",
+  givenName: environment === "development" ? "Rick" : "",
+  password: environment === "development" ? "12345678" : "",
 });
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {

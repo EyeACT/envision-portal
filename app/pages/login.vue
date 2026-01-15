@@ -33,8 +33,8 @@ const schema = z.object({
 type Schema = z.output<typeof schema>;
 
 const state = reactive({
-  emailAddress: environment === "development" ? faker.internet.email() : "",
-  password: environment === "development" ? faker.internet.password() : "",
+  emailAddress: environment === "development" ? "rick@example.com" : "",
+  password: environment === "development" ? "12345678" : "",
 });
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -147,6 +147,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             type="submit"
             class="flex w-full justify-center"
             :loading="loading"
+            :disabled="
+              environment === 'production' || environment === 'staging'
+            "
           >
             <template #trailing>
               <Icon name="i-heroicons-arrow-right-20-solid" size="20" />
