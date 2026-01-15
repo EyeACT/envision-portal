@@ -137,6 +137,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           type="submit"
           class="flex w-full justify-center"
           :loading="loading"
+          :disabled="environment === 'production' || environment === 'staging'"
         >
           Create account
         </UButton>
