@@ -3,11 +3,10 @@ import { z } from "zod";
 import type { FormSubmitEvent } from "#ui/types";
 
 const { loggedIn } = useUserSession();
+const { environment } = useRuntimeConfig().public;
 const route = useRoute();
 
 const routeQueryParams = route.query;
-
-console.log(routeQueryParams);
 
 if (loggedIn.value) {
   await navigateTo("/app/dashboard");
@@ -34,8 +33,8 @@ const schema = z.object({
 type Schema = z.output<typeof schema>;
 
 const state = reactive({
-  emailAddress: "rick@example.com",
-  password: "12345678",
+  emailAddress: environment === "development" ? "rick@example.com" : "",
+  password: environment === "development" ? "12345678" : "",
 });
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -148,6 +147,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             type="submit"
             class="flex w-full justify-center"
             :loading="loading"
+            :disabled="
+              environment === 'production' || environment === 'staging'
+            "
           >
             <template #trailing>
               <Icon name="i-heroicons-arrow-right-20-solid" size="20" />

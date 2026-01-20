@@ -7,6 +7,15 @@ const loginSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig();
+
+  if (config.public.environment === "production") {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Login has been disabled",
+    });
+  }
+
   const body = await readValidatedBody(event, (b) => loginSchema.safeParse(b));
 
   if (!body.success) {

@@ -1,5 +1,4 @@
-# Build stage
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Use alpine-based image and install only necessary dependencies
 RUN apk add --no-cache openssl
@@ -22,12 +21,13 @@ COPY . .
 RUN yarn run build
 
 # Production stage
-FROM node:20-alpine
+FROM node:22-alpine
 
 LABEL maintainer="FAIR Data Innovations Hub <contact@fairdataihub.org>" \
   description="The Envision Portal is developed for the EyeACT project to streamline the uploading, preparation, and sharing of eye imaging research and data."
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl busybox-extras
+
 
 WORKDIR /app
 
@@ -36,6 +36,9 @@ WORKDIR /app
 COPY --from=builder /app/.output ./
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy the Prisma schema & migrations, so `prisma migrate deploy` can see them
+COPY --from=builder /app/prisma ./prisma
 
 # Create startup script that runs migrations before starting the app
 RUN echo '#!/bin/sh' > /app/start.sh && \

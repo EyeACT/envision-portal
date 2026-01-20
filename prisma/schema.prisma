@@ -42,6 +42,15 @@ model User {
     @@index([emailAddress])
 }
 
+model platformInvitation {
+    id String @id @default(cuid(2))
+
+    emailAddress String
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+}
+
 model Notification {
     id String @id @default(cuid(2))
 
