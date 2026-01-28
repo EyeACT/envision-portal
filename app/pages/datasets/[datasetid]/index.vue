@@ -126,7 +126,7 @@ if (dataset.value) {
                 Keywords
               </div>
 
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2">
                 <UBadge
                   v-for="item in dataset?.metadata?.studyDescription
                     ?.conditionsModule?.keywordList"
@@ -165,7 +165,10 @@ if (dataset.value) {
               </div>
 
               <p class="text-sm text-gray-500">
-                {{ dataset?.metadata.datasetDescription.rights[0].rightsName }}
+                {{
+                  dataset?.metadata.datasetDescription.rights[0]?.rightsName ||
+                  "Unknown"
+                }}
               </p>
             </div>
           </div>

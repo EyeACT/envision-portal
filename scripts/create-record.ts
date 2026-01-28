@@ -35,6 +35,13 @@ const main = async () => {
         studyTitle: DatasetRecord.studyTitle,
         updated: new Date(parseInt(DatasetRecord.created) * 1000),
         versionTitle: DatasetRecord.versionTitle,
+        PublishedDatasetRegistrationDetails: {
+          create: {
+            datasetSource: "Unknown",
+            extractionMethod: "Manual Registration",
+            extractionVersion: "0.0.0",
+          },
+        },
       },
     });
   }
