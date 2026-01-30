@@ -30,7 +30,6 @@ export default defineNuxtConfig({
   },
   compatibilityDate: "2025-01-16",
   css: ["~/assets/css/main.css"],
-
   dayjs: {
     defaultLocale: "en",
     defaultTimezone: "America/Los_Angeles",
@@ -43,7 +42,25 @@ export default defineNuxtConfig({
     "dayjs-nuxt",
     "@nuxt/eslint",
     "@nuxt/content",
+    "@scalar/nuxt",
   ],
+  nitro: {
+    experimental: {
+      openAPI: true,
+    },
+  },
+  scalar: {
+    darkMode: true,
+    hideModels: false,
+    metaData: {
+      title: "API Documentation by Scalar",
+    },
+    searchHotKey: "k",
+    showSidebar: true,
+    pathRouting: {
+      basePath: "/scalar",
+    },
+  },
   runtimeConfig: {
     AZURE_DRAFT_ACCOUNT_KEY: process.env.AZURE_DRAFT_ACCOUNT_KEY,
     AZURE_DRAFT_CONNECTION_STRING: process.env.AZURE_DRAFT_CONNECTION_STRING,
