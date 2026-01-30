@@ -42,13 +42,12 @@ export default defineNuxtConfig({
     "dayjs-nuxt",
     "@nuxt/eslint",
     "@nuxt/content",
-    "@scalar/nuxt",
   ],
-  nitro: {
-    experimental: {
-      openAPI: true,
-    },
-  },
+  // nitro: {
+  //   experimental: {
+  //     openAPI: true,
+  //   },
+  // },
   runtimeConfig: {
     AZURE_DRAFT_ACCOUNT_KEY: process.env.AZURE_DRAFT_ACCOUNT_KEY,
     AZURE_DRAFT_CONNECTION_STRING: process.env.AZURE_DRAFT_CONNECTION_STRING,
