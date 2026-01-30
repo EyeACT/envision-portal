@@ -49,18 +49,6 @@ export default defineNuxtConfig({
       openAPI: true,
     },
   },
-  scalar: {
-    darkMode: true,
-    hideModels: false,
-    metaData: {
-      title: "API Documentation by Scalar",
-    },
-    searchHotKey: "k",
-    showSidebar: true,
-    pathRouting: {
-      basePath: "/scalar",
-    },
-  },
   runtimeConfig: {
     AZURE_DRAFT_ACCOUNT_KEY: process.env.AZURE_DRAFT_ACCOUNT_KEY,
     AZURE_DRAFT_CONNECTION_STRING: process.env.AZURE_DRAFT_CONNECTION_STRING,
