@@ -70,7 +70,7 @@
     "tailwindcss-debug-screens": "^2.2.1",
     "tsx": "4.7.1",
     "typescript": "^5.9.3",
-    "vue": "latest",
+    "vue": "3.5.27",
     "zod": "^3.24.1"
   },
   "packageManager": "yarn@1.22.22",
