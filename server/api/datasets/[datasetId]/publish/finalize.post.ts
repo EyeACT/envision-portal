@@ -7,6 +7,7 @@ import {
   validateDatasetMetadata,
   validateStudyMetadata,
 } from "#shared/utils/validations";
+import generateDatasetDescription from "~~/server/utils/publish/generateDatasetDescription";
 
 const getPublishingStatusIndex = (status: string) => {
   const statusObject =
@@ -369,19 +370,19 @@ export default defineEventHandler(async (event) => {
 
   const firstEntry = DatasetRecords[0];
 
-  const datasetDescription = JSON.stringify(
-    firstEntry.publishedMetadata.datasetDescription,
-    null,
-    2,
+  const datasetDescription = await generateDatasetDescription(
+    datasetId,
+    userId,
   );
+
   const healthsheet = JSON.stringify(
-    firstEntry.publishedMetadata.healthsheet,
+    firstEntry?.publishedMetadata.healthsheet,
     null,
     2,
   );
-  const readme = JSON.stringify(firstEntry.publishedMetadata.readme, null, 2);
+  const readme = JSON.stringify(firstEntry?.publishedMetadata.readme, null, 2);
   const studyDescription = JSON.stringify(
-    firstEntry.publishedMetadata.studyDescription,
+    firstEntry?.publishedMetadata.studyDescription,
     null,
     2,
   );
