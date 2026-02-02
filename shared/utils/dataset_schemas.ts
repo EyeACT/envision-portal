@@ -88,7 +88,7 @@ export const DatasetMetadataAboutSchema = z
     language: z.string().min(2, "Language code is required"),
     resourceType: z.string().min(1, "Resource type is required"),
     resourceTypeName: z.string().min(1, "Resource type name is required"),
-    size: z.array(z.string().min(1)).min(1, "At least one size is required"),
+    size: z.array(z.string().min(1)).optional(),
     standardsFollowed: z.string(),
     validationInfo: z.string(),
   })
@@ -287,10 +287,14 @@ export const relatedIdentSchema = z
     local: z.boolean().optional(),
     relatedMetadataScheme: z.string().optional(),
     relationType: z.string().min(1, "Relation type is required"),
-    resourceType: z.string().refine((v) => resourceTypeOptions.includes(v), {
-      message: `Resource type must be one of: ${resourceTypeOptions.join(", ")}`,
-      path: ["resourceType"],
-    }),
+    resourceType: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => !v || resourceTypeOptions.includes(v), {
+        message: `Resource type must be one of: ${resourceTypeOptions.join(", ")}`,
+        path: ["resourceType"],
+      }),
     schemeType: z.string().optional(),
     schemeUri: z.union([z.literal(""), z.string().trim().url()]),
   })
@@ -459,7 +463,7 @@ export const funderSchema = z
       .string()
       .trim()
       .optional()
-      .refine((v) => funderIdentTypeOptions.includes(v as any), {
+      .refine((v) => !v || funderIdentTypeOptions.includes(v as any), {
         message: `Identifier type must be one of: ${funderIdentTypeOptions.join(", ")}`,
         path: ["identifierType"],
       }),
