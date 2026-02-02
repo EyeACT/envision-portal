@@ -102,16 +102,6 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (
-    state.size.length === 0 ||
-    state.size.some((val: string) => val.trim() === "")
-  ) {
-    errors.push({
-      name: "size",
-      message: "All size fields must be filled in.",
-    });
-  }
-
   return errors;
 };
 
