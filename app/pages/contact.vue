@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
-import type { FormSubmitEvent } from "#ui/types";
-
 useSeoMeta({
   title: "Contact Us",
 });
@@ -9,65 +6,11 @@ useSeoMeta({
 definePageMeta({
   layout: "public",
 });
-
-const toast = useToast();
-const loading = ref(false);
-
-const schema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Valid email is required"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-  subject: z.string().min(1, "Subject is required"),
-});
-
-type Schema = z.output<typeof schema>;
-
-const state = reactive({
-  name: "",
-  email: "",
-  message: "",
-  subject: "",
-});
-
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  loading.value = true;
-
-  await $fetch("/api/contact", {
-    body: event.data,
-    method: "POST",
-  })
-    .then((response: any) => {
-      toast.add({
-        title: "Message sent successfully!",
-        description: response.message,
-        icon: "material-symbols:check-circle-outline",
-      });
-
-      // Reset form
-      state.name = "";
-      state.email = "";
-      state.message = "";
-      state.subject = "";
-    })
-    .catch((error) => {
-      console.error(error);
-
-      toast.add({
-        title: "Error sending message",
-        color: "error",
-        description: error.data?.statusMessage || "Please try again later.",
-        icon: "material-symbols:error",
-      });
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}
 </script>
 
 <template>
   <UContainer class="py-12">
-    <div class="mb-8 text-center">
+    <div class="mb-4 text-center">
       <h1 class="mb-4 text-3xl font-bold">Contact Us</h1>
 
       <p class="text-lg">
@@ -75,6 +18,16 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         message and we'll respond as soon as possible.
       </p>
     </div>
+
+    <p
+      className="mb-8 w-full rounded-lg bg-yellow-50 p-2 text-center text-base font-normal text-slate-600"
+    >
+      Please read our
+      <NuxtLink href="/faq" class="text-primary-500 font-medium hover:underline"
+        >FAQ</NuxtLink
+      >
+      first - the answer to your question could be there!
+    </p>
 
     <UCard class="border border-slate-200 shadow-lg dark:border-slate-800">
       <iframe

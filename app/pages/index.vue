@@ -9,51 +9,53 @@ definePageMeta({
 
 const timelineItems = [
   {
-    title: "Architecture, standards, and base platform",
+    title:
+      "Platform foundation: architecture, standards, and first build (2024/2025)",
     list: [
-      "Define the technical architecture and user workflow to align internally on major design decisions",
-      "Indentify data standards to make datasets FAIR and AI-ready (CDS structure, DICOM for imaging, OMOP for clinical tables)",
-      "Create initial wireframes and begin building the base code for the platform",
-      "Set up initial developer approach for open-source development (public GitHub, contribution-friendly structure)",
+      "Agree on the technical architecture and end-to-end user workflow so everyone is aligned on the big decisions",
+      "Identify data standards to make datasets FAIR and AI-ready (CDS structure, DICOM for imaging, OMOP for clinical tables)",
+      "Create initial wireframes and start building the core platform code",
+      "Set up an open-source development approach (public GitHub, contributor-friendly structure)",
     ],
   },
   {
-    title: "Data access and initial launch",
+    title: "First dataset and public launch (2025/2026)",
     list: [
-      "Manually standardize one new dataset and publish it through the platform",
-      "Build core dataset sharing services: storage, DOI minting, dataset landing pages, and data access workflow",
-      "Index about 10 external eye imaging datasets from other repositories into the Envision Portal database",
-      "Launch Envision Portal for users to access the new dataset and discover indexed external datasets",
-      "Establish user and developer documentation and begin ongoing maintenance of docs",
-      "Start community outreach through conferences and webinars",
+      "Standardize the first new dataset and publish it through the platform",
+      "Build the essentials for sharing: storage, DOI minting, dataset landing pages, and an access workflow",
+      "Index ~10 external eye imaging datasets from other repositories into the Envision Portal database",
+      "Launch Envision Portal so users can access the new dataset and discover indexed external datasets",
+      "Publish user and developer documentation, and set up a process for ongoing updates",
+      "Begin community outreach through conferences and webinars",
     ],
   },
   {
-    title: "Uploader workflows and automation foundations",
+    title: "Upload experience and early automation (2026/2027)",
     list: [
-      "Build user-facing workflows to upload, manage, standardize, and share datasets through Envision Portal",
-      "Start automated tooling for data standardization and preparation",
-      "Implement PHI detection and removal tooling, plus validation support",
+      "Build user-facing workflows to upload, manage, standardize, and share datasets in Envision Portal",
+      "Kick off automation for data standardization and preparation",
+      "Implement PHI detection/removal tooling, plus validation checks",
       "Add dataset versioning workflows",
       "Develop an automated pipeline to detect and index eye imaging datasets from other repositories",
-      "Define federated learning approach with the Alzheimer's Disease Data Initiative (ADDI)",
-      "If needed, build a desktop upload and download app to improve user experience",
+      "Define a federated learning approach with the Alzheimer's Disease Data Initiative (ADDI)",
+      "If needed, build a desktop upload/download app to improve the experience for large transfers",
     ],
   },
   {
-    title: "Controlled access, advanced discovery, and reuse",
+    title: "Controlled access, better discovery, and reuse (2027/2028)",
     list: [
-      "Continue improving data standardization tooling",
+      "Continue improving data standardization tooling and automation",
       "Implement advanced data access features, including controlled access request workflows",
-      "Add advanced dataset discovery features, including robust search and filtering",
-      "Deliver a robust API for integration with AI and ML pipelines",
-      "Add in-portal preview and visualization for common formats (CSV, XLSX, DICOM, BMP, and image formats) before download",
+      "Add stronger dataset discovery features, including improved search and filtering",
+      "Deliver a robust API for integration with AI/ML pipelines",
+      "Add in-portal preview and visualization for common formats (CSV, XLSX, DICOM, BMP, and other common image formats) before download",
       "Build initial federated learning capabilities",
-      "Support datasets shared by external groups and expand the number of indexed external datasets",
+      "Support more datasets shared by external groups and expand the external index",
     ],
   },
   {
-    title: "Scale, security validation, and long-term sustainability",
+    title:
+      "Scale, security validation, and long-term sustainability (2028/2029)",
     list: [
       "Complete federated learning capabilities",
       "Conduct full security validation to prepare for large-scale independent submissions and sharing",
@@ -235,13 +237,12 @@ const timelineItems = [
     <UContainer class="py-12">
       <div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
         <div class="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
-          <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">
-            Development Timeline
-          </h2>
+          <h2 class="mb-4 text-3xl font-extrabold lg:text-4xl">Roadmap</h2>
 
           <p class="sm:text-xl">
-            Our development timeline is designed to align with the needs of our
-            users and ensure a smooth transition from prototype to production.
+            Our roadmap is designed to align with the needs of our users and
+            ensure a smooth transition from our development environment to
+            something you use everyday.
           </p>
         </div>
 
@@ -278,98 +279,6 @@ const timelineItems = [
             </div>
           </template>
         </UiTimeline>
-      </div>
-    </UContainer>
-
-    <UContainer class="hidden py-24">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8">
-        <h2
-          class="text-center text-4xl font-bold text-gray-900 dark:text-gray-200"
-        >
-          Unlocking Eye & Brain Health Insights
-        </h2>
-
-        <p class="mt-4 text-center text-lg text-gray-600 dark:text-gray-300">
-          Explore how AI and data-driven research are transforming ophthalmology
-          and neuroscience.
-        </p>
-        <!-- Grid Layout for 6 Cards -->
-        <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          <!-- Card 1 -->
-          <div
-            class="rounded-2xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 dark:bg-gray-800"
-          >
-            <img
-              src="/images/brain-health.jpg"
-              alt="Retinal & Brain Health"
-              class="mb-4 h-40 w-full rounded-lg object-cover"
-            />
-
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-              Linking Retinal Changes to Brain Health
-            </h3>
-
-            <p class="mt-2 text-gray-600 dark:text-gray-300">
-              Analyzes retinal structure and vascular features to detect
-              neurological risks.
-            </p>
-
-            <button
-              class="mt-4 rounded-lg bg-[#ccffff] px-4 py-2 text-gray-900 hover:bg-[#b3e6e6]"
-            >
-              Learn More
-            </button>
-          </div>
-          <!-- Card 2 -->
-          <div
-            class="rounded-2xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 dark:bg-gray-800"
-          >
-            <img
-              src="/images/data.jpg"
-              alt="Longitudinal Data"
-              class="mb-4 h-40 w-full rounded-lg object-cover"
-            />
-
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-              Leveraging Longitudinal Data
-            </h3>
-
-            <p class="mt-2 text-gray-600 dark:text-gray-300">
-              Tracks thousands of participants over decades for deep, diverse
-              insights.
-            </p>
-
-            <button
-              class="mt-4 rounded-lg bg-[#ccffff] px-4 py-2 text-gray-900 hover:bg-[#b3e6e6]"
-            >
-              Learn More
-            </button>
-          </div>
-          <!-- Card 3 -->
-          <div
-            class="rounded-2xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 dark:bg-gray-800"
-          >
-            <img
-              src="/images/data-modeling.jpg"
-              alt="Predictive Modeling"
-              class="mb-4 h-40 w-full rounded-lg object-cover"
-            />
-
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-              Advancing Predictive Modeling
-            </h3>
-
-            <p class="mt-2 text-gray-600 dark:text-gray-300">
-              AI-driven analysis helps predict disease risks early on.
-            </p>
-
-            <button
-              class="mt-4 rounded-lg bg-[#ccffff] px-4 py-2 text-gray-900 hover:bg-[#b3e6e6]"
-            >
-              Learn More
-            </button>
-          </div>
-        </div>
       </div>
     </UContainer>
   </div>
