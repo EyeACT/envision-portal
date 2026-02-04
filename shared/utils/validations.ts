@@ -100,10 +100,6 @@ export async function validateStudyMetadata(datasetId: string, userId: string) {
   // Validate the study metadata
   const validationResult = StudyMetadataPublishValidation.safeParse(study);
 
-  console.log("Below is the study metadata gathered");
-  // console.log(JSON.stringify(study, null, 2));
-  console.log(JSON.stringify(validationResult, null, 2));
-
   return {
     valid: validationResult,
     validations: validationResult?.error?.format(),

@@ -182,6 +182,7 @@ const addContributor = () => {
 
 const removeContributor = (index: number) => {
   const contributor = state.contributors[index];
+  if (!contributor) return;
 
   if (contributor.local) {
     state.contributors.splice(index, 1);
@@ -207,6 +208,7 @@ const addCreator = () => {
 
 const removeCreator = (index: number) => {
   const creator = state.creators[index];
+  if (!creator) return;
 
   if (creator.local) {
     state.creators.splice(index, 1);
@@ -232,6 +234,7 @@ const addFunder = () => {
 
 const removeFunder = (index: number) => {
   const funder = state.funders[index];
+  if (!funder) return;
 
   if (funder.local) {
     state.funders.splice(index, 1);
@@ -325,10 +328,10 @@ const validate = (state: any): FormError[] => {
 
       // Iterate through affiliations
       creator.affiliations?.forEach((affiliation: any, affIndex: number) => {
-        if (!affiliation.name?.trim()) {
+        if (!affiliation.affiliation?.trim()) {
           errors.push({
-            name: `creators[${index}].affiliations[${affIndex}].name`,
-            message: "Name is required",
+            name: `creators[${index}].affiliations[${affIndex}].affiliation`,
+            message: "Affiliation name is required",
           });
         }
 
@@ -468,10 +471,10 @@ const validate = (state: any): FormError[] => {
       }
 
       contributor.affiliations.forEach((affiliation: any, affIndex: number) => {
-        if (!affiliation.name?.trim()) {
+        if (!affiliation.affiliation?.trim()) {
           errors.push({
-            name: `contributors[${index}].affiliations[${affIndex}].name`,
-            message: "Name is required",
+            name: `contributors[${index}].affiliations[${affIndex}].affiliation`,
+            message: "Affiliation is required",
           });
         }
 
@@ -914,7 +917,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         <div class="flex w-full flex-col gap-2">
                           <UFormField
                             label="Name"
-                            :name="`creators[${index}].affiliations[${affIndex}].name`"
+                            :name="`creators[${index}].affiliations[${affIndex}].affiliation`"
                             required
                           >
                             <UInput
@@ -1177,7 +1180,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         <div class="flex w-full flex-col gap-2">
                           <UFormField
                             label="Name"
-                            :name="`contributors[${index}].affiliations[${affIndex}].name`"
+                            :name="`contributors[${index}].affiliations[${affIndex}].affiliation`"
                             required
                           >
                             <UInput
