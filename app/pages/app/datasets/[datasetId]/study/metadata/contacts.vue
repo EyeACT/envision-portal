@@ -109,10 +109,10 @@ const addContact = () => {
 const removeContact = (index: number) => {
   const contact = state.studyCentralContacts[index];
 
-  if (contact.local) {
+  if (contact?.local) {
     state.studyCentralContacts.splice(index, 1);
   } else {
-    contact.deleted = true;
+    contact!.deleted = true;
   }
 };
 

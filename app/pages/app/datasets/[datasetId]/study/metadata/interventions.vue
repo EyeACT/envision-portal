@@ -79,10 +79,10 @@ const addIntervention = () => {
 const removeIntervention = (index: number) => {
   const intervention = state.studyInterventions[index];
 
-  if (intervention.local) {
+  if (intervention?.local) {
     state.studyInterventions.splice(index, 1);
   } else {
-    intervention.deleted = true;
+    intervention!.deleted = true;
   }
 };
 

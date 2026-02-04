@@ -87,10 +87,10 @@ const addLocation = () => {
 const removeLocation = (index: number) => {
   const location = state.studyLocations[index];
 
-  if (location.local) {
+  if (location?.local) {
     state.studyLocations.splice(index, 1);
   } else {
-    location.deleted = true;
+    location!.deleted = true;
   }
 };
 

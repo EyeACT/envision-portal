@@ -159,10 +159,10 @@ const addSecondaryIdentifier = () => {
 const removeSecondaryIdentifier = (index: number) => {
   const secondaryIdentifier = state.secondaryIdentifiers[index];
 
-  if (secondaryIdentifier.local) {
+  if (secondaryIdentifier?.local) {
     state.secondaryIdentifiers.splice(index, 1);
   } else {
-    secondaryIdentifier.deleted = true;
+    secondaryIdentifier!.deleted = true;
   }
 };
 
@@ -182,10 +182,10 @@ const addKeyword = () => {
 const removeKeyword = (index: number) => {
   const keyword = state.keywords[index];
 
-  if (keyword.local) {
+  if (keyword?.local) {
     state.keywords.splice(index, 1);
   } else {
-    keyword.deleted = true;
+    keyword!.deleted = true;
   }
 };
 
@@ -205,10 +205,10 @@ const addCondition = () => {
 const removeCondition = (index: number) => {
   const condition = state.conditions[index];
 
-  if (condition.local) {
+  if (condition?.local) {
     state.conditions.splice(index, 1);
   } else {
-    condition.deleted = true;
+    condition!.deleted = true;
   }
 };
 

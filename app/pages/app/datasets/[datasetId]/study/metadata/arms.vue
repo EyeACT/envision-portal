@@ -84,10 +84,10 @@ const addArm = () => {
 const removeArm = (index: number) => {
   const arm = state.studyArms[index];
 
-  if (arm.local) {
+  if (arm?.local) {
     state.studyArms.splice(index, 1);
   } else {
-    arm.deleted = true;
+    arm!.deleted = true;
   }
 };
 

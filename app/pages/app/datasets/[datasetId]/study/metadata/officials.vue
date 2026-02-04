@@ -98,10 +98,10 @@ const addOfficial = () => {
 const removeOfficial = (index: number) => {
   const official = state.studyOverallOfficials[index];
 
-  if (official.local) {
+  if (official?.local) {
     state.studyOverallOfficials.splice(index, 1);
   } else {
-    official.deleted = true;
+    official!.deleted = true;
   }
 };
 
