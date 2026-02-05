@@ -151,9 +151,9 @@ onMounted(() => {
               <p class="text-sm text-gray-500">
                 {{
                   dataset?.metadata.studyDescription.descriptionModule
-                    .detailedDescription ||
+                    ?.detailedDescription ||
                   dataset?.metadata.studyDescription.descriptionModule
-                    .briefSummary ||
+                    ?.briefSummary ||
                   dataset?.description
                 }}
               </p>
