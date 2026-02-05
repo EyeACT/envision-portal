@@ -23,6 +23,23 @@ const toast = useToast();
 //   },
 // ]);
 
+/** Scholardata API response for dataset index by DOI */
+interface DatasetIndexResponse {
+  datasetId: number;
+  totalCitations: number;
+  totalMentions: number;
+  fujiScore?: {
+    score: number;
+    evaluationDate: string;
+    metricVersion: string;
+    softwareVersion: string;
+  };
+  latestDIndex?: {
+    score: number;
+    created: string;
+  };
+}
+
 const tabItems = [
   {
     icon: "ri:information-line",
@@ -56,6 +73,10 @@ const tabItems = [
   },
 ];
 
+const datasetIndexSpinner = ref(true);
+
+const datasetIndexData = ref<DatasetIndexResponse | null>(null);
+
 const { datasetid } = route.params as { datasetid: string };
 
 const { data: dataset, error } = await useFetch(
@@ -77,6 +98,23 @@ if (dataset.value) {
     title: dataset.value.title,
   });
 }
+
+const getDatasetIndex = async () => {
+  await $fetch(`/api/discover/dataset/${datasetid}/datasetIndex`)
+    .then((data) => {
+      datasetIndexData.value = data as DatasetIndexResponse;
+    })
+    .catch((err: string) => {
+      console.error("Error fetching dataset index", err);
+    })
+    .finally(() => {
+      datasetIndexSpinner.value = false;
+    });
+};
+
+onMounted(() => {
+  getDatasetIndex();
+});
 </script>
 
 <template>
@@ -238,13 +276,109 @@ if (dataset.value) {
 
               <USeparator class="my-1" />
 
-              <div class="flex items-center gap-2 pt-2">
+              <div v-if="datasetIndexData">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2.5 text-center">
+                  <div class="flex flex-col items-center gap-0.5">
+                    <span
+                      class="text-[10px] font-medium tracking-wide text-gray-500 uppercase"
+                    >
+                      Dataset Index
+                    </span>
+
+                    <span class="text-base font-semibold text-emerald-700">
+                      {{
+                        datasetIndexData?.latestDIndex?.score != null
+                          ? datasetIndexData?.latestDIndex?.score.toFixed(1)
+                          : "—"
+                      }}
+                    </span>
+                  </div>
+
+                  <div class="flex flex-col items-center gap-0.5">
+                    <span
+                      class="text-[10px] font-medium tracking-wide text-gray-500 uppercase"
+                    >
+                      FAIR score
+                    </span>
+
+                    <span class="text-base font-semibold text-emerald-700">
+                      {{
+                        datasetIndexData?.fujiScore?.score != null
+                          ? `${Math.round(datasetIndexData?.fujiScore?.score)}%`
+                          : "—"
+                      }}
+                    </span>
+                  </div>
+
+                  <div class="flex flex-col items-center gap-0.5">
+                    <span
+                      class="text-[10px] font-medium tracking-wide text-gray-500 uppercase"
+                    >
+                      Citations
+                    </span>
+
+                    <span
+                      class="text-base font-semibold text-emerald-700"
+                      :class="{
+                        'text-emerald-700': datasetIndexData?.totalCitations,
+                        'text-gray-500': !datasetIndexData?.totalCitations,
+                      }"
+                    >
+                      {{ datasetIndexData?.totalCitations }}
+                    </span>
+                  </div>
+
+                  <div class="flex flex-col items-center gap-0.5">
+                    <span
+                      class="text-[10px] font-medium tracking-wide text-gray-500 uppercase"
+                    >
+                      Mentions
+                    </span>
+
+                    <span
+                      class="text-base font-semibold"
+                      :class="{
+                        'text-emerald-700': datasetIndexData?.totalMentions,
+                        'text-gray-500': !datasetIndexData?.totalMentions,
+                      }"
+                    >
+                      {{ datasetIndexData?.totalMentions }}
+                    </span>
+                  </div>
+                </div>
+
+                <p
+                  class="mt-3 flex items-center justify-center gap-1 text-xs text-yellow-500"
+                >
+                  <UIcon name="i-heroicons-exclamation-triangle" />
+                  Platform is currently in beta
+                </p>
+
+                <USeparator class="my-1" type="dashed" />
+
+                <div
+                  v-if="datasetIndexData?.datasetId"
+                  class="flex justify-center pt-2"
+                >
+                  <a
+                    :href="`https://beta.scholardata.io/datasets/${datasetIndexData?.datasetId}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1 text-xs font-medium text-teal-600 no-underline hover:text-teal-700 hover:underline"
+                  >
+                    View more details on Scholar Data
+                    <UIcon name="i-heroicons-arrow-right" />
+                  </a>
+                </div>
+              </div>
+
+              <div class="flex hidden items-center gap-2 pt-2">
                 <Icon name="flowbite:quote-solid" />
 
                 <span class="text-primary font-semibold">64 citations</span>
               </div>
 
-              <div class="flex items-center gap-2">
+              <div class="flex hidden items-center gap-2">
                 <Icon name="solar:eye-bold" />
 
                 <span class="text-primary font-semibold">1.1k views</span>
