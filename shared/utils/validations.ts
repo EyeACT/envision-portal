@@ -74,7 +74,11 @@ export async function validateStudyMetadata(datasetId: string, userId: string) {
       StudyIdentification: true,
       StudyIntervention: true,
       StudyKeywords: true,
-      StudyLocation: true,
+      StudyLocation: {
+        include: {
+          StudyLocationContactList: true,
+        },
+      },
       StudyOverallOfficials: true,
       StudyOversight: true,
       StudySponsors: true,

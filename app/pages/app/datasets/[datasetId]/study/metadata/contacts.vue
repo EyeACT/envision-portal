@@ -131,6 +131,21 @@ const validate = (state: any): FormError[] => {
   }
 
   if (activeContacts.length > 0) {
+    // Check for duplicate contacts
+    const seen = new Set<string>();
+    activeContacts.forEach((contact: any, index: number) => {
+      // Item is unique by given name, family name, and email address
+      const key = `${contact.givenName?.trim().toLowerCase()}|${contact.familyName?.trim().toLowerCase()}|${contact.emailAddress?.trim().toLowerCase()}`;
+      if (seen.has(key)) {
+        errors.push({
+          name: `givenName-${index}`,
+          message:
+            "Duplicate central contact with same given name, family name, and email address",
+        });
+      }
+      seen.add(key);
+    });
+
     activeContacts.forEach((contact: any, index: number) => {
       if (contact.givenName.trim() === "") {
         errors.push({

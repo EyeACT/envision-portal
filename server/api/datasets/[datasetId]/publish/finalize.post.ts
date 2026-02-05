@@ -381,11 +381,7 @@ export default defineEventHandler(async (event) => {
     2,
   );
   const readme = JSON.stringify(firstEntry?.publishedMetadata.readme, null, 2);
-  const studyDescription = JSON.stringify(
-    firstEntry?.publishedMetadata.studyDescription,
-    null,
-    2,
-  );
+  const studyDescription = await generateStudyDescription(datasetId, userId);
 
   const changelog = "# Changelog\n\n## 1.0.0\n\n- Initial release";
 
