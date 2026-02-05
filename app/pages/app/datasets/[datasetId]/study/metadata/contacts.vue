@@ -123,6 +123,13 @@ const validate = (state: any): FormError[] => {
     (contact: any) => !contact.deleted,
   );
 
+  if (activeContacts.length === 0) {
+    errors.push({
+      name: "studyCentralContacts",
+      message: "At least one central contact is required",
+    });
+  }
+
   if (activeContacts.length > 0) {
     activeContacts.forEach((contact: any, index: number) => {
       if (contact.givenName.trim() === "") {

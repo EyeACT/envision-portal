@@ -1340,10 +1340,6 @@
       "value": "Hours"
     },
     {
-      "label": "Minutes",
-      "value": "Minutes"
-    },
-    {
       "label": "N/A",
       "value": "N/A"
     }
