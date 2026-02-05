@@ -60,6 +60,31 @@ const timelineItems = ref<TimelineItem[]>([
     icon: "i-lucide-rocket",
   },
 ]);
+
+const testFunction = async () => {
+  console.log("Button clicked!");
+  const response = await fetch(`/api/datasets/${datasetId}/publish/test`, {
+    method: "POST",
+  });
+
+  if (response.ok) {
+    toast.add({
+      title: "Test API Call Successful",
+      description: "The test API endpoint was called successfully.",
+      icon: "i-lucide-check-circle",
+    });
+
+    const result = await response.json();
+    console.log("Response from test endpoint:", result.studyValidation);
+    // console.log(result.studyDescription);
+  } else {
+    toast.add({
+      title: "Test API Call Failed",
+      description: "There was an error calling the test API endpoint.",
+      icon: "material-symbols:error",
+    });
+  }
+};
 </script>
 
 <template>
@@ -710,8 +735,15 @@ const timelineItems = ref<TimelineItem[]>([
       </div>
 
       <div class="flex justify-end">
-        <UButton
+        <!-- <UButton
           :to="`/app/datasets/${datasetId}/publish/dataset-metadata`"
+          class="w-full"
+          size="lg"
+          label="Review Dataset Metadata"
+          icon="i-lucide-arrow-right"
+        /> -->
+        <UButton
+          @click="testFunction"
           class="w-full"
           size="lg"
           label="Review Dataset Metadata"
