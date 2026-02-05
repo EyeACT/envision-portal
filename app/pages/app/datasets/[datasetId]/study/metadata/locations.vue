@@ -118,6 +118,20 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  // Check for duplicate locations
+  const seen = new Set<string>();
+  activeLocations.forEach((location: any, index: number) => {
+    // Item is considered unique based on facility, city, and country
+    const key = `${location.facility?.trim().toLowerCase()}|${location.city?.trim().toLowerCase()}|${location.country?.trim().toLowerCase()}`;
+    if (seen.has(key)) {
+      errors.push({
+        name: `facility-${index}`,
+        message: "Duplicate location with same facility, city, and country",
+      });
+    }
+    seen.add(key);
+  });
+
   activeLocations.forEach((location: any, index: number) => {
     if (location.facility.trim() === "") {
       errors.push({

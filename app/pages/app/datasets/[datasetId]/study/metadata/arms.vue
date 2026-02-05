@@ -110,6 +110,20 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  // Check for duplicate arms
+  const seen = new Set<string>();
+  activeArms.forEach((arm: any, index: number) => {
+    // Arms are unique by label
+    const key = arm.label?.trim().toLowerCase();
+    if (seen.has(key)) {
+      errors.push({
+        name: `label-${index}`,
+        message: "Duplicate arm label.",
+      });
+    }
+    seen.add(key);
+  });
+
   activeArms.forEach((arm: any, index: number) => {
     if (arm.label.trim() === "") {
       errors.push({

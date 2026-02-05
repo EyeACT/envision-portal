@@ -405,8 +405,20 @@ const validate = (state: any): FormError[] => {
     (c: any) => !c.deleted,
   );
 
-  if (activeCollaborators.length === 0) {
+  if (activeCollaborators.length > 0) {
+    // Check for duplicate collaborators
+    const seen = new Set<string>();
     activeCollaborators.forEach((c: any, index: number) => {
+      // Duplicate based on if name and identifier are the same
+      const key = `${c.name?.trim().toLowerCase()}|${c.identifier?.trim().toLowerCase()}`;
+      if (seen.has(key)) {
+        errors.push({
+          name: `name-${index}`,
+          message: "Duplicate collaborator with same name and identifier",
+        });
+      }
+      seen.add(key);
+
       if (!c.name?.trim()) {
         errors.push({
           name: `name-${index}`,

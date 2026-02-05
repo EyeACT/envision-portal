@@ -225,6 +225,20 @@ const validate = (state: any): FormError[] => {
   if (state.keywords.length > 0) {
     const activeKeywords = state.keywords.filter((k: any) => !k.deleted);
 
+    // Check for duplicate keywords
+    const seenKeywords = new Set<string>();
+    activeKeywords.forEach((keyword: any, index: number) => {
+      // Keywords should be unique by name
+      const key = keyword.name?.trim().toLowerCase();
+      if (seenKeywords.has(key)) {
+        errors.push({
+          name: `name-${index}`,
+          message: "Duplicate keyword.",
+        });
+      }
+      seenKeywords.add(key);
+    });
+
     activeKeywords.forEach((keyword: any, index: number) => {
       if (!keyword.name) {
         errors.push({
@@ -308,6 +322,20 @@ const validate = (state: any): FormError[] => {
       message: "At least one condition is required",
     });
   }
+
+  // Check for duplicate conditions
+  const seenConditions = new Set<string>();
+  activeConditions.forEach((condition: any, index: number) => {
+    // Conditions are unique by name
+    const key = condition.name?.trim().toLowerCase();
+    if (seenConditions.has(key)) {
+      errors.push({
+        name: `name-${index}`,
+        message: "Duplicate condition. Conditions are unique by name",
+      });
+    }
+    seenConditions.add(key);
+  });
 
   activeConditions.forEach((condition: any, index: number) => {
     if (!condition.name) {
