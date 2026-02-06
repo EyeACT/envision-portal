@@ -380,7 +380,9 @@ export default defineEventHandler(async (event) => {
     null,
     2,
   );
-  const readme = JSON.stringify(firstEntry?.publishedMetadata.readme, null, 2);
+  // const readme = JSON.stringify(firstEntry?.publishedMetadata.readme, null, 2);
+  const readme = await generateReadme(datasetId, userId);
+  const license = await generateLicense(datasetId, userId);
   const studyDescription = await generateStudyDescription(datasetId, userId);
 
   const changelog = "# Changelog\n\n## 1.0.0\n\n- Initial release";
@@ -478,6 +480,24 @@ export default defineEventHandler(async (event) => {
   await publishedFileClient.create();
   await publishedFileClient.upload(data);
 
+  // 11. Generate and upload the license file
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      comment: "Uploading the LICENSE metadata file",
+    },
+    where: {
+      datasetId,
+    },
+  });
+
+  publishedFileClient = publishedFileSystemClient.getFileClient("LICENSE");
+
+  data = Buffer.from(license);
+
+  await publishedFileClient.create();
+  await publishedFileClient.upload(data);
+
   publishingStatusIndex = getPublishingStatusIndex("registering-doi");
 
   await prisma.datasetPublishingStatus.update({
@@ -510,6 +530,10 @@ export default defineEventHandler(async (event) => {
     },
     {
       name: "README.md",
+      isDirectory: false,
+    },
+    {
+      name: "LICENSE",
       isDirectory: false,
     },
   ]);
