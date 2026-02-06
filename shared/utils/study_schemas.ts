@@ -236,7 +236,9 @@ export const studyArmSchema = z
       .string()
       .trim()
       .min(1, { message: "Description is required" }),
-    interventionList: z.array(z.string()),
+    interventionList: z
+      .array(z.string())
+      .transform((arr) => arr.filter((s) => s.trim())),
     label: z.string().trim().min(1, { message: "Label is required" }),
     local: z.boolean().optional(),
     type: z.preprocess(
@@ -695,7 +697,9 @@ export const StudyMetadataInterventionsSchema = z
               .trim()
               .min(1, { message: "Description is required" }),
             local: z.boolean().optional(),
-            otherNameList: z.array(z.string()),
+            otherNameList: z
+              .array(z.string())
+              .transform((arr) => arr.filter((s) => s.trim())),
             type: z
               .string({
                 invalid_type_error: "Type is required",
@@ -1356,7 +1360,9 @@ export const InterventionRowSchema = z
       .trim()
       .min(1, { message: "Description is required" }),
     local: z.boolean().optional(),
-    otherNameList: z.array(z.string()),
+    otherNameList: z
+      .array(z.string())
+      .transform((arr) => arr.filter((s) => s.trim())),
     type: z.string().refine((v) => validTypes.includes(v), {
       message: "Type must be a valid option",
     }),
@@ -1373,7 +1379,7 @@ export const PrimaryIdentifierSchema = z.object({
   }),
 });
 
-const uniqueItemsRefine =
+export const uniqueItemsRefine =
   (keyFn: (item: any) => string, message: string, errorPath: string) =>
   (data: any[], ctx: z.RefinementCtx) => {
     const seen = new Set<string>();
