@@ -883,8 +883,12 @@
   ],
   "studyMetadataIdentificationPrimaryIdentifierTypeOptions": [
     {
-      "label": "NIH Grant Number",
-      "value": "NIH Grant Number"
+      "label": "ClinicalTrials.gov",
+      "value": "ClinicalTrials.gov"
+    },
+    {
+      "label": "U.S. NIH Grant/Contract Award Number",
+      "value": "U.S. National Institutes of Health (NIH) Grant/Contract Award Number"
     },
     {
       "label": "Other Grant/Funding Number",
