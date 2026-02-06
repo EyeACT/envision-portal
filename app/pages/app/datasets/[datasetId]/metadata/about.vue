@@ -102,6 +102,19 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  // Ensure size has unique values
+  const seenSizes = new Set();
+  state.size.forEach((size: string, index: number) => {
+    if (seenSizes.has(size.trim().toLowerCase())) {
+      errors.push({
+        name: `size-${index}`,
+        message: "Duplicate size value.",
+      });
+    } else {
+      seenSizes.add(size.trim().toLowerCase());
+    }
+  });
+
   return errors;
 };
 
@@ -278,11 +291,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     :key="index"
                     class="mb-2 flex gap-2"
                   >
-                    <UInput
-                      v-model="state.size[index]"
+                    <UFormField
                       class="w-full"
-                      placeholder="45 minutes"
-                    />
+                      :name="`size-${index}`"
+                      label=""
+                      required
+                    >
+                      <UInput
+                        v-model="state.size[index]"
+                        placeholder="45 minutes"
+                      />
+                    </UFormField>
 
                     <UButton
                       size="sm"
