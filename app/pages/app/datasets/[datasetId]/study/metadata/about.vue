@@ -223,26 +223,27 @@ const validate = (state: any): FormError[] => {
   }
 
   if (state.keywords.length > 0) {
-    const activeKeywords = state.keywords.filter((k: any) => !k.deleted);
-
-    // Check for duplicate keywords
+    // Check for duplicate keywords using original indices
     const seenKeywords = new Set<string>();
-    activeKeywords.forEach((keyword: any, index: number) => {
+    state.keywords.forEach((keyword: any, index: number) => {
+      if (keyword.deleted) return;
       // Keywords should be unique by name
       const key = keyword.name?.trim().toLowerCase();
       if (seenKeywords.has(key)) {
         errors.push({
-          name: `name-${index}`,
+          name: `keyword-name-${index}`,
           message: "Duplicate keyword.",
         });
       }
       seenKeywords.add(key);
     });
 
-    activeKeywords.forEach((keyword: any, index: number) => {
+    state.keywords.forEach((keyword: any, index: number) => {
+      if (keyword.deleted) return;
+
       if (!keyword.name) {
         errors.push({
-          name: `name-${index}`,
+          name: `keyword-name-${index}`,
           message: "A name is required",
         });
       }
@@ -253,12 +254,12 @@ const validate = (state: any): FormError[] => {
       ) {
         const messages = [
           {
-            name: `classificationCode-${index}`,
+            name: `keyword-classificationCode-${index}`,
             message:
               "Both identifier and scheme are required if either is provided",
           },
           {
-            name: `scheme-${index}`,
+            name: `keyword-scheme-${index}`,
             message:
               "Both identifier and scheme are required if either is provided",
           },
@@ -273,7 +274,7 @@ const validate = (state: any): FormError[] => {
         !isValidORCIDValue(keyword.classificationCode)
       ) {
         errors.push({
-          name: `classificationCode-${index}`,
+          name: `keyword-classificationCode-${index}`,
           message: "ORCID identifier must be a valid ORCID format",
         });
       }
@@ -284,36 +285,27 @@ const validate = (state: any): FormError[] => {
         !isValidRORValue(keyword.classificationCode)
       ) {
         errors.push({
-          name: `classificationCode-${index}`,
+          name: `keyword-classificationCode-${index}`,
           message: "ROR identifier must be a valid ROR format",
         });
       }
 
-      // Verify url for classificationCode and schemeUri
-      if (keyword.keywordUri && keyword.schemeUri) {
-        // validate url
-        if (!isValidUrl(keyword.keywordUri)) {
-          errors.push({
-            name: `schemeUri-${index}`,
-            message: "Invalid URL format",
-          });
-        }
-        if (!isValidUrl(keyword.schemeUri)) {
-          errors.push({
-            name: `keywordUri-${index}`,
-            message: "Invalid URL format",
-          });
-        }
+      // Verify url for keywordUri and schemeUri
+      if (keyword.keywordUri && !isValidUrl(keyword.keywordUri)) {
+        errors.push({
+          name: `keyword-keywordUri-${index}`,
+          message: "Invalid URL format",
+        });
+      }
+      if (keyword.schemeUri && !isValidUrl(keyword.schemeUri)) {
+        errors.push({
+          name: `keyword-schemeUri-${index}`,
+          message: "Invalid URL format",
+        });
       }
     });
   }
 
-  if (state.conditions.length === 0) {
-    errors.push({
-      name: "conditions",
-      message: "At least one condition is required",
-    });
-  }
   const activeConditions = state.conditions.filter((c: any) => !c.deleted);
 
   if (activeConditions.length === 0) {
@@ -323,23 +315,26 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  // Check for duplicate conditions
+  // Check for duplicate conditions using original indices
   const seenConditions = new Set<string>();
-  activeConditions.forEach((condition: any, index: number) => {
+  state.conditions.forEach((condition: any, index: number) => {
+    if (condition.deleted) return;
     // Conditions are unique by name
     const key = condition.name?.trim().toLowerCase();
     if (seenConditions.has(key)) {
       errors.push({
-        name: `name-${index}`,
-        message: "Duplicate condition. Conditions are unique by name",
+        name: `condition-name-${index}`,
+        message: "Duplicate condition name.",
       });
     }
     seenConditions.add(key);
   });
 
-  activeConditions.forEach((condition: any, index: number) => {
+  state.conditions.forEach((condition: any, index: number) => {
+    if (condition.deleted) return;
+
     if (!condition.name) {
-      errors.push({ name: `name-${index}`, message: "Name is required" });
+      errors.push({ name: `condition-name-${index}`, message: "Name is required" });
     }
 
     if (
@@ -348,12 +343,12 @@ const validate = (state: any): FormError[] => {
     ) {
       const messages = [
         {
-          name: `classificationCode-${index}`,
+          name: `condition-classificationCode-${index}`,
           message:
             "Both Identifier and scheme are required if either is provided",
         },
         {
-          name: `scheme-${index}`,
+          name: `condition-scheme-${index}`,
           message:
             "Both Identifier and scheme are required if either is provided",
         },
@@ -368,7 +363,7 @@ const validate = (state: any): FormError[] => {
       !isValidORCIDValue(condition.classificationCode)
     ) {
       errors.push({
-        name: `classificationCode-${index}`,
+        name: `condition-classificationCode-${index}`,
         message: "ORCID identifier must be a valid ORCID format",
       });
     }
@@ -379,23 +374,22 @@ const validate = (state: any): FormError[] => {
       !isValidRORValue(condition.classificationCode)
     ) {
       errors.push({
-        name: `classificationCode-${index}`,
+        name: `condition-classificationCode-${index}`,
         message: "ROR identifier must be a valid ROR format",
       });
     }
 
-    // Verify url for schemeuri and keyworduri
+    // Verify url for conditionUri and schemeUri
     if (condition.conditionUri && !isValidUrl(condition.conditionUri)) {
-      // validate url
       errors.push({
-        name: `schemeUri-${index}`,
+        name: `condition-conditionUri-${index}`,
         message: "Invalid URL format",
       });
     }
 
     if (condition.schemeUri && !isValidUrl(condition.schemeUri)) {
       errors.push({
-        name: `keywordUri-${index}`,
+        name: `condition-schemeUri-${index}`,
         message: "Invalid URL format",
       });
     }
@@ -449,35 +443,51 @@ const validate = (state: any): FormError[] => {
   if (activeSecondaryIDs.length === 0) {
     errors.push({
       name: "secondaryIdentifiers",
-      message: "At least one second identifier is required",
+      message: "At least one secondary identifier is required",
     });
   }
 
-  activeSecondaryIDs.forEach((identifier: any, index: number) => {
+  // Check for duplicate secondary identifiers using original indices
+  const seenSecondaryIDs = new Set<string>();
+  state.secondaryIdentifiers.forEach((identifier: any, index: number) => {
+    if (identifier.deleted) return;
+    const key = `${identifier.identifier?.trim().toLowerCase()}|${identifier.type?.trim().toLowerCase()}`;
+    if (seenSecondaryIDs.has(key)) {
+      errors.push({
+        name: `secondaryId-identifier-${index}`,
+        message: "Duplicate secondary identifier with same identifier and type",
+      });
+    }
+    seenSecondaryIDs.add(key);
+  });
+
+  state.secondaryIdentifiers.forEach((identifier: any, index: number) => {
+    if (identifier.deleted) return;
+
     if (!identifier.identifier) {
       errors.push({
-        name: `identifier-${index}`,
+        name: `secondaryId-identifier-${index}`,
         message: "Identifier is required",
       });
     }
 
     if (!identifier.type) {
       errors.push({
-        name: `type-${index}`,
+        name: `secondaryId-type-${index}`,
         message: "Identifier type is required",
       });
     }
 
     if (identifier.domain && !isValidUrl(identifier.domain)) {
       errors.push({
-        name: `domain-${index}`,
+        name: `secondaryId-domain-${index}`,
         message: "Invalid URL format",
       });
     }
 
     if (identifier.link && !isValidUrl(identifier.link)) {
       errors.push({
-        name: `link-${index}`,
+        name: `secondaryId-link-${index}`,
         message: "Invalid URL format",
       });
     }
@@ -667,7 +677,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`name-${index}`" required>
+                  <UFormField label="Name" :name="`keyword-name-${index}`" required>
                     <UInput
                       v-model="item.name"
                       placeholder="Artifical Intelligence"
@@ -676,7 +686,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Identifier"
-                    :name="`classificationCode-${index}`"
+                    :name="`keyword-classificationCode-${index}`"
                   >
                     <UInput
                       v-model="item.classificationCode"
@@ -686,19 +696,19 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Identifier Scheme"
-                    :name="`scheme-${index}`"
+                    :name="`keyword-scheme-${index}`"
                   >
                     <UInput v-model="item.scheme" placeholder="MeSH" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
+                  <UFormField label="Scheme URI" :name="`keyword-schemeUri-${index}`">
                     <UInput
                       v-model="item.schemeUri"
                       placeholder="https://meshb.nlm.nih.gov/"
                     />
                   </UFormField>
 
-                  <UFormField label="Keyword URI" :name="`keywordUri-${index}`">
+                  <UFormField label="Keyword URI" :name="`keyword-keywordUri-${index}`">
                     <UInput
                       v-model="item.keywordUri"
                       placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
@@ -754,13 +764,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`name-${index}`" required>
+                  <UFormField label="Name" :name="`condition-name-${index}`" required>
                     <UInput v-model="item.name" placeholder="Glaucoma" />
                   </UFormField>
 
                   <UFormField
                     label="Identifier"
-                    :name="`classificationCode-${index}`"
+                    :name="`condition-classificationCode-${index}`"
                   >
                     <UInput
                       v-model="item.classificationCode"
@@ -770,19 +780,19 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Identifier Scheme"
-                    :name="`scheme-${index}`"
+                    :name="`condition-scheme-${index}`"
                   >
                     <UInput v-model="item.scheme" placeholder="MeSH" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
+                  <UFormField label="Scheme URI" :name="`condition-schemeUri-${index}`">
                     <UInput
                       v-model="item.schemeUri"
                       placeholder="https://meshb.nlm.nih.gov/"
                     />
                   </UFormField>
 
-                  <UFormField label="Keyword URI" :name="`keywordUri-${index}`">
+                  <UFormField label="Condition URI" :name="`condition-conditionUri-${index}`">
                     <UInput
                       v-model="item.conditionUri"
                       placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
@@ -894,7 +904,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 <div class="flex flex-col gap-3">
                   <UFormField
                     label="Identifier"
-                    :name="`identifier-${index}`"
+                    :name="`secondaryId-identifier-${index}`"
                     required
                   >
                     <UInput
@@ -905,7 +915,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Identifier Type"
-                    :name="`type-${index}`"
+                    :name="`secondaryId-type-${index}`"
                     required
                   >
                     <USelect
@@ -920,7 +930,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <UFormField
                     label="Identifier Domain"
-                    :name="`domain-${index}`"
+                    :name="`secondaryId-domain-${index}`"
                   >
                     <UInput
                       v-model="item.domain"
@@ -928,7 +938,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Link" :name="`link-${index}`">
+                  <UFormField label="Identifier Link" :name="`secondaryId-link-${index}`">
                     <UInput
                       v-model="item.link"
                       placeholder="https://doi.org/10.1234/1234567890"
