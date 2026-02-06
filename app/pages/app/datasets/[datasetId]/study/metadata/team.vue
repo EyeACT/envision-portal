@@ -162,21 +162,6 @@ if (data.value) {
 }
 
 async function onSubmit() {
-  if (!state.responsiblePartyType) {
-    toast.add({ title: "Validation Error", description: "Type is required." });
-
-    return;
-  }
-
-  if (!state.leadSponsorName.trim()) {
-    toast.add({
-      title: "Validation Error",
-      description: "Lead Sponsor Name is required.",
-    });
-
-    return;
-  }
-
   loading.value = true;
 
   try {
@@ -281,21 +266,21 @@ const validate = (state: any): FormError[] => {
   ) {
     if (!state.responsiblePartyInvestigatorFamilyName) {
       errors.push({
-        name: "responsiblePartyInvestigatorFamilyName",
+        name: "familyName",
         message: "Family name is required",
       });
     }
 
     if (!state.responsiblePartyInvestigatorAffiliationIdentifier) {
       errors.push({
-        name: "responsiblePartyInvestigatorAffiliationIdentifier",
+        name: "affiliationId",
         message: "Affiliation Identifier is required",
       });
     }
 
     if (!state.responsiblePartyInvestigatorAffiliationName) {
       errors.push({
-        name: "responsiblePartyInvestigatorAffiliationName",
+        name: "affiliation",
         message: "Affiliation Name is required",
       });
     }
@@ -624,6 +609,11 @@ const validate = (state: any): FormError[] => {
                 label="Affiliation Identifier"
                 name="affiliationId"
                 class="w-full"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
               >
                 <UInput
                   v-model="
