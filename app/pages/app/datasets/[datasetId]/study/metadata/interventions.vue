@@ -166,6 +166,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     studyInterventions: formData.studyInterventions.map((intervention: any) => {
       const s = intervention;
 
+      // Filter out empty strings from otherNameList
+      s.otherNameList = s.otherNameList.filter((item: string) => item.trim());
+
       if (s.local) {
         delete s.id;
       }
