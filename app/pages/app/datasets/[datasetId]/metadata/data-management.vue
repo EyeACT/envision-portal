@@ -137,6 +137,9 @@ const addSubject = () => {
 
 const removeSubject = (index: number) => {
   const subject = state.subjects[index];
+  if (!subject) {
+    return;
+  }
 
   if (subject.local) {
     state.subjects.splice(index, 1);
@@ -170,6 +173,20 @@ const validate = (state: any): FormError[] => {
       message: "Please add at least one subject",
     });
   } else {
+    // Check for duplicate subjects
+    const seenSubjects = new Set<string>();
+    activeSubjects.forEach((subject: any, index: number) => {
+      // Subjects are unique by value
+      const key = subject.subject?.trim().toLowerCase();
+      if (seenSubjects.has(key)) {
+        errors.push({
+          name: `subjects[${index}].subject`,
+          message: "Duplicate subject.",
+        });
+      }
+      seenSubjects.add(key);
+    });
+
     activeSubjects.forEach((subject: any, index: number) => {
       if (!subject.subject?.trim()) {
         errors.push({

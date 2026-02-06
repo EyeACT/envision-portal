@@ -78,6 +78,9 @@ const addSecondaryIdentifier = () => {
 
 const removeSecondaryIdentifier = (index: number) => {
   const secondaryIdentifier = state.secondaryIdentifiers[index];
+  if (!secondaryIdentifier) {
+    return;
+  }
 
   if (secondaryIdentifier.local) {
     state.secondaryIdentifiers.splice(index, 1);
@@ -98,19 +101,33 @@ const validate = (state: any): FormError[] => {
       message: "Please add at least one secondary identifier",
     });
   } else {
+    // Check for duplicate identifiers
+    const seenIdentifiers = new Set<string>();
+    activeSecondaryIdentifiers.forEach((item: any, index: number) => {
+      // Identifiers are unique by value and type
+      const key = `${item.identifier?.trim().toLowerCase()}|${item.type?.trim().toLowerCase()}`;
+      if (seenIdentifiers.has(key)) {
+        errors.push({
+          name: `secondary-identifier-${index}`,
+          message: "Duplicate identifier with same value and type.",
+        });
+      }
+      seenIdentifiers.add(key);
+    });
+
     state.secondaryIdentifiers.forEach((item: any, index: number) => {
       if (item.deleted) return;
 
       if (!item.identifier?.trim()) {
         errors.push({
-          name: `secondaryIdentifiers[${index}].identifier`,
+          name: `secondary-identifier-${index}`,
           message: "Identifier value is required.",
         });
       }
 
       if (!item.type?.trim()) {
         errors.push({
-          name: `secondaryIdentifiers[${index}].type`,
+          name: `secondary-type-${index}`,
           message: "Identifier type is required.",
         });
       }

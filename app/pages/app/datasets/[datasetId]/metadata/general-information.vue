@@ -115,6 +115,9 @@ const addTitle = () => {
 
 const removeTitle = (index: number) => {
   const title = state.titles[index];
+  if (!title) {
+    return;
+  }
 
   if (title.local) {
     state.titles.splice(index, 1);
@@ -135,6 +138,9 @@ const addDescription = () => {
 
 const removeDescription = (index: number) => {
   const description = state.descriptions[index];
+  if (!description) {
+    return;
+  }
 
   if (description.local) {
     state.descriptions.splice(index, 1);
@@ -156,6 +162,9 @@ const addDate = () => {
 
 const removeDate = (index: number) => {
   const date = state.dates[index];
+  if (!date) {
+    return;
+  }
 
   if (date.local) {
     state.dates.splice(index, 1);
@@ -175,6 +184,20 @@ const validate = (state: any): FormError[] => {
       message: "Please add at least one title.",
     });
   }
+
+  // Check for duplicate titles
+  const seenTitles = new Set<string>();
+  activeTitles.forEach((item: any, index: number) => {
+    // Titles are unique by value
+    const key = item.title?.trim().toLowerCase();
+    if (seenTitles.has(key)) {
+      errors.push({
+        name: `title-${index}`,
+        message: "Duplicate title.",
+      });
+    }
+    seenTitles.add(key);
+  });
 
   activeTitles.forEach((item: any, index: number) => {
     if (!item.title?.trim()) {
@@ -202,6 +225,20 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  // Check for duplicate descriptions
+  const seenDescriptions = new Set<string>();
+  activeDescriptions.forEach((item: any, index: number) => {
+    // Descriptions are unique by value
+    const key = `${item.description?.trim().toLowerCase()}|${item.type?.trim().toLowerCase()}`;
+    if (seenDescriptions.has(key)) {
+      errors.push({
+        name: `description-${index}`,
+        message: "Duplicate description with same type.",
+      });
+    }
+    seenDescriptions.add(key);
+  });
+
   activeDescriptions.forEach((item: any, index: number) => {
     if (!item.description?.trim()) {
       errors.push({
@@ -226,6 +263,20 @@ const validate = (state: any): FormError[] => {
       message: "Please add at least one date.",
     });
   }
+
+  // Check for duplicate dates
+  const seenDates = new Set<string>();
+  activeDates.forEach((item: any, index: number) => {
+    // Dates are unique by type
+    const key = item.type?.trim().toLowerCase();
+    if (seenDates.has(key)) {
+      errors.push({
+        name: `date-type-${index}`,
+        message: "Duplicate date. Dates are unique by type",
+      });
+    }
+    seenDates.add(key);
+  });
 
   activeDates.forEach((item: any, index: number) => {
     if (!item.date?.trim()) {
