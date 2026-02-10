@@ -1,13 +1,16 @@
 import { DataLakeServiceClient } from "@azure/storage-file-datalake";
 import { createId } from "@paralleldrive/cuid2";
-import { faker } from "@faker-js/faker";
-import DatasetRecords from "~~/dev/datasetRecords.json";
 import PublishingStatus from "~/assets/data/publishing-status.json";
 import {
   validateDatasetMetadata,
   validateStudyMetadata,
 } from "#shared/utils/validations";
-import generateDatasetDescription from "~~/server/utils/publish/generateDatasetDescription";
+
+const parseRecords = (section: any): any[] => {
+  if (!section) return [];
+  const parsed = typeof section === "string" ? JSON.parse(section) : section;
+  return parsed.records || [];
+};
 
 const getPublishingStatusIndex = (status: string) => {
   const statusObject =
@@ -128,6 +131,10 @@ export default defineEventHandler(async (event) => {
 
   // Get the dataset from the database
   const dataset = await prisma.dataset.findUnique({
+    include: {
+      DatasetHealthsheet: true,
+      StudyIdentification: true,
+    },
     where: {
       id: datasetId,
       DatasetMember: {
@@ -368,26 +375,16 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const firstEntry = DatasetRecords[0];
-
   const datasetDescription = await generateDatasetDescription(
     datasetId,
     userId,
   );
+  const studyDescription = await generateStudyDescription(datasetId, userId);
 
-  const healthsheet = JSON.stringify(
-    firstEntry?.publishedMetadata.healthsheet,
-    null,
-    2,
-  );
-  const readme = JSON.stringify(firstEntry?.publishedMetadata.readme, null, 2);
-  const studyDescription = JSON.stringify(
-    firstEntry?.publishedMetadata.studyDescription,
-    null,
-    2,
-  );
-
-  const changelog = "# Changelog\n\n## 1.0.0\n\n- Initial release";
+  const healthsheet = await generateHealthsheet(datasetId, userId);
+  const license = await generateLicense(datasetId, userId);
+  const readme = await generateReadme(datasetId, userId);
+  const changelog = await generateChangelog(datasetId, userId);
 
   // 6. Generate and upload the dataset metadata file
 
@@ -482,6 +479,24 @@ export default defineEventHandler(async (event) => {
   await publishedFileClient.create();
   await publishedFileClient.upload(data);
 
+  // 11. Generate and upload the license file
+
+  await prisma.datasetPublishingStatus.update({
+    data: {
+      comment: "Uploading the LICENSE metadata file",
+    },
+    where: {
+      datasetId,
+    },
+  });
+
+  publishedFileClient = publishedFileSystemClient.getFileClient("LICENSE");
+
+  data = Buffer.from(license);
+
+  await publishedFileClient.create();
+  await publishedFileClient.upload(data);
+
   publishingStatusIndex = getPublishingStatusIndex("registering-doi");
 
   await prisma.datasetPublishingStatus.update({
@@ -516,6 +531,10 @@ export default defineEventHandler(async (event) => {
       name: "README.md",
       isDirectory: false,
     },
+    {
+      name: "LICENSE",
+      isDirectory: false,
+    },
   ]);
 
   // Register the doi for the dataset
@@ -531,26 +550,53 @@ export default defineEventHandler(async (event) => {
     },
   });
 
+  const primaryStudyIdentification = dataset.StudyIdentification?.find(
+    (id) => !id.isSecondary,
+  );
+
   const publishedDataset = await prisma.publishedDataset.create({
     data: {
       title: dataset.title,
       canonicalId: dataset.canonicalId,
       containerId: publishedContainerName,
-      data: firstEntry.data,
+      data: {
+        size: 0, // TODO: compute actual total size from Azure file listing
+        fileCount: files.length,
+        viewCount: 0,
+        labelingMethod: "",
+        validationInfo: "",
+      },
       datasetId: dataset.id,
       description: dataset.description,
-      doi: `10.1000/envision.${faker.string.alphanumeric(10)}`,
+      // TODO: Replace DOI prefix with real registered prefix
+      doi: `10.10000/envision.${datasetId}`,
       external: false,
       externalUrl: null,
       files: JSON.stringify(fileTree),
       public: true,
-      publishedMetadata: firstEntry.publishedMetadata,
+      publishedMetadata: {
+        datasetDescription: JSON.parse(datasetDescription),
+        studyDescription: JSON.parse(studyDescription),
+        healthsheet: {
+          motivation: parseRecords(dataset.DatasetHealthsheet?.motivation),
+          composition: parseRecords(dataset.DatasetHealthsheet?.composition),
+          collection: parseRecords(dataset.DatasetHealthsheet?.collection),
+          preprocessing: parseRecords(
+            dataset.DatasetHealthsheet?.preprocessing,
+          ),
+          uses: parseRecords(dataset.DatasetHealthsheet?.uses),
+          distribution: parseRecords(dataset.DatasetHealthsheet?.distribution),
+          maintenance: parseRecords(dataset.DatasetHealthsheet?.maintenance),
+        },
+        readme,
+      },
       status: "ready",
-      studyTitle: firstEntry.studyTitle,
-      versionTitle: faker.system.semver() || "",
+      studyTitle: primaryStudyIdentification?.identifier ?? "",
+      versionTitle: dataset.version ?? "1.0.0",
     },
   });
 
+  // TODO: Replace DOI prefix with real registered prefix
   await prisma.publishedDataset.update({
     data: {
       doi: `10.1000/envision.${publishedDataset.id}`,

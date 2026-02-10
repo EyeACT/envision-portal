@@ -236,7 +236,9 @@ export const studyArmSchema = z
       .string()
       .trim()
       .min(1, { message: "Description is required" }),
-    interventionList: z.array(z.string()),
+    interventionList: z
+      .array(z.string())
+      .transform((arr) => arr.filter((s) => s.trim())),
     label: z.string().trim().min(1, { message: "Label is required" }),
     local: z.boolean().optional(),
     type: z.preprocess(
@@ -695,7 +697,9 @@ export const StudyMetadataInterventionsSchema = z
               .trim()
               .min(1, { message: "Description is required" }),
             local: z.boolean().optional(),
-            otherNameList: z.array(z.string()),
+            otherNameList: z
+              .array(z.string())
+              .transform((arr) => arr.filter((s) => s.trim())),
             type: z
               .string({
                 invalid_type_error: "Type is required",
@@ -777,6 +781,30 @@ export const LocationSchema = z
     zip: z.string().trim(),
   })
   .strict();
+
+export const LocationContactSchema = z
+  .object({
+    givenName: z.string().trim().min(1, { message: "Given name is required" }),
+    familyName: z
+      .string()
+      .trim()
+      .min(1, { message: "Family name is required" }),
+    identifier: z.string().trim(),
+    identifierScheme: z.string().trim(),
+    identifierSchemeUri: z.string().trim(),
+    role: z.enum(["Principal Investigator", "Sub-Investigator"], {
+      required_error: "Role is required",
+      invalid_type_error: "Role must be a valid option",
+    }),
+    phone: z.string().trim(),
+    phoneExt: z.string().trim(),
+    emailAddress: z
+      .string()
+      .trim()
+      .min(1, { message: "Email address is required" })
+      .email({ message: "Email address is not valid" }),
+  })
+  .superRefine(locationRefine);
 
 export const StudyMetadataLocationsSchema = z.object({
   studyLocations: z
@@ -1332,7 +1360,9 @@ export const InterventionRowSchema = z
       .trim()
       .min(1, { message: "Description is required" }),
     local: z.boolean().optional(),
-    otherNameList: z.array(z.string()),
+    otherNameList: z
+      .array(z.string())
+      .transform((arr) => arr.filter((s) => s.trim())),
     type: z.string().refine((v) => validTypes.includes(v), {
       message: "Type must be a valid option",
     }),
@@ -1349,6 +1379,23 @@ export const PrimaryIdentifierSchema = z.object({
   }),
 });
 
+export const uniqueItemsRefine =
+  (keyFn: (item: any) => string, message: string, errorPath: string) =>
+  (data: any[], ctx: z.RefinementCtx) => {
+    const seen = new Set<string>();
+    data.forEach((item, index) => {
+      const key = keyFn(item);
+      if (seen.has(key)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message,
+          path: [index, errorPath],
+        });
+      }
+      seen.add(key);
+    });
+  };
+
 export const StudyMetadataPublishValidation = z.object({
   id: z.string().cuid2("Invalid dataset ID"),
   title: z.string().min(1, "Dataset title is required"),
@@ -1363,18 +1410,60 @@ export const StudyMetadataPublishValidation = z.object({
   primaryIdentifier: PrimaryIdentifierSchema.passthrough().optional(),
   publishedId: z.string().nullable().optional(),
   readme: z.union([z.string().min(1, "README is required"), z.literal("")]),
-  secondaryIdentifiers: z.array(secondaryIdentifierSchema).optional(),
+  secondaryIdentifiers: z
+    .array(secondaryIdentifierSchema)
+    .superRefine(
+      uniqueItemsRefine(
+        (id) =>
+          `${id.identifier?.trim().toLowerCase()}|${id.type?.trim().toLowerCase()}`,
+        "Duplicate secondary identifier with same identifier and type",
+        "identifier",
+      ),
+    )
+    .optional(),
   status: z.enum(["draft", "published"]),
   StudyArm: z
     .array(studyArmSchema.strip())
-    .min(1, { message: "At least one study arm is required" }),
-  StudyCentralContact: z.array(contractSchema.strip()).optional(),
+    .min(1, { message: "At least one study arm is required" })
+    .superRefine(
+      uniqueItemsRefine(
+        (arm) => arm.label?.trim().toLowerCase(),
+        "Duplicate study arm with same label",
+        "label",
+      ),
+    ),
+  StudyCentralContact: z
+    .array(contractSchema.strip())
+    .min(1, { message: "At least one central contact is required" })
+    .superRefine(
+      uniqueItemsRefine(
+        (c) =>
+          `${c.givenName?.trim().toLowerCase()}|${c.familyName?.trim().toLowerCase()}|${c.emailAddress?.trim().toLowerCase()}`,
+        "Duplicate central contact with same name and email",
+        "givenName",
+      ),
+    ),
   StudyCollaborators: z
     .array(CollaboratorSchema.strip().superRefine(collaboratorSchemaRefine))
+    .superRefine(
+      uniqueItemsRefine(
+        (c) =>
+          `${c.name?.trim().toLowerCase()}|${c.identifier?.trim().toLowerCase()}`,
+        "Duplicate collaborator with same name and identifier",
+        "name",
+      ),
+    )
     .optional(),
   StudyConditions: z
     .array(conditionsSchema.strip().superRefine(conditionsRefine))
-    .min(1, { message: "At least one study condition is required" }),
+    .min(1, { message: "At least one study condition is required" })
+    .superRefine(
+      uniqueItemsRefine(
+        (c) => c.name?.trim().toLowerCase(),
+        "Duplicate condition with same name",
+        "name",
+      ),
+    ),
 
   StudyDescription: StudyDescriptionOnlySchema.strip(),
   StudyDesign: DesignBase.strip().superRefine(designRefine),
@@ -1382,12 +1471,50 @@ export const StudyMetadataPublishValidation = z.object({
   StudyIdentification: z.array(IdentificationRowSchema).min(1).optional(),
   StudyIntervention: z
     .array(InterventionRowSchema)
-    .min(1, { message: "At least one study intervention is required" }),
-  StudyKeywords: z.array(keywordsSchema.strip()).optional(),
+    .min(1, { message: "At least one study intervention is required" })
+    .superRefine(
+      uniqueItemsRefine(
+        (i) => i.name?.trim().toLowerCase(),
+        "Duplicate intervention with same name",
+        "name",
+      ),
+    ),
+  StudyKeywords: z
+    .array(keywordsSchema.strip())
+    .superRefine(
+      uniqueItemsRefine(
+        (k) => k.name?.trim().toLowerCase(),
+        "Duplicate keyword with same name",
+        "name",
+      ),
+    )
+    .optional(),
   StudyLocation: z
-    .array(LocationSchema)
-    .min(1, { message: "At least one study location is required" }),
-  StudyOverallOfficials: z.array(officialSchema).optional(),
+    .array(
+      LocationSchema.strip().extend({
+        StudyLocationContactList: z.array(LocationContactSchema).optional(),
+      }),
+    )
+    .min(1, { message: "At least one study location is required" })
+    .superRefine(
+      uniqueItemsRefine(
+        (l) =>
+          `${l.facility?.trim().toLowerCase()}|${l.city?.trim().toLowerCase()}|${l.country?.trim().toLowerCase()}`,
+        "Duplicate location with same facility, city, and country",
+        "facility",
+      ),
+    ),
+  StudyOverallOfficials: z
+    .array(officialSchema)
+    .superRefine(
+      uniqueItemsRefine(
+        (o) =>
+          `${o.givenName?.trim().toLowerCase()}|${o.familyName?.trim().toLowerCase()}|${o.role?.trim().toLowerCase()}`,
+        "Duplicate official with same name and role",
+        "givenName",
+      ),
+    )
+    .optional(),
   StudyOversight: z
     .object({})
     .passthrough()

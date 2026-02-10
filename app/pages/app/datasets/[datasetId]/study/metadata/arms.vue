@@ -110,6 +110,20 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  // Check for duplicate arms
+  const seen = new Set<string>();
+  activeArms.forEach((arm: any, index: number) => {
+    // Arms are unique by label
+    const key = arm.label?.trim().toLowerCase();
+    if (seen.has(key)) {
+      errors.push({
+        name: `label-${index}`,
+        message: "Duplicate arm label.",
+      });
+    }
+    seen.add(key);
+  });
+
   activeArms.forEach((arm: any, index: number) => {
     if (arm.label.trim() === "") {
       errors.push({
@@ -137,6 +151,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   const b = {
     studyArms: formData.studyArms.map((arm: any) => {
       const s = arm;
+
+      // Filter out empty strings from interventionList
+      s.interventionList = s.interventionList.filter((item: string) =>
+        item.trim(),
+      );
 
       if (s.local) {
         delete s.id;

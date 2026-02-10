@@ -110,6 +110,20 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  // Check for duplicate interventions
+  const seenInterventions = new Set<string>();
+  activeInterventions.forEach((intervention: any, index: number) => {
+    // Item is considered unique based on name
+    const key = intervention.name?.trim().toLowerCase();
+    if (seenInterventions.has(key)) {
+      errors.push({
+        name: `name-${index}`,
+        message: "Duplicate intervention.",
+      });
+    }
+    seenInterventions.add(key);
+  });
+
   activeInterventions.forEach((intervention: any, index: number) => {
     if (intervention.name.trim() === "") {
       errors.push({
@@ -151,6 +165,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   const b = {
     studyInterventions: formData.studyInterventions.map((intervention: any) => {
       const s = intervention;
+
+      // Filter out empty strings from otherNameList
+      s.otherNameList = s.otherNameList.filter((item: string) => item.trim());
 
       if (s.local) {
         delete s.id;

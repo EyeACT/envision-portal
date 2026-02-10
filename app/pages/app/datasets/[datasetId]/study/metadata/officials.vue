@@ -116,6 +116,21 @@ const validate = (state: any): FormError[] => {
   );
 
   if (activeOfficials.length > 0) {
+    // Check for duplicate officials
+    const seen = new Set<string>();
+    activeOfficials.forEach((official: any, index: number) => {
+      // Unique key based on given name, family name, and role
+      const key = `${official.givenName?.trim().toLowerCase()}|${official.familyName?.trim().toLowerCase()}|${official.role?.trim().toLowerCase()}`;
+      if (seen.has(key)) {
+        errors.push({
+          name: `givenName-${index}`,
+          message:
+            "Duplicate official with same given name, family name, and role",
+        });
+      }
+      seen.add(key);
+    });
+
     activeOfficials.forEach((official: any, index: number) => {
       if (official.givenName.trim() === "") {
         errors.push({

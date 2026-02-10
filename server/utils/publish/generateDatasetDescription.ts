@@ -42,6 +42,9 @@ const generateDatasetDescription = async (
     });
   }
 
+  // Array fields in the dataset description that call for unique fields
+  // are assumed to have been already validated.
+
   // Schema URL (required)
   datasetDescription.schema = SCHEMA_URL;
 

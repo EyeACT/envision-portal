@@ -7,55 +7,55 @@ const props = defineProps<{
 const healthsheetData = [
   {
     title: "General Information",
-    data: props.metadata.generalInformation,
+    data: props.metadata.generalInformation || [],
   },
   {
     title: "Dataset versioning",
-    data: props.metadata.versioning,
+    data: props.metadata.versioning || [],
   },
   {
     title: "Motivation",
-    data: props.metadata.motivation,
+    data: props.metadata.motivation || [],
   },
   {
     title: "Data Composition",
-    data: props.metadata.composition,
+    data: props.metadata.composition || [],
   },
   {
     title: "Devices and Contextual Attributes in Data Collection",
-    data: props.metadata.devices,
+    data: props.metadata.devices || [],
   },
   {
     title: "Challenge in tests and confounding factors",
-    data: props.metadata.demographicInformation,
+    data: props.metadata.demographicInformation || [],
   },
   {
     title: "Pre-processing / De-Identification",
-    data: props.metadata.preprocessing,
+    data: props.metadata.preprocessing || [],
   },
   {
     title: "Labeling and Subjectibity of Labeling",
-    data: props.metadata.inclusion,
+    data: props.metadata.labeling || [],
   },
   {
     title: "Collection Process",
-    data: props.metadata.collection,
+    data: props.metadata.collection || [],
   },
   {
     title: "Inclusion Criteria-Accessibility in Data Collection",
-    data: props.metadata.inclusion,
+    data: props.metadata.inclusion || [],
   },
   {
     title: "Uses",
-    data: props.metadata.uses,
+    data: props.metadata.uses || [],
   },
   {
     title: "Dataset Distribution",
-    data: props.metadata.distribution,
+    data: props.metadata.distribution || [],
   },
   {
     title: "Maintenance",
-    data: props.metadata.maintenance,
+    data: props.metadata.maintenance || [],
   },
 ];
 

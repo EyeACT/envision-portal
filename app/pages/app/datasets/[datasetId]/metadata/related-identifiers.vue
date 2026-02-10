@@ -91,6 +91,9 @@ const addIdentifier = () => {
 
 const removeIdentifier = (index: number) => {
   const identifier = state.identifiers[index];
+  if (!identifier) {
+    return;
+  }
 
   if (identifier.local) {
     state.identifiers.splice(index, 1);
@@ -113,6 +116,21 @@ const validate = (state: any): FormError[] => {
 
     return errors;
   }
+
+  // Check for duplicate related identifiers
+  const seenIdentifiers = new Set<string>();
+  activeIdentifiers.forEach((identifier: any, index: number) => {
+    // Related identifiers are unique by value, type, and relation
+    const key = `${identifier.identifier?.trim().toLowerCase()}|${identifier.identifierType?.trim().toLowerCase()}|${identifier.relationType?.trim().toLowerCase()}`;
+    if (seenIdentifiers.has(key)) {
+      errors.push({
+        name: `identifiers[${index}].identifier`,
+        message:
+          "Duplicate related identifier with same value, type, and relation.",
+      });
+    }
+    seenIdentifiers.add(key);
+  });
 
   activeIdentifiers.forEach((identifier: any, index: number) => {
     if (!identifier.identifier?.trim()) {

@@ -162,21 +162,6 @@ if (data.value) {
 }
 
 async function onSubmit() {
-  if (!state.responsiblePartyType) {
-    toast.add({ title: "Validation Error", description: "Type is required." });
-
-    return;
-  }
-
-  if (!state.leadSponsorName.trim()) {
-    toast.add({
-      title: "Validation Error",
-      description: "Lead Sponsor Name is required.",
-    });
-
-    return;
-  }
-
   loading.value = true;
 
   try {
@@ -281,21 +266,21 @@ const validate = (state: any): FormError[] => {
   ) {
     if (!state.responsiblePartyInvestigatorFamilyName) {
       errors.push({
-        name: "responsiblePartyInvestigatorFamilyName",
+        name: "familyName",
         message: "Family name is required",
       });
     }
 
     if (!state.responsiblePartyInvestigatorAffiliationIdentifier) {
       errors.push({
-        name: "responsiblePartyInvestigatorAffiliationIdentifier",
+        name: "affiliationId",
         message: "Affiliation Identifier is required",
       });
     }
 
     if (!state.responsiblePartyInvestigatorAffiliationName) {
       errors.push({
-        name: "responsiblePartyInvestigatorAffiliationName",
+        name: "affiliation",
         message: "Affiliation Name is required",
       });
     }
@@ -405,8 +390,20 @@ const validate = (state: any): FormError[] => {
     (c: any) => !c.deleted,
   );
 
-  if (activeCollaborators.length === 0) {
+  if (activeCollaborators.length > 0) {
+    // Check for duplicate collaborators
+    const seen = new Set<string>();
     activeCollaborators.forEach((c: any, index: number) => {
+      // Duplicate based on if name and identifier are the same
+      const key = `${c.name?.trim().toLowerCase()}|${c.identifier?.trim().toLowerCase()}`;
+      if (seen.has(key)) {
+        errors.push({
+          name: `name-${index}`,
+          message: "Duplicate collaborator with same name and identifier",
+        });
+      }
+      seen.add(key);
+
       if (!c.name?.trim()) {
         errors.push({
           name: `name-${index}`,
@@ -612,6 +609,11 @@ const validate = (state: any): FormError[] => {
                 label="Affiliation Identifier"
                 name="affiliationId"
                 class="w-full"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
               >
                 <UInput
                   v-model="

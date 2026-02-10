@@ -256,6 +256,21 @@ const validate = (state: any): FormError[] => {
       message: "Please add at least one creator",
     });
   } else {
+    // Check for duplicate creators
+    const seenCreators = new Set<string>();
+    activeCreators.forEach((creator: any, index: number) => {
+      // Creators are unique by given name, family name, and name type
+      const key = `${creator.givenName?.trim().toLowerCase()}|${creator.familyName?.trim().toLowerCase()}|${creator.nameType?.trim().toLowerCase()}`;
+      if (seenCreators.has(key)) {
+        errors.push({
+          name: `creators[${index}].givenName`,
+          message:
+            "Duplicate creator with same given name, family name, and name type.",
+        });
+      }
+      seenCreators.add(key);
+    });
+
     activeCreators.forEach((creator: any, index: number) => {
       if (!creator.givenName) {
         errors.push({
@@ -400,6 +415,21 @@ const validate = (state: any): FormError[] => {
       message: "Please add at least one contributor",
     });
   } else {
+    // Check for duplicate contributors
+    const seenContributors = new Set<string>();
+    activeContributors.forEach((contributor: any, index: number) => {
+      // Contributors are unique by given name, family name, name type, and contributor type
+      const key = `${contributor.givenName?.trim().toLowerCase()}|${contributor.familyName?.trim().toLowerCase()}|${contributor.nameType?.trim().toLowerCase()}|${contributor.contributorType?.trim().toLowerCase()}`;
+      if (seenContributors.has(key)) {
+        errors.push({
+          name: `contributors[${index}].givenName`,
+          message:
+            "Duplicate contributor. Contributors are unique by name, name type, and contributor type",
+        });
+      }
+      seenContributors.add(key);
+    });
+
     activeContributors.forEach((contributor: any, index: number) => {
       if (!contributor.givenName) {
         errors.push({
@@ -542,6 +572,21 @@ const validate = (state: any): FormError[] => {
       message: "Please add at least one funder",
     });
   } else {
+    // Check for duplicate funders
+    const seenFunders = new Set<string>();
+    activeFunders.forEach((funder: any, index: number) => {
+      // Funders are unique by name and award number
+      const key = `${funder.name?.trim().toLowerCase()}|${funder.awardNumber?.trim().toLowerCase()}`;
+      if (seenFunders.has(key)) {
+        errors.push({
+          name: `funders[${index}].name`,
+          message:
+            "Duplicate funder. Funders are unique by name and award number",
+        });
+      }
+      seenFunders.add(key);
+    });
+
     activeFunders.forEach((funder: any, index: number) => {
       if (!funder.name?.trim()) {
         errors.push({

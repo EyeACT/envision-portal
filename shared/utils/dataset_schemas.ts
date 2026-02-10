@@ -1,6 +1,7 @@
 import { z } from "zod";
 import FORM_JSON from "@/assets/data/form.json";
 import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
+import { uniqueItemsRefine } from "./study_schemas";
 
 const accessTypeOptions = FORM_JSON.datasetAccessTypeOptions.map(
   (opt) => opt.value,
@@ -536,30 +537,94 @@ export const DatasetMetadataPublishSchema = z.object({
     z.literal(""),
   ]),
   DatasetAccess: accessSchema.strip(),
-  DatasetAlternateIdentifier: z.array(altIdentifierSchema.strip()),
+  DatasetAlternateIdentifier: z
+    .array(altIdentifierSchema.strip())
+    .superRefine(
+      uniqueItemsRefine(
+        (item) =>
+          `${item.identifier?.trim().toLowerCase()}|${item.type?.trim().toLowerCase()}`,
+        "Duplicate identifier with same value and type.",
+        "identifier",
+      ),
+    ),
   DatasetConsent: consentSchema.strip(),
-  DatasetContributor: z.array(
-    contributorSchema.strip().superRefine(validateNameIdentifier),
-  ),
-  DatasetDate: z.array(aboutSchema),
+  DatasetContributor: z
+    .array(contributorSchema.strip().superRefine(validateNameIdentifier))
+    .superRefine(
+      uniqueItemsRefine(
+        (item) =>
+          `${item.familyName?.trim().toLowerCase()}|${item.givenName?.trim().toLowerCase()}|${item.nameType?.trim().toLowerCase()}`,
+        "Duplicate contributor with same given name, family name, and name type.",
+        "givenName",
+      ),
+    ),
+  DatasetDate: z
+    .array(aboutSchema)
+    .superRefine(
+      uniqueItemsRefine(
+        (item) => item.type?.trim().toLowerCase(),
+        "Duplicate date with same type.",
+        "type",
+      ),
+    ),
   DatasetDeIdentLevel: deIdentSchema
     .extend({
       details: z.union([z.literal(""), z.string().min(1)]),
     })
     .strip(),
-  DatasetDescription: z.array(descriptionSchema.strip()),
-  DatasetFunder: z.array(funderSchema.strip().superRefine(funderRefine)),
+  DatasetDescription: z
+    .array(descriptionSchema.strip())
+    .superRefine(
+      uniqueItemsRefine(
+        (item) => item.type?.trim().toLowerCase(),
+        "Duplicate description with same type.",
+        "type",
+      ),
+    ),
+  DatasetFunder: z
+    .array(funderSchema.strip().superRefine(funderRefine))
+    .superRefine(
+      uniqueItemsRefine(
+        (item) =>
+          `${item.name?.trim().toLowerCase()}|${item.awardNumber?.trim().toLowerCase()}`,
+        "Duplicate funder with same name and award number.",
+        "name",
+      ),
+    ),
   DatasetHealthsheet: healthsheetSchema.strip(),
   DatasetManagingOrganization: managingOrgSchema
     .strip()
     .superRefine(managingOrgRefine),
   DatasetOther: DatasetMetadataAboutSchema.strip(),
-  DatasetRelatedIdentifier: z.array(
-    relatedIdentSchema.strip().superRefine(relatedIdentRefine),
-  ),
+  DatasetRelatedIdentifier: z
+    .array(relatedIdentSchema.strip().superRefine(relatedIdentRefine))
+    .superRefine(
+      uniqueItemsRefine(
+        (item) =>
+          `${item.identifier?.trim().toLowerCase()}|${item.identifierType?.trim().toLowerCase()}|${item.relationType?.trim().toLowerCase()}`,
+        "Duplicate related identifier with same value, type, and relation.",
+        "identifier",
+      ),
+    ),
   DatasetRights: rightsSchema.strip(),
-  DatasetSubject: z.array(subjectSchema.strip().superRefine(subjectRefine)),
-  DatasetTitle: z.array(titleSchema.strip()),
+  DatasetSubject: z
+    .array(subjectSchema.strip().superRefine(subjectRefine))
+    .superRefine(
+      uniqueItemsRefine(
+        (item) => item.subject?.trim().toLowerCase(),
+        "Duplicate subject.",
+        "subject",
+      ),
+    ),
+  DatasetTitle: z
+    .array(titleSchema.strip())
+    .superRefine(
+      uniqueItemsRefine(
+        (item) => item.title?.trim().toLowerCase(),
+        "Duplicate title.",
+        "title",
+      ),
+    ),
   description: z.string().min(1, "Description is required"),
   doi: z.string().nullable(),
   imageUrl: z.string().url("Image URL must be a valid URL"),
