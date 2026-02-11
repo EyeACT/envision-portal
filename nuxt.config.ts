@@ -47,6 +47,11 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
+    routeRules: {
+      "/docs/**": {
+        proxy: "https://staging.envisionportal.org/",
+      },
+    },
   },
   runtimeConfig: {
     AZURE_DRAFT_ACCOUNT_KEY: process.env.AZURE_DRAFT_ACCOUNT_KEY,
