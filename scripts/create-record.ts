@@ -13,7 +13,7 @@ const main = async () => {
 
   // Get all external datasets
   const externalDatasets =
-    await prisma.PublishedDatasetRegistrationDetails.findMany({
+    await prisma.publishedDatasetRegistrationDetails.findMany({
       where: {
         extractionMethod: "Manual Registration",
       },
@@ -21,7 +21,7 @@ const main = async () => {
 
   // Delete the records from the database
   for (const externalDataset of externalDatasets) {
-    await prisma.PublishedDatasetRegistrationDetails.delete({
+    await prisma.publishedDatasetRegistrationDetails.delete({
       where: {
         id: externalDataset.id,
       },
