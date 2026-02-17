@@ -117,7 +117,7 @@ const hasActiveFilters = computed(() => {
                   )"
                   :key="keyword"
                   variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
+                  class="cursor-pointer capitalize transition-all hover:bg-blue-100"
                   :color="keyword === selectedKeyword ? 'primary' : 'neutral'"
                   @click="
                     selectedKeyword = keyword === selectedKeyword ? '' : keyword
@@ -136,7 +136,6 @@ const hasActiveFilters = computed(() => {
                     class="hover:border-primary-300 hover:bg-primary-50 w-full justify-start gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm transition-all"
                     :ui="{
                       base: 'text-gray-700 hover:text-primary-600',
-                      icon: { size: { sm: 'h-4 w-4' } },
                     }"
                   >
                     <template v-if="dateRange?.start">
@@ -174,18 +173,6 @@ const hasActiveFilters = computed(() => {
                     <UCalendar
                       v-model="dateRange"
                       class="rounded-lg border border-gray-200 bg-white p-3 shadow-lg"
-                      :ui="{
-                        base: 'text-sm',
-                        cell: {
-                          base: 'rounded-md transition-all',
-                          selected:
-                            'bg-primary-500 text-white hover:bg-primary-600',
-                          range: 'bg-primary-100',
-                        },
-                        header: {
-                          base: 'text-gray-700 font-semibold',
-                        },
-                      }"
                       :number-of-months="2"
                       range
                     />
@@ -325,7 +312,7 @@ const hasActiveFilters = computed(() => {
                       v-for="keyword in dataset.keywords"
                       :key="keyword"
                       variant="outline"
-                      class="text-xs"
+                      class="text-xs capitalize"
                     >
                       {{ keyword }}
                     </UBadge>
@@ -333,20 +320,26 @@ const hasActiveFilters = computed(() => {
                 </div>
 
                 <div class="space-y-2">
-                  <div class="flex items-center gap-3 text-sm">
-                    <Icon name="charm:person" size="14" class="text-blue-500" />
+                  <div class="flex items-start gap-3 text-sm">
+                    <div class="flex gap-2">
+                      <Icon
+                        name="charm:person"
+                        size="12"
+                        class="mt-1 text-blue-500"
+                      />
 
-                    <span class="min-w-[100px] font-medium text-gray-600">
-                      Creators:
-                    </span>
-
-                    <span class="text-gray-700">
+                      <span class="min-w-[80px] font-medium text-gray-600">
+                        Creators:
+                      </span>
+                    </div>
+                    <div class="flex-wraptext-gray-700 flex">
                       <span
                         v-if="dataset.creators && dataset.creators.length > 0"
                       >
                         <span
                           v-for="(creator, index) in dataset.creators"
                           :key="index"
+                          class="capitalize"
                         >
                           {{ creator.creatorName
                           }}<span v-if="index < dataset.creators.length - 1"
@@ -358,90 +351,66 @@ const hasActiveFilters = computed(() => {
                       <span v-else class="text-gray-400 italic">
                         No creators available
                       </span>
-                    </span>
+                    </div>
                   </div>
-
-                  <!-- <div class="flex items-center gap-3 text-sm">
-                    <Icon name="mdi:label" size="14" class="text-green-500" />
-
-                    <span class="min-w-[100px] font-medium text-gray-600"
-                      >Method:</span
-                    >
-
-                    <span class="text-gray-700">
-                      <span v-if="dataset.labelingMethod">
-                        {{ dataset.labelingMethod }}
-                      </span>
-
-                      <span v-else class="text-gray-400 italic">
-                        Not specified
-                      </span>
-                    </span>
-                  </div>
-
-                  <div class="flex items-center gap-3 text-sm">
-                    <Icon
-                      name="mdi:check-circle"
-                      size="14"
-                      class="text-purple-500"
-                    />
-
-                    <span class="min-w-[100px] font-medium text-gray-600"
-                      >Validation:</span
-                    >
-
-                    <span class="text-gray-700">
-                      <span v-if="dataset.validationInfo">
-                        {{ dataset.validationInfo }}
-                      </span>
-
-                      <span v-else class="text-gray-400 italic">
-                        Not specified
-                      </span>
-                    </span>
-                  </div> -->
 
                   <div
+                    class="flex items-start gap-3 text-sm"
                     v-if="dataset.rights && dataset.rights.length > 0"
-                    class="flex items-center gap-3 text-sm"
                   >
-                    <Icon
-                      name="mdi:file-document"
-                      size="14"
-                      class="text-orange-500"
-                    />
+                    <div class="flex gap-2">
+                      <Icon
+                        name="mdi:file-document"
+                        size="12"
+                        class="mt-1 text-orange-500"
+                      />
 
-                    <span class="min-w-[100px] font-medium text-gray-600"
-                      >License:</span
-                    >
-
-                    <span class="text-gray-700">
-                      <span
-                        v-for="(right, index) in dataset.rights"
-                        :key="index"
-                      >
-                        {{ right }}
-                        <span v-if="index < dataset.rights.length - 1">, </span>
+                      <span class="min-w-[80px] font-medium text-gray-600">
+                        License:
                       </span>
-                    </span>
+                    </div>
+                    <div class="flex-wraptext-gray-700 flex">
+                      <span
+                        v-if="dataset.creators && dataset.creators.length > 0"
+                      >
+                        <span
+                          v-for="(right, index) in dataset.rights"
+                          :key="index"
+                        >
+                          {{ right }}
+                          <span v-if="index < dataset.rights.length - 1"
+                            >,
+                          </span>
+                        </span>
+                      </span>
+
+                      <span v-else class="text-gray-400 italic">
+                        No creators available
+                      </span>
+                    </div>
                   </div>
 
                   <div
-                    class="flex items-center gap-3 text-sm"
+                    class="flex items-start gap-3 text-sm"
                     v-if="dataset.versionCount > 0"
                   >
-                    <Icon
-                      name="mdi:file-document-multiple"
-                      size="14"
-                      class="text-blue-500"
-                    />
-                    <span class="min-w-[100px] font-medium text-gray-600"
-                      >Versions:</span
-                    >
-                    <span class="text-gray-700">
-                      This dataset has {{ dataset.versionCount }} other
-                      version{{ dataset.versionCount > 1 ? "s" : "" }}.
-                    </span>
+                    <div class="flex gap-2">
+                      <Icon
+                        name="mdi:file-document-multiple"
+                        size="12"
+                        class="mt-1 text-blue-500"
+                      />
+
+                      <span class="min-w-[80px] font-medium text-gray-600">
+                        Versions:
+                      </span>
+                    </div>
+                    <div class="flex-wraptext-gray-700 flex">
+                      <span class="text-gray-700">
+                        This dataset has {{ dataset.versionCount }} other
+                        version{{ dataset.versionCount > 1 ? "s" : "" }}.
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

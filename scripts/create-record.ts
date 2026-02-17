@@ -20,7 +20,10 @@ const main = async () => {
     });
 
   // Delete the records from the database
-  for (const externalDataset of externalDatasets) {
+  const totalExternal = externalDatasets.length;
+  console.log(`Deleting ${totalExternal} external dataset(s)...`);
+  for (let i = 0; i < externalDatasets.length; i++) {
+    const externalDataset = externalDatasets[i];
     await prisma.publishedDatasetRegistrationDetails.delete({
       where: {
         id: externalDataset.id,
@@ -32,9 +35,13 @@ const main = async () => {
         id: externalDataset.publishedDatasetId,
       },
     });
+    console.log(`  Deleted ${i + 1}/${totalExternal}`);
   }
 
-  for (const DatasetRecord of DatasetRecords) {
+  const totalRecords = (DatasetRecords as unknown[]).length;
+  console.log(`\nCreating ${totalRecords} record(s)...`);
+  for (let i = 0; i < (DatasetRecords as unknown[]).length; i++) {
+    const DatasetRecord = (DatasetRecords as unknown[])[i] as (typeof DatasetRecords)[number];
     await prisma.publishedDataset.deleteMany({
       where: {
         id: DatasetRecord.id,
@@ -67,9 +74,12 @@ const main = async () => {
         },
       },
     });
+    const done = i + 1;
+    const pct = totalRecords ? Math.round((done / totalRecords) * 100) : 0;
+    process.stdout.write(`\r  ${done}/${totalRecords} (${pct}%)`);
   }
 
-  console.log("Created record");
+  console.log("\n\nDone. Created all records.");
 };
 
 main()
