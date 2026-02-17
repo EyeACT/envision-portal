@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
 import {
-  CalendarDate,
   DateFormatter,
   getLocalTimeZone,
 } from "@internationalized/date";
@@ -16,24 +15,8 @@ useSeoMeta({
 
 const toast = useToast();
 
-const { data: datasets, error } = await useFetch<DiscoveryDatasetList[]>(
-  "/api/discover/dataset",
-);
-
-if (error.value) {
-  toast.add({
-    title: "Error fetching datasets",
-    description: "Please try again later",
-    icon: "material-symbols:error",
-  });
-}
-
-const getDaysAgo = (date: string | Date): string => {
-  const daysAgo = dayjs(date).diff(dayjs(), "day");
-
-  return daysAgo === 0 ? "Today" : `${Math.abs(daysAgo)} days ago`;
-};
-
+const ITEMS_PER_PAGE = 10;
+const page = ref(1);
 const selectedKeyword = ref<string>("");
 const searchQuery = ref<string>("");
 
@@ -43,55 +26,92 @@ const df = new DateFormatter("en-US", {
 
 const dateRange = shallowRef();
 
+// Applied search term (sent to API when user submits search)
+const appliedSearch = ref<string>("");
+
+// Build query params for API (reactive so we refetch when filters or page change)
+const queryParams = computed(() => {
+  const params: Record<string, string | number> = {
+    page: page.value,
+    limit: ITEMS_PER_PAGE,
+  };
+  if (appliedSearch.value) {
+    params.search = appliedSearch.value;
+  }
+  if (selectedKeyword.value) {
+    params.keyword = selectedKeyword.value;
+  }
+  if (dateRange.value?.start) {
+    params.dateFrom = dateRange.value.start.toDate(getLocalTimeZone()).toISOString();
+  }
+  if (dateRange.value?.end) {
+    params.dateTo = dateRange.value.end.toDate(getLocalTimeZone()).toISOString();
+  }
+  return params;
+});
+
+const { data: response, error } = await useFetch<{
+  data: DiscoveryDatasetList[];
+  total: number;
+}>("/api/discover/dataset", {
+  query: queryParams,
+  watch: [queryParams],
+});
+
+if (error.value) {
+  toast.add({
+    title: "Error fetching datasets",
+    description: "Please try again later",
+    icon: "material-symbols:error",
+  });
+}
+
+const datasets = computed(() => response.value?.data ?? []);
+const totalDatasets = computed(() => response.value?.total ?? 0);
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
+);
+
+const getDaysAgo = (date: string | Date): string => {
+  const daysAgo = dayjs(date).diff(dayjs(), "day");
+
+  return daysAgo === 0 ? "Today" : `${Math.abs(daysAgo)} days ago`;
+};
+
 const items = ref<AccordionItem[]>([
   { content: "", label: "Keywords" },
   { content: "", label: "Date Range" },
 ]);
 
-const filteredDatasets = computed(() => {
-  let list = datasets.value || [];
-
-  if (selectedKeyword.value) {
-    list = list.filter((dataset) =>
-      dataset.keywords.some(
-        (keyword) =>
-          keyword.toLowerCase() === selectedKeyword.value.toLowerCase(),
-      ),
-    );
-  }
-
-  if (dateRange.value?.start && dateRange.value?.end) {
-    const startDate = dateRange.value.start.toDate(getLocalTimeZone());
-    const endDate = dateRange.value.end.toDate(getLocalTimeZone());
-
-    list = list.filter((dataset) => {
-      const datasetDate = dayjs(dataset.created).toDate();
-      return datasetDate >= startDate && datasetDate <= endDate;
-    });
-  } else if (dateRange.value?.start) {
-    const startDate = dateRange.value.start.toDate(getLocalTimeZone());
-
-    list = list.filter((dataset) => {
-      const datasetDate = dayjs(dataset.created).toDate();
-      return datasetDate >= startDate;
-    });
-  }
-
-  return list;
-});
+// All keywords from current page datasets (for filter chips); for full list we'd need a separate API
+const keywordsFromDatasets = computed(() =>
+  Array.from(new Set(datasets.value.flatMap((ds) => ds.keywords))),
+);
 
 const searchDatasets = () => {
-  // todo: implement search
-  console.log(searchQuery.value);
+  appliedSearch.value = searchQuery.value.trim();
+  page.value = 1;
 };
 
 const resetFilters = () => {
   selectedKeyword.value = "";
   dateRange.value = undefined;
+  appliedSearch.value = "";
+  searchQuery.value = "";
+  page.value = 1;
 };
 
 const hasActiveFilters = computed(() => {
-  return selectedKeyword.value !== "" || dateRange.value !== undefined;
+  return (
+    selectedKeyword.value !== "" ||
+    dateRange.value !== undefined ||
+    appliedSearch.value !== ""
+  );
+});
+
+// When filters change, go back to page 1
+watch([selectedKeyword, dateRange, appliedSearch], () => {
+  page.value = 1;
 });
 </script>
 
@@ -112,9 +132,7 @@ const hasActiveFilters = computed(() => {
                 class="flex flex-wrap gap-2 p-2"
               >
                 <UBadge
-                  v-for="keyword in Array.from(
-                    new Set(filteredDatasets.flatMap((ds) => ds.keywords)),
-                  )"
+                  v-for="keyword in keywordsFromDatasets"
                   :key="keyword"
                   variant="soft"
                   class="cursor-pointer capitalize transition-all hover:bg-blue-100"
@@ -190,6 +208,7 @@ const hasActiveFilters = computed(() => {
               v-model="searchQuery"
               type="text"
               placeholder="Search datasets..."
+              @keyup.enter="searchDatasets"
             />
 
             <UButton
@@ -219,18 +238,10 @@ const hasActiveFilters = computed(() => {
             <div class="flex gap-4 text-sm text-gray-600">
               <span>
                 Showing
-                <strong class="text-gray-900">{{
-                  filteredDatasets.length
-                }}</strong>
-                <span
-                  v-if="filteredDatasets.length !== (datasets?.length ?? 0)"
-                >
-                  of
-                  <strong class="text-gray-900">{{
-                    datasets?.length ?? 0
-                  }}</strong>
-                </span>
-                {{ filteredDatasets.length === 1 ? "dataset" : "datasets" }}
+                <strong class="text-gray-900">{{ datasets.length }}</strong>
+                of
+                <strong class="text-gray-900">{{ totalDatasets }}</strong>
+                {{ totalDatasets === 1 ? "dataset" : "datasets" }}
               </span>
 
               <span v-if="hasActiveFilters" class="text-gray-400">
@@ -240,7 +251,7 @@ const hasActiveFilters = computed(() => {
           </div>
 
           <NuxtLink
-            v-for="dataset in filteredDatasets"
+            v-for="dataset in datasets"
             :key="dataset.id"
             :to="`/datasets/${dataset.id}`"
           >
@@ -416,6 +427,17 @@ const hasActiveFilters = computed(() => {
               </div>
             </UCard>
           </NuxtLink>
+
+          <div
+            v-if="totalPages > 1"
+            class="mt-6 flex justify-center"
+          >
+            <UPagination
+              v-model:page="page"
+              :items-per-page="ITEMS_PER_PAGE"
+              :total="totalDatasets"
+            />
+          </div>
         </div>
       </div>
     </UContainer>
