@@ -49,10 +49,10 @@ export default defineNuxtConfig({
     },
     routeRules: {
       "/docs/**": {
-        proxy:
-          process.env.NUXT_SITE_ENV === "production"
-            ? "https://docs.envisionportal.org/"
-            : "https://staging-docs.envisionportal.org/",
+        proxy: "https://docs.envisionportal.org",
+        // process.env.NUXT_SITE_ENV === "production"
+        //   ? "https://docs.envisionportal.org/"
+        //   : "https://staging-docs.envisionportal.org/",
       },
     },
   },
