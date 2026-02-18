@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
-import {
-  DateFormatter,
-  getLocalTimeZone,
-} from "@internationalized/date";
+import { DateFormatter, getLocalTimeZone } from "@internationalized/date";
 import type { AccordionItem } from "@nuxt/ui";
 import type { DiscoveryDatasetList } from "#shared/types/dataset";
 
@@ -42,10 +39,14 @@ const queryParams = computed(() => {
     params.keyword = selectedKeyword.value;
   }
   if (dateRange.value?.start) {
-    params.dateFrom = dateRange.value.start.toDate(getLocalTimeZone()).toISOString();
+    params.dateFrom = dateRange.value.start
+      .toDate(getLocalTimeZone())
+      .toISOString();
   }
   if (dateRange.value?.end) {
-    params.dateTo = dateRange.value.end.toDate(getLocalTimeZone()).toISOString();
+    params.dateTo = dateRange.value.end
+      .toDate(getLocalTimeZone())
+      .toISOString();
   }
   return params;
 });
@@ -260,8 +261,8 @@ watch([selectedKeyword, dateRange, appliedSearch], () => {
             >
               <template #header>
                 <div class="flex flex-col">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="mb-1 flex items-center gap-2">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="mb-1 flex items-start gap-2">
                       <UBadge color="primary" variant="outline">
                         Version {{ dataset.versionTitle }}
                       </UBadge>
@@ -276,7 +277,14 @@ watch([selectedKeyword, dateRange, appliedSearch], () => {
                     </div>
 
                     <UTooltip
-                      text="This dataset was found via our automated discovery process."
+                      :text="
+                        dataset.registrationSource === 'Manual Registration'
+                          ? 'This dataset was registered manually by our review team.'
+                          : dataset.registrationSource ===
+                              'Automatic Registration'
+                            ? 'This dataset was found via our automated discovery process.'
+                            : 'This dataset was published on the Envision Portal.'
+                      "
                     >
                       <UBadge
                         color="primary"
@@ -287,7 +295,10 @@ watch([selectedKeyword, dateRange, appliedSearch], () => {
                         {{
                           dataset.registrationSource === "Manual Registration"
                             ? "Registered manually"
-                            : "Automated Discovery"
+                            : dataset.registrationSource ===
+                                "Automatic Registration"
+                              ? "Automated Discovery"
+                              : "Published on Envision Portal"
                         }}
                       </UBadge>
                     </UTooltip>
@@ -428,10 +439,7 @@ watch([selectedKeyword, dateRange, appliedSearch], () => {
             </UCard>
           </NuxtLink>
 
-          <div
-            v-if="totalPages > 1"
-            class="mt-6 flex justify-center"
-          >
+          <div v-if="totalPages > 1" class="mt-6 flex justify-center">
             <UPagination
               v-model:page="page"
               :items-per-page="ITEMS_PER_PAGE"

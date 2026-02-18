@@ -35,13 +35,18 @@ const main = async () => {
         id: externalDataset.publishedDatasetId,
       },
     });
-    console.log(`  Deleted ${i + 1}/${totalExternal}`);
+    const done = i + 1;
+    const pct = totalExternal ? Math.round((done / totalExternal) * 100) : 0;
+    process.stdout.write(`\r  ${done}/${totalExternal} (${pct}%)`);
   }
+  console.log("\n\nDone. Deleted all external datasets.");
 
   const totalRecords = (DatasetRecords as unknown[]).length;
   console.log(`\nCreating ${totalRecords} record(s)...`);
   for (let i = 0; i < (DatasetRecords as unknown[]).length; i++) {
-    const DatasetRecord = (DatasetRecords as unknown[])[i] as (typeof DatasetRecords)[number];
+    const DatasetRecord = (DatasetRecords as unknown[])[
+      i
+    ] as (typeof DatasetRecords)[number];
     await prisma.publishedDataset.deleteMany({
       where: {
         id: DatasetRecord.id,
@@ -67,9 +72,14 @@ const main = async () => {
         versionTitle: DatasetRecord.versionTitle,
         PublishedDatasetRegistrationDetails: {
           create: {
-            datasetSource: "Unknown",
-            extractionMethod: "Manual Registration",
-            extractionVersion: "0.0.0",
+            datasetSource:
+              DatasetRecord.PublishedDatasetRegistrationDetails.datasetSource,
+            extractionMethod:
+              DatasetRecord.PublishedDatasetRegistrationDetails
+                .extractionMethod,
+            extractionVersion:
+              DatasetRecord.PublishedDatasetRegistrationDetails
+                .extractionVersion,
           },
         },
       },
