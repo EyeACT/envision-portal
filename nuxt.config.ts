@@ -48,9 +48,10 @@ export default defineNuxtConfig({
       openAPI: true,
     },
     routeRules: {
-      "/docs/**": {
-        proxy: "https://docs.envisionportal.org/docs/**",
+      "/docs/_nuxt/**": {
+        proxy: "https://docs.envisionportal.org/docs/_nuxt/**",
       },
+      "/docs/**": { proxy: "https://docs.envisionportal.org/docs/**" },
     },
   },
   runtimeConfig: {
