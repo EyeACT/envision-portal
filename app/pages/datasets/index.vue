@@ -223,7 +223,7 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
                   "
                   @click="externalFilter = 'non-external'"
                 >
-                  Envision Portalonly
+                  Envision Portal only
                 </UBadge>
               </div>
             </template>
