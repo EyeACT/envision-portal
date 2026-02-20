@@ -22,7 +22,7 @@ const headerItems = computed<NavigationMenuItem[]>(() => [
   },
   {
     label: "About",
-    to: "/metrics",
+    to: "/about",
     active: route.path.startsWith("/metrics"),
   },
   {
