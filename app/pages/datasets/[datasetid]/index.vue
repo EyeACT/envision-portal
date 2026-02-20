@@ -40,6 +40,32 @@ interface DatasetIndexResponse {
   };
 }
 
+const datasetIndexSpinner = ref(true);
+
+const datasetIndexData = ref<DatasetIndexResponse | null>(null);
+
+const { datasetid } = route.params as { datasetid: string };
+
+const { data: dataset, error } = await useFetch(
+  `/api/discover/dataset/${datasetid}`,
+);
+
+if (error.value) {
+  toast.add({
+    title: "Error fetching dataset",
+    description: "Please try again later",
+    icon: "material-symbols:error",
+  });
+
+  await navigateTo("/datasets");
+}
+
+if (dataset.value) {
+  useSeoMeta({
+    title: dataset.value.title,
+  });
+}
+
 const tabItems = [
   {
     icon: "ri:information-line",
@@ -73,32 +99,6 @@ const tabItems = [
   },
 ];
 
-const datasetIndexSpinner = ref(true);
-
-const datasetIndexData = ref<DatasetIndexResponse | null>(null);
-
-const { datasetid } = route.params as { datasetid: string };
-
-const { data: dataset, error } = await useFetch(
-  `/api/discover/dataset/${datasetid}`,
-);
-
-if (error.value) {
-  toast.add({
-    title: "Error fetching dataset",
-    description: "Please try again later",
-    icon: "material-symbols:error",
-  });
-
-  await navigateTo("/datasets");
-}
-
-if (dataset.value) {
-  useSeoMeta({
-    title: dataset.value.title,
-  });
-}
-
 const getDatasetIndex = async () => {
   await $fetch(`/api/discover/dataset/${datasetid}/datasetIndex`)
     .then((data) => {
@@ -110,6 +110,16 @@ const getDatasetIndex = async () => {
     .finally(() => {
       datasetIndexSpinner.value = false;
     });
+};
+
+const generateCombinedFullName = (name: string) => {
+  const nameArray = name.split(",");
+
+  if (nameArray.length > 1) {
+    return `${nameArray[1]} ${nameArray[0]}`;
+  } else {
+    return name;
+  }
 };
 
 onMounted(() => {
@@ -131,12 +141,43 @@ onMounted(() => {
       <div class="flex flex-col gap-6 pt-4">
         <div class="grid grid-cols-12 gap-6">
           <div class="col-span-9">
-            <div class="flex flex-col gap-1">
-              <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+            <div class="flex flex-col">
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                 {{ dataset?.title }}
               </h1>
 
-              <UBadge class="w-max" color="primary" variant="outline">
+              <div
+                class="flex flex-row flex-wrap items-center align-middle text-black"
+              >
+                <div
+                  v-for="(creator, index) in dataset?.metadata
+                    .datasetDescription.creator"
+                  :key="index"
+                >
+                  <!-- if on the last index create a different span -->
+                  <span class="text-sm font-light">{{
+                    generateCombinedFullName(creator.creatorName)
+                  }}</span>
+
+                  <ButtonIdentifierBadge
+                    v-if="creator?.nameIdentifier"
+                    class="pt-1"
+                    :type="creator.nameIdentifier[0] || {}"
+                  />
+
+                  <span
+                    v-if="
+                      dataset?.metadata.datasetDescription.creator &&
+                      index !=
+                        dataset?.metadata.datasetDescription.creator.length - 1
+                    "
+                    class="mr-1 text-sm"
+                    >,
+                  </span>
+                </div>
+              </div>
+
+              <UBadge class="mt-2 w-max" color="primary" variant="outline">
                 Version {{ dataset?.versionTitle }}
               </UBadge>
             </div>
@@ -144,22 +185,12 @@ onMounted(() => {
             <div class="mt-3 flex flex-col gap-2">
               <div
                 class="w-max border-b border-dashed border-slate-300 font-medium"
-              >
-                Description
-              </div>
-
-              <p class="text-sm text-gray-500">
-                {{
-                  dataset?.metadata.studyDescription.descriptionModule
-                    ?.detailedDescription ||
-                  dataset?.metadata.studyDescription.descriptionModule
-                    ?.briefSummary ||
-                  dataset?.description
-                }}
-              </p>
-
-              <div
-                class="w-max border-b border-dashed border-slate-300 font-medium"
+                v-if="
+                  dataset?.metadata?.studyDescription?.conditionsModule
+                    ?.keywordList &&
+                  dataset?.metadata?.studyDescription?.conditionsModule
+                    ?.keywordList?.length > 0
+                "
               >
                 Keywords
               </div>
@@ -179,6 +210,12 @@ onMounted(() => {
 
               <div
                 class="w-max border-b border-dashed border-slate-300 font-medium"
+                v-if="
+                  dataset?.metadata?.studyDescription?.conditionsModule
+                    ?.conditionList &&
+                  dataset?.metadata?.studyDescription?.conditionsModule
+                    ?.conditionList?.length > 0
+                "
               >
                 Conditions
               </div>

@@ -178,16 +178,7 @@
           "1.44 GB",
           "1000 images"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/DICOM"
         ]
@@ -401,16 +392,7 @@
           "1.44 GB",
           "1000 images"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/DICOM"
         ]
@@ -624,16 +606,7 @@
           "1.44 GB",
           "1000 images"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/DICOM"
         ]
@@ -847,16 +820,7 @@
           "1.44 GB",
           "1000 images"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/DICOM"
         ]
@@ -1014,16 +978,7 @@
           "5.8MB",
           "57 images"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/jpeg"
         ]
@@ -1158,16 +1113,7 @@
           "17.8MB",
           "178 images"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/DICOM"
         ]
@@ -1316,16 +1262,7 @@
           "3.92 GB",
           "16823 images"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/DICOM"
         ]
@@ -1474,16 +1411,7 @@
           "3.92 GB",
           "16822 images"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/DICOM"
         ]
@@ -1640,16 +1568,7 @@
         "size": [
           "47.33 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/png"
         ]
@@ -1806,16 +1725,7 @@
         "size": [
           "48.33 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/png"
         ]
@@ -1972,16 +1882,7 @@
         "size": [
           "48.43 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": [
           "image/png"
         ]
@@ -12763,16 +12664,7 @@
         "size": [
           "302.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -12891,16 +12783,7 @@
         "size": [
           "330.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -13037,16 +12920,7 @@
         "size": [
           "668.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -13165,16 +13039,7 @@
         "size": [
           "366.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -13302,16 +13167,7 @@
         "size": [
           "48.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -13461,16 +13317,7 @@
         "size": [
           "296.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -13589,16 +13436,7 @@
         "size": [
           "1383.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -13771,16 +13609,7 @@
         "size": [
           "1255.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -13899,16 +13728,7 @@
         "size": [
           "309.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -14063,16 +13883,7 @@
         "size": [
           "18785.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -14204,16 +14015,7 @@
         "size": [
           "172.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -14372,16 +14174,7 @@
         "size": [
           "1.2 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -14500,16 +14293,7 @@
         "size": [
           "0.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -14655,16 +14439,7 @@
         "size": [
           "10435.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -14783,16 +14558,7 @@
         "size": [
           "31017.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -14969,16 +14735,7 @@
         "size": [
           "60.7 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -15155,16 +14912,7 @@
         "size": [
           "9.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -15283,16 +15031,7 @@
         "size": [
           "314.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -15519,16 +15258,7 @@
         "size": [
           "3104.2 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -15657,16 +15387,7 @@
         "size": [
           "124.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -15785,16 +15506,7 @@
         "size": [
           "7774.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -15949,16 +15661,7 @@
         "size": [
           "7609.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -16077,16 +15780,7 @@
         "size": [
           "1.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -16290,16 +15984,7 @@
         "size": [
           "4713.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -16446,16 +16131,7 @@
         "size": [
           "108.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -16590,16 +16266,7 @@
         "size": [
           "2.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -16722,16 +16389,7 @@
         "size": [
           "1799.7 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -16877,16 +16535,7 @@
         "size": [
           "3293.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -17077,16 +16726,7 @@
         "size": [
           "6452.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -17250,16 +16890,7 @@
         "size": [
           "31.7 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -17400,16 +17031,7 @@
         "size": [
           "660.6 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -17556,16 +17178,7 @@
         "size": [
           "1669.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -17688,16 +17301,7 @@
         "size": [
           "5.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -17879,16 +17483,7 @@
         "size": [
           "41.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -18007,16 +17602,7 @@
         "size": [
           "1.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -18199,16 +17785,7 @@
         "size": [
           "83.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -18349,16 +17926,7 @@
         "size": [
           "7036.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -18517,16 +18085,7 @@
         "size": [
           "1059.7 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -18715,16 +18274,7 @@
         "size": [
           "0.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -18865,16 +18415,7 @@
         "size": [
           "113.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -19039,16 +18580,7 @@
         "size": [
           "211.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -19216,16 +18748,7 @@
         "size": [
           "32348.2 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -19369,16 +18892,7 @@
         "size": [
           "3.2 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -19510,16 +19024,7 @@
         "size": [
           "12907.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -19665,16 +19170,7 @@
         "size": [
           "432.2 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -19811,16 +19307,7 @@
         "size": [
           "672.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -20033,16 +19520,7 @@
         "size": [
           "609.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -20161,16 +19639,7 @@
         "size": [
           "962.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -20307,16 +19776,7 @@
         "size": [
           "20464.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -20487,16 +19947,7 @@
         "size": [
           "1525.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -20649,16 +20100,7 @@
         "size": [
           "4655.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -20853,16 +20295,7 @@
         "size": [
           "527.6 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -21021,16 +20454,7 @@
         "size": [
           "9.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -21171,16 +20595,7 @@
         "size": [
           "307.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -21308,16 +20723,7 @@
         "size": [
           "358.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -21488,16 +20894,7 @@
         "size": [
           "2728.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -21632,16 +21029,7 @@
         "size": [
           "13101.2 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -21760,16 +21148,7 @@
         "size": [
           "18187.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -21906,16 +21285,7 @@
         "size": [
           "19509.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -22097,16 +21467,7 @@
         "size": [
           "13477.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -22292,16 +21653,7 @@
         "size": [
           "406.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -22460,16 +21812,7 @@
         "size": [
           "29681.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -22597,16 +21940,7 @@
         "size": [
           "8304.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -22762,16 +22096,7 @@
         "size": [
           "98.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -22948,16 +22273,7 @@
         "size": [
           "7556.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -23094,16 +22410,7 @@
         "size": [
           "1.7 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -23277,16 +22584,7 @@
         "size": [
           "113.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -23451,16 +22749,7 @@
         "size": [
           "804.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -23642,16 +22931,7 @@
         "size": [
           "949.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -23870,16 +23150,7 @@
         "size": [
           "186.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -24026,16 +23297,7 @@
         "size": [
           "60.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -24170,16 +23432,7 @@
         "size": [
           "21.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -24316,16 +23569,7 @@
         "size": [
           "8422.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -24532,16 +23776,7 @@
         "size": [
           "380.2 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -24691,16 +23926,7 @@
         "size": [
           "7.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -24910,16 +24136,7 @@
         "size": [
           "1453.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -25111,16 +24328,7 @@
         "size": [
           "260.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -25252,16 +24460,7 @@
         "size": [
           "11515.7 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -25380,16 +24579,7 @@
         "size": [
           "1702.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -25560,16 +24750,7 @@
         "size": [
           "23548.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -25715,16 +24896,7 @@
         "size": [
           "2059.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -25901,16 +25073,7 @@
         "size": [
           "1322.6 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -26126,16 +25289,7 @@
         "size": [
           "80.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -26290,16 +25444,7 @@
         "size": [
           "1.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -26545,16 +25690,7 @@
         "size": [
           "24847.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -26709,16 +25845,7 @@
         "size": [
           "587.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -26904,16 +26031,7 @@
         "size": [
           "1342.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -27140,16 +26258,7 @@
         "size": [
           "85.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -27308,16 +26417,7 @@
         "size": [
           "33026.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -27490,16 +26590,7 @@
         "size": [
           "1016.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -27699,16 +26790,7 @@
         "size": [
           "1150.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -27912,16 +26994,7 @@
         "size": [
           "8.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -28040,16 +27113,7 @@
         "size": [
           "1311.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -28217,16 +27281,7 @@
         "size": [
           "361.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -28363,16 +27418,7 @@
         "size": [
           "1028.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -28534,16 +27580,7 @@
         "size": [
           "0.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -28783,16 +27820,7 @@
         "size": [
           "5831.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -28992,16 +28020,7 @@
         "size": [
           "1098.1 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -29156,16 +28175,7 @@
         "size": [
           "20.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -29302,16 +28312,7 @@
         "size": [
           "521.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -29446,16 +28447,7 @@
         "size": [
           "181.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -29638,16 +28630,7 @@
         "size": [
           "1.5 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -29829,16 +28812,7 @@
         "size": [
           "57.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -30039,16 +29013,7 @@
         "size": [
           "0.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -30219,16 +29184,7 @@
         "size": [
           "3820.6 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -30383,16 +29339,7 @@
         "size": [
           "26204.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -30542,16 +29489,7 @@
         "size": [
           "0.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -30767,16 +29705,7 @@
         "size": [
           "172.8 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -30940,16 +29869,7 @@
         "size": [
           "499.0 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -31086,16 +30006,7 @@
         "size": [
           "58.6 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -31250,16 +30161,7 @@
         "size": [
           "30785.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -31400,16 +30302,7 @@
         "size": [
           "1622.6 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -31573,16 +30466,7 @@
         "size": [
           "571.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -31723,16 +30607,7 @@
         "size": [
           "99.2 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -31887,16 +30762,7 @@
         "size": [
           "8351.6 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -32052,16 +30918,7 @@
         "size": [
           "105.9 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -32211,16 +31068,7 @@
         "size": [
           "0.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -32402,16 +31250,7 @@
         "size": [
           "308.3 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -32566,16 +31405,7 @@
         "size": [
           "657.6 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
@@ -32725,16 +31555,7 @@
         "size": [
           "2060.4 MB"
         ],
-        "fundingReference": [
-          {
-            "funderName": "",
-            "awardNumber": {
-              "awardNumberValue": "",
-              "awardURI": ""
-            },
-            "awardTitle": ""
-          }
-        ],
+        "fundingReference": [],
         "format": []
       },
       "datasetStructureDescription": {
