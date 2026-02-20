@@ -6,6 +6,8 @@ useSeoMeta({
 definePageMeta({
   layout: "public",
 });
+
+const iframeLoaded = ref(false);
 </script>
 
 <template>
@@ -39,7 +41,20 @@ definePageMeta({
         marginheight="0"
         marginwidth="0"
         title="Envision Portal Contact Form"
+        @load="iframeLoaded = true"
       />
+
+      <p class="mt-4 text-center text-xs text-slate-400 dark:text-slate-400">
+        Having trouble loading the form?
+        <a
+          href="https://tally.so/r/44JZaX"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-primary-700 font-medium hover:underline"
+        >
+          Open the contact form here instead</a
+        >.
+      </p>
 
       <template #footer-hidden>
         <div class="text-center text-sm text-gray-500 dark:text-gray-400">
