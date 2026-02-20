@@ -40,6 +40,13 @@ export default defineEventHandler(async (event) => {
   const dateFrom = typeof query.dateFrom === "string" ? query.dateFrom : null;
   const dateTo = typeof query.dateTo === "string" ? query.dateTo : null;
   const search = typeof query.search === "string" ? query.search.trim() : "";
+  const externalParam = query.external;
+  const externalOnly =
+    externalParam === "true" || externalParam === true
+      ? true
+      : externalParam === "false" || externalParam === false
+        ? false
+        : null;
 
   const offset = (page - 1) * limit;
 
@@ -47,6 +54,7 @@ export default defineEventHandler(async (event) => {
   const hasDateFrom = dateFrom !== null && dateFrom !== "";
   const hasDateTo = dateTo !== null && dateTo !== "";
   const hasSearch = search.length > 0;
+  const hasExternalFilter = externalOnly !== null;
   const searchLower = hasSearch ? search.toLowerCase() : "";
 
   // 1. Get latest id per canonicalId (Prisma groupBy)
@@ -103,6 +111,10 @@ export default defineEventHandler(async (event) => {
   if (hasDateTo) {
     const to = new Date(dateTo);
     filtered = filtered.filter((row) => row.created <= to);
+  }
+
+  if (hasExternalFilter) {
+    filtered = filtered.filter((row) => row.external === externalOnly);
   }
 
   const total = filtered.length;

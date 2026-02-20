@@ -12,10 +12,12 @@ useSeoMeta({
 
 const toast = useToast();
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
 const page = ref(1);
 const selectedKeyword = ref<string>("");
 const searchQuery = ref<string>("");
+type ExternalFilter = "all" | "external" | "non-external";
+const externalFilter = ref<ExternalFilter>("all");
 
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
@@ -47,6 +49,11 @@ const queryParams = computed(() => {
     params.dateTo = dateRange.value.end
       .toDate(getLocalTimeZone())
       .toISOString();
+  }
+  if (externalFilter.value === "external") {
+    params.external = "true";
+  } else if (externalFilter.value === "non-external") {
+    params.external = "false";
   }
   return params;
 });
@@ -82,6 +89,7 @@ const getDaysAgo = (date: string | Date): string => {
 const items = ref<AccordionItem[]>([
   { content: "", label: "Keywords" },
   { content: "", label: "Date Range" },
+  { content: "", label: "External datasets" },
 ]);
 
 // All keywords from current page datasets (for filter chips); for full list we'd need a separate API
@@ -97,6 +105,7 @@ const searchDatasets = () => {
 const resetFilters = () => {
   selectedKeyword.value = "";
   dateRange.value = undefined;
+  externalFilter.value = "all";
   appliedSearch.value = "";
   searchQuery.value = "";
   page.value = 1;
@@ -106,12 +115,13 @@ const hasActiveFilters = computed(() => {
   return (
     selectedKeyword.value !== "" ||
     dateRange.value !== undefined ||
+    externalFilter.value !== "all" ||
     appliedSearch.value !== ""
   );
 });
 
 // When filters change, go back to page 1
-watch([selectedKeyword, dateRange, appliedSearch], () => {
+watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
   page.value = 1;
 });
 </script>
@@ -197,6 +207,38 @@ watch([selectedKeyword, dateRange, appliedSearch], () => {
                     />
                   </template>
                 </UPopover>
+              </div>
+
+              <div
+                v-else-if="item.label === 'External datasets'"
+                class="flex flex-col gap-2 p-2"
+              >
+                <UBadge
+                  variant="soft"
+                  class="cursor-pointer transition-all hover:bg-blue-100"
+                  :color="externalFilter === 'all' ? 'primary' : 'neutral'"
+                  @click="externalFilter = 'all'"
+                >
+                  All datasets
+                </UBadge>
+                <UBadge
+                  variant="soft"
+                  class="cursor-pointer transition-all hover:bg-blue-100"
+                  :color="externalFilter === 'external' ? 'primary' : 'neutral'"
+                  @click="externalFilter = 'external'"
+                >
+                  External only
+                </UBadge>
+                <UBadge
+                  variant="soft"
+                  class="cursor-pointer transition-all hover:bg-blue-100"
+                  :color="
+                    externalFilter === 'non-external' ? 'primary' : 'neutral'
+                  "
+                  @click="externalFilter = 'non-external'"
+                >
+                  Envision Portalonly
+                </UBadge>
               </div>
             </template>
           </UAccordion>
