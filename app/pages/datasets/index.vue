@@ -92,11 +92,6 @@ const items = ref<AccordionItem[]>([
   { content: "", label: "External datasets" },
 ]);
 
-// All keywords from current page datasets (for filter chips); for full list we'd need a separate API
-const keywordsFromDatasets = computed(() =>
-  Array.from(new Set(datasets.value.flatMap((ds) => ds.keywords))),
-);
-
 const searchDatasets = () => {
   appliedSearch.value = searchQuery.value.trim();
   page.value = 1;
@@ -138,22 +133,13 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
         <div class="w-full md:w-1/5">
           <UAccordion type="multiple" :items="items">
             <template #content="{ item }">
-              <div
-                v-if="item.label === 'Keywords'"
-                class="flex flex-wrap gap-2 p-2"
-              >
-                <UBadge
-                  v-for="keyword in keywordsFromDatasets"
-                  :key="keyword"
-                  variant="soft"
-                  class="cursor-pointer capitalize transition-all hover:bg-blue-100"
-                  :color="keyword === selectedKeyword ? 'primary' : 'neutral'"
-                  @click="
-                    selectedKeyword = keyword === selectedKeyword ? '' : keyword
-                  "
-                >
-                  {{ keyword }}
-                </UBadge>
+              <div v-if="item.label === 'Keywords'" class="p-2">
+                <UInput
+                  v-model="selectedKeyword"
+                  type="text"
+                  placeholder="Filter by keyword..."
+                  size="sm"
+                />
               </div>
 
               <div v-else-if="item.label === 'Date Range'" class="p-2">
