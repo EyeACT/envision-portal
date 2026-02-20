@@ -297,7 +297,7 @@ watch([selectedKeyword, dateRange, appliedSearch], () => {
                             ? "Registered manually"
                             : dataset.registrationSource ===
                                 "Automatic Registration"
-                              ? "Automated Discovery"
+                              ? "Registered automatically"
                               : "Published on Envision Portal"
                         }}
                       </UBadge>
@@ -320,11 +320,11 @@ watch([selectedKeyword, dateRange, appliedSearch], () => {
               </template>
 
               <div class="space-y-4">
-                <p class="text-sm text-gray-500">
+                <p class="line-clamp-3 text-sm text-gray-500">
                   {{ dataset.description }}
                 </p>
 
-                <div>
+                <div v-if="dataset.keywords && dataset.keywords.length > 0">
                   <h3 class="text-md mb-1 font-semibold text-gray-500">
                     Keywords:
                   </h3>
@@ -365,42 +365,6 @@ watch([selectedKeyword, dateRange, appliedSearch], () => {
                         >
                           {{ creator.creatorName
                           }}<span v-if="index < dataset.creators.length - 1"
-                            >,
-                          </span>
-                        </span>
-                      </span>
-
-                      <span v-else class="text-gray-400 italic">
-                        No creators available
-                      </span>
-                    </div>
-                  </div>
-
-                  <div
-                    class="flex items-start gap-3 text-sm"
-                    v-if="dataset.rights && dataset.rights.length > 0"
-                  >
-                    <div class="flex gap-2">
-                      <Icon
-                        name="mdi:file-document"
-                        size="12"
-                        class="mt-1 text-orange-500"
-                      />
-
-                      <span class="min-w-[80px] font-medium text-gray-600">
-                        License:
-                      </span>
-                    </div>
-                    <div class="flex-wraptext-gray-700 flex">
-                      <span
-                        v-if="dataset.creators && dataset.creators.length > 0"
-                      >
-                        <span
-                          v-for="(right, index) in dataset.rights"
-                          :key="index"
-                        >
-                          {{ right }}
-                          <span v-if="index < dataset.rights.length - 1"
                             >,
                           </span>
                         </span>
