@@ -776,10 +776,10 @@ model PublishedDataset {
 
     // This field isn't attached because it can be deleted from the source side.
     // TODO: datasetId might need to be unique
-    datasetId   String
-    canonicalId String
+    datasetId   String?
+    canonicalId String?
 
-    doi String
+    doi String?
 
     title       String
     description String
