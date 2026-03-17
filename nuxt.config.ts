@@ -77,6 +77,7 @@ export default defineNuxtConfig({
       title: "Envision Portal API Documentation",
     },
     hideTestRequestButton: true,
+    hideClientButton: true,
     baseServerURL: process.env.NUXT_SITE_URL,
     servers: [
       {
