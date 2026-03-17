@@ -39,14 +39,14 @@ const headerItems = computed<NavigationMenuItem[]>(() => [
 
 const footerItems: NavigationMenuItem[] = [
   {
-    label: "About",
-    to: "/about",
-    active: route.path.startsWith("/about"),
+    label: "Documentation",
+    to: "/docs",
+    active: route.path.startsWith("/docs"),
   },
   {
-    label: "Contact us",
-    to: "/contact",
-    active: route.path.startsWith("/contact"),
+    label: "API Reference",
+    to: "/_scalar",
+    active: route.path.startsWith("/_scalar"),
   },
   {
     label: "Privacy Policy",
