@@ -42,6 +42,7 @@ export default defineNuxtConfig({
     "dayjs-nuxt",
     "@nuxt/eslint",
     "@nuxt/content",
+    "@scalar/nuxt",
   ],
   nitro: {
     experimental: {
