@@ -72,4 +72,21 @@ export default defineNuxtConfig({
       environment: process.env.NUXT_SITE_ENV,
     },
   },
+  scalar: {
+    metaData: {
+      title: "Envision Portal API Documentation",
+    },
+    hideTestRequestButton: true,
+    baseServerURL: process.env.NUXT_SITE_URL,
+    servers: [
+      {
+        url: `https://envisionportal.org/api`,
+        description: "Production",
+      },
+      {
+        url: `https://staging.envisionportal.org/api`,
+        description: "Staging",
+      },
+    ],
+  },
 });
