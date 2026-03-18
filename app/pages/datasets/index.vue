@@ -349,7 +349,7 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
 
               <div class="space-y-4">
                 <p class="line-clamp-3 text-sm text-gray-500">
-                  {{ dataset.description }}
+                  {{ dataset.description || "No description available." }}
                 </p>
 
                 <div v-if="dataset.keywords && dataset.keywords.length > 0">
