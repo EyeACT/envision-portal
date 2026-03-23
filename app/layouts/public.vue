@@ -45,8 +45,14 @@ const footerItems: NavigationMenuItem[] = [
   },
   {
     label: "API Reference",
-    to: "/_scalar",
-    active: route.path.startsWith("/_scalar"),
+    active: route.path.startsWith("/_docs"),
+    children: [
+      {
+        label: "Scalar",
+        description: "",
+        to: "/_docs/scalar",
+      },
+    ],
   },
   {
     label: "Privacy Policy",

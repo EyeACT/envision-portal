@@ -48,18 +48,17 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    // openAPI: {
-    //   route: "/_docs/openapi.json",
-    //   ui: {
-    //     scalar: {
-    //       route: "/_docs/scalar",
-    //       theme: "purple",
-    //     },
-    //     swagger: {
-    //       route: "/_docs/swagger",
-    //     },
-    //   },
-    // },
+    openAPI: {
+      route: "/_docs/openapi.json",
+      ui: {
+        scalar: {
+          route: "/_docs/scalar",
+        },
+        swagger: {
+          route: "/_docs/swagger",
+        },
+      },
+    },
     // routeRules: {
     //   "/docs/_nuxt/**": {
     //     proxy: "https://docs.envisionportal.org/docs/_nuxt/**",
@@ -85,22 +84,22 @@ export default defineNuxtConfig({
       environment: process.env.NUXT_SITE_ENV,
     },
   },
-  scalar: {
-    metaData: {
-      title: "Envision Portal API Documentation",
-    },
-    hideTestRequestButton: true,
-    hideClientButton: true,
-    baseServerURL: process.env.NUXT_SITE_URL,
-    servers: [
-      {
-        url: "https://{hostname}",
-        variables: {
-          hostname: {
-            default: "envisionpotal.org",
-          },
-        },
-      },
-    ],
-  },
+  // scalar: {
+  //   metaData: {
+  //     title: "Envision Portal API Documentation",
+  //   },
+  //   hideTestRequestButton: true,
+  //   hideClientButton: true,
+  //   baseServerURL: process.env.NUXT_SITE_URL,
+  //   servers: [
+  //     {
+  //       url: "https://{hostname}",
+  //       variables: {
+  //         hostname: {
+  //           default: "envisionpotal.org",
+  //         },
+  //       },
+  //     },
+  //   ],
+  // },
 });
