@@ -48,12 +48,12 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    routeRules: {
-      "/docs/_nuxt/**": {
-        proxy: "https://docs.envisionportal.org/docs/_nuxt/**",
-      },
-      "/docs/**": { proxy: "https://docs.envisionportal.org/docs/**" },
-    },
+    // routeRules: {
+    //   "/docs/_nuxt/**": {
+    //     proxy: "https://docs.envisionportal.org/docs/_nuxt/**",
+    //   },
+    //   "/docs/**": { proxy: "https://docs.envisionportal.org/docs/**" },
+    // },
   },
   runtimeConfig: {
     AZURE_DRAFT_ACCOUNT_KEY: process.env.AZURE_DRAFT_ACCOUNT_KEY,
@@ -77,17 +77,20 @@ export default defineNuxtConfig({
     metaData: {
       title: "Envision Portal API Documentation",
     },
+    pathRouting: {
+      basePath: "/scalar",
+    },
     hideTestRequestButton: true,
     hideClientButton: true,
     baseServerURL: process.env.NUXT_SITE_URL,
     servers: [
       {
-        url: `https://envisionportal.org/api`,
-        description: "Production",
-      },
-      {
-        url: `https://staging.envisionportal.org/api`,
-        description: "Staging",
+        url: "https://{hostname}",
+        variables: {
+          hostname: {
+            default: "envisionpotal.org",
+          },
+        },
       },
     ],
   },
