@@ -48,6 +48,18 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
+    // openAPI: {
+    //   route: "/_docs/openapi.json",
+    //   ui: {
+    //     scalar: {
+    //       route: "/_docs/scalar",
+    //       theme: "purple",
+    //     },
+    //     swagger: {
+    //       route: "/_docs/swagger",
+    //     },
+    //   },
+    // },
     // routeRules: {
     //   "/docs/_nuxt/**": {
     //     proxy: "https://docs.envisionportal.org/docs/_nuxt/**",
@@ -76,9 +88,6 @@ export default defineNuxtConfig({
   scalar: {
     metaData: {
       title: "Envision Portal API Documentation",
-    },
-    pathRouting: {
-      basePath: "/scalar",
     },
     hideTestRequestButton: true,
     hideClientButton: true,
