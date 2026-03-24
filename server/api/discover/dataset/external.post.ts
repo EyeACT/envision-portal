@@ -79,6 +79,7 @@ export default defineEventHandler(async (event) => {
   const newDataset = await prisma.publishedDataset.create({
     data: {
       title: body.data.title,
+      automated: true,
       created: new Date(parseInt(body.data.created) * 1000),
       data: body.data.data,
       description: body.data.description,
@@ -107,8 +108,8 @@ export default defineEventHandler(async (event) => {
   await prisma.publishedDataset.update({
     where: { id: newDataset.id },
     data: {
-      canonicalId: newDataset.id.toString(),
-      datasetId: newDataset.id.toString(),
+      canonicalId: `external-${newDataset.id.toString()}`,
+      datasetId: `external-${newDataset.id.toString()}`,
     },
   });
 

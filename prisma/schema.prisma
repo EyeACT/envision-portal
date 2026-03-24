@@ -797,6 +797,7 @@ model PublishedDataset {
     files             Json
     data              Json
 
+    automated   Boolean @default(false) // Whether the dataset was published through an automated process (e.g. zenodo sync) or manually by a user through the portal
     external    Boolean @default(false)
     externalUrl String?
 
@@ -813,7 +814,7 @@ model PublishedDatasetRegistrationDetails {
     id String @id @default(cuid(2))
 
     publishedDatasetId Int              @unique
-    publishedDataset   PublishedDataset @relation(fields: [publishedDatasetId], references: [id])
+    publishedDataset   PublishedDataset @relation(fields: [publishedDatasetId], references: [id], onDelete: Cascade)
 
     datasetSource     String // "zenodo" | "pubmed" | ...
     extractionMethod  String // "manual" | "ep-extraction-script" | ...
