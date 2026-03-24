@@ -49,6 +49,10 @@ export default defineNuxtConfig({
       openAPI: true,
     },
     openAPI: {
+      meta: {
+        title: "Envision Portal",
+        description: "API Documentation for the Envision Portal",
+      },
       route: "/_docs/openapi.json",
       ui: {
         scalar: {
