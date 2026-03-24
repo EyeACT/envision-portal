@@ -63,12 +63,12 @@ export default defineNuxtConfig({
         },
       },
     },
-    // routeRules: {
-    //   "/docs/_nuxt/**": {
-    //     proxy: "https://docs.envisionportal.org/docs/_nuxt/**",
-    //   },
-    //   "/docs/**": { proxy: "https://docs.envisionportal.org/docs/**" },
-    // },
+    routeRules: {
+      "/docs/_nuxt/**": {
+        proxy: "https://docs.envisionportal.org/docs/_nuxt/**",
+      },
+      "/docs/**": { proxy: "https://docs.envisionportal.org/docs/**" },
+    },
   },
   runtimeConfig: {
     AZURE_DRAFT_ACCOUNT_KEY: process.env.AZURE_DRAFT_ACCOUNT_KEY,

@@ -66,9 +66,7 @@ const footerItems: NavigationMenuItem[] = [
   <div class="relative">
     <UHeader>
       <template #title>
-        <NuxtLink to="/" class="flex text-2xl font-bold">
-          Envision Portal
-        </NuxtLink>
+        <NuxtLink to="/"> Envision Portal </NuxtLink>
       </template>
 
       <UNavigationMenu :items="headerItems" />
