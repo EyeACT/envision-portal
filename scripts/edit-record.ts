@@ -1,8 +1,10 @@
-import { PrismaClient } from "@prisma/client";
 import "dotenv/config";
 import DatasetRecord from "../dev/datasetRecord.json";
+import { PrismaClient } from "../shared/generated/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
 
 const main = async () => {
   const { DATABASE_URL } = process.env;

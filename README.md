@@ -6,10 +6,8 @@
 
 You will need the following installed on your system:
 
-- Node.js
-- Yarn
+- mise (manages Node.js and pnpm from mise.toml)
 - Docker
-- Volta (optional)
 
 ### Setup
 
@@ -22,7 +20,9 @@ You will need the following installed on your system:
 2. Install the dependencies
 
    ```bash
-   yarn install
+   mise trust # only needed the first time to trust the mise.toml file
+   mise install
+   pnpm install
    ```
 
 3. Add your environment variables. An example is provided at `.env.example`
@@ -34,7 +34,7 @@ You will need the following installed on your system:
 4. Start the development server
 
    ```bash
-   yarn dev
+   pnpm dev
    ```
 
 5. Open the application in your browser
