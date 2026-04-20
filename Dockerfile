@@ -2,6 +2,7 @@ FROM node:22-alpine AS builder
 
 # Use alpine-based image and install only necessary dependencies
 RUN apk add --no-cache openssl
+RUN corepack enable
 
 WORKDIR /app
 
@@ -9,16 +10,16 @@ WORKDIR /app
 ARG DATABASE_URL
 
 # Copy only necessary files for dependency installation
-COPY package.json yarn.lock ./
+COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
-RUN yarn install --frozen-lockfile \
-  && yarn prisma:generate \
-  && yarn cache clean
+RUN pnpm install --frozen-lockfile \
+  && pnpm prisma:generate \
+  && pnpm store prune
 
 # Copy source files and build
 COPY . .
-RUN yarn run build
+RUN pnpm run build
 
 # Production stage
 FROM node:22-alpine
@@ -42,7 +43,7 @@ COPY --from=builder /app/prisma ./prisma
 
 # Create startup script that runs migrations before starting the app
 RUN echo '#!/bin/sh' > /app/start.sh && \
-  # echo 'npm run prisma:migrate:deploy' >> /app/start.sh && \
+  # echo 'pnpm prisma:migrate:deploy' >> /app/start.sh && \
   echo 'exec node /app/server/index.mjs' >> /app/start.sh && \
   chmod +x /app/start.sh
 
