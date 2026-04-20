@@ -1,8 +1,11 @@
+# Build stage
 FROM node:22-alpine AS builder
 
 # Use alpine-based image and install only necessary dependencies
 RUN apk add --no-cache openssl
-RUN corepack enable
+
+# Enable corepack and install pnpm
+RUN corepack enable && corepack prepare pnpm@10 --activate
 
 WORKDIR /app
 
@@ -27,26 +30,24 @@ FROM node:22-alpine
 LABEL maintainer="FAIR Data Innovations Hub <contact@fairdataihub.org>" \
   description="The Envision Portal is developed for the EyeACT project to streamline the uploading, preparation, and sharing of eye imaging research and data."
 
+# Busybox is used netcat for waiting for Postgres to be ready
 RUN apk add --no-cache openssl busybox-extras
-
 
 WORKDIR /app
 
 # Copy only the necessary files from builder stage
 # COPY --from=builder /app/package.json ./
 COPY --from=builder /app/.output ./
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
+# COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma/
+# COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 # Copy the Prisma schema & migrations, so `prisma migrate deploy` can see them
 COPY --from=builder /app/prisma ./prisma
 
-# Create startup script that runs migrations before starting the app
-RUN echo '#!/bin/sh' > /app/start.sh && \
-  # echo 'pnpm prisma:migrate:deploy' >> /app/start.sh && \
-  echo 'exec node /app/server/index.mjs' >> /app/start.sh && \
-  chmod +x /app/start.sh
+# Copy our startup script and make it executable
+COPY scripts/start.sh /app/scripts/start.sh
+RUN chmod +x /app/scripts/start.sh
 
 EXPOSE 3000
 
-CMD ["/bin/sh", "/app/start.sh"]
+# Run startup script that runs migrations before starting the app
+CMD ["/app/scripts/start.sh"]
