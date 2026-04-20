@@ -69,10 +69,40 @@ export default defineEventHandler(async (event) => {
   });
 
   if (existingDataset) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Dataset with the same externalUrl already exists",
+    // Update the existing dataset in place
+    await prisma.publishedDataset.update({
+      where: { id: existingDataset.id },
+      data: {
+        title: body.data.title,
+        automated: true,
+        created: new Date(parseInt(body.data.created) * 1000),
+        data: body.data.data,
+        description: body.data.description,
+        doi: body.data.doi,
+        external: true,
+        externalUrl: body.data.externalUrl,
+        files: body.data.files as any,
+        publishedMetadata: body.data.publishedMetadata,
+        studyTitle: body.data.studyTitle,
+        updated: new Date(parseInt(body.data.updated) * 1000),
+        versionTitle: body.data.versionTitle,
+        PublishedDatasetRegistrationDetails: {
+          update: {
+            datasetSource:
+              body.data.PublishedDatasetRegistrationDetails.datasetSource,
+            extractionMethod:
+              body.data.PublishedDatasetRegistrationDetails.extractionMethod,
+            extractionVersion:
+              body.data.PublishedDatasetRegistrationDetails.extractionVersion,
+          },
+        },
+      },
     });
+
+    return {
+      statusCode: 200,
+      statusMessage: "Dataset updated",
+    };
   }
 
   // Create a new dataset in the database. We will get the generated id and use it to create the canonicalId in the format "external-{id}"
@@ -86,7 +116,7 @@ export default defineEventHandler(async (event) => {
       doi: body.data.doi,
       external: true,
       externalUrl: body.data.externalUrl,
-      files: body.data.files,
+      files: body.data.files as any,
       publishedMetadata: body.data.publishedMetadata,
       studyTitle: body.data.studyTitle,
       updated: new Date(parseInt(body.data.created) * 1000),
