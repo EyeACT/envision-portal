@@ -164,7 +164,7 @@ const funderColumns: TableColumn<
     <MetadataConsentCard :metadata="props.metadata.datasetConsent" />
 
     <CardCollapsibleContent
-      title="View the full dataset_dsecription.json file"
+      title="View the full dataset_description.json file"
       :collapse="true"
     >
       <pre>{{ props.metadata }}</pre>
