@@ -69,6 +69,10 @@ env:
     - DATABASE_URL # Database connection string
     - NUXT_SESSION_PASSWORD
     - EXTERNAL_API_KEY
+    - AZURE_DRAFT_ACCOUNT_KEY
+    - AZURE_DRAFT_CONNECTION_STRING
+    - AZURE_PUBLISHED_ACCOUNT_KEY
+    - AZURE_PUBLISHED_CONNECTION_STRING
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal app logs -r job" will tail logs from the first server in the job section.
