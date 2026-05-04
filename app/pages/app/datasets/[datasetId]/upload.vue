@@ -267,8 +267,11 @@ const copyToClipboard = async (text: string) => {
 
               <li>
                 The container will appear under
-                <strong>Local &amp; Attached → Blob Containers</strong> in the
-                left panel
+                <strong
+                  >Emulator &amp; Attached → Storage Accounts → (Attached
+                  Containers) → Blob Containers</strong
+                >
+                in the left panel
               </li>
             </ol>
           </div>
