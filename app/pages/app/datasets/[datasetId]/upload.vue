@@ -85,13 +85,14 @@ const copyToClipboard = async (text: string) => {
         <div class="p-6">
           <div>
             <h2 class="mb-2 text-xl font-semibold">
-              Download Storage Explorer
+              Step 1 - Download Azure Storage Explorer
             </h2>
 
             <p class="mb-4 text-gray-600">
-              Azure Storage Explorer is a free tool that makes it easy to manage
-              your files in Azure storage. It provides a user-friendly interface
-              for uploading, downloading, and managing your data.
+              Azure Storage Explorer is a free desktop application from
+              Microsoft that lets you connect directly to Azure Blob Storage and
+              upload files without needing a command line. Download and install
+              the version for your operating system before proceeding.
             </p>
 
             <div class="flex gap-4">
@@ -127,8 +128,7 @@ const copyToClipboard = async (text: string) => {
             </div>
 
             <p class="mt-2 text-sm text-gray-500">
-              System Requirements: Windows 10/11, macOS 10.15+, or Linux (Ubuntu
-              18.04+)
+              System Requirements: Windows 10/11, macOS 10.15+, or Ubuntu 18.04+
             </p>
           </div>
         </div>
@@ -137,52 +137,18 @@ const copyToClipboard = async (text: string) => {
 
         <div class="p-6">
           <div>
-            <h2 class="mb-2 text-xl font-semibold">Access Azure Storage</h2>
+            <h2 class="mb-2 text-xl font-semibold">
+              Step 2 - Prepare and Validate Your Data
+            </h2>
 
             <p class="mb-2 text-gray-600">
-              Use the following Azure storage URL to connect to your study's
-              storage container. You'll need this URL when setting up Azure
-              Storage Explorer.
+              Before uploading, run your files through the Data Validator to
+              catch formatting issues early. The validator checks file
+              structure, required fields, and naming conventions so that uploads
+              succeed on the first attempt.
             </p>
 
-            <div class="flex items-center gap-6 bg-gray-50 p-2">
-              <pre class="rounded font-mono text-base break-all">{{
-                sasUrl
-              }}</pre>
-
-              <UButton
-                icon="i-mdi-content-copy"
-                color="neutral"
-                variant="ghost"
-                @click="copyToClipboard(sasUrl)"
-              />
-            </div>
-
-            <p class="mt-2 text-sm text-gray-500">
-              This URL will expire at {{ expiration }}.
-            </p>
-
-            <p class="mt-2 text-sm text-gray-500">
-              Tip: Save this URL for future reference. You'll need it each time
-              you want to access your study's storage.
-            </p>
-          </div>
-        </div>
-
-        <USeparator />
-
-        <div class="p-6">
-          <div>
-            <h2 class="mb-2 text-xl font-semibold">Validate Your Data</h2>
-
-            <p class="mb-4 text-gray-600">
-              Our Data Validator application helps ensure your data meets all
-              requirements before upload. It checks file formats, data
-              structure, and required fields, reducing the chance of upload
-              failures and data issues.
-            </p>
-
-            <div class="flex gap-4">
+            <div class="mb-4 flex gap-4">
               <UButton
                 to="https://envisionportal.blob.core.windows.net/apps/data-validator/DataValidator.dmg"
                 target="_blank"
@@ -204,7 +170,38 @@ const copyToClipboard = async (text: string) => {
               </UButton>
             </div>
 
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="mb-2 text-gray-600">
+              While preparing your data, make sure that:
+            </p>
+
+            <ul class="mb-4 list-inside list-disc space-y-1 text-gray-600">
+              <li>
+                Each file is in the expected format as specified by your study
+                protocol
+              </li>
+
+              <li>
+                All required fields are present and contain valid, non-empty
+                values
+              </li>
+
+              <li>
+                Subject identifiers and other sensitive fields are properly
+                de-identified or anonymized before upload
+              </li>
+
+              <li>
+                File names use only alphanumeric characters, hyphens, and
+                underscores - avoid spaces and special characters
+              </li>
+
+              <li>
+                No duplicate file names exist in your upload batch, as they will
+                overwrite each other in the container
+              </li>
+            </ul>
+
+            <p class="text-sm text-gray-500">
               Version 1.0.0 | Requires macOS 11+ or Windows 10+
             </p>
           </div>
@@ -214,61 +211,65 @@ const copyToClipboard = async (text: string) => {
 
         <div class="p-6">
           <div>
-            <h2 class="mb-2 text-xl font-semibold">Prepare Your Data</h2>
+            <h2 class="mb-2 text-xl font-semibold">
+              Step 3 - Connect to Your Storage Container
+            </h2>
 
             <p class="mb-2 text-gray-600">
-              Before uploading, ensure your data is properly organized:
+              Use the SAS (Shared Access Signature) URL below to connect Azure
+              Storage Explorer directly to this dataset's storage container. The
+              URL encodes your access credentials and does not require a
+              separate login.
             </p>
 
-            <ul class="mb-4 list-inside list-disc space-y-1 text-gray-600">
-              <li>
-                Files should be in the correct format (CSV, JSON, or specified
-                format)
-              </li>
+            <div class="flex items-center gap-6 bg-gray-50 p-2">
+              <pre class="rounded font-mono text-base break-all">{{
+                sasUrl
+              }}</pre>
 
-              <li>
-                Data should be properly structured according to study
-                requirements
-              </li>
+              <UButton
+                icon="i-mdi-content-copy"
+                color="neutral"
+                variant="ghost"
+                @click="copyToClipboard(sasUrl)"
+              />
+            </div>
 
-              <li>
-                All required fields should be present and properly formatted
-              </li>
-
-              <li>Sensitive data should be properly anonymized</li>
-
-              <li>File names should be clear and descriptive</li>
-            </ul>
-
-            <p class="text-sm text-gray-500">
-              Use the Data Validator application to check your data meets all
-              requirements.
+            <p class="mt-2 text-sm text-gray-500">
+              This URL expires at {{ expiration }}. Return to this page to
+              generate a new one if it has expired.
             </p>
-          </div>
-        </div>
 
-        <USeparator />
+            <p class="mt-4 mb-2 text-gray-600">
+              To connect in Azure Storage Explorer:
+            </p>
 
-        <div class="p-6">
-          <div>
-            <h2 class="mb-2 text-xl font-semibold">Upload Files</h2>
-
-            <p class="mb-2 text-gray-600">Using Azure Storage Explorer:</p>
-
-            <ol class="mb-4 list-inside list-disc space-y-1 text-gray-600">
+            <ol class="mb-4 list-inside list-decimal space-y-1 text-gray-600">
               <li>Open Azure Storage Explorer</li>
 
               <li>
-                Connect to your study's storage using the URL provided above
+                Click the plug icon (<strong>Connect to Azure Resources</strong
+                >) in the left sidebar
               </li>
-
-              <li>Navigate to the correct container</li>
 
               <li>
-                Drag and drop your validated files or use the upload button
+                Select <strong>ADLS Gen2 container or directory</strong>, then
+                choose
+                <strong>Shared access signature URL (SAS)</strong>
               </li>
 
-              <li>Monitor the upload progress</li>
+              <li>Paste the SAS URL above into the URL field and click Next</li>
+
+              <li>
+                Confirm the connection details and click
+                <strong>Connect</strong>
+              </li>
+
+              <li>
+                The container will appear under
+                <strong>Local &amp; Attached → Blob Containers</strong> in the
+                left panel
+              </li>
             </ol>
           </div>
         </div>
@@ -277,22 +278,85 @@ const copyToClipboard = async (text: string) => {
 
         <div class="p-6">
           <div>
-            <h2 class="mb-2 text-xl font-semibold">Verify Upload</h2>
+            <h2 class="mb-2 text-xl font-semibold">Step 4 - Upload Files</h2>
 
-            <p class="mb-2 text-gray-600">After uploading, verify that:</p>
+            <p class="mb-2 text-gray-600">
+              Once connected, upload your validated files to the container:
+            </p>
+
+            <ol class="mb-4 list-inside list-decimal space-y-1 text-gray-600">
+              <li>
+                Select the container you connected to in the left panel to open
+                it
+              </li>
+
+              <li>
+                Click the <strong>Upload</strong> button in the toolbar and
+                choose <strong>Upload Files</strong> or
+                <strong>Upload Folder</strong> as appropriate
+              </li>
+
+              <li>
+                Browse to your validated files, select them, and confirm the
+                upload
+              </li>
+
+              <li>
+                Monitor upload progress in the
+                <strong>Activities</strong> panel at the bottom of the window -
+                each file will show a status of Completed or Failed
+              </li>
+
+              <li>
+                If any files show as Failed, check the error message in the
+                Activities panel and re-upload those files after resolving the
+                issue
+              </li>
+            </ol>
+
+            <p class="text-sm text-gray-500">
+              Large uploads may take several minutes. Do not close Azure Storage
+              Explorer until all files show a Completed status.
+            </p>
+          </div>
+        </div>
+
+        <USeparator />
+
+        <div class="p-6">
+          <div>
+            <h2 class="mb-2 text-xl font-semibold">Step 5 - Verify Upload</h2>
+
+            <p class="mb-2 text-gray-600">
+              After the upload completes, confirm the following before closing
+              Azure Storage Explorer:
+            </p>
 
             <ul class="mb-4 list-inside list-disc space-y-1 text-gray-600">
-              <li>All files have been successfully uploaded</li>
+              <li>
+                All expected files appear in the container with the correct file
+                names
+              </li>
 
-              <li>File sizes match your original files</li>
+              <li>
+                File sizes shown in Storage Explorer match the sizes of your
+                local files
+              </li>
 
-              <li>You can open and view the files in Azure Storage Explorer</li>
+              <li>
+                No files are listed as 0 bytes, which would indicate a failed or
+                incomplete transfer
+              </li>
 
-              <li>File permissions are set correctly</li>
+              <li>
+                The total file count in the container matches the number of
+                files you intended to upload
+              </li>
             </ul>
 
             <p class="text-sm text-gray-500">
-              If you encounter any issues, contact support for assistance.
+              If you encounter issues or see unexpected errors, contact support
+              and include the error message from the Activities panel.
             </p>
           </div>
         </div>
