@@ -44,6 +44,19 @@ const main = async () => {
   }
   console.log("\n\nDone. Deleted all external datasets.");
 
+  // Verify no PublishedDataset records remain before proceeding
+  const remainingCount = await prisma.publishedDataset.count();
+  if (remainingCount > 0) {
+    console.error(
+      `\nAborting: ${remainingCount} PublishedDataset record(s) still exist after cleanup.`,
+    );
+    return;
+  }
+
+  // Reset the autoincrement sequence to 1 (fresh start)
+  await prisma.$executeRaw`ALTER SEQUENCE "PublishedDataset_id_seq" RESTART WITH 1`;
+  console.log("Reset PublishedDataset id sequence to 1.");
+
   const totalRecords = (DatasetRecords as unknown[]).length;
   console.log(`\nCreating ${totalRecords} record(s)...`);
   for (let i = 0; i < (DatasetRecords as unknown[]).length; i++) {
@@ -93,6 +106,10 @@ const main = async () => {
   }
 
   console.log("\n\nDone. Created all records.");
+
+  // Reset the autoincrement sequence to avoid conflicts with the inserted IDs
+  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"PublishedDataset"', 'id'), COALESCE(MAX(id), 0) + 1, false) FROM "PublishedDataset"`;
+  console.log("Reset PublishedDataset id sequence.");
 };
 
 main()
