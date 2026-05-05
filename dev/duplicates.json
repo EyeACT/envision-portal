@@ -1,0 +1,260 @@
+[
+  {
+    "id": 3080,
+    "datasetId": "external-3080",
+    "canonicalId": "external-3080",
+    "doi": "10.1371/journal.pone.0095066.t002",
+    "title": "Characteristics of groups with or without CME in OCT 1 month after surgery.",
+    "description": "CME = cystoid macular edema; OCT = optical coherence tomography; BCVA = best-corrected visual acuity; logMAR = the logarithm of the minimum angle of resolution; D = diopters; CRT = central subfield retinal thickness; VHD = vitreous hyper-reflective dot.Results are expressed a mean ± standard deviation.*Incidence of CME in total cases of each condition.P values were calculated with the Fisher exact test for categorical variables and the Mann-Whitney U test for continuous variables.",
+    "versionTitle": "1",
+    "studyTitle": "",
+    "publishedMetadata": {
+      "readme": "CME = cystoid macular edema; OCT = optical coherence tomography; BCVA = best-corrected visual acuity; logMAR = the logarithm of the minimum angle of resolution; D = diopters; CRT = central subfield retinal thickness; VHD = vitreous hyper-reflective dot.Results are expressed a mean ± standard deviation.*Incidence of CME in total cases of each condition.P values were calculated with the Fisher exact test for categorical variables and the Mann-Whitney U test for continuous variables.",
+      "healthsheet": {},
+      "studyDescription": {},
+      "datasetDescription": {
+        "date": [
+          {
+            "dateType": "Available",
+            "dateValue": "2014-04-15",
+            "dateInformation": "Date dataset made available on Figshare"
+          }
+        ],
+        "size": ["0.0 MB"],
+        "title": [
+          {
+            "titleValue": "Characteristics of groups with or without CME in OCT 1 month after surgery."
+          }
+        ],
+        "format": [],
+        "rights": [{ "rightsName": "No license available" }],
+        "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
+        "creator": [
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "creatorName": "Jong-Hyun Oh"
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "creatorName": "Roy S. Chuck"
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "creatorName": "Jae Rock Do"
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "creatorName": "Choul Yong Park"
+          }
+        ],
+        "subject": [
+          { "subjectValue": "anatomy" },
+          { "subjectValue": "Ocular system" },
+          { "subjectValue": "Ocular anatomy" },
+          { "subjectValue": "ophthalmology" },
+          { "subjectValue": "Lens disorders" },
+          { "subjectValue": "Macular disorders" },
+          { "subjectValue": "Retinal disorders" },
+          { "subjectValue": "Surgical and invasive medical procedures" },
+          { "subjectValue": "Ophthalmic procedures" },
+          { "subjectValue": "Cataract surgery" }
+        ],
+        "version": "1",
+        "language": "en",
+        "publisher": { "publisherName": "Figshare" },
+        "accessType": "PublicOnScreenAccessAndDownload",
+        "identifier": {
+          "identifierType": "DOI",
+          "identifierValue": "10.1371/journal.pone.0095066.t002"
+        },
+        "description": [
+          {
+            "descriptionType": "Abstract",
+            "descriptionValue": "CME = cystoid macular edema; OCT = optical coherence tomography; BCVA = best-corrected visual acuity; logMAR = the logarithm of the minimum angle of resolution; D = diopters; CRT = central subfield retinal thickness; VHD = vitreous hyper-reflective dot.Results are expressed a mean ± standard deviation.*Incidence of CME in total cases of each condition.P values were calculated with the Fisher exact test for categorical variables and the Mann-Whitney U test for continuous variables."
+          }
+        ],
+        "resourceType": {
+          "resourceTypeValue": "Dataset",
+          "resourceTypeGeneral": "Dataset"
+        },
+        "accessDetails": { "description": "" },
+        "datasetConsent": {
+          "consentType": "ConsentSpecifiedNotElsewhereCategorised",
+          "consentsDetails": "",
+          "consentNoMethods": false,
+          "consentGeneticOnly": false,
+          "consentGeogRestrict": false,
+          "consentResearchType": false,
+          "consentNoncommercial": false
+        },
+        "publicationYear": "2014",
+        "fundingReference": [],
+        "relatedIdentifier": [],
+        "datasetDeIdentLevel": {
+          "deIdentType": "NoDeIdentification",
+          "deIdentDates": false,
+          "deIdentHIPAA": false,
+          "deIdentKAnon": false,
+          "deIdentDirect": false,
+          "deIdentNonarr": false,
+          "deIdentDetails": "No de-identification details available"
+        },
+        "managingOrganization": { "name": "" }
+      },
+      "datasetStructureDescription": {
+        "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
+        "directoryList": [],
+        "metadataFileList": []
+      }
+    },
+    "files": [],
+    "data": {
+      "size": 0,
+      "fileCount": 1,
+      "viewCount": 0,
+      "labelingMethod": "",
+      "validationInfo": ""
+    },
+    "external": true,
+    "externalUrl": "https://plos.figshare.com/articles/dataset/_Characteristics_of_groups_with_or_without_CME_in_OCT_1_month_after_surgery_/1000457",
+    "updated": "2026-05-05 03:04:17.349",
+    "created": "2014-04-15 00:00:00",
+    "status": "",
+    "containerId": null,
+    "public": false,
+    "automated": true
+  },
+  {
+    "id": 5088,
+    "datasetId": "external-5088",
+    "canonicalId": "external-5088",
+    "doi": "10.1371/journal.pone.0095066.t002",
+    "title": "Characteristics of groups with or without CME in OCT 1 month after surgery.",
+    "description": "CME = cystoid macular edema; OCT = optical coherence tomography; BCVA = best-corrected visual acuity; logMAR = the logarithm of the minimum angle of resolution; D = diopters; CRT = central subfield retinal thickness; VHD = vitreous hyper-reflective dot.Results are expressed a mean ± standard deviation.*Incidence of CME in total cases of each condition.P values were calculated with the Fisher exact test for categorical variables and the Mann-Whitney U test for continuous variables.",
+    "versionTitle": "1",
+    "studyTitle": "",
+    "publishedMetadata": {
+      "readme": "CME = cystoid macular edema; OCT = optical coherence tomography; BCVA = best-corrected visual acuity; logMAR = the logarithm of the minimum angle of resolution; D = diopters; CRT = central subfield retinal thickness; VHD = vitreous hyper-reflective dot.Results are expressed a mean ± standard deviation.*Incidence of CME in total cases of each condition.P values were calculated with the Fisher exact test for categorical variables and the Mann-Whitney U test for continuous variables.",
+      "healthsheet": {},
+      "studyDescription": {},
+      "datasetDescription": {
+        "date": [
+          {
+            "dateType": "Available",
+            "dateValue": "2014-04-15",
+            "dateInformation": "Date dataset made available on Figshare"
+          }
+        ],
+        "size": ["0.0 MB"],
+        "title": [
+          {
+            "titleValue": "Characteristics of groups with or without CME in OCT 1 month after surgery."
+          }
+        ],
+        "format": [],
+        "rights": [{ "rightsName": "No license available" }],
+        "schema": "https://schema.envisionportal.io/v0.2.0/study_description.json",
+        "creator": [
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "creatorName": "Jong-Hyun Oh"
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "creatorName": "Roy S. Chuck"
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "creatorName": "Jae Rock Do"
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "creatorName": "Choul Yong Park"
+          }
+        ],
+        "subject": [
+          { "subjectValue": "anatomy" },
+          { "subjectValue": "Ocular system" },
+          { "subjectValue": "Ocular anatomy" },
+          { "subjectValue": "ophthalmology" },
+          { "subjectValue": "Lens disorders" },
+          { "subjectValue": "Macular disorders" },
+          { "subjectValue": "Retinal disorders" },
+          { "subjectValue": "Surgical and invasive medical procedures" },
+          { "subjectValue": "Ophthalmic procedures" },
+          { "subjectValue": "Cataract surgery" }
+        ],
+        "version": "1",
+        "language": "en",
+        "publisher": { "publisherName": "Figshare" },
+        "accessType": "PublicOnScreenAccessAndDownload",
+        "identifier": {
+          "identifierType": "DOI",
+          "identifierValue": "10.1371/journal.pone.0095066.t002"
+        },
+        "description": [
+          {
+            "descriptionType": "Abstract",
+            "descriptionValue": "CME = cystoid macular edema; OCT = optical coherence tomography; BCVA = best-corrected visual acuity; logMAR = the logarithm of the minimum angle of resolution; D = diopters; CRT = central subfield retinal thickness; VHD = vitreous hyper-reflective dot.Results are expressed a mean ± standard deviation.*Incidence of CME in total cases of each condition.P values were calculated with the Fisher exact test for categorical variables and the Mann-Whitney U test for continuous variables."
+          }
+        ],
+        "resourceType": {
+          "resourceTypeValue": "Dataset",
+          "resourceTypeGeneral": "Dataset"
+        },
+        "accessDetails": { "description": "" },
+        "datasetConsent": {
+          "consentType": "ConsentSpecifiedNotElsewhereCategorised",
+          "consentsDetails": "",
+          "consentNoMethods": false,
+          "consentGeneticOnly": false,
+          "consentGeogRestrict": false,
+          "consentResearchType": false,
+          "consentNoncommercial": false
+        },
+        "publicationYear": "2014",
+        "fundingReference": [],
+        "relatedIdentifier": [],
+        "datasetDeIdentLevel": {
+          "deIdentType": "NoDeIdentification",
+          "deIdentDates": false,
+          "deIdentHIPAA": false,
+          "deIdentKAnon": false,
+          "deIdentDirect": false,
+          "deIdentNonarr": false,
+          "deIdentDetails": "No de-identification details available"
+        },
+        "managingOrganization": { "name": "" }
+      },
+      "datasetStructureDescription": {
+        "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
+        "directoryList": [],
+        "metadataFileList": []
+      }
+    },
+    "files": [],
+    "data": {
+      "size": 0,
+      "fileCount": 1,
+      "viewCount": 0,
+      "labelingMethod": "",
+      "validationInfo": ""
+    },
+    "external": true,
+    "externalUrl": "https://plos.figshare.com/articles/dataset/_Characteristics_of_groups_with_or_without_CME_in_OCT_1_month_after_surgery_/1000457",
+    "updated": "2026-05-05 03:51:03.915",
+    "created": "2014-04-15 00:00:00",
+    "status": "",
+    "containerId": null,
+    "public": false,
+    "automated": true
+  }
+]
