@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const data = body.data;
+  const { data } = body;
 
   // Create a dataset record with all metadata
   // Status is set to "pending_review" (manual review required)
