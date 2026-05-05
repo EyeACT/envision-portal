@@ -61,10 +61,13 @@ export default defineEventHandler(async (event) => {
 
   const externalUrl = body.data.externalUrl.toLowerCase();
 
-  // check if the dataset with the same externalUrl already exists in the database and return a 400 error if it does
+  // check if the dataset with the same externalUrl or DOI already exists in the database
   const existingDataset = await prisma.publishedDataset.findFirst({
     where: {
-      externalUrl,
+      OR: [
+        { externalUrl },
+        ...(body.data.doi ? [{ doi: body.data.doi, external: true }] : []),
+      ],
     },
   });
 
@@ -80,7 +83,7 @@ export default defineEventHandler(async (event) => {
         description: body.data.description,
         doi: body.data.doi,
         external: true,
-        externalUrl: body.data.externalUrl,
+        externalUrl,
         files: body.data.files as any,
         publishedMetadata: body.data.publishedMetadata,
         studyTitle: body.data.studyTitle,
@@ -115,7 +118,7 @@ export default defineEventHandler(async (event) => {
       description: body.data.description,
       doi: body.data.doi,
       external: true,
-      externalUrl: body.data.externalUrl,
+      externalUrl,
       files: body.data.files as any,
       publishedMetadata: body.data.publishedMetadata,
       studyTitle: body.data.studyTitle,
