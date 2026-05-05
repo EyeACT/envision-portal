@@ -83,7 +83,9 @@ const totalPages = computed(() =>
 const getDaysAgo = (date: string | Date): string => {
   const daysAgo = dayjs(date).diff(dayjs(), "day");
 
-  return daysAgo === 0 ? "Today" : `${Math.abs(daysAgo)} days ago`;
+  return daysAgo === 0
+    ? "Today"
+    : `${Math.abs(daysAgo)} day${Math.abs(daysAgo) > 1 ? "s" : ""} ago`;
 };
 
 const items = ref<AccordionItem[]>([
