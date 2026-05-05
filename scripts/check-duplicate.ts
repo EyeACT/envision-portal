@@ -25,19 +25,13 @@ const main = async () => {
 
   const datasets = await prisma.publishedDataset.findMany({
     where: { external: true },
-    select: { id: true, title: true, externalUrl: true },
+    select: { id: true, title: true, externalUrl: true, doi: true },
     orderBy: { id: "asc" },
   });
 
-  console.log(`Checking ${datasets.length} external dataset(s) for duplicates...\n`);
-
-  // Group by normalized title
-  const byTitle = new Map<string, typeof datasets>();
-  for (const ds of datasets) {
-    const key = normalize(ds.title);
-    if (!byTitle.has(key)) byTitle.set(key, []);
-    byTitle.get(key)!.push(ds);
-  }
+  console.log(
+    `Checking ${datasets.length} external dataset(s) for duplicates...\n`,
+  );
 
   // Group by normalized URL
   const byUrl = new Map<string, typeof datasets>();
@@ -48,20 +42,16 @@ const main = async () => {
     byUrl.get(key)!.push(ds);
   }
 
-  let found = 0;
-
-  const titleDupes = [...byTitle.entries()].filter(([, group]) => group.length > 1);
-  if (titleDupes.length > 0) {
-    console.log("=== Duplicate Titles ===");
-    for (const [key, group] of titleDupes) {
-      console.log(`\n  Title: "${key}"`);
-      for (const ds of group) {
-        console.log(`    ID ${ds.id}  url: ${ds.externalUrl ?? "(none)"}`);
-      }
-      found += group.length;
-    }
-    console.log();
+  // Group by normalized DOI
+  const byDoi = new Map<string, typeof datasets>();
+  for (const ds of datasets) {
+    if (!ds.doi) continue;
+    const key = normalize(ds.doi);
+    if (!byDoi.has(key)) byDoi.set(key, []);
+    byDoi.get(key)!.push(ds);
   }
+
+  let found = 0;
 
   const urlDupes = [...byUrl.entries()].filter(([, group]) => group.length > 1);
   if (urlDupes.length > 0) {
@@ -76,11 +66,24 @@ const main = async () => {
     console.log();
   }
 
+  const doiDupes = [...byDoi.entries()].filter(([, group]) => group.length > 1);
+  if (doiDupes.length > 0) {
+    console.log("=== Duplicate DOIs ===");
+    for (const [key, group] of doiDupes) {
+      console.log(`\n  DOI: "${key}"`);
+      for (const ds of group) {
+        console.log(`    ID ${ds.id}  title: "${ds.title}"`);
+      }
+      found += group.length;
+    }
+    console.log();
+  }
+
   if (found === 0) {
     console.log("No duplicates found.");
   } else {
     console.log(
-      `Found ${titleDupes.length} duplicate title group(s) and ${urlDupes.length} duplicate URL group(s).`,
+      `Found ${urlDupes.length} duplicate URL group(s) and ${doiDupes.length} duplicate DOI group(s).`,
     );
     process.exit(1);
   }
