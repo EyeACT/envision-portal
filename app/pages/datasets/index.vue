@@ -338,7 +338,13 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
                 </div>
 
                 <p class="mt-1 text-xs text-gray-500">
-                  Published on
+                  {{
+                    dataset.registrationSource === "Manual Registration" ||
+                    dataset.registrationSource === "Automatic Registration"
+                      ? "Registered"
+                      : "Published"
+                  }}
+                  on
                   <time :datetime="dayjs(dataset.created).toISOString()">
                     {{ dayjs(dataset.created).format("MMMM D, YYYY") }}
                   </time>
