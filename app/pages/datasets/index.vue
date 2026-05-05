@@ -58,7 +58,11 @@ const queryParams = computed(() => {
   return params;
 });
 
-const { data: response, error } = await useFetch<{
+const {
+  data: response,
+  error,
+  pending,
+} = await useFetch<{
   data: DiscoveryDatasetList[];
   total: number;
 }>("/api/discover/dataset", {
@@ -281,163 +285,166 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
             </div>
           </div>
 
-          <NuxtLink
-            v-for="dataset in datasets"
-            :key="dataset.id"
-            :to="`/datasets/${dataset.id}`"
-          >
-            <UCard
-              class="rounded-lg border border-gray-200 bg-white p-2 transition-all hover:shadow-lg"
+          <!-- Data List Wrapper with Loading Overlay -->
+          <OverlayLoader :loading="pending" overlay>
+            <NuxtLink
+              v-for="dataset in datasets"
+              :key="dataset.id"
+              :to="`/datasets/${dataset.id}`"
             >
-              <template #header>
-                <div class="flex flex-col">
-                  <div class="flex items-start justify-between gap-2">
-                    <div class="mb-1 flex items-start gap-2">
-                      <UBadge color="primary" variant="outline">
-                        Version {{ dataset.versionTitle }}
-                      </UBadge>
+              <UCard
+                class="my-4 rounded-lg border border-gray-200 bg-white p-2 transition-all hover:shadow-lg"
+              >
+                <template #header>
+                  <div class="flex flex-col">
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="mb-1 flex items-start gap-2">
+                        <UBadge color="primary" variant="outline">
+                          Version {{ dataset.versionTitle }}
+                        </UBadge>
 
-                      <UBadge
-                        v-if="dataset.external"
-                        color="warning"
-                        variant="soft"
-                      >
-                        External Dataset
-                      </UBadge>
-                    </div>
-
-                    <UTooltip
-                      :text="
-                        dataset.registrationSource === 'Manual Registration'
-                          ? 'This dataset was registered manually by our review team.'
-                          : dataset.registrationSource ===
-                              'Automatic Registration'
-                            ? 'This dataset was found via our automated discovery process.'
-                            : 'This dataset was published on the Envision Portal.'
-                      "
-                    >
-                      <UBadge
-                        color="primary"
-                        variant="soft"
-                        class="cursor-help"
-                      >
-                        <Icon name="material-symbols:auto-mode" size="14" />
-                        {{
-                          dataset.registrationSource === "Manual Registration"
-                            ? "Registered manually"
-                            : dataset.registrationSource ===
-                                "Automatic Registration"
-                              ? "Registered automatically"
-                              : "Published on Envision Portal"
-                        }}
-                      </UBadge>
-                    </UTooltip>
-                  </div>
-
-                  <h2 class="text-xl font-semibold text-blue-400">
-                    {{ dataset.title }}
-                  </h2>
-                </div>
-
-                <p class="mt-1 text-xs text-gray-500">
-                  {{
-                    dataset.registrationSource === "Manual Registration" ||
-                    dataset.registrationSource === "Automatic Registration"
-                      ? "Registered"
-                      : "Published"
-                  }}
-                  on
-                  <time :datetime="dayjs(dataset.created).toISOString()">
-                    {{ dayjs(dataset.created).format("MMMM D, YYYY") }}
-                  </time>
-
-                  ({{ getDaysAgo(dataset.created) }})
-                </p>
-              </template>
-
-              <div class="space-y-4">
-                <p class="line-clamp-3 text-sm text-gray-500">
-                  {{ dataset.description || "No description available." }}
-                </p>
-
-                <div v-if="dataset.keywords && dataset.keywords.length > 0">
-                  <h3 class="text-md mb-1 font-semibold text-gray-500">
-                    Keywords:
-                  </h3>
-
-                  <div class="flex flex-wrap gap-2">
-                    <UBadge
-                      v-for="keyword in dataset.keywords"
-                      :key="keyword"
-                      variant="outline"
-                      class="text-xs capitalize"
-                    >
-                      {{ keyword }}
-                    </UBadge>
-                  </div>
-                </div>
-
-                <div class="space-y-2">
-                  <div class="flex items-start gap-3 text-sm">
-                    <div class="flex gap-2">
-                      <Icon
-                        name="charm:person"
-                        size="12"
-                        class="mt-1 text-blue-500"
-                      />
-
-                      <span class="min-w-[80px] font-medium text-gray-600">
-                        Creators:
-                      </span>
-                    </div>
-                    <div class="flex-wraptext-gray-700 flex">
-                      <span
-                        v-if="dataset.creators && dataset.creators.length > 0"
-                      >
-                        <span
-                          v-for="(creator, index) in dataset.creators"
-                          :key="index"
-                          class="capitalize"
+                        <UBadge
+                          v-if="dataset.external"
+                          color="warning"
+                          variant="soft"
                         >
-                          {{ creator.creatorName
-                          }}<span v-if="index < dataset.creators.length - 1"
-                            >,
+                          External Dataset
+                        </UBadge>
+                      </div>
+
+                      <UTooltip
+                        :text="
+                          dataset.registrationSource === 'Manual Registration'
+                            ? 'This dataset was registered manually by our review team.'
+                            : dataset.registrationSource ===
+                                'Automatic Registration'
+                              ? 'This dataset was found via our automated discovery process.'
+                              : 'This dataset was published on the Envision Portal.'
+                        "
+                      >
+                        <UBadge
+                          color="primary"
+                          variant="soft"
+                          class="cursor-help"
+                        >
+                          <Icon name="material-symbols:auto-mode" size="14" />
+                          {{
+                            dataset.registrationSource === "Manual Registration"
+                              ? "Registered manually"
+                              : dataset.registrationSource ===
+                                  "Automatic Registration"
+                                ? "Registered automatically"
+                                : "Published on Envision Portal"
+                          }}
+                        </UBadge>
+                      </UTooltip>
+                    </div>
+
+                    <h2 class="text-xl font-semibold text-blue-400">
+                      {{ dataset.title }}
+                    </h2>
+                  </div>
+
+                  <p class="mt-1 text-xs text-gray-500">
+                    {{
+                      dataset.registrationSource === "Manual Registration" ||
+                      dataset.registrationSource === "Automatic Registration"
+                        ? "Registered"
+                        : "Published"
+                    }}
+                    on
+                    <time :datetime="dayjs(dataset.created).toISOString()">
+                      {{ dayjs(dataset.created).format("MMMM D, YYYY") }}
+                    </time>
+
+                    ({{ getDaysAgo(dataset.created) }})
+                  </p>
+                </template>
+
+                <div class="space-y-4">
+                  <p class="line-clamp-3 text-sm text-gray-500">
+                    {{ dataset.description || "No description available." }}
+                  </p>
+
+                  <div v-if="dataset.keywords && dataset.keywords.length > 0">
+                    <h3 class="text-md mb-1 font-semibold text-gray-500">
+                      Keywords:
+                    </h3>
+
+                    <div class="flex flex-wrap gap-2">
+                      <UBadge
+                        v-for="keyword in dataset.keywords"
+                        :key="keyword"
+                        variant="outline"
+                        class="text-xs capitalize"
+                      >
+                        {{ keyword }}
+                      </UBadge>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <div class="flex items-start gap-3 text-sm">
+                      <div class="flex gap-2">
+                        <Icon
+                          name="charm:person"
+                          size="12"
+                          class="mt-1 text-blue-500"
+                        />
+
+                        <span class="min-w-[80px] font-medium text-gray-600">
+                          Creators:
+                        </span>
+                      </div>
+                      <div class="flex-wraptext-gray-700 flex">
+                        <span
+                          v-if="dataset.creators && dataset.creators.length > 0"
+                        >
+                          <span
+                            v-for="(creator, index) in dataset.creators"
+                            :key="index"
+                            class="capitalize"
+                          >
+                            {{ creator.creatorName
+                            }}<span v-if="index < dataset.creators.length - 1"
+                              >,
+                            </span>
                           </span>
                         </span>
-                      </span>
 
-                      <span v-else class="text-gray-400 italic">
-                        No creators available
-                      </span>
+                        <span v-else class="text-gray-400 italic">
+                          No creators available
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  <div
-                    class="flex items-start gap-3 text-sm"
-                    v-if="dataset.versionCount > 0"
-                  >
-                    <div class="flex gap-2">
-                      <Icon
-                        name="mdi:file-document-multiple"
-                        size="12"
-                        class="mt-1 text-blue-500"
-                      />
+                    <div
+                      class="flex items-start gap-3 text-sm"
+                      v-if="dataset.versionCount > 0"
+                    >
+                      <div class="flex gap-2">
+                        <Icon
+                          name="mdi:file-document-multiple"
+                          size="12"
+                          class="mt-1 text-blue-500"
+                        />
 
-                      <span class="min-w-[80px] font-medium text-gray-600">
-                        Versions:
-                      </span>
-                    </div>
-                    <div class="flex-wraptext-gray-700 flex">
-                      <span class="text-gray-700">
-                        This dataset has {{ dataset.versionCount }} other
-                        version{{ dataset.versionCount > 1 ? "s" : "" }}.
-                      </span>
+                        <span class="min-w-[80px] font-medium text-gray-600">
+                          Versions:
+                        </span>
+                      </div>
+                      <div class="flex-wraptext-gray-700 flex">
+                        <span class="text-gray-700">
+                          This dataset has {{ dataset.versionCount }} other
+                          version{{ dataset.versionCount > 1 ? "s" : "" }}.
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </UCard>
-          </NuxtLink>
+              </UCard>
+            </NuxtLink>
+          </OverlayLoader>
 
           <div v-if="totalPages > 1" class="mt-6 flex justify-center">
             <UPagination
