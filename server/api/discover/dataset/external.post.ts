@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
     console.log("Validation error:", body.error);
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid request body",
+      statusMessage: JSON.stringify(body.error.issues),
     });
   }
 
