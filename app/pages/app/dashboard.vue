@@ -227,7 +227,7 @@ const dropdownItems = ref([
         <ULink
           v-for="dataset in datasets"
           :key="dataset.id"
-          :to="`/app/datasets/${dataset.id}`"
+          :to="`/app/datasets/${dataset.id}/overview`"
         >
           <UCard
             class="transition-shadow hover:shadow-md"
