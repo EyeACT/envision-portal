@@ -5,7 +5,7 @@ FROM node:22-alpine AS builder
 RUN apk add --no-cache openssl
 
 # Enable corepack and install pnpm
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@11 --activate
 
 WORKDIR /app
 
