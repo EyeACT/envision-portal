@@ -59,8 +59,8 @@ export default defineEventHandler(async (event) => {
         identifierType: relatedIdentifier.identifierType,
         relatedMetadataScheme: relatedIdentifier.relatedMetadataScheme || "",
         relationType: relatedIdentifier.relationType,
-        resourceType: relatedIdentifier.resourceType,
-        schemeType: relatedIdentifier.schemeType,
+        resourceType: relatedIdentifier.resourceType || "",
+        schemeType: relatedIdentifier.schemeType || "",
         schemeUri: relatedIdentifier.schemeUri,
       },
     });
