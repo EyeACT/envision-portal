@@ -10,4 +10,4 @@ allowBuilds:
 
 minimumReleaseAge: 10080
 blockExoticSubdeps: true
-minimumReleaseAgeStrict: true
+minimumReleaseAgeStrict: false # tenmporary until https://github.com/pnpm/pnpm/issues/11238 is fixed

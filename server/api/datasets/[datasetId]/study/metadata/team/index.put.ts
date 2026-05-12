@@ -1,4 +1,5 @@
 import { StudyMetadataSponsorsSchema } from "#shared/utils/study_schemas";
+import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
   const { datasetId } = event.context.params as { datasetId: string };
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
-      data: body.error.format(),
+      data: z.treeifyError(body.error),
       statusCode: 400,
       statusMessage: "Invalid study sponsor data",
     });

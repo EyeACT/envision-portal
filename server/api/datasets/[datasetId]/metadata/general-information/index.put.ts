@@ -1,4 +1,5 @@
 import { DatasetMetadataGeneralInformationSchema } from "#shared/utils/dataset_schemas";
+import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
-      data: body.error.format(),
+      data: z.treeifyError(body.error),
       statusCode: 400,
       statusMessage: "Invalid data",
     });
