@@ -13,7 +13,7 @@ WORKDIR /app
 ARG DATABASE_URL
 
 # Copy only necessary files for dependency installation
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY prisma ./prisma/
 
 RUN pnpm install --frozen-lockfile \
