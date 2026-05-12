@@ -1,0 +1,13 @@
+allowBuilds:
+  '@parcel/watcher': true
+  '@prisma/engines': true
+  bcrypt: true
+  better-sqlite3: true
+  esbuild: true
+  prisma: true
+  unrs-resolver: true
+  vue-demi: true
+
+minimumReleaseAge: 10080
+blockExoticSubdeps: true
+minimumReleaseAgeStrict: true
