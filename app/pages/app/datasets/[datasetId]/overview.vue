@@ -33,33 +33,33 @@ if (dataset.value) {
       <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <div class="flex w-full items-center justify-between gap-3">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
               Overview
             </h1>
           </div>
         </div>
       </div>
 
-      <div class="flex flex-col items-start gap-3 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+      <div class="flex flex-col items-start rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
           Azure Storage
         </h2>
 
         <div class="p-6 w-full">
-          <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
             Total Dataset Size
           </h2>
-          <p class="mb-4 text-gray-600 dark:text-gray-400">
+          <p class="mt-2 text-gray-600 dark:text-gray-400">
             This shows the total amount of space your data is taking up in the cloud. 
             Ensure this matches your expected local directory size before finalizing metadata.
           </p>
           <div class="flex items-center gap-6">
             <div v-if="storageLoading" class="h-8 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-            <div v-else class="text-2xl font-normal text-gray-900 dark:text-white">
+            <div v-else class="text-xl font-normal text-gray-900 dark:text-white">
               {{ storage?.displaySize || '0 Bytes' }}
             </div>
           </div>
-          <p class="mt-2 text-sm text-gray-500">
+          <p class="text-sm text-gray-500">
             Calculated based on cumulative blob size
           </p>
         </div>
@@ -67,20 +67,20 @@ if (dataset.value) {
         <USeparator />
 
         <div class="p-6 w-full">
-          <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
             Total File Count
           </h2>
-          <p class="mb-4 text-gray-600 dark:text-gray-400">
+          <p class="mt-2 text-gray-600 dark:text-gray-400">
             This represents the total number of items currently stored in your study container. 
             It includes every image, record, and document you have uploaded so far.
           </p>
           <div class="flex items-center gap-6">
             <div v-if="storageLoading" class="h-8 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-            <div v-else class="text-2xl font-normal text-gray-900 dark:text-white">
+            <div v-else class="text-xl font-normal text-gray-900 dark:text-white">
               {{ storage?.fileCount || 0 }}
             </div>
           </div>
-          <p class="mt-2 text-sm text-gray-500">
+          <p class="text-sm text-gray-500">
             Updated in real-time from Azure Blob Storage
           </p>
           <UButton
@@ -95,21 +95,22 @@ if (dataset.value) {
         </div>
       </div>
 
-      <div class="flex flex-col items-start gap-3 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+      <div class="flex flex-col items-start rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
           Dataset
         </h2>
 
         <div class="p-6 w-full">
-          <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-            Dataset Summary
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Title
           </h2>
-          <p class="text-sm uppercase font-bold text-gray-400 mb-1">Dataset Title</p>
-          <p class="mb-4 text-gray-900 dark:text-white font-medium text-lg">
+          <p class="mb-4 text-gray-600 dark:text-white">
             {{ dataset?.title || "Untitled Dataset" }}
           </p>
-          <p class="text-sm uppercase font-bold text-gray-400 mb-1">Description</p>
-          <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+          <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+            Description
+          </h2>
+          <p class="text-gray-600 dark:text-gray-400">
             {{ dataset?.description || "No description provided for this dataset." }}
           </p>
         </div>
@@ -118,9 +119,9 @@ if (dataset.value) {
 
         <div class="p-6 w-full">
           <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-            Dataset Creators
+            Creators
           </h2>
-          <p class="mb-4 text-gray-600 dark:text-gray-400">
+          <p class="text-gray-600 dark:text-gray-400">
             The individuals responsible for the creation and maintenance of this specific dataset.
           </p>
           <div class="flex flex-wrap gap-3">
@@ -147,29 +148,28 @@ if (dataset.value) {
           <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
             Publishing & Identification
           </h2>
-          <p class="mb-4 text-gray-600 dark:text-gray-400">
+          <p class="mb-2 text-gray-600 dark:text-gray-400">
             Status of the dataset in the repository and its permanent citable identifier.
           </p>
 
-          <div class="flex flex-col gap-6">
-            <div class="flex items-center gap-3 text-sm font-bold text-gray-500 uppercase tracking-wide">
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-2 text-gray-600">
               Digital Object Identifier (DOI):
               <UBadge 
-                v-if="dataset?.doi"
+                :color="dataset?.doi ? 'primary' : 'neutral'"
                 color="primary" 
                 variant="soft"
                 size="lg"
                 class="font-bold uppercase tracking-tight"
               >
-                {{ dataset?.doi }}
+                {{ dataset?.doi || 'Pending publication'}}
               </UBadge>
-              <span v-else class="text-xs font-normal italic text-gray-400 normal-case">Pending publication</span>
             </div>
 
-            <div class="flex items-center gap-3 text-sm font-bold text-gray-500 uppercase tracking-wide">
+            <div class="flex items-center gap-2 text-gray-600">
               Publication Status:
               <UBadge 
-                :color="dataset?.status === 'published' ? 'primary' : 'orange'" 
+                :color="dataset?.status === 'published' ? 'primary' : 'neutral'" 
                 variant="soft" 
                 size="lg" 
                 class="font-bold uppercase tracking-tight"
@@ -181,18 +181,17 @@ if (dataset.value) {
         </div>
       </div>
 
-      <div class="mb-6 flex flex-col items-start gap-3 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+      <div class="mb-6 flex flex-col items-start rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
           Study
         </h2>
 
         <div class="p-6 w-full">
           <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-            Study Description
+            Description
           </h2>
-          <p class="text-sm uppercase font-bold text-gray-400 mb-1">Brief Summary</p>
           <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-            {{ dataset?.StudyDescription?.briefSummary || "No scientific summary available." }}
+            {{ dataset?.StudyDescription?.briefSummary || "No description available." }}
           </p>
         </div>
 
@@ -200,7 +199,7 @@ if (dataset.value) {
 
         <div class="p-6 w-full">
           <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-            Study Status
+            Status
           </h2>
           <div class="flex items-center gap-4">
             <UBadge 
