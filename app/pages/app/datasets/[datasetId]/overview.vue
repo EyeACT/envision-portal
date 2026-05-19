@@ -38,7 +38,7 @@ if (dataset.value) {
             Overview
           </h1>
         </div>
-        <p class="text-gray-500 dark:text-gray-400">
+        <p class="text-base text-gray-500 dark:text-gray-400">
           General summary and storage status of the selected dataset.
         </p>
       </div>
@@ -46,111 +46,62 @@ if (dataset.value) {
       <div
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
-        <div class="flex w-full flex-col gap-4">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Azure Storage
-          </h2>
-
-          <UFormField label="Total Dataset Size">
-            <div v-if="storageLoading" class="h-9 w-full animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-            <UInput
-              v-else
-              :model-value="storage?.displaySize || '0 Bytes'"
-              class="w-full"
-              readonly
-              disabled
-            />
-          </UFormField>
-
-          <UFormField label="Total File Count">
-            <div v-if="storageLoading" class="h-9 w-full animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-            <UInput
-              v-else
-              :model-value="String(storage?.fileCount || 0)"
-              class="w-full"
-              readonly
-              disabled
-            />
-          </UFormField>
-
-          <UButton
-            :to="`/app/datasets/${datasetId}/upload`"
-            color="primary"
-            variant="outline"
-            icon="i-lucide-upload"
-            label="Upload More Files"
-            class="w-fit"
-          />
-        </div>
-      </div>
-
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
-        <div class="flex w-full flex-col gap-4">
+        <div class="flex w-full flex-col gap-5">
           <h2 class="text-lg font-bold text-gray-900 dark:text-white">
             Dataset
           </h2>
 
-          <UFormField label="Title">
-            <UInput
-              :model-value="dataset?.title || 'Untitled Dataset'"
-              class="w-full"
-              readonly
-              disabled
-            />
-          </UFormField>
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Title</span>
+            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ dataset?.title || 'Untitled Dataset' }}
+            </p>
+          </div>
 
-          <UFormField label="Description">
-            <UTextarea
-              :model-value="dataset?.description || 'No description provided.'"
-              class="w-full"
-              readonly
-              disabled
-              autoresize
-            />
-          </UFormField>
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Description</span>
+            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ dataset?.description || 'No description provided.' }}
+            </p>
+          </div>
 
-          <UFormField label="Creators">
-            <div class="flex flex-wrap gap-2 min-h-[44px] p-2 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+          <div class="space-y-2">
+            <span class="text-base text-gray-900 dark:text-gray-500">Creators</span>
+            <div class="flex flex-wrap gap-2">
               <template v-if="dataset?.DatasetContributor?.length">
                 <div 
                   v-for="person in dataset.DatasetContributor" 
                   :key="person.id"
-                  class="flex items-center gap-2 rounded-full border border-gray-200 py-1 pl-1 pr-3 bg-white dark:bg-gray-900 dark:border-gray-700"
                 >
-                  <UAvatar :alt="person.givenName" size="xs" />
-                  <span class="text-xs font-medium text-gray-700 dark:text-gray-200">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
                     {{ person.givenName }} {{ person.familyName }}
-                  </span>
-                  <UBadge v-if="person.creator" color="primary" variant="soft" size="xs">Lead</UBadge>
+                  </p>
                 </div>
               </template>
               <p v-else class="text-sm text-gray-400 italic">No creators listed.</p>
             </div>
-          </UFormField>
+          </div>
         </div>
       </div>
 
       <div
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
-        <div class="flex w-full flex-col gap-4">
+        <div class="flex w-full flex-col gap-5">
           <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Publishing & Identification
+            Publishing
           </h2>
 
-          <UFormField label="Digital Object Identifier (DOI)">
-            <UInput
-              :model-value="dataset?.doi || 'Pending Publication'"
-              class="w-full"
-              readonly
-              disabled
-            />
-          </UFormField>
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Digital Object Identifier (DOI)</span>
+            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ dataset?.doi || 'Pending Publication' }}
+            </p>
+          </div>
 
-          <UFormField label="Publication Status">
-            <div class="flex items-center h-9">
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Publication Status</span>
+            <div class="pt-0.5">
               <UBadge 
                 :color="dataset?.status === 'published' ? 'primary' : 'neutral'" 
                 variant="soft" 
@@ -160,47 +111,76 @@ if (dataset.value) {
                 {{ dataset?.status || 'Draft' }}
               </UBadge>
             </div>
-          </UFormField>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
+        <div class="flex w-full flex-col gap-5">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+            Azure Storage
+          </h2>
+
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Total Dataset Size</span>
+            <div v-if="storageLoading" class="h-5 w-24 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
+            <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ storage?.displaySize || '0 Bytes' }}
+            </p>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Total File Count</span>
+            <div v-if="storageLoading" class="h-5 w-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
+            <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ storage?.fileCount || 0 }}
+            </p>
+          </div>
+
+          <UButton
+            :to="`/app/datasets/${datasetId}/upload`"
+            color="primary"
+            variant="outline"
+            icon="i-lucide-upload"
+            label="Upload More Files"
+            class="w-fit mt-1"
+          />
         </div>
       </div>
 
       <div
         class="mb-6 flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
-        <div class="flex w-full flex-col gap-4">
+        <div class="flex w-full flex-col gap-5">
           <h2 class="text-lg font-bold text-gray-900 dark:text-white">
             Study Details
           </h2>
 
-          <UFormField label="Brief Summary">
-            <UTextarea
-              :model-value="dataset?.StudyDescription?.briefSummary || 'No summary available.'"
-              class="w-full"
-              readonly
-              disabled
-              autoresize
-            />
-          </UFormField>
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Brief Summary</span>
+            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ dataset?.StudyDescription?.briefSummary || 'No summary available.' }}
+            </p>
+          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <UFormField label="Overall Status">
-              <UInput
-                :model-value="dataset?.StudyStatus?.overallStatus || 'Unknown'"
-                readonly
-                disabled
-              />
-            </UFormField>
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Overall Status</span>
+            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ dataset?.StudyStatus?.overallStatus || 'Unknown' }}
+            </p>
+          </div>
 
-            <UFormField label="Start Date">
-              <UInput
-                :model-value="dataset?.StudyStatus?.startDate ? new Date(dataset.StudyStatus.startDate).toLocaleDateString() : 'N/A'"
-                readonly
-                disabled
-              />
-            </UFormField>
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Start Date</span>
+            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ dataset?.StudyStatus?.startDate ? new Date(dataset.StudyStatus.startDate).toLocaleDateString() : 'N/A' }}
+            </p>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>
