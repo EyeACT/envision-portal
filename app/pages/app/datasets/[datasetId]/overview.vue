@@ -78,7 +78,7 @@ if (dataset.value) {
                   </p>
                 </div>
               </template>
-              <p v-else class="text-sm text-gray-400 italic">No creators listed.</p>
+              <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">No creators listed.</p>
             </div>
           </div>
         </div>
