@@ -7,14 +7,17 @@ export default defineEventHandler(async (event) => {
     datasetId: string;
   };
 
-  // Get the dataset from the database
   const dataset = await prisma.dataset.findUnique({
     where: {
       id: datasetId,
     },
+    include: {
+      StudyDescription: true,
+      StudyStatus: true,
+      DatasetContributor: true,
+    },
   });
 
-  // Check if the dataset exists
   if (!dataset) {
     throw createError({
       statusCode: 404,
