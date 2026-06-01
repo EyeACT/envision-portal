@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
+import { useDebounceFn } from "@vueuse/core";
 import { nanoid } from "nanoid";
 import FORM_JSON from "~/assets/data/form.json";
 
@@ -17,6 +18,8 @@ const { datasetId } = route.params as {
 };
 
 const saveLoading = ref(false);
+
+const originalStateString = ref("");
 
 const schema = z.object({
   dates: z.array(
@@ -101,6 +104,8 @@ if (data.value) {
     local: false,
     type: title.type,
   }));
+
+  originalStateString.value = JSON.stringify(toRaw(state));
 }
 
 const addTitle = () => {
@@ -297,79 +302,85 @@ const validate = (state: any): FormError[] => {
   return errors;
 };
 
-async function onSubmit(event: FormSubmitEvent<typeof state>) {
+async function executeSave(formData: typeof state) {
   saveLoading.value = true;
-
-  const formData = event.data;
 
   const b = {
     DatasetDate: formData.dates.map((date: any) => {
-      const d = date;
-
-      if (d.local) {
-        delete d.id;
-      }
-      if (!d.deleted) {
-        delete d.deleted;
-      }
-
+      const d = { ...date };
+      if (d.local) delete d.id;
+      if (!d.deleted) delete d.deleted;
       return d;
     }),
     DatasetDescription: formData.descriptions.map((description: any) => {
-      const d = description;
-
-      if (d.local) {
-        delete d.id;
-      }
-      if (!d.deleted) {
-        delete d.deleted;
-      }
-
+      const d = { ...description };
+      if (d.local) delete d.id;
+      if (!d.deleted) delete d.deleted;
       return d;
     }),
     DatasetTitle: formData.titles.map((title: any) => {
-      const d = title;
-
-      if (d.local) {
-        delete d.id;
-      }
-      if (!d.deleted) {
-        delete d.deleted;
-      }
-
+      const d = { ...title };
+      if (d.local) delete d.id;
+      if (!d.deleted) delete d.deleted;
       return d;
     }),
   };
 
-  await $fetch(`/api/datasets/${datasetId}/metadata/general-information`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "The form has been submitted.",
-      });
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/metadata/general-information`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "Changes saved safely.",
+    });
+
+    // Update our data snapshot locally instead of refreshing the entire page
+    originalStateString.value = JSON.stringify(toRaw(state));
+  } catch (err) {
+    console.error(err);
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "Could not sync your updates to the server.",
+    });
+  } finally {
+    saveLoading.value = false;
+  }
 }
+
+async function onSubmit(event: FormSubmitEvent<typeof state>) {
+  await executeSave(event.data);
+}
+
+const debouncedAutosave = useDebounceFn(async () => {
+  const errors = validate(state);
+  if (errors.length > 0) {
+    console.log("Autosave paused: Form has validation errors.");
+    return; 
+  }
+
+  const currentStateString = JSON.stringify(toRaw(state));
+  if (currentStateString === originalStateString.value) {
+    console.log("Autosave skipped: No real changes detected.");
+    return; 
+  }
+
+  console.log("Changes detected! Saving to server automatically...");
+  await executeSave(state);
+}, 2000);
+
+watch(
+  () => state,
+  () => {
+    debouncedAutosave();
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -394,6 +405,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             General Information
           </h1>
+          <!-- Dynamic Status Tag -->
+          <UBadge 
+            v-if="saveLoading" 
+            variant="subtle" 
+            color="primary" 
+            class="animate-pulse"
+          >
+            Saving...
+          </UBadge>
+          <UBadge 
+            v-else 
+            variant="subtle" 
+            color="neutral" 
+          >
+            Autosave enabled
+          </UBadge>
         </div>
 
         <p class="text-gray-500 dark:text-gray-400">
