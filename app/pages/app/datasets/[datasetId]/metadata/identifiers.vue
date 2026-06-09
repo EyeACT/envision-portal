@@ -2,7 +2,6 @@
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
-import { onBeforeRouteLeave } from "vue-router";
 import FORM_JSON from "~/assets/data/form.json";
 
 definePageMeta({
@@ -19,9 +18,6 @@ const { datasetId } = route.params as {
 const saveLoading = ref(false);
 const isSubmitting = ref(false);
 const initialRawData = ref<string>("");
-
-const showLeaveModal = ref(false);
-const nextNavigationTarget = ref<any>(null);
 
 const schema = z.object({
   secondaryIdentifiers: z.array(
@@ -78,43 +74,12 @@ const isDirty = computed(() => {
   return JSON.stringify(state.secondaryIdentifiers) !== initialRawData.value;
 });
 
-const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-  if (isDirty.value && !isSubmitting.value) {
-    e.preventDefault();
-    e.returnValue = ""; 
-  }
-};
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
-onMounted(() => {
-  window.addEventListener("beforeunload", handleBeforeUnload);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("beforeunload", handleBeforeUnload);
-});
-
-onBeforeRouteLeave((to, from, next) => {
-  if (isDirty.value && !isSubmitting.value) {
-    showLeaveModal.value = true;
-    nextNavigationTarget.value = next;
-  } else {
-    next();
-  }
-});
-
-const confirmLeave = () => {
-  showLeaveModal.value = false;
-  if (nextNavigationTarget.value) {
-    nextNavigationTarget.value();
-  }
-};
-
-const cancelLeave = () => {
-  showLeaveModal.value = false;
-  if (nextNavigationTarget.value) {
-    nextNavigationTarget.value(false);
-  }
-};
 
 const addSecondaryIdentifier = () => {
   state.secondaryIdentifiers.push({
@@ -375,19 +340,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 py-2">
-      <div class="w-full sm:max-w-xs">
-        <UButton
-          form="metadata-identifiers-form"
-          type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="xl"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
-      </div>
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6">
+      <UButton
+        form="metadata-identifiers-form"
+        type="submit"
+        :disabled="saveLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
     </div>
 
     <UModal 
@@ -402,7 +365,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </p>
           
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="neutral" variant="ghost" label="Stay on Page" @click="cancelLeave" />
+            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />
             <UButton color="error" label="Discard Changes" @click="confirmLeave" />
           </div>
         </div>
