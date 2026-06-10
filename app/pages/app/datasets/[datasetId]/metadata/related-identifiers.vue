@@ -16,6 +16,8 @@ const { datasetId } = route.params as {
 };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
   identifiers: z.array(
@@ -51,8 +53,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  // await navigateTo("/");
 }
 
 if (data.value) {
@@ -72,7 +72,19 @@ if (data.value) {
     schemeType: item.schemeType,
     schemeUri: item.schemeUri,
   }));
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const addIdentifier = () => {
   state.identifiers.push({
@@ -117,16 +129,13 @@ const validate = (state: any): FormError[] => {
     return errors;
   }
 
-  // Check for duplicate related identifiers
   const seenIdentifiers = new Set<string>();
   activeIdentifiers.forEach((identifier: any, index: number) => {
-    // Related identifiers are unique by value, type, and relation
     const key = `${identifier.identifier?.trim().toLowerCase()}|${identifier.identifierType?.trim().toLowerCase()}|${identifier.relationType?.trim().toLowerCase()}`;
     if (seenIdentifiers.has(key)) {
       errors.push({
         name: `identifiers[${index}].identifier`,
-        message:
-          "Duplicate related identifier with same value, type, and relation.",
+        message: "Duplicate related identifier with same value, type, and relation.",
       });
     }
     seenIdentifiers.add(key);
@@ -154,7 +163,6 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    // Validate ORCID/ROR format if identifier is provided
     if (identifier.identifier?.trim()) {
       const type = identifier.identifierType?.toUpperCase();
 
@@ -209,12 +217,13 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
+  isSubmitting.value = true;
 
   const formData = event.data;
 
   const b = {
     relatedIdentifiers: formData.identifiers.map((identifier: any) => {
-      const d = identifier;
+      const d = { ...identifier };
 
       if (d.local) {
         delete d.id;
@@ -227,81 +236,75 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
   };
 
-  await $fetch(`/api/datasets/${datasetId}/metadata/related-identifiers`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "Failed to submit the form.",
-      });
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/metadata/related-identifiers`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.log(err);
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "Failed to submit the form.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'Related Identifiers',
-          to: `/app/datasets/${datasetId}/metadata/related-identifiers`,
-        },
-      ]"
-    />
-
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Related Identifiers
-          </h1>
-        </div>
-
-        <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the dataset is displayed here.
-        </p>
-      </div>
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'Related Identifiers',
+            to: `/app/datasets/${datasetId}/metadata/related-identifiers`,
+          },
+        ]"
+      />
 
       <UForm
+        id="metadata-identifiers-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full items-center justify-between gap-3">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Related Identifiers
+            </h1>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400">
+            Some basic information about the dataset is displayed here.
+            <span v-if="isDirty" class="text-amber-500 ml-1">(Unsaved Changes)</span>
+          </p>
+        </div>
+
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Related Identifiers
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
                 Please add some related identifiers that describe the dataset.
               </p>
@@ -360,9 +363,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       v-model="item.relationType"
                       class="w-full"
                       placeholder="Is Part Of"
-                      :items="
-                        FORM_JSON.datasetRelatedIdentifierRelationTypeOptions
-                      "
+                      :items="FORM_JSON.datasetRelatedIdentifierRelationTypeOptions"
                     />
                   </UFormField>
 
@@ -374,27 +375,19 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       v-model="item.resourceType"
                       class="w-full"
                       placeholder="Dataset"
-                      :items="
-                        FORM_JSON.datasetRelatedIdentifierResourceTypeOptions
-                      "
+                      :items="FORM_JSON.datasetRelatedIdentifierResourceTypeOptions"
                     />
                   </UFormField>
 
                   <UFormField
                     label="Related Metadata Scheme"
                     :name="`identifiers[${index}].relatedMetadataScheme`"
-                    :required="
-                      item.relationType === 'IsMetadataFor' ||
-                      item.relationType === 'HasMetadata'
-                    "
+                    :required="item.relationType === 'IsMetadataFor' || item.relationType === 'HasMetadata'"
                   >
                     <UInput
                       v-model="item.relatedMetadataScheme"
                       class="w-full"
-                      :disabled="
-                        item.relationType !== 'IsMetadataFor' &&
-                        item.relationType !== 'HasMetadata'
-                      "
+                      :disabled="item.relationType !== 'IsMetadataFor' && item.relationType !== 'HasMetadata'"
                       placeholder="DataCite"
                     />
                   </UFormField>
@@ -402,18 +395,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Scheme Type"
                     :name="`identifiers[${index}].schemeType`"
-                    :required="
-                      item.relationType === 'IsMetadataFor' ||
-                      item.relationType === 'HasMetadata'
-                    "
+                    :required="item.relationType === 'IsMetadataFor' || item.relationType === 'HasMetadata'"
                   >
                     <UInput
                       v-model="item.schemeType"
                       class="w-full"
-                      :disabled="
-                        item.relationType !== 'IsMetadataFor' &&
-                        item.relationType !== 'HasMetadata'
-                      "
+                      :disabled="item.relationType !== 'IsMetadataFor' && item.relationType !== 'HasMetadata'"
                       placeholder="DataCite"
                     />
                   </UFormField>
@@ -421,18 +408,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Scheme URI"
                     :name="`identifiers[${index}].schemeUri`"
-                    :required="
-                      item.relationType === 'IsMetadataFor' ||
-                      item.relationType === 'HasMetadata'
-                    "
+                    :required="item.relationType === 'IsMetadataFor' || item.relationType === 'HasMetadata'"
                   >
                     <UInput
                       v-model="item.schemeUri"
                       class="w-full"
-                      :disabled="
-                        item.relationType !== 'IsMetadataFor' &&
-                        item.relationType !== 'HasMetadata'
-                      "
+                      :disabled="item.relationType !== 'IsMetadataFor' && item.relationType !== 'HasMetadata'"
                       placeholder="https://datacite.org/schema/datacite-metadata-v4.3.xsd"
                     />
                   </UFormField>
@@ -449,17 +430,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             />
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="metadata-identifiers-form"
+        type="submit"
+        :disabled="saveLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
