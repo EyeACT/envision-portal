@@ -204,7 +204,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
           <p class="text-gray-500 dark:text-gray-400">
             Please provide some basic information about the dataset.
-            <span v-if="isDirty" class="text-amber-500 ml-1">(Unsaved Changes)</span>
           </p>
         </div>
 
