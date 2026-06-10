@@ -15,6 +15,8 @@ const toast = useToast();
 const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
   briefSummary: z.string().min(1, "Brief summary is required"),
@@ -89,8 +91,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  // await navigateTo("/");
 }
 
 if (data.value) {
@@ -142,7 +142,19 @@ if (data.value) {
       type: identifier.identifierType || "",
     }),
   );
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const addSecondaryIdentifier = () => {
   state.secondaryIdentifiers.push({
@@ -223,15 +235,13 @@ const validate = (state: any): FormError[] => {
   }
 
   if (state.keywords.length > 0) {
-    // Check for duplicate keywords using original indices
     const seenKeywords = new Set<string>();
     state.keywords.forEach((keyword: any, index: number) => {
       if (keyword.deleted) return;
-      // Keywords should be unique by name
       const key = keyword.name?.trim().toLowerCase();
       if (seenKeywords.has(key)) {
         errors.push({
-          name: `keyword-name-${index}`,
+          name: `keywords[${index}].name`,
           message: "Duplicate keyword.",
         });
       }
@@ -243,29 +253,25 @@ const validate = (state: any): FormError[] => {
 
       if (!keyword.name) {
         errors.push({
-          name: `keyword-name-${index}`,
+          name: `keywords[${index}].name`,
           message: "A name is required",
         });
       }
-      // if classificationCode or scheme is provided, the other is also required
+      
       if (
         (keyword.classificationCode && !keyword.scheme) ||
         (!keyword.classificationCode && keyword.scheme)
       ) {
-        const messages = [
+        errors.push(
           {
-            name: `keyword-classificationCode-${index}`,
-            message:
-              "Both identifier and scheme are required if either is provided",
+            name: `keywords[${index}].classificationCode`,
+            message: "Both identifier and scheme are required if either is provided",
           },
           {
-            name: `keyword-scheme-${index}`,
-            message:
-              "Both identifier and scheme are required if either is provided",
-          },
-        ];
-
-        errors.push(...messages);
+            name: `keywords[${index}].scheme`,
+            message: "Both identifier and scheme are required if either is provided",
+          }
+        );
       }
 
       if (
@@ -274,7 +280,7 @@ const validate = (state: any): FormError[] => {
         !isValidORCIDValue(keyword.classificationCode)
       ) {
         errors.push({
-          name: `keyword-classificationCode-${index}`,
+          name: `keywords[${index}].classificationCode`,
           message: "ORCID identifier must be a valid ORCID format",
         });
       }
@@ -285,21 +291,20 @@ const validate = (state: any): FormError[] => {
         !isValidRORValue(keyword.classificationCode)
       ) {
         errors.push({
-          name: `keyword-classificationCode-${index}`,
+          name: `keywords[${index}].classificationCode`,
           message: "ROR identifier must be a valid ROR format",
         });
       }
 
-      // Verify url for keywordUri and schemeUri
       if (keyword.keywordUri && !isValidUrl(keyword.keywordUri)) {
         errors.push({
-          name: `keyword-keywordUri-${index}`,
+          name: `keywords[${index}].keywordUri`,
           message: "Invalid URL format",
         });
       }
       if (keyword.schemeUri && !isValidUrl(keyword.schemeUri)) {
         errors.push({
-          name: `keyword-schemeUri-${index}`,
+          name: `keywords[${index}].schemeUri`,
           message: "Invalid URL format",
         });
       }
@@ -315,15 +320,13 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  // Check for duplicate conditions using original indices
   const seenConditions = new Set<string>();
   state.conditions.forEach((condition: any, index: number) => {
     if (condition.deleted) return;
-    // Conditions are unique by name
     const key = condition.name?.trim().toLowerCase();
     if (seenConditions.has(key)) {
       errors.push({
-        name: `condition-name-${index}`,
+        name: `conditions[${index}].name`,
         message: "Duplicate condition name.",
       });
     }
@@ -334,27 +337,23 @@ const validate = (state: any): FormError[] => {
     if (condition.deleted) return;
 
     if (!condition.name) {
-      errors.push({ name: `condition-name-${index}`, message: "Name is required" });
+      errors.push({ name: `conditions[${index}].name`, message: "Name is required" });
     }
 
     if (
       (condition.classificationCode && !condition.scheme) ||
       (!condition.classificationCode && condition.scheme)
     ) {
-      const messages = [
+      errors.push(
         {
-          name: `condition-classificationCode-${index}`,
-          message:
-            "Both Identifier and scheme are required if either is provided",
+          name: `conditions[${index}].classificationCode`,
+          message: "Both Identifier and scheme are required if either is provided",
         },
         {
-          name: `condition-scheme-${index}`,
-          message:
-            "Both Identifier and scheme are required if either is provided",
-        },
-      ];
-
-      errors.push(...messages);
+          name: `conditions[${index}].scheme`,
+          message: "Both Identifier and scheme are required if either is provided",
+        }
+      );
     }
 
     if (
@@ -363,7 +362,7 @@ const validate = (state: any): FormError[] => {
       !isValidORCIDValue(condition.classificationCode)
     ) {
       errors.push({
-        name: `condition-classificationCode-${index}`,
+        name: `conditions[${index}].classificationCode`,
         message: "ORCID identifier must be a valid ORCID format",
       });
     }
@@ -374,22 +373,21 @@ const validate = (state: any): FormError[] => {
       !isValidRORValue(condition.classificationCode)
     ) {
       errors.push({
-        name: `condition-classificationCode-${index}`,
+        name: `conditions[${index}].classificationCode`,
         message: "ROR identifier must be a valid ROR format",
       });
     }
 
-    // Verify url for conditionUri and schemeUri
     if (condition.conditionUri && !isValidUrl(condition.conditionUri)) {
       errors.push({
-        name: `condition-conditionUri-${index}`,
+        name: `conditions[${index}].conditionUri`,
         message: "Invalid URL format",
       });
     }
 
     if (condition.schemeUri && !isValidUrl(condition.schemeUri)) {
       errors.push({
-        name: `condition-schemeUri-${index}`,
+        name: `conditions[${index}].schemeUri`,
         message: "Invalid URL format",
       });
     }
@@ -429,13 +427,6 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (state.secondaryIdentifiers.length === 0) {
-    errors.push({
-      name: "secondaryIdentifiers",
-      message: "At least one secondary identifier is required",
-    });
-  }
-
   const activeSecondaryIDs = state.secondaryIdentifiers.filter(
     (i: any) => !i.deleted,
   );
@@ -447,14 +438,13 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  // Check for duplicate secondary identifiers using original indices
   const seenSecondaryIDs = new Set<string>();
   state.secondaryIdentifiers.forEach((identifier: any, index: number) => {
     if (identifier.deleted) return;
     const key = `${identifier.identifier?.trim().toLowerCase()}|${identifier.type?.trim().toLowerCase()}`;
     if (seenSecondaryIDs.has(key)) {
       errors.push({
-        name: `secondaryId-identifier-${index}`,
+        name: `secondaryIdentifiers[${index}].identifier`,
         message: "Duplicate secondary identifier with same identifier and type",
       });
     }
@@ -466,28 +456,28 @@ const validate = (state: any): FormError[] => {
 
     if (!identifier.identifier) {
       errors.push({
-        name: `secondaryId-identifier-${index}`,
+        name: `secondaryIdentifiers[${index}].identifier`,
         message: "Identifier is required",
       });
     }
 
     if (!identifier.type) {
       errors.push({
-        name: `secondaryId-type-${index}`,
+        name: `secondaryIdentifiers[${index}].type`,
         message: "Identifier type is required",
       });
     }
 
     if (identifier.domain && !isValidUrl(identifier.domain)) {
       errors.push({
-        name: `secondaryId-domain-${index}`,
+        name: `secondaryIdentifiers[${index}].domain`,
         message: "Invalid URL format",
       });
     }
 
     if (identifier.link && !isValidUrl(identifier.link)) {
       errors.push({
-        name: `secondaryId-link-${index}`,
+        name: `secondaryIdentifiers[${index}].link`,
         message: "Invalid URL format",
       });
     }
@@ -498,13 +488,14 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
+  isSubmitting.value = true;
 
   const formData = event.data;
 
   const b = {
     briefSummary: formData.briefSummary,
     conditions: formData.conditions.map((condition: any) => {
-      const c = condition;
+      const c = { ...condition };
 
       if (c.local) {
         delete c.id;
@@ -517,7 +508,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
     detailedDescription: formData.detailedDescription,
     keywords: formData.keywords.map((keyword: any) => {
-      const k = keyword;
+      const k = { ...keyword };
 
       if (k.local) {
         delete k.id;
@@ -531,7 +522,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     primaryIdentifier: formData.primaryIdentifier,
     secondaryIdentifiers: formData.secondaryIdentifiers.map(
       (identifier: any) => {
-        const i = identifier;
+        const i = { ...identifier };
 
         if (i.local) {
           delete i.id;
@@ -547,82 +538,73 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
   console.log(JSON.stringify(b, null, 2));
 
-  await $fetch(`/api/datasets/${datasetId}/study/metadata/about`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "Error occurred while submitting the form.",
-      });
-    })
-    .finally(() => {
-      // refresh the page
-      // window.location.reload();
-
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/about`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.log(err);
+
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "Error occurred while submitting the form.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'Study Metadata',
-        },
-        {
-          label: 'About',
-          to: `/app/datasets/${datasetId}/study-metadata/about`,
-        },
-      ]"
-    />
-
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            About
-          </h1>
-        </div>
-
-        <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
-        </p>
-      </div>
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'Study Metadata',
+          },
+          {
+            label: 'About',
+            to: `/app/datasets/${datasetId}/study-metadata/about`,
+          },
+        ]"
+      />
 
       <UForm
+        id="study-metadata-about-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full items-center justify-between gap-3">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white justify-between">About</h1>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400">
+            Some basic information about the study is displayed here.
+          </p>
+        </div>
+
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-              Description
-            </h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Description</h2>
 
             <UFormField label="Brief Summary" name="briefSummary" required>
               <UTextarea
@@ -642,27 +624,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Keywords
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Keywords</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add at least one keyword that describes the study. These
-                will be used to help find the study when searching for it.
+                Please add at least one keyword that describes the study. These will be used to help find the study when searching for it.
               </p>
             </div>
 
-            <UFormField name="keywords">
+            <div class="space-y-4">
               <CardCollapsible
                 v-for="(item, index) in state.keywords"
                 v-show="!item.deleted"
                 :key="item.id"
-                class="my-1 shadow-none"
+                class="shadow-none"
                 :title="item.name || `Keyword ${index + 1}`"
                 bordered
               >
@@ -677,79 +653,55 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`keyword-name-${index}`" required>
-                    <UInput
-                      v-model="item.name"
-                      placeholder="Artifical Intelligence"
-                    />
+                  <UFormField label="Name" :name="`keywords[${index}].name`" required>
+                    <UInput v-model="item.name" placeholder="Artificial Intelligence" />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier"
-                    :name="`keyword-classificationCode-${index}`"
-                  >
-                    <UInput
-                      v-model="item.classificationCode"
-                      placeholder="D001185"
-                    />
+                  <UFormField label="Identifier" :name="`keywords[${index}].classificationCode`">
+                    <UInput v-model="item.classificationCode" placeholder="D001185" />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier Scheme"
-                    :name="`keyword-scheme-${index}`"
-                  >
+                  <UFormField label="Identifier Scheme" :name="`keywords[${index}].scheme`">
                     <UInput v-model="item.scheme" placeholder="MeSH" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" :name="`keyword-schemeUri-${index}`">
-                    <UInput
-                      v-model="item.schemeUri"
-                      placeholder="https://meshb.nlm.nih.gov/"
-                    />
+                  <UFormField label="Scheme URI" :name="`keywords[${index}].schemeUri`">
+                    <UInput v-model="item.schemeUri" placeholder="https://meshb.nlm.nih.gov/" />
                   </UFormField>
 
-                  <UFormField label="Keyword URI" :name="`keyword-keywordUri-${index}`">
-                    <UInput
-                      v-model="item.keywordUri"
-                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
-                    />
+                  <UFormField label="Keyword URI" :name="`keywords[${index}].keywordUri`">
+                    <UInput v-model="item.keywordUri" placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185" />
                   </UFormField>
                 </div>
               </CardCollapsible>
-            </UFormField>
+            </div>
 
             <UButton
               icon="i-lucide-plus"
               variant="outline"
               color="primary"
               label="Add Keyword"
+              class="w-fit"
               @click="addKeyword"
             />
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Conditions
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Conditions</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some conditions that describe the study. These are
-                usually the diseases or conditions that the study is
-                investigating.
+                Please add some conditions that describe the study. These are usually the diseases or conditions that the study is investigating.
               </p>
             </div>
 
-            <UFormField name="conditions">
+            <div class="space-y-4">
               <CardCollapsible
                 v-for="(item, index) in state.conditions"
                 v-show="!item.deleted"
                 :key="item.id"
-                class="my-1 shadow-none"
+                class="shadow-none"
                 :title="item.name || `Condition ${index + 1}`"
                 bordered
               >
@@ -764,67 +716,45 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`condition-name-${index}`" required>
+                  <UFormField label="Name" :name="`conditions[${index}].name`" required>
                     <UInput v-model="item.name" placeholder="Glaucoma" />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier"
-                    :name="`condition-classificationCode-${index}`"
-                  >
-                    <UInput
-                      v-model="item.classificationCode"
-                      placeholder="D001185"
-                    />
+                  <UFormField label="Identifier" :name="`conditions[${index}].classificationCode`">
+                    <UInput v-model="item.classificationCode" placeholder="D001185" />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier Scheme"
-                    :name="`condition-scheme-${index}`"
-                  >
+                  <UFormField label="Identifier Scheme" :name="`conditions[${index}].scheme`">
                     <UInput v-model="item.scheme" placeholder="MeSH" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" :name="`condition-schemeUri-${index}`">
-                    <UInput
-                      v-model="item.schemeUri"
-                      placeholder="https://meshb.nlm.nih.gov/"
-                    />
+                  <UFormField label="Scheme URI" :name="`conditions[${index}].schemeUri`">
+                    <UInput v-model="item.schemeUri" placeholder="https://meshb.nlm.nih.gov/" />
                   </UFormField>
 
-                  <UFormField label="Condition URI" :name="`condition-conditionUri-${index}`">
-                    <UInput
-                      v-model="item.conditionUri"
-                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
-                    />
+                  <UFormField label="Condition URI" :name="`conditions[${index}].conditionUri`">
+                    <UInput v-model="item.conditionUri" placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185" />
                   </UFormField>
                 </div>
               </CardCollapsible>
-            </UFormField>
+            </div>
 
             <UButton
               icon="i-lucide-plus"
               variant="outline"
               color="primary"
               label="Add Condition"
+              class="w-fit"
               @click="addCondition"
             />
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-              Primary Identifier
-            </h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Primary Identifier</h2>
 
-            <UFormField
-              label="Identifier"
-              name="primaryIdentifier.identifier"
-              required
-            >
+            <UFormField label="Identifier" name="primaryIdentifier.identifier" required>
               <UInput
                 v-model="state.primaryIdentifier.identifier"
                 class="w-full"
@@ -832,62 +762,40 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField
-              label="Identifier Type"
-              name="primaryIdentifier.type"
-              required
-            >
+            <UFormField label="Identifier Type" name="primaryIdentifier.type" required>
               <USelect
                 v-model="state.primaryIdentifier.type"
                 class="w-full"
                 placeholder="NIH Grant Number"
-                :items="
-                  FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions
-                "
+                :items="FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions"
               />
             </UFormField>
 
-            <UFormField
-              label="Identifier Domain"
-              name="primaryIdentifier.domain"
-            >
-              <UInput
-                v-model="state.primaryIdentifier.domain"
-                placeholder="https://doi.org"
-              />
+            <UFormField label="Identifier Domain" name="primaryIdentifier.domain">
+              <UInput v-model="state.primaryIdentifier.domain" placeholder="https://doi.org" />
             </UFormField>
 
             <UFormField label="Identifier Link" name="primaryIdentifier.link">
-              <UInput
-                v-model="state.primaryIdentifier.link"
-                placeholder="https://doi.org/10.1234/1234567890"
-              />
+              <UInput v-model="state.primaryIdentifier.link" placeholder="https://doi.org/10.1234/1234567890" />
             </UFormField>
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Alternative Identifiers
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alternative Identifiers</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some secondary identifiers that describe the study.
-                These are usually any other identifiers that are not the primary
-                identifier.
+                Please add some secondary identifiers that describe the study. These are usually any other identifiers that are not the primary identifier.
               </p>
             </div>
 
-            <UFormField name="secondaryIdentifiers">
+            <div class="space-y-4">
               <CardCollapsible
                 v-for="(item, index) in state.secondaryIdentifiers"
                 v-show="!item.deleted"
                 :key="item.id"
-                class="my-1 shadow-none"
+                class="shadow-none"
                 :title="item.identifier || `Identifier ${index + 1}`"
                 bordered
               >
@@ -902,72 +810,72 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField
-                    label="Identifier"
-                    :name="`secondaryId-identifier-${index}`"
-                    required
-                  >
-                    <UInput
-                      v-model="item.identifier"
-                      placeholder="10.1234/1234567890"
-                    />
+                  <UFormField label="Identifier" :name="`secondaryIdentifiers[${index}].identifier`" required>
+                    <UInput v-model="item.identifier" placeholder="10.1234/1234567890" />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier Type"
-                    :name="`secondaryId-type-${index}`"
-                    required
-                  >
+                  <UFormField label="Identifier Type" :name="`secondaryIdentifiers[${index}].type`" required>
                     <USelect
                       v-model="item.type"
                       class="w-full"
                       placeholder="NIH Grant Number"
-                      :items="
-                        FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions
-                      "
+                      :items="FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions"
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier Domain"
-                    :name="`secondaryId-domain-${index}`"
-                  >
-                    <UInput
-                      v-model="item.domain"
-                      placeholder="https://doi.org"
-                    />
+                  <UFormField label="Identifier Domain" :name="`secondaryIdentifiers[${index}].domain`">
+                    <UInput v-model="item.domain" placeholder="https://doi.org" />
                   </UFormField>
 
-                  <UFormField label="Identifier Link" :name="`secondaryId-link-${index}`">
-                    <UInput
-                      v-model="item.link"
-                      placeholder="https://doi.org/10.1234/1234567890"
-                    />
+                  <UFormField label="Identifier Link" :name="`secondaryIdentifiers[${index}].link`">
+                    <UInput v-model="item.link" placeholder="https://doi.org/10.1234/1234567890" />
                   </UFormField>
                 </div>
               </CardCollapsible>
-            </UFormField>
+            </div>
 
             <UButton
               icon="i-lucide-plus"
               variant="outline"
               color="primary"
               label="Add Alternative Identifier"
+              class="w-fit"
               @click="addSecondaryIdentifier"
             />
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="study-metadata-about-form"
+        type="submit"
+        :disabled="saveLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

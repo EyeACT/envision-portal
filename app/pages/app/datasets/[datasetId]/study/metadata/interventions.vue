@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, reactive, computed } from "vue";
 import * as z from "zod";
 import { nanoid } from "nanoid";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
@@ -14,6 +15,8 @@ const toast = useToast();
 const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
   studyInterventions: z.array(
@@ -46,8 +49,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  await navigateTo("/");
 }
 
 if (data.value) {
@@ -62,7 +63,19 @@ if (data.value) {
       local: false,
     }),
   );
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const addIntervention = () => {
   state.studyInterventions.push({
@@ -110,10 +123,8 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  // Check for duplicate interventions
   const seenInterventions = new Set<string>();
   activeInterventions.forEach((intervention: any, index: number) => {
-    // Item is considered unique based on name
     const key = intervention.name?.trim().toLowerCase();
     if (seenInterventions.has(key)) {
       errors.push({
@@ -159,14 +170,14 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
+  isSubmitting.value = true;
 
   const formData = event.data;
 
   const b = {
     studyInterventions: formData.studyInterventions.map((intervention: any) => {
-      const s = intervention;
+      const s = { ...intervention };
 
-      // Filter out empty strings from otherNameList
       s.otherNameList = s.otherNameList.filter((item: string) => item.trim());
 
       if (s.local) {
@@ -180,87 +191,80 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
   };
 
-  await $fetch(`/api/datasets/${datasetId}/study/metadata/interventions`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "An error occurred while submitting the form.",
-      });
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/interventions`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.log(err);
+
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "An error occurred while submitting the form.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'Study Metadata',
-        },
-        {
-          label: 'Interventions',
-          to: `/app/datasets/${datasetId}/study/metadata/interventions`,
-        },
-      ]"
-    />
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'Study Metadata',
+          },
+          {
+            label: 'Interventions',
+            to: `/app/datasets/${datasetId}/study/metadata/interventions`,
+          },
+        ]"
+      />
 
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
+      <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <div class="flex w-full items-center justify-between gap-3">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Interventions
           </h1>
         </div>
-
         <p class="text-gray-500 dark:text-gray-400">
           Some basic information about the study is displayed here.
         </p>
       </div>
 
       <UForm
+        id="study-metadata-interventions-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Interventions
+                Study Interventions Listing
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Register and define precise tracking metrics for procedural methods, therapeutic plans, or medicinal steps executed in this protocol.
               </p>
             </div>
 
@@ -269,32 +273,32 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-for="(item, index) in state.studyInterventions"
                 v-show="!item.deleted"
                 :key="item.id"
-                class="my-1 shadow-none"
+                class="my-2 shadow-none"
                 :title="item.name || `Intervention ${index + 1}`"
                 bordered
               >
                 <template #header-extra>
                   <UButton
                     icon="i-lucide-trash"
-                    label="Remove identifier"
+                    label="Remove Intervention"
                     variant="soft"
                     color="error"
                     @click="removeIntervention(index)"
                   />
                 </template>
 
-                <div class="flex w-full flex-col gap-3">
+                <div class="flex w-full flex-col gap-4 p-1">
                   <UFormField label="Type" :name="`type-${index}`" required>
                     <USelect
                       v-model="item.type as string"
-                      placeholder="Type"
+                      placeholder="Select intervention format"
                       :items="FORM_JSON.studyMetadataInterventionsTypeOptions"
                       class="w-full"
                     />
                   </UFormField>
 
                   <UFormField label="Name" :name="`name-${index}`" required>
-                    <UInput v-model="item.name" placeholder="Intervention 1" />
+                    <UInput v-model="item.name" placeholder="e.g., Acetaminophen, Cognitive Behavioral Therapy" />
                   </UFormField>
 
                   <UFormField
@@ -304,13 +308,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UTextarea
                       v-model="item.description"
-                      placeholder="Description"
+                      placeholder="Specify clear and descriptive structural administration guidelines or details regarding this item layer"
                       class="w-full"
                     />
                   </UFormField>
 
                   <UFormField
-                    label="Other Names"
+                    label="Other Names / Synonyms"
                     :name="`otherNameList-${index}`"
                   >
                     <div v-if="item.otherNameList.length > 0">
@@ -322,7 +326,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         <UInput
                           v-model="item.otherNameList[innerIndex]"
                           class="w-full"
-                          placeholder="Other Name"
+                          placeholder="Provide optional brand reference name or alias"
                         />
 
                         <UButton
@@ -338,9 +342,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           color="success"
                           variant="outline"
                           icon="i-lucide-plus"
-                          @click="
-                            item.otherNameList.splice(innerIndex + 1, 0, '')
-                          "
+                          @click="item.otherNameList.splice(innerIndex + 1, 0, '')"
                         />
                       </div>
                     </div>
@@ -351,7 +353,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         class="w-full"
                         color="success"
                         variant="outline"
-                        label="Add Other Name"
+                        label="Add Other Name Entry"
                         icon="i-lucide-plus"
                         @click="item.otherNameList.push('')"
                       />
@@ -365,22 +367,44 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               icon="i-lucide-plus"
               variant="outline"
               color="primary"
-              label="Add Intervention"
+              label="Add New Intervention Card"
+              class="mt-2"
               @click="addIntervention"
             />
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="study-metadata-interventions-form"
+        type="submit"
+        :disabled="saveLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your registered protocol study interventions will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

@@ -14,13 +14,15 @@ const dayjs = useDayjs();
 const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
-  completionDate: z.string(),
-  completionDateType: z.string(),
-  overallStatus: z.string(),
-  startDate: z.string(),
-  startDateType: z.string(),
+  completionDate: z.string().min(1, "Completion date is required"),
+  completionDateType: z.string().min(1, "Completion date type is required"),
+  overallStatus: z.string().min(1, "Overall status is required"),
+  startDate: z.string().min(1, "Start date is required"),
+  startDateType: z.string().min(1, "Start date type is required"),
   whyStopped: z.string(),
 });
 
@@ -46,8 +48,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  await navigateTo("/");
 }
 
 if (data.value) {
@@ -65,7 +65,19 @@ if (data.value) {
     : "";
   state.completionDateType = data.value.StudyStatus?.completionDateType ?? "";
   state.whyStopped = data.value.StudyStatus?.whyStopped ?? "";
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const validate = (state: any): FormError[] => {
   const errors = [];
@@ -134,6 +146,7 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
+  isSubmitting.value = true;
 
   const formData = event.data;
 
@@ -146,85 +159,76 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     whyStopped: formData.whyStopped,
   };
 
-  await $fetch(`/api/datasets/${datasetId}/study/metadata/status`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((_res) => {
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "The form has been submitted.",
-      });
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/status`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.log(err);
+
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "The form has been submitted.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'Study Metadata',
-        },
-        {
-          label: 'Status',
-          to: `/app/datasets/${datasetId}/study/metadata/status`,
-        },
-      ]"
-    />
-
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Status
-          </h1>
-        </div>
-
-        <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
-        </p>
-      </div>
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'Study Metadata',
+          },
+          {
+            label: 'Status',
+            to: `/app/datasets/${datasetId}/study/metadata/status`,
+          },
+        ]"
+      />
 
       <UForm
+        id="study-metadata-status-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full items-center justify-between gap-3">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Status</h1>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400">
+            Some basic information about the study is displayed here.
+          </p>
+        </div>
+
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Status
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Status</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Please review and modify the execution parameters and structural updates of the clinical trial.
               </p>
             </div>
 
@@ -314,17 +318,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="study-metadata-status-form"
+        type="submit"
+        :disabled="saveLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

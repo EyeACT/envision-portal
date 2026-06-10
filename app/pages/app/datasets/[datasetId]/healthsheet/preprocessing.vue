@@ -178,7 +178,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               >
                 <UTextarea
                   v-model="record.response"
-                  placeholder="Provide details for this entry..."
+                  placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos."
                   class="w-full"
                 />
               </UFormField>
