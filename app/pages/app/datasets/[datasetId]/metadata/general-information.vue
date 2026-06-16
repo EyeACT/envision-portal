@@ -534,8 +534,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />
             <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
           </div>
         </div>
       </template>
