@@ -17,6 +17,8 @@ const { datasetId } = route.params as {
 };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
   consent: z.object({
@@ -108,8 +110,7 @@ if (data.value) {
   state.consent.geneticOnly = data.value.DatasetConsent?.geneticOnly ?? false;
   state.consent.geogRestrict = data.value.DatasetConsent?.geogRestrict ?? false;
   state.consent.noMethods = data.value.DatasetConsent?.noMethods ?? false;
-  state.consent.noncommercial =
-    data.value.DatasetConsent?.noncommercial ?? false;
+  state.consent.noncommercial = data.value.DatasetConsent?.noncommercial ?? false;
   state.consent.researchType = data.value.DatasetConsent?.researchType ?? false;
   state.consent.type = data.value.DatasetConsent?.type ?? "";
 
@@ -120,7 +121,19 @@ if (data.value) {
   state.deidentLevel.kAnon = data.value.DatasetDeIdentLevel?.kAnon ?? false;
   state.deidentLevel.nonarr = data.value.DatasetDeIdentLevel?.nonarr ?? false;
   state.deidentLevel.type = data.value.DatasetDeIdentLevel?.type ?? "";
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const addSubject = () => {
   state.subjects.push({
@@ -151,12 +164,10 @@ const removeSubject = (index: number) => {
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
 
-  // Consent section
   if (state.consent.type === "Consent") {
     errors.push({ name: "consent.type", message: "Consent type is required" });
   }
 
-  // De-identification section
   if (state.deidentLevel.type === "") {
     errors.push({
       name: "deidentLevel.type",
@@ -164,7 +175,6 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  // Subjects section
   const activeSubjects = state.subjects?.filter((s: any) => !s.deleted) ?? [];
 
   if (activeSubjects.length === 0) {
@@ -173,10 +183,8 @@ const validate = (state: any): FormError[] => {
       message: "Please add at least one subject",
     });
   } else {
-    // Check for duplicate subjects
     const seenSubjects = new Set<string>();
     activeSubjects.forEach((subject: any, index: number) => {
-      // Subjects are unique by value
       const key = subject.subject?.trim().toLowerCase();
       if (seenSubjects.has(key)) {
         errors.push({
@@ -195,20 +203,17 @@ const validate = (state: any): FormError[] => {
         });
       }
 
-      // classificationCode / scheme pairing logic
       const code = subject.classificationCode?.trim();
       const scheme = subject.scheme?.trim();
 
       if ((code && !scheme) || (!code && scheme)) {
         errors.push({
           name: `subjects[${index}].classificationCode`,
-          message:
-            "Classification code and scheme must both be provided together",
+          message: "Classification code and scheme must both be provided together",
         });
         errors.push({
           name: `subjects[${index}].scheme`,
-          message:
-            "Scheme and classification code must both be provided together",
+          message: "Scheme and classification code must both be provided together",
         });
       }
 
@@ -233,6 +238,7 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
+  isSubmitting.value = true;
 
   const formData = event.data;
 
@@ -240,7 +246,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     consent: formData.consent,
     deidentLevel: formData.deidentLevel,
     subjects: formData.subjects.map((subject: any) => {
-      const d = subject;
+      const d = { ...subject };
 
       if (d.local) {
         delete d.id;
@@ -253,83 +259,74 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
   };
 
-  console.log(JSON.stringify(b, null, 2));
-
-  await $fetch(`/api/datasets/${datasetId}/metadata/data-management`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "The form was unable to be submitted.",
-      });
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/metadata/data-management`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.log(err);
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "The form was unable to be submitted.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'Data Management',
-          to: `/app/datasets/${datasetId}/metadata/data-management`,
-        },
-      ]"
-    />
-
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          <h1 class="font-bold text-gray-900 dark:text-white">
-            Data Management
-          </h1>
-        </div>
-
-        <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the dataset is displayed here.
-        </p>
-      </div>
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'Data Management',
+            to: `/app/datasets/${datasetId}/metadata/data-management`,
+          },
+        ]"
+      />
 
       <UForm
+        id="metadata-data-management-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full items-center justify-between gap-3">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Data Management
+            </h1>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400">
+            Some basic information about the dataset is displayed here.
+          </p>
+        </div>
+
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Consent
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
                 Please provide consent information for this dataset.
               </p>
@@ -406,15 +403,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 De-identification Level
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
                 Please specify the de-identification level for this dataset.
               </p>
@@ -482,15 +476,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Subjects
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
                 Please add subjects for this dataset.
               </p>
@@ -531,9 +522,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Classification Code"
                     :name="`subjects[${index}].classificationCode`"
-                    :required="
-                      !!item.classificationCode?.trim() || !!item.scheme?.trim()
-                    "
+                    :required="!!item.classificationCode?.trim() || !!item.scheme?.trim()"
                   >
                     <UInput
                       v-model="item.classificationCode"
@@ -547,10 +536,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Scheme"
                       :name="`subjects[${index}].scheme`"
                       class="w-full"
-                      :required="
-                        !!item.classificationCode?.trim() ||
-                        !!item.scheme?.trim()
-                      "
+                      :required="!!item.classificationCode?.trim() || !!item.scheme?.trim()"
                     >
                       <UInput
                         v-model="item.scheme"
@@ -595,17 +581,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             />
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="metadata-data-management-form"
+        type="submit"
+        :disabled="saveLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

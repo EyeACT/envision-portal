@@ -17,6 +17,8 @@ const { datasetId } = route.params as {
 };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
   dates: z.array(
@@ -68,8 +70,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  // await navigateTo("/");
 }
 
 if (data.value) {
@@ -101,7 +101,19 @@ if (data.value) {
     local: false,
     type: title.type,
   }));
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const addTitle = () => {
   state.titles.push({
@@ -115,9 +127,7 @@ const addTitle = () => {
 
 const removeTitle = (index: number) => {
   const title = state.titles[index];
-  if (!title) {
-    return;
-  }
+  if (!title) return;
 
   if (title.local) {
     state.titles.splice(index, 1);
@@ -138,9 +148,7 @@ const addDescription = () => {
 
 const removeDescription = (index: number) => {
   const description = state.descriptions[index];
-  if (!description) {
-    return;
-  }
+  if (!description) return;
 
   if (description.local) {
     state.descriptions.splice(index, 1);
@@ -162,9 +170,7 @@ const addDate = () => {
 
 const removeDate = (index: number) => {
   const date = state.dates[index];
-  if (!date) {
-    return;
-  }
+  if (!date) return;
 
   if (date.local) {
     state.dates.splice(index, 1);
@@ -175,25 +181,22 @@ const removeDate = (index: number) => {
 
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
-
   const activeTitles = state.titles?.filter((item: any) => !item.deleted) ?? [];
 
   if (activeTitles.length === 0) {
-    errors.push({
-      name: "titles",
-      message: "Please add at least one title.",
+    errors.push({ 
+      name: "titles", 
+      message: "Please add at least one title." 
     });
   }
 
-  // Check for duplicate titles
   const seenTitles = new Set<string>();
   activeTitles.forEach((item: any, index: number) => {
-    // Titles are unique by value
     const key = item.title?.trim().toLowerCase();
     if (seenTitles.has(key)) {
-      errors.push({
-        name: `title-${index}`,
-        message: "Duplicate title.",
+      errors.push({ 
+        name: `title-${index}`, 
+        message: "Duplicate title." 
       });
     }
     seenTitles.add(key);
@@ -201,39 +204,35 @@ const validate = (state: any): FormError[] => {
 
   activeTitles.forEach((item: any, index: number) => {
     if (!item.title?.trim()) {
-      errors.push({
-        name: `title-${index}`,
-        message: "Title value is required.",
+      errors.push({ 
+        name: `title-${index}`, 
+        message: "Title value is required." 
       });
     }
-
     if (!item.type?.trim()) {
-      errors.push({
-        name: `title-type-${index}`,
-        message: "Title type is required.",
+      errors.push({ 
+        name: `title-type-${index}`, 
+        message: "Title type is required." 
       });
     }
   });
 
-  const activeDescriptions =
-    state.descriptions?.filter((item: any) => !item.deleted) ?? [];
+  const activeDescriptions = state.descriptions?.filter((item: any) => !item.deleted) ?? [];
 
   if (activeDescriptions.length === 0) {
-    errors.push({
-      name: "descriptions",
-      message: "At least one Abstract description is required.",
+    errors.push({ 
+      name: "descriptions", 
+      message: "At least one Abstract description is required." 
     });
   }
 
-  // Check for duplicate descriptions
   const seenDescriptions = new Set<string>();
   activeDescriptions.forEach((item: any, index: number) => {
-    // Descriptions are unique by value
     const key = `${item.description?.trim().toLowerCase()}|${item.type?.trim().toLowerCase()}`;
     if (seenDescriptions.has(key)) {
-      errors.push({
-        name: `description-${index}`,
-        message: "Duplicate description with same type.",
+      errors.push({ 
+        name: `description-${index}`, 
+        message: "Duplicate description with same type." 
       });
     }
     seenDescriptions.add(key);
@@ -241,16 +240,15 @@ const validate = (state: any): FormError[] => {
 
   activeDescriptions.forEach((item: any, index: number) => {
     if (!item.description?.trim()) {
-      errors.push({
-        name: `description-${index}`,
-        message: "Description value is required.",
+      errors.push({ 
+        name: `description-${index}`, 
+        message: "Description value is required." 
       });
     }
-
     if (!item.type?.trim()) {
-      errors.push({
-        name: `description-type-${index}`,
-        message: "Description type is required.",
+      errors.push({ 
+        name: `description-type-${index}`, 
+        message: "Description type is required." 
       });
     }
   });
@@ -258,21 +256,19 @@ const validate = (state: any): FormError[] => {
   const activeDates = state.dates?.filter((item: any) => !item.deleted) ?? [];
 
   if (activeDates.length === 0) {
-    errors.push({
-      name: "dates",
-      message: "Please add at least one date.",
+    errors.push({ 
+      name: "dates", 
+      message: "Please add at least one date." 
     });
   }
 
-  // Check for duplicate dates
   const seenDates = new Set<string>();
   activeDates.forEach((item: any, index: number) => {
-    // Dates are unique by type
     const key = item.type?.trim().toLowerCase();
     if (seenDates.has(key)) {
-      errors.push({
-        name: `date-type-${index}`,
-        message: "Duplicate date. Dates are unique by type",
+      errors.push({ 
+        name: `date-type-${index}`, 
+        message: "Duplicate date. Dates are unique by type" 
       });
     }
     seenDates.add(key);
@@ -280,16 +276,15 @@ const validate = (state: any): FormError[] => {
 
   activeDates.forEach((item: any, index: number) => {
     if (!item.date?.trim()) {
-      errors.push({
-        name: `date-${index}`,
-        message: "Date value is required.",
+      errors.push({ 
+        name: `date-${index}`, 
+        message: "Date value is required." 
       });
     }
-
     if (!item.type?.trim()) {
-      errors.push({
-        name: `date-type-${index}`,
-        message: "Date type is required.",
+      errors.push({ 
+        name: `date-type-${index}`, 
+        message: "Date type is required." 
       });
     }
   });
@@ -297,130 +292,103 @@ const validate = (state: any): FormError[] => {
   return errors;
 };
 
-async function onSubmit(event: FormSubmitEvent<typeof state>) {
+async function executeSave(formData: typeof state) {
   saveLoading.value = true;
-
-  const formData = event.data;
+  isSubmitting.value = true;
 
   const b = {
     DatasetDate: formData.dates.map((date: any) => {
-      const d = date;
-
-      if (d.local) {
-        delete d.id;
-      }
-      if (!d.deleted) {
-        delete d.deleted;
-      }
-
+      const d = { ...date };
+      if (d.local) delete d.id;
+      if (!d.deleted) delete d.deleted;
       return d;
     }),
     DatasetDescription: formData.descriptions.map((description: any) => {
-      const d = description;
-
-      if (d.local) {
-        delete d.id;
-      }
-      if (!d.deleted) {
-        delete d.deleted;
-      }
-
+      const d = { ...description };
+      if (d.local) delete d.id;
+      if (!d.deleted) delete d.deleted;
       return d;
     }),
     DatasetTitle: formData.titles.map((title: any) => {
-      const d = title;
-
-      if (d.local) {
-        delete d.id;
-      }
-      if (!d.deleted) {
-        delete d.deleted;
-      }
-
+      const d = { ...title };
+      if (d.local) delete d.id;
+      if (!d.deleted) delete d.deleted;
       return d;
     }),
   };
 
-  await $fetch(`/api/datasets/${datasetId}/metadata/general-information`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "The form has been submitted.",
-      });
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/metadata/general-information`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.error(err);
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "Could not sync your updates to the server.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
+}
+
+async function onSubmit(event: FormSubmitEvent<typeof state>) {
+  await executeSave(event.data);
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'General Information',
-          to: `/app/datasets/${datasetId}/metadata/general-information`,
-        },
-      ]"
-    />
-
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            General Information
-          </h1>
-        </div>
-
-        <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the dataset is displayed here.
-        </p>
-      </div>
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'General Information',
+            to: `/app/datasets/${datasetId}/metadata/general-information`,
+          },
+        ]"
+      />
 
       <UForm
+        id="metadata-general-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full items-center justify-between gap-3">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              General Information
+            </h1>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400">
+            Some basic information about the dataset is displayed here.
+          </p>
+        </div>
+
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Titles
-              </h2>
-
-              <p class="text-gray-500 dark:text-gray-400">
-                Please add some titles that describe the dataset.
-              </p>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Titles</h2>
+              <p class="text-gray-500 dark:text-gray-400">Please add some titles that describe the dataset.</p>
             </div>
-
             <UFormField name="titles">
               <CardCollapsible
                 v-for="(item, index) in state.titles"
@@ -440,15 +408,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     @click="removeTitle(index)"
                   />
                 </template>
-
                 <div class="flex flex-col gap-3">
                   <UFormField :name="`title-${index}`" label="Name" required>
-                    <UInput
-                      v-model="item.title"
-                      placeholder="Artifical Intelligence"
-                    />
+                    <UInput v-model="item.title" placeholder="Artifical Intelligence" />
                   </UFormField>
-
                   <UFormField :name="`title-type-${index}`" label="Type">
                     <USelect
                       v-model="item.type"
@@ -461,31 +424,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </div>
               </CardCollapsible>
             </UFormField>
-
-            <UButton
-              icon="i-lucide-plus"
-              variant="outline"
-              color="primary"
-              label="Add Title"
-              @click="addTitle"
-            />
+            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Title" @click="addTitle" />
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Descriptions
-              </h2>
-
-              <p class="text-gray-500 dark:text-gray-400">
-                Please add some descriptions that describe the dataset.
-              </p>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Descriptions</h2>
+              <p class="text-gray-500 dark:text-gray-400">Please add some descriptions that describe the dataset.</p>
             </div>
-
             <UFormField name="descriptions">
               <CardCollapsible
                 v-for="(item, index) in state.descriptions"
@@ -505,25 +453,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     @click="removeDescription(index)"
                   />
                 </template>
-
                 <div class="flex flex-col gap-3">
-                  <UFormField
-                    :name="`description-${index}`"
-                    label="Name"
-                    required
-                  >
-                    <UTextarea
-                      v-model="item.description"
-                      placeholder="Artifical Intelligence"
-                      class="w-full"
-                    />
+                  <UFormField :name="`description-${index}`" label="Name" required>
+                    <UTextarea v-model="item.description" placeholder="Artifical Intelligence" class="w-full" />
                   </UFormField>
-
-                  <UFormField
-                    :name="`description-type-${index}`"
-                    label="Type"
-                    required
-                  >
+                  <UFormField :name="`description-type-${index}`" label="Type" required>
                     <USelect
                       v-model="item.type"
                       class="w-full"
@@ -535,31 +469,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </div>
               </CardCollapsible>
             </UFormField>
-
-            <UButton
-              icon="i-lucide-plus"
-              variant="outline"
-              color="primary"
-              label="Add Description"
-              @click="addDescription"
-            />
+            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Description" @click="addDescription" />
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Dates
-              </h2>
-
-              <p class="text-gray-500 dark:text-gray-400">
-                Please add some dates that describe the dataset.
-              </p>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Dates</h2>
+              <p class="text-gray-500 dark:text-gray-400">Please add some dates that describe the dataset.</p>
             </div>
-
             <UFormField name="dates">
               <CardCollapsible
                 v-for="(item, index) in state.dates"
@@ -570,69 +489,56 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 bordered
               >
                 <template #header-extra>
-                  <UButton
-                    icon="i-lucide-trash"
-                    label="Remove date"
-                    variant="soft"
-                    color="error"
-                    @click="removeDate(index)"
-                  />
+                  <UButton icon="i-lucide-trash" label="Remove date" variant="soft" color="error" @click="removeDate(index)" />
                 </template>
-
                 <div class="flex flex-col gap-3">
                   <UFormField :name="`date-${index}`" label="Date" required>
-                    <UInput
-                      v-model="item.date"
-                      placeholder="2021-01-01"
-                      class="w-full"
-                      type="date"
-                    />
+                    <UInput v-model="item.date" placeholder="2021-01-01" class="w-full" type="date" />
                   </UFormField>
-
-                  <UFormField
-                    :name="`date-type-${index}`"
-                    label="Type"
-                    required
-                  >
-                    <USelect
-                      v-model="item.type"
-                      class="w-full"
-                      placeholder="Date"
-                      :items="FORM_JSON.datasetDateTypeOptions"
-                    />
+                  <UFormField :name="`date-type-${index}`" label="Type" required>
+                    <USelect v-model="item.type" class="w-full" placeholder="Date" :items="FORM_JSON.datasetDateTypeOptions" />
                   </UFormField>
-
                   <UFormField label="Information" name="information">
-                    <UTextarea
-                      v-model="item.information"
-                      placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos."
-                      class="w-full"
-                    />
+                    <UTextarea v-model="item.information" placeholder="Details..." class="w-full" />
                   </UFormField>
                 </div>
               </CardCollapsible>
             </UFormField>
-
-            <UButton
-              icon="i-lucide-plus"
-              variant="outline"
-              color="primary"
-              label="Add Date"
-              @click="addDate"
-            />
+            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Date" @click="addDate" />
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="metadata-general-form"
+        type="submit"
+        :disabled="saveLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

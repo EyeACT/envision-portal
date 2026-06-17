@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, reactive, computed } from "vue";
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
@@ -13,13 +14,15 @@ const toast = useToast();
 const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
   allocation: z.string(),
   bioSpecDescription: z.string(),
   bioSpecRetention: z.string(),
-  enrollmentCount: z.number(),
-  enrollmentType: z.string(),
+  enrollmentCount: z.number().min(1, "Enrollment count must be greater than 0"),
+  enrollmentType: z.string().min(1, "Enrollment type is required"),
   interventionModel: z.string(),
   interventionModelDescription: z.string(),
   isPatientRegistry: z.string(),
@@ -29,7 +32,7 @@ const schema = z.object({
   oberservationalModelList: z.array(z.string()),
   phaseList: z.array(z.string()),
   primaryPurpose: z.string(),
-  studyType: z.string(),
+  studyType: z.string().min(1, "Study type is required"),
   targetDuration: z.number(),
   targetDurationUnit: z.string(),
   timePerspectiveList: z.array(z.string()),
@@ -61,14 +64,8 @@ const state = reactive<Schema>({
 });
 
 const selectOptions = [
-  {
-    label: "Yes",
-    value: "Yes",
-  },
-  {
-    label: "No",
-    value: "No",
-  },
+  { label: "Yes", value: "Yes" },
+  { label: "No", value: "No" },
 ];
 
 const { data, error } = await useFetch(
@@ -82,8 +79,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  await navigateTo("/");
 }
 
 if (data.value) {
@@ -93,33 +88,36 @@ if (data.value) {
 
   state.studyType = data.value.StudyDesign?.studyType ?? "";
   state.isPatientRegistry = data.value.StudyDesign?.isPatientRegistry ?? "";
-
   state.enrollmentCount = data.value.StudyDesign?.enrollmentCount ?? 0;
   state.enrollmentType = data.value.StudyDesign?.enrollmentType ?? "";
-
   state.allocation = data.value.StudyDesign?.allocation ?? "";
   state.interventionModel = data.value.StudyDesign?.interventionModel ?? "";
-  state.interventionModelDescription =
-    data.value.StudyDesign?.interventionModelDescription ?? "";
+  state.interventionModelDescription = data.value.StudyDesign?.interventionModelDescription ?? "";
   state.primaryPurpose = data.value.StudyDesign?.primaryPurpose ?? "";
-
   state.masking = data.value.StudyDesign?.masking ?? "";
   state.maskingDescription = data.value.StudyDesign?.maskingDescription ?? "";
   state.whoMaskedList = data.value.StudyDesign?.whoMaskedList ?? [];
-
   state.numberOfArms = data.value.StudyDesign?.numberOfArms ?? 0;
   state.phaseList = data.value.StudyDesign?.phaseList ?? [];
-
-  state.oberservationalModelList =
-    data.value.StudyDesign?.oberservationalModelList ?? [];
+  state.oberservationalModelList = data.value.StudyDesign?.oberservationalModelList ?? [];
   state.timePerspectiveList = data.value.StudyDesign?.timePerspectiveList ?? [];
-
   state.targetDuration = data.value.StudyDesign?.targetDuration ?? 0;
   state.targetDurationUnit = data.value.StudyDesign?.targetDurationUnit ?? "";
-
   state.bioSpecRetention = data.value.StudyDesign?.bioSpecRetention ?? "";
   state.bioSpecDescription = data.value.StudyDesign?.bioSpecDescription ?? "";
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const validate = (state: any): FormError[] => {
   const errors = [];
@@ -139,14 +137,14 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (!state.oberservationalModelList.length) {
+    if (!state.oberservationalModelList || !state.oberservationalModelList.length) {
       errors.push({
         name: "oberservationalModelList",
         message: "Observational model is required",
       });
     }
 
-    if (!state.timePerspectiveList.length) {
+    if (!state.timePerspectiveList || !state.timePerspectiveList.length) {
       errors.push({
         name: "timePerspectiveList",
         message: "Time perspective is required",
@@ -211,14 +209,14 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (!state.whoMaskedList.length) {
+    if (!state.whoMaskedList || !state.whoMaskedList.length) {
       errors.push({
         name: "whoMaskedList",
         message: "Who masked is required",
       });
     }
 
-    if (!state.phaseList.length) {
+    if (!state.phaseList || !state.phaseList.length) {
       errors.push({
         name: "phaseList",
         message: "Phase is required",
@@ -252,6 +250,7 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
+  isSubmitting.value = true;
 
   const formData = event.data;
 
@@ -277,87 +276,76 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     whoMaskedList: formData.whoMaskedList,
   };
 
-  await $fetch(`/api/datasets/${datasetId}/study/metadata/design`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "The form has been submitted.",
-      });
-    })
-    .finally(() => {
-      // refresh the page
-      window.location.reload();
-
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/design`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.log(err);
+
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "The form has been submitted.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'Study Metadata',
-        },
-        {
-          label: 'Design',
-          to: `/app/datasets/${datasetId}/study/metadata/design`,
-        },
-      ]"
-    />
-
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Design
-          </h1>
-        </div>
-
-        <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
-        </p>
-      </div>
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'Study Metadata',
+          },
+          {
+            label: 'Design',
+            to: `/app/datasets/${datasetId}/study/metadata/design`,
+          },
+        ]"
+      />
 
       <UForm
+        id="study-metadata-design-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full items-center justify-between gap-3">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Design</h1>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400">
+            Some basic information about the study is displayed here.
+          </p>
+        </div>
+
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Study Type
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Study Type</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Specify whether this study is interventional or observational.
               </p>
             </div>
 
@@ -391,21 +379,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         </div>
 
         <div
-          v-show="
-            state.studyType === 'Interventional' ||
-            state.studyType === 'Observational'
-          "
+          v-show="state.studyType === 'Interventional' || state.studyType === 'Observational'"
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Design Information
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Design Information</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Provide detailed attributes corresponding to the structural paradigm of the setup.
               </p>
             </div>
 
@@ -501,13 +482,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Masking
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Masking</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Specify trial parameters concerning the blinding process for participants and investigators.
               </p>
             </div>
 
@@ -546,13 +523,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Phase
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Phase</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Indicate the structural phases execution layer.
               </p>
             </div>
 
@@ -574,13 +547,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Bio Specification
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Bio Specification</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Maintain collection records for physiological and biospecimen information tracking.
               </p>
             </div>
 
@@ -603,18 +572,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Enrollment Information
-              </h2>
-
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Enrollment Information</h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Input expected quantitative parameters regarding the sample sizes.
               </p>
             </div>
 
@@ -693,17 +656,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="study-metadata-design-form"
+        type="submit"
+        :disabled="saveLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

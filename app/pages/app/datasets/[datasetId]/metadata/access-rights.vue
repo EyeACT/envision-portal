@@ -19,6 +19,8 @@ const { datasetId } = route.params as {
 };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
   access: z.object({
@@ -67,8 +69,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  // await navigateTo("/");
 }
 
 if (data.value) {
@@ -91,12 +91,22 @@ if (data.value) {
   state.rights.licenseText = data.value.DatasetRights?.licenseText ?? "";
   state.rights.rights = data.value.DatasetRights?.rights ?? "";
   state.rights.uri = data.value.DatasetRights?.uri ?? "";
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const updateLicense = async (value: string) => {
   const license = licensesJSON.find((item) => item.name === value);
-
-  getLicenseLoading.value = true;
 
   if (license) {
     getLicenseLoading.value = true;
@@ -130,8 +140,6 @@ const updateLicense = async (value: string) => {
       .finally(() => {
         getLicenseLoading.value = false;
       });
-
-    getLicenseLoading.value = false;
   }
 };
 
@@ -171,6 +179,7 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
+  isSubmitting.value = true;
 
   const formData = event.data;
 
@@ -179,88 +188,80 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     rights: formData.rights,
   };
 
-  await $fetch(`/api/datasets/${datasetId}/metadata/access-rights`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "The form has been submitted.",
-      });
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/metadata/access-rights`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.log(err);
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "The form has been submitted.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'Access and Rights',
-          to: `/app/datasets/${datasetId}/metadata/access-rights`,
-        },
-      ]"
-    />
-
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          <h1 class="font-bold text-gray-900 dark:text-white">
-            Access and Rights
-          </h1>
-        </div>
-
-        <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the dataset is displayed here.
-        </p>
-      </div>
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'Access and Rights',
+            to: `/app/datasets/${datasetId}/metadata/access-rights`,
+          },
+        ]"
+      />
 
       <UForm
+        id="metadata-access-rights-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="flex w-full items-center justify-between gap-3">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Access and Rights
+            </h1>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400">
+            Some basic information about the dataset is displayed here.
+          </p>
+        </div>
+
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Access
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
                 Please provide access information for this dataset.
               </p>
             </div>
 
             <div class="flex flex-col gap-3">
-              <!-- Access Type -->
               <UFormField label="Type" name="access-type" required>
                 <USelect
                   v-model="state.access.type"
@@ -270,12 +271,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <!-- Access Description -->
-              <UFormField
-                label="Description"
-                name="access-description"
-                required
-              >
+              <UFormField label="Description" name="access-description" required>
                 <UTextarea
                   v-model="state.access.description"
                   placeholder="Provide further details about the access details"
@@ -283,7 +279,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <!-- Access URL -->
               <UFormField label="URL" name="access-url">
                 <UInput
                   v-model="state.access.url"
@@ -295,39 +290,32 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Rights
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
                 Please provide rights information for this dataset.
               </p>
             </div>
 
             <div class="flex flex-col gap-3">
-              <!-- Rights (License Dropdown) -->
               <UFormField label="Rights" name="rights-rights" required>
                 <USelect
                   v-model="state.rights.rights"
                   class="w-full"
                   placeholder="Select rights"
-                  :items="
-                    licensesJSON.map((option) => ({
-                      label: option.name,
-                      value: option.name,
-                    }))
-                  "
+                  :items="licensesJSON.map((option) => ({
+                    label: option.name,
+                    value: option.name,
+                  }))"
                   :loading="getLicenseLoading"
                   @update:model-value="updateLicense"
                 />
               </UFormField>
 
-              <!-- Rights License Text -->
               <UFormField label="Description" name="rights-description">
                 <UTextarea
                   v-model="state.rights.licenseText"
@@ -338,17 +326,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading || getLicenseLoading"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="metadata-access-rights-form"
+        type="submit"
+        :disabled="saveLoading || getLicenseLoading"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

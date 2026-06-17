@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, reactive, computed } from "vue";
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
@@ -13,6 +14,8 @@ const toast = useToast();
 const { datasetId } = route.params as { datasetId: string };
 
 const saveLoading = ref(false);
+const isSubmitting = ref(false);
+const originalStateString = ref("");
 
 const schema = z.object({
   exclusionCriteria: z.array(z.string()),
@@ -59,8 +62,6 @@ if (error.value) {
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  await navigateTo("/");
 }
 
 if (data.value) {
@@ -72,40 +73,35 @@ if (data.value) {
   state.sex = data.value.StudyEligibility?.sex ?? "";
   state.studyPopulation = data.value.StudyEligibility?.studyPopulation ?? "";
   state.samplingMethod = data.value.StudyEligibility?.samplingMethod ?? "";
-  state.exclusionCriteria =
-    data.value.StudyEligibility?.exclusionCriteria ?? [];
-  state.inclusionCriteria =
-    data.value.StudyEligibility?.inclusionCriteria ?? [];
+  state.exclusionCriteria = data.value.StudyEligibility?.exclusionCriteria ?? [];
+  state.inclusionCriteria = data.value.StudyEligibility?.inclusionCriteria ?? [];
   state.genderBased = data.value.StudyEligibility?.genderBased ?? "";
-  state.genderDescription =
-    data.value.StudyEligibility?.genderDescription ?? "";
-  state.healthyVolunteers =
-    data.value.StudyEligibility?.healthyVolunteers ?? "";
+  state.genderDescription = data.value.StudyEligibility?.genderDescription ?? "";
+  state.healthyVolunteers = data.value.StudyEligibility?.healthyVolunteers ?? "";
   state.maximumAgeValue = data.value.StudyEligibility?.maximumAgeValue ?? 0;
   state.maximumAgeUnit = data.value.StudyEligibility?.maximumAgeUnit ?? "";
   state.minimumAgeValue = data.value.StudyEligibility?.minimumAgeValue ?? 0;
   state.minimumAgeUnit = data.value.StudyEligibility?.minimumAgeUnit ?? "";
+
+  originalStateString.value = JSON.stringify(state);
 }
+
+const isDirty = computed(() => {
+  return JSON.stringify(state) !== originalStateString.value;
+});
+
+const { 
+  showLeaveModal, 
+  confirmLeave, 
+  cancelLeave 
+} = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
 const validate = (state: any): FormError[] => {
   const errors = [];
-  const sexEnumValues = FORM_JSON.studyMetadataEligibilityGenderOptions.map(
-    (option) => option.value,
-  );
-  const genderEnumValues =
-    FORM_JSON.studyMetadataEligibilityGenderBasedOptions.map(
-      (option) => option.value,
-    );
-
-  const ageUnitEnumValues =
-    FORM_JSON.studyMetadataEligibilityAgeUnitOptions.map(
-      (option) => option.value,
-    );
-
-  const healthyVolunteersEnumValues =
-    FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions.map(
-      (option) => option.value,
-    );
+  const sexEnumValues = FORM_JSON.studyMetadataEligibilityGenderOptions.map((option) => option.value);
+  const genderEnumValues = FORM_JSON.studyMetadataEligibilityGenderBasedOptions.map((option) => option.value);
+  const ageUnitEnumValues = FORM_JSON.studyMetadataEligibilityAgeUnitOptions.map((option) => option.value);
+  const healthyVolunteersEnumValues = FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions.map((option) => option.value);
 
   if (state.sex.trim() === "") {
     errors.push({
@@ -128,10 +124,7 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (
-    state.genderBased.trim() !== "" &&
-    !genderEnumValues.includes(state.genderBased.trim())
-  ) {
+  if (state.genderBased.trim() !== "" && !genderEnumValues.includes(state.genderBased.trim())) {
     errors.push({
       name: "genderBased",
       message: `Gender based must be one of the following: ${genderEnumValues.join(", ")}`,
@@ -166,20 +159,14 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (
-    state.minimumAgeUnit.trim() !== "" &&
-    !ageUnitEnumValues.includes(state.minimumAgeUnit.trim())
-  ) {
+  if (state.minimumAgeUnit.trim() !== "" && !ageUnitEnumValues.includes(state.minimumAgeUnit.trim())) {
     errors.push({
       name: "minimumAgeUnit",
       message: `Minimum age unit must be one of the following: ${ageUnitEnumValues.join(", ")}`,
     });
   }
 
-  if (
-    state.maximumAgeUnit.trim() !== "" &&
-    !ageUnitEnumValues.includes(state.maximumAgeUnit.trim())
-  ) {
+  if (state.maximumAgeUnit.trim() !== "" && !ageUnitEnumValues.includes(state.maximumAgeUnit.trim())) {
     errors.push({
       name: "maximumAgeUnit",
       message: `Maximum age unit must be one of the following: ${ageUnitEnumValues.join(", ")}`,
@@ -193,10 +180,7 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  if (
-    state.healthyVolunteers.trim() !== "" &&
-    !healthyVolunteersEnumValues.includes(state.healthyVolunteers.trim())
-  ) {
+  if (state.healthyVolunteers.trim() !== "" && !healthyVolunteersEnumValues.includes(state.healthyVolunteers.trim())) {
     errors.push({
       name: "healthyVolunteers",
       message: `Healthy volunteers must be one of the following: ${healthyVolunteersEnumValues.join(", ")}`,
@@ -234,11 +218,8 @@ const validate = (state: any): FormError[] => {
       }
     });
   }
-  if (
-    state.minimumAgeValue &&
-    state.maximumAgeValue &&
-    state.minimumAgeValue > state.maximumAgeValue
-  ) {
+  
+  if (state.minimumAgeValue && state.maximumAgeValue && state.minimumAgeValue > state.maximumAgeValue) {
     errors.push({
       name: "minimumAgeValue",
       message: "Minimum Age must be less than Maximum Age",
@@ -250,19 +231,16 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
+  isSubmitting.value = true;
 
   const formData = event.data;
 
   const b = {
-    exclusionCriteria: formData.exclusionCriteria.filter(
-      (item) => item.trim() !== "",
-    ),
+    exclusionCriteria: formData.exclusionCriteria.filter((item) => item.trim() !== ""),
     genderBased: formData.genderBased,
     genderDescription: formData.genderDescription,
     healthyVolunteers: formData.healthyVolunteers,
-    inclusionCriteria: formData.inclusionCriteria.filter(
-      (item) => item.trim() !== "",
-    ),
+    inclusionCriteria: formData.inclusionCriteria.filter((item) => item.trim() !== ""),
     maximumAgeUnit: formData.maximumAgeUnit,
     maximumAgeValue: formData.maximumAgeValue,
     minimumAgeUnit: formData.minimumAgeUnit,
@@ -272,58 +250,55 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     studyPopulation: formData.studyPopulation,
   };
 
-  await $fetch(`/api/datasets/${datasetId}/study/metadata/eligibility`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "An error occurred while submitting the form.",
-      });
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/eligibility`, {
+      body: b,
+      method: "PUT",
     });
+    console.log(res);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+
+    originalStateString.value = JSON.stringify(state);
+  } catch (err) {
+    console.log(err);
+
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "An error occurred while submitting the form.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      class="mb-4 ml-2"
-      :items="[
-        { label: 'Dashboard', to: '/app/dashboard' },
-        { label: data?.title, to: `/app/datasets/${datasetId}` },
-        {
-          label: 'Study Metadata',
-        },
-        {
-          label: 'Eligibility',
-          to: `/app/datasets/${datasetId}/study/metadata/eligibility`,
-        },
-      ]"
-    />
+  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
+    
+    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+      <UBreadcrumb
+        class="mb-4 ml-2"
+        :items="[
+          { label: 'Dashboard', to: '/app/dashboard' },
+          { label: data?.title, to: `/app/datasets/${datasetId}` },
+          {
+            label: 'Study Metadata',
+          },
+          {
+            label: 'Eligibility',
+            to: `/app/datasets/${datasetId}/study/metadata/eligibility`,
+          },
+        ]"
+      />
 
-    <div class="flex w-full flex-col gap-6 pb-5">
-      <div
-        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-      >
+      <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <div class="flex w-full items-center justify-between gap-3">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Eligibility
@@ -352,24 +327,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
 
       <UForm
+        id="study-metadata-eligibility-form"
         :validate="validate"
         :state="state"
-        class="space-y-4"
+        class="space-y-6"
         :disabled="!state.studyType"
         @submit="onSubmit"
       >
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Gender
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Define biological sex and gender identity classification boundaries required for enrollment eligibility.
               </p>
             </div>
 
@@ -395,24 +367,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UTextarea
                 v-model="state.genderDescription"
                 class="w-full"
-                placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos."
+                placeholder="Provide detailed context regarding any gender-specific targeting or limitations within the cohort."
               />
             </UFormField>
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Age
+                Age Boundaries
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Establish precise lower and upper limits of age matching criteria for target trial candidates.
               </p>
             </div>
 
@@ -478,18 +446,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Interventional Studies
+                Interventional Study Attributes
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Indicate if health baseline constraints apply for general population screening vectors.
               </p>
             </div>
 
@@ -502,26 +466,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-model="state.healthyVolunteers"
                 class="w-full"
                 placeholder="Yes"
-                :items="
-                  FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions
-                "
+                :items="FORM_JSON.studyMetadataEligibilityHealthyVolunteersOptions"
               />
             </UFormField>
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Sampling Method
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Configure descriptive demographic targets for cohort sourcing models.
               </p>
             </div>
 
@@ -529,7 +487,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UInput
                 v-model="state.studyPopulation"
                 class="w-full"
-                placeholder="A description of the population from which the groups or cohorts will be selected (for example, primary care clinic, community sample, residents of a certain town). Required for observational studies only"
+                placeholder="A description of the population from which the groups or cohorts will be selected (Required for observational)."
               />
             </UFormField>
 
@@ -544,18 +502,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
+        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Eligibility Criteria
+                Eligibility Criteria Listings
               </h2>
-
               <p class="text-gray-500 dark:text-gray-400">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
+                Maintain explicit conditional logic sets guiding participant acceptances and rejections.
               </p>
             </div>
 
@@ -577,7 +531,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UInput
                       v-model="state.inclusionCriteria[index]"
                       class="w-full"
-                      placeholder="Inclusion Criteria"
+                      placeholder="Inclusion Criteria rule item"
                     />
                   </UFormField>
 
@@ -589,7 +543,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       icon="i-lucide-trash"
                       @click="state.inclusionCriteria.splice(index, 1)"
                     />
-
                     <UButton
                       size="sm"
                       color="success"
@@ -634,7 +587,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       v-model="state.exclusionCriteria[index]"
                       class="w-full"
                       :name="`exclusionCriteria[${index}]`"
-                      placeholder="Exclusion Criteria"
+                      placeholder="Exclusion Criteria rule item"
                     />
                   </UFormField>
 
@@ -646,7 +599,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       icon="i-lucide-trash"
                       @click="state.exclusionCriteria.splice(index, 1)"
                     />
-
                     <UButton
                       size="sm"
                       color="success"
@@ -673,17 +625,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </UFormField>
           </div>
         </div>
-
-        <UButton
-          type="submit"
-          :disabled="saveLoading || !state.studyType"
-          :loading="saveLoading"
-          class="w-full"
-          size="lg"
-          label="Save Metadata"
-          icon="i-lucide-save"
-        />
       </UForm>
     </div>
+
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+      <UButton
+        form="study-metadata-eligibility-form"
+        type="submit"
+        :disabled="saveLoading || !state.studyType"
+        :loading="saveLoading"
+        class="w-full"
+        size="xl"
+        label="Save Metadata"
+        icon="i-lucide-save"
+      />
+    </div>
+
+    <UModal 
+      v-model:open="showLeaveModal"
+      title="Unsaved changes"
+      :prevent-close="true"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Are you sure you want to leave this page? Any modifications made to your eligibility parameters will be permanently discarded.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
+          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
