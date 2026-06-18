@@ -321,7 +321,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pt-4 dark:from-gray-950">
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
       <UButton
         form="study-metadata-status-form"
         type="submit"

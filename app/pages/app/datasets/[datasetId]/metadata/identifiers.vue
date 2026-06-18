@@ -340,7 +340,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6">
+    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
       <UButton
         form="metadata-identifiers-form"
         type="submit"
