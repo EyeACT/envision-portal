@@ -15,7 +15,6 @@
     "ms-azuretools.vscode-docker",
     "prisma.prisma",
     "vue.volar",
-    "wix.vscode-import-cost",
-    "kamikillerto.vscode-colorize"
+    "wix.vscode-import-cost"
   ]
 }

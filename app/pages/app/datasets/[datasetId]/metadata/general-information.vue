@@ -3,6 +3,8 @@ import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
 import FORM_JSON from "~/assets/data/form.json";
+import AI_FIELDS from "~/assets/data/ai-extract-fields.json";
+import type { ExtractedValues, ExtractField } from "@/components/ai/ExtractDrawer.vue";
 
 definePageMeta({
   middleware: ["auth"],
@@ -347,6 +349,19 @@ async function executeSave(formData: typeof state) {
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   await executeSave(event.data);
 }
+
+// AI extraction drawer
+const drawerOpen = ref(false);
+const pageFields = AI_FIELDS["metadata/general-information"].fields as ExtractField[];
+
+const onApplyExtracted = (_values: ExtractedValues) => {
+  // TODO: map _values onto state.titles / state.descriptions / state.dates
+  toast.add({
+    title: "Fields updated",
+    description: "Extracted metadata has been applied to the form.",
+    color: "success",
+  });
+};
 </script>
 
 <template>
@@ -377,6 +392,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
               General Information
             </h1>
+
+            <UButton
+              icon="material-symbols:auto-awesome"
+              label="Extract from Documents"
+              color="primary"
+              variant="subtle"
+              @click="drawerOpen = true"
+            />
           </div>
           <p class="text-gray-500 dark:text-gray-400">
             Some basic information about the dataset is displayed here.
@@ -523,7 +546,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -535,10 +558,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </p>
           <div class="flex justify-end gap-3 pt-2">
             <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />
           </div>
         </div>
       </template>
     </UModal>
+
+    <AiExtractDrawer
+      v-model:open="drawerOpen"
+      :fields="pageFields"
+      :page-label="AI_FIELDS['metadata/general-information'].pageLabel"
+      @apply="onApplyExtracted"
+    />
   </div>
 </template>
