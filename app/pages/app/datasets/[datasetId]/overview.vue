@@ -65,14 +65,12 @@ if (dataset.value) {
             </p>
           </div>
 
-          <div class="space-y-2">
+          <!-- Creators -->
+          <div class="space-y-1">
             <span class="text-base text-gray-900 dark:text-gray-500">Creators</span>
-            <div class="flex flex-wrap gap-2">
-              <template v-if="dataset?.DatasetContributor?.length">
-                <div 
-                  v-for="person in dataset.DatasetContributor" 
-                  :key="person.id"
-                >
+            <div class="flex flex-wrap gap-x-4 gap-y-1">
+              <template v-if="dataset?.DatasetContributor?.filter(c => c.creator).length">
+                <div v-for="person in dataset.DatasetContributor.filter(c => c.creator)" :key="person.id">
                   <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
                     {{ person.givenName }} {{ person.familyName }}
                   </p>
@@ -80,6 +78,36 @@ if (dataset.value) {
               </template>
               <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">No creators listed.</p>
             </div>
+          </div>
+
+          <!-- Key Contributors -->
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Key Contributors</span>
+            <div class="flex flex-wrap gap-x-4 gap-y-1">
+              <template v-if="dataset?.DatasetContributor?.filter(c => !c.creator).length">
+                <div v-for="person in dataset.DatasetContributor.filter(c => !c.creator)" :key="person.id">
+                  <p class="textext-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                    {{ person.givenName }} {{ person.familyName }}
+                  </p>
+                </div>
+              </template>
+              <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">No additional contributors listed.</p>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Contact Information</span>
+            <div v-if="dataset?.StudyCentralContact?.length">
+              <div v-for="contact in dataset.StudyCentralContact" :key="contact.id" class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                {{ contact.givenName }} {{ contact.familyName }}
+                <p class="text-gray-500 dark:text-gray-400 text-xs">
+                  <a :href="`mailto:${contact.emailAddress}`" class="text-primary hover:underline">{{ contact.emailAddress }}</a>
+                  <span v-if="contact.phone"> | {{ contact.phone }}</span>
+                </p>
+              </div>
+            </div>
+            <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">No contact information available.</p>
           </div>
         </div>
       </div>
@@ -111,6 +139,19 @@ if (dataset.value) {
                 {{ dataset?.status || 'Draft' }}
               </UBadge>
             </div>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">License</span>
+            <p v-if="dataset?.DatasetRights" class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ dataset.DatasetRights.rights }}
+              <span v-if="dataset.DatasetRights.uri" class="block text-xs text-gray-400">
+                <a :href="dataset.DatasetRights.uri" target="_blank" class="text-primary hover:underline">
+                  {{ dataset.DatasetRights.uri }}
+                </a>
+              </span>
+            </p>
+            <p v-else class="text-sm text-gray-400 dark:text-gray-600">No license specified.</p>
           </div>
         </div>
       </div>
@@ -176,6 +217,13 @@ if (dataset.value) {
             <span class="text-base text-gray-900 dark:text-gray-500">Start Date</span>
             <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
               {{ dataset?.StudyStatus?.startDate ? new Date(dataset.StudyStatus.startDate).toLocaleDateString() : 'N/A' }}
+            </p>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500">Number of Participants</span>
+            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {{ dataset?.StudyDesign?.enrollmentCount !== undefined ? dataset.StudyDesign.enrollmentCount : 'N/A' }} 
             </p>
           </div>
         </div>
