@@ -15,6 +15,9 @@ export default defineEventHandler(async (event) => {
       StudyDescription: true,
       StudyStatus: true,
       DatasetContributor: true,
+      StudyCentralContact: true,
+      StudyDesign: true,
+      DatasetRights: true,
     },
   });
 
