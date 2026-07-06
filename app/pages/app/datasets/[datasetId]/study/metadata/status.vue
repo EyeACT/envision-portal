@@ -42,6 +42,18 @@ const { data, error } = await useFetch(
   {},
 );
 
+watch(() => state.startDate, (newDate) => {
+  if (newDate) {
+    state.startDateType = dayjs(newDate).isAfter(dayjs(), 'day') ? 'Anticipated' : 'Actual';
+  }
+});
+
+watch(() => state.completionDate, (newDate) => {
+  if (newDate) {
+    state.completionDateType = dayjs(newDate).isAfter(dayjs(), 'day') ? 'Anticipated' : 'Actual';
+  }
+});
+
 if (error.value) {
   toast.add({
     title: "Error fetching study",
@@ -236,86 +248,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <USelect
                 v-model="state.overallStatus"
                 class="w-full"
-                placeholder="Recruiting"
+                placeholder="Select status"
                 :items="FORM_JSON.studyMetadataStatusOptions"
               />
             </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField
-                label="Start Date"
-                name="startDate"
-                class="w-full"
-                required
-              >
-                <UInput
-                  v-model="state.startDate"
-                  class="w-full"
-                  type="date"
-                  placeholder="1"
-                />
+              <UFormField label="Start Date" name="startDate" class="w-full" required>
+                <UInput v-model="state.startDate" class="w-full" type="date" />
               </UFormField>
 
-              <UFormField
-                label="Start Date Type"
-                name="startDateType"
-                class="w-full"
-                required
-              >
-                <USelect
-                  v-model="state.startDateType"
-                  class="w-full"
-                  placeholder="Actual"
-                  :items="FORM_JSON.studyMetadataEnrollmentTypeOptions"
-                />
+              <UFormField label="Start Date Type" name="startDateType" class="w-full" required>
+                <USelect v-model="state.startDateType" class="w-full" :items="FORM_JSON.studyMetadataEnrollmentTypeOptions" />
               </UFormField>
             </div>
-
-            <UFormField
-              label="Why Stopped"
-              name="whyStopped"
-              :required="
-                state.overallStatus === 'Suspended' ||
-                state.overallStatus === 'Terminated' ||
-                state.overallStatus === 'Withdrawn'
-              "
-            >
-              <UTextarea
-                v-model="state.whyStopped"
-                class="w-full"
-                placeholder="Enter a reason for stopping the study."
-              />
-            </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField
-                label="Completion Date"
-                name="completionDate"
-                class="w-full"
-                required
-              >
-                <UInput
-                  v-model="state.completionDate"
-                  class="w-full"
-                  type="date"
-                  placeholder="1"
-                />
+              <UFormField label="Completion Date" name="completionDate" class="w-full" required>
+                <UInput v-model="state.completionDate" class="w-full" type="date" />
               </UFormField>
 
-              <UFormField
-                label="Completion Date Type"
-                name="completionDateType"
-                class="w-full"
-                required
-              >
-                <USelect
-                  v-model="state.completionDateType"
-                  class="w-full"
-                  placeholder="Actual"
-                  :items="FORM_JSON.studyMetadataEnrollmentTypeOptions"
-                />
+              <UFormField label="Completion Date Type" name="completionDateType" class="w-full" required>
+                <USelect v-model="state.completionDateType" class="w-full" :items="FORM_JSON.studyMetadataEnrollmentTypeOptions" />
               </UFormField>
             </div>
+            <UFormField
+              v-if="state.completionDate && ['Suspended', 'Terminated', 'Withdrawn'].includes(state.overallStatus)"
+              label="Why Stopped"
+              name="whyStopped"
+              required
+            >
+              <UTextarea v-model="state.whyStopped" class="w-full" placeholder="Enter a reason for stopping the study." />
+            </UFormField>
           </div>
         </div>
       </UForm>

@@ -284,53 +284,25 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
             <div class="flex flex-col gap-3">
               <UFormField label="Size" name="size">
-                <div v-if="state.size.length > 0">
-                  <div
-                    v-for="(size, index) in state.size"
-                    :key="index"
-                    class="mb-2 flex gap-2"
-                  >
-                    <UFormField
-                      class="w-full"
-                      :name="`size-${index}`"
-                      label=""
-                      required
-                    >
-                      <UInput
-                        v-model="state.size[index]"
-                        placeholder="45 minutes"
-                      />
-                    </UFormField>
-
-                    <UButton
-                      size="sm"
-                      color="error"
-                      variant="outline"
-                      icon="i-lucide-trash"
-                      @click="state.size.splice(index, 1)"
-                    />
-
-                    <UButton
-                      size="sm"
-                      color="success"
-                      variant="outline"
-                      icon="i-lucide-plus"
-                      @click="state.size.splice(index + 1, 0, '')"
-                    />
+                <div v-for="(size, index) in state.size" :key="index" class="mb-4 flex items-start gap-2">
+                  <UFormField class="w-full" :name="`size-${index}`" label="">
+                    <UInput v-model="state.size[index]" placeholder="45 minutes" />
+                  </UFormField>
+                  
+                  <div class="mt-1">
+                    <UButton size="sm" color="error" variant="outline" icon="i-lucide-trash" @click="state.size.splice(index, 1)" />
                   </div>
                 </div>
-
-                <div v-else>
-                  <UButton
-                    size="sm"
-                    class="w-full"
-                    color="success"
-                    variant="outline"
-                    label="Add Size"
-                    icon="i-lucide-plus"
-                    @click="state.size.push('')"
-                  />
-                </div>
+                
+                <UButton
+                  size="sm"
+                  class="w-full"
+                  color="success"
+                  variant="outline"
+                  label="Add Size"
+                  icon="i-lucide-plus"
+                  @click="state.size.push('')"
+                />
               </UFormField>
             </div>
           </div>
@@ -351,47 +323,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
             <div class="flex flex-col gap-3">
               <UFormField label="" name="format">
-                <div v-if="state.format.length > 0">
-                  <div
-                    v-for="(format, index) in state.format"
-                    :key="index"
-                    class="mb-2 flex gap-2"
-                  >
-                    <UInput
-                      v-model="state.format[index]"
-                      class="w-full"
-                      placeholder="CSV"
-                    />
-
-                    <UButton
-                      size="sm"
-                      color="error"
-                      variant="outline"
-                      icon="i-lucide-trash"
-                      @click="state.format.splice(index, 1)"
-                    />
-
-                    <UButton
-                      size="sm"
-                      color="success"
-                      variant="outline"
-                      icon="i-lucide-plus"
-                      @click="state.format.splice(index + 1, 0, '')"
-                    />
-                  </div>
+                <div v-for="(format, index) in state.format" :key="index" class="mb-4 flex items-start gap-2">
+                  <UInput v-model="state.format[index]" class="w-full" placeholder="CSV" />
+                  
+                  <UButton size="sm" color="error" variant="outline" icon="i-lucide-trash" @click="state.format.splice(index, 1)" />
                 </div>
-
-                <div v-else>
-                  <UButton
-                    size="sm"
-                    class="w-full"
-                    color="success"
-                    variant="outline"
-                    label="Add Format"
-                    icon="i-lucide-plus"
-                    @click="state.format.push('')"
-                  />
-                </div>
+                
+                <UButton
+                  size="sm"
+                  class="w-full"
+                  color="success"
+                  variant="outline"
+                  label="Add Format"
+                  icon="i-lucide-plus"
+                  @click="state.format.push('')"
+                />
               </UFormField>
             </div>
           </div>

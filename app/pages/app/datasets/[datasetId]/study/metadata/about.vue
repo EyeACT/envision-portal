@@ -690,7 +690,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Conditions</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Conditions
+                <span class="text-red-500 text-sm">*</span>
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
                 Please add some conditions that describe the study. These are usually the diseases or conditions that the study is investigating.
               </p>

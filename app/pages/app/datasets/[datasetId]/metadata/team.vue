@@ -826,49 +826,41 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </div>
 
                   <UFormField label="Affiliations" name="affiliations">
-                    <div v-if="item.affiliations.length > 0">
-                      <div v-for="(affiliation, affIndex) in item.affiliations" :key="affIndex" class="mb-2 flex gap-2">
-                        <div class="flex w-full flex-col gap-2">
-                          <UFormField label="Name" :name="`creators[${index}].affiliations[${affIndex}].affiliation`" required>
-                            <UInput v-model="affiliation.affiliation" class="w-full" placeholder="University of Example" />
+                    <div v-for="(affiliation, affIndex) in item.affiliations" :key="affIndex" class="mb-2 flex gap-2">
+                      <div class="flex w-full flex-col gap-2">
+                        <UFormField label="Name" :name="`creators[${index}].affiliations[${affIndex}].affiliation`" required>
+                          <UInput v-model="affiliation.affiliation" class="w-full" placeholder="University of Example" />
+                        </UFormField>
+
+                        <div class="flex w-full gap-2">
+                          <UFormField label="Identifier" :name="`creators[${index}].affiliations[${affIndex}].identifier`" class="w-full">
+                            <UInput v-model="affiliation.identifier" class="w-full" placeholder="1234567890" />
                           </UFormField>
 
-                          <div class="flex w-full gap-2">
-                            <UFormField label="Identifier" :name="`creators[${index}].affiliations[${affIndex}].identifier`" class="w-full">
-                              <UInput v-model="affiliation.identifier" class="w-full" placeholder="1234567890" />
-                            </UFormField>
+                          <UFormField label="Identifier Scheme" :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`" class="w-full">
+                            <UInput v-model="affiliation.identifierScheme" class="w-full" placeholder="ROR" />
+                          </UFormField>
 
-                            <UFormField label="Identifier Scheme" :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`" class="w-full">
-                              <UInput v-model="affiliation.identifierScheme" class="w-full" placeholder="ROR" />
-                            </UFormField>
-
-                            <UFormField label="Identifier Scheme URI" :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`" class="w-full">
-                              <UInput v-model="affiliation.identifierSchemeUri" class="w-full" placeholder="https://ror.org" />
-                            </UFormField>
-                          </div>
+                          <UFormField label="Identifier Scheme URI" :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`" class="w-full">
+                            <UInput v-model="affiliation.identifierSchemeUri" class="w-full" placeholder="https://ror.org" />
+                          </UFormField>
                         </div>
+                      </div>
 
+                      <div class="flex items-end pb-1">
                         <UButton size="sm" color="error" variant="outline" icon="i-lucide-trash" @click="item.affiliations.splice(affIndex, 1)" />
-                        <UButton
-                          size="sm"
-                          color="success"
-                          variant="outline"
-                          icon="i-lucide-plus"
-                          @click="item.affiliations.splice(affIndex + 1, 0, { affiliation: '', identifier: '', identifierScheme: '', identifierSchemeUri: '' })"
-                        />
                       </div>
                     </div>
-                    <div v-else>
-                      <UButton
-                        size="sm"
-                        class="w-full"
-                        color="success"
-                        variant="outline"
-                        label="Add Affiliation"
-                        icon="i-lucide-plus"
-                        @click="item.affiliations.push({ affiliation: '', identifier: '', identifierScheme: '', identifierSchemeUri: '' })"
-                      />
-                    </div>
+
+                    <UButton
+                      size="sm"
+                      class="w-full mt-2"
+                      color="success"
+                      variant="outline"
+                      label="Add Affiliation"
+                      icon="i-lucide-plus"
+                      @click="item.affiliations.push({ affiliation: '', identifier: '', identifierScheme: '', identifierSchemeUri: '' })"
+                    />
                   </UFormField>
                 </div>
               </CardCollapsible>
@@ -952,50 +944,42 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </div>
 
                   <UFormField label="Affiliations" name="affiliations">
-                    <div v-if="item.affiliations.length > 0">
-                      <div v-for="(affiliation, affIndex) in item.affiliations" :key="affIndex" class="mb-2 flex gap-2">
-                        <div class="flex w-full flex-col gap-2">
-                          <UFormField label="Name" :name="`contributors[${index}].affiliations[${affIndex}].affiliation`" required>
-                            <UInput v-model="affiliation.affiliation" class="w-full" placeholder="University of Example" />
+                    <div v-for="(affiliation, affIndex) in item.affiliations" :key="affIndex" class="mb-2 flex gap-2">
+                      <div class="flex w-full flex-col gap-2">
+                        <UFormField label="Name" :name="`creators[${index}].affiliations[${affIndex}].affiliation`" required>
+                          <UInput v-model="affiliation.affiliation" class="w-full" placeholder="University of Example" />
+                        </UFormField>
+
+                        <div class="flex w-full gap-2">
+                          <UFormField label="Identifier" :name="`creators[${index}].affiliations[${affIndex}].identifier`" class="w-full">
+                            <UInput v-model="affiliation.identifier" class="w-full" placeholder="1234567890" />
                           </UFormField>
 
-                          <div class="flex w-full gap-2">
-                            <UFormField label="Identifier" :name="`contributors[${index}].affiliations[${affIndex}].identifier`" class="w-full">
-                              <UInput v-model="affiliation.identifier" class="w-full" placeholder="1234567890" />
-                            </UFormField>
+                          <UFormField label="Identifier Scheme" :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`" class="w-full">
+                            <UInput v-model="affiliation.identifierScheme" class="w-full" placeholder="ROR" />
+                          </UFormField>
 
-                            <UFormField label="Identifier Scheme" :name="`contributors[${index}].affiliations[${affIndex}].identifierScheme`" class="w-full">
-                              <UInput v-model="affiliation.identifierScheme" class="w-full" placeholder="ROR" />
-                            </UFormField>
-
-                            <UFormField label="Identifier Scheme URI" :name="`contributors[${index}].affiliations[${affIndex}].identifierSchemeUri`" class="w-full">
-                              <UInput v-model="affiliation.identifierSchemeUri" class="w-full" placeholder="https://ror.org" />
-                            </UFormField>
-                          </div>
-                        </div>
-
-                        <UButton size="sm" color="error" variant="outline" icon="i-lucide-trash" @click="item.affiliations.splice(affIndex, 1)" />
-                        <UButton
-                          size="sm"
-                          color="success"
-                          variant="outline"
-                          icon="i-lucide-plus"
-                          @click="item.affiliations.splice(affIndex + 1, 0, { affiliation: '', identifier: '', identifierScheme: '', identifierSchemeUri: '' })"
-                        />
+                          <UFormField label="Identifier Scheme URI" :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`" class="w-full">
+                            <UInput v-model="affiliation.identifierSchemeUri" class="w-full" placeholder="https://ror.org" />
+                          </UFormField>
                       </div>
                     </div>
-                    <div v-else>
-                      <UButton
-                        size="sm"
-                        class="w-full"
-                        color="success"
-                        variant="outline"
-                        label="Add Affiliation"
-                        icon="i-lucide-plus"
-                        @click="item.affiliations.push({ affiliation: '', identifier: '', identifierScheme: '', identifierSchemeUri: '' })"
-                      />
+
+                    <div class="flex items-end pb-1">
+                      <UButton size="sm" color="error" variant="outline" icon="i-lucide-trash" @click="item.affiliations.splice(affIndex, 1)" />
                     </div>
-                  </UFormField>
+                  </div>
+
+                  <UButton
+                    size="sm"
+                    class="w-full mt-2"
+                    color="success"
+                    variant="outline"
+                    label="Add Affiliation"
+                    icon="i-lucide-plus"
+                    @click="item.affiliations.push({ affiliation: '', identifier: '', identifierScheme: '', identifierSchemeUri: '' })"
+                  />
+                </UFormField>
                 </div>
               </CardCollapsible>
             </UFormField>

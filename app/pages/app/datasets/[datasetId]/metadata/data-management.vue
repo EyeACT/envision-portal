@@ -199,7 +199,7 @@ const validate = (state: any): FormError[] => {
       if (!subject.subject?.trim()) {
         errors.push({
           name: `subjects[${index}].subject`,
-          message: "Subject is required",
+          message: "Subject ID is required",
         });
       }
 
@@ -508,16 +508,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                 <div class="flex flex-col gap-3">
                   <UFormField
-                    label="Subject"
-                    :name="`subjects[${index}].subject`"
-                    required
-                  >
-                    <UInput
-                      v-model="item.subject"
-                      placeholder="Enter subject"
-                      class="w-full"
-                    />
-                  </UFormField>
+  label="Subject ID"
+  :name="`subjects[${index}].subject`"
+  required
+>
+  <UInput
+    v-model="item.subject"
+    placeholder="Enter subject ID"
+    class="w-full"
+  />
+</UFormField>
 
                   <UFormField
                     label="Classification Code"
