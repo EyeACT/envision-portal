@@ -90,6 +90,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Changelog" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/changelog`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <MarkdownRenderer :content="data?.changelog || ''" />
           </div>

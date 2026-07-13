@@ -20,6 +20,7 @@ const { datasetId } = route.params as {
 };
 
 const data = ref<any>(null);
+const isPublishingStarted = ref(false);
 
 const fetchData = async () => {
   await $fetch(`/api/datasets/${datasetId}/publish`, {})
@@ -174,6 +175,7 @@ const columns: TableColumn<{
 ];
 
 const publishDataset = async () => {
+  isPublishingStarted.value = true;
   publishLoading.value = true;
 
   pollingInterval.value = setInterval(async () => {
@@ -248,7 +250,10 @@ onUnmounted(() => {
         class="mx-5 w-full pt-5"
       />
 
-      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+      <div 
+        v-if="isPublishingStarted"
+        class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
         <UTable
           :data="tableData"
           :columns="columns"
@@ -282,6 +287,15 @@ onUnmounted(() => {
       </UModal>
 
       <div class="flex justify-end gap-5">
+        <UButton
+          :to="`/app/datasets/${datasetId}/publish/readme`"
+          class="w-full"
+          size="lg"
+          variant="outline"
+          label="Review Readme"
+          icon="i-lucide-arrow-left"
+        />
+
         <UButton
           class="w-full"
           size="lg"

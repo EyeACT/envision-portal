@@ -90,6 +90,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Identifiers" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/identifiers`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <h3 class="mb-2 text-lg font-medium">Primary Identifier</h3>
 
@@ -121,6 +131,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Titles" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/general-information`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <UTable
               :data="data?.DatasetTitle"
@@ -142,6 +162,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Descriptions" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/general-information`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <UTable
               :data="data?.DatasetDescription"
@@ -163,6 +193,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Creators" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/team`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <UTable
               :data="data?.creators"
@@ -192,6 +232,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Dates" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/general-information`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <UTable
               :data="data?.DatasetDate"
@@ -213,6 +263,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Managing Organization" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/team`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <p>
               {{ data?.DatasetManagingOrganization?.name || "Not provided" }}
@@ -223,6 +283,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="De-Identification" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/data-management`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <table class="table-auto">
               <tbody>
@@ -273,6 +343,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Consent" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/data-management`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <table class="table-auto">
               <tbody>
@@ -350,6 +430,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Subjects" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/data-management`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <UTable
               :data="data?.DatasetSubject"
@@ -375,6 +465,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Access & Rights" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/access-rights`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <h3 class="mb-2 text-lg font-medium">Access Type</h3>
 
@@ -399,6 +499,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Funders" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/team`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <UTable
               :data="data?.DatasetFunder"
@@ -424,6 +534,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Related Identifiers" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/related-identifiers`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <UTable
               :data="data?.DatasetRelatedIdentifier"
@@ -453,6 +573,16 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Additional Details" bordered no-shadow>
+          <div class="flex justify-end mb-4">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/about`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
           <div class="flex flex-col">
             <table class="table-auto">
               <tbody>
