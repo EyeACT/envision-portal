@@ -69,6 +69,11 @@ const timelineItems = ref<TimelineItem[]>([
     description: "Add a readme to the dataset.",
     icon: "i-lucide-file-text",
   },
+  { 
+    title: "Files", 
+    description: "Review dataset files.", 
+    icon: "i-lucide-folder-open" 
+  },
   {
     title: "Publish",
     description: "Publish the dataset.",
@@ -245,7 +250,7 @@ onUnmounted(() => {
 
     <div class="flex w-full flex-col gap-6 pb-16">
       <UStepper
-        :default-value="4"
+        :default-value="5"
         :items="timelineItems"
         class="mx-5 w-full pt-5"
       />
@@ -288,11 +293,11 @@ onUnmounted(() => {
 
       <div class="flex justify-end gap-5">
         <UButton
-          :to="`/app/datasets/${datasetId}/publish/readme`"
+          :to="`/app/datasets/${datasetId}/publish/files`"
           class="w-full"
           size="lg"
           variant="outline"
-          label="Review Readme"
+          label="Review Files"
           icon="i-lucide-arrow-left"
         />
 

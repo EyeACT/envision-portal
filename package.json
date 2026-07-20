@@ -25,6 +25,7 @@
     "scripts:create:record": "tsx ./scripts/create-record.ts"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.33.0",
     "@azure/storage-file-datalake": "12.29.0",
     "@internationalized/date": "3.12.1",
     "@nuxt/content": "3.13.0",
@@ -34,6 +35,7 @@
     "bcrypt": "6.0.0",
     "better-sqlite3": "12.9.0",
     "date-fns": "4.1.0",
+    "dayjs": "^1.11.21",
     "marked": "18.0.2",
     "md-editor-v3": "6.4.2",
     "motion-v": "2.2.1",

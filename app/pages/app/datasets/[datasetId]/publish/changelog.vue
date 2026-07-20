@@ -54,6 +54,11 @@ const timelineItems = ref<TimelineItem[]>([
     description: "Add a readme to the dataset.",
     icon: "i-lucide-file-text",
   },
+  { 
+    title: "Files", 
+    description: "Review dataset files.", 
+    icon: "i-lucide-folder-open" 
+  },
   {
     title: "Publish",
     description: "Publish the dataset.",
