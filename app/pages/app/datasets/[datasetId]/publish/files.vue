@@ -12,24 +12,23 @@ const { datasetId } = route.params as {
   datasetId: string;
 };
 
+// Fetch files from the Azure blob backend route
 const { data, error } = await useFetch(
-  `/api/datasets/${datasetId}/publish/readme`,
+  `/api/datasets/${datasetId}/files`,
   {},
 );
 
 if (error.value) {
   toast.add({
-    title: "Error fetching readme",
+    title: "Error fetching dataset files",
     description: "Please try again later",
     icon: "material-symbols:error",
   });
-
-  // await navigateTo(`/app/study/${studyId}/datasets/${datasetId}`);
 }
 
 if (data.value) {
   useSeoMeta({
-    title: data.value.title,
+    title: "Review Files - " + data.value.title,
   });
 }
 
@@ -54,10 +53,10 @@ const timelineItems = ref<TimelineItem[]>([
     description: "Add a readme to the dataset.",
     icon: "i-lucide-file-text",
   },
-  { 
-    title: "Files", 
-    description: "Review dataset files.", 
-    icon: "i-lucide-folder-open" 
+  {
+    title: "Files",
+    description: "Review dataset files.",
+    icon: "i-lucide-folder-open",
   },
   {
     title: "Publish",
@@ -79,8 +78,8 @@ const timelineItems = ref<TimelineItem[]>([
           to: `/app/datasets/${datasetId}/publish`,
         },
         {
-          label: 'Review Readme',
-          to: `/app/datasets/${datasetId}/publish/readme`,
+          label: 'Review Files',
+          to: `/app/datasets/${datasetId}/publish/files`,
         },
       ]"
     />
@@ -88,44 +87,40 @@ const timelineItems = ref<TimelineItem[]>([
     <div class="flex w-full flex-col gap-6 pb-16">
       <UStepper
         orientation="horizontal"
-        :default-value="3"
+        :default-value="4"
         :items="timelineItems"
         class="mx-5 w-full pt-5"
       />
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-        <CardCollapsible title="Readme" bordered no-shadow>
-          <div class="flex justify-end mb-4">
-            <UButton
-              :to="`/app/datasets/${datasetId}/readme`"
-              color="primary"
-              icon="i-lucide-pencil"
-              label="Edit"
-              size="xs"
-              variant="outline"
-            />
-          </div>
+        <CardCollapsible title="Dataset Files" bordered no-shadow>
           <div class="flex flex-col">
-            <MarkdownRenderer :content="data?.readme || ''" />
+            <UTree
+              v-if="data?.files && data?.files.length > 0"
+              :items="data?.files || []"
+            />
+            <p v-else class="text-gray-500 py-4 text-center">
+              No files found in this dataset.
+            </p>
           </div>
         </CardCollapsible>
       </div>
 
       <div class="flex justify-end gap-5">
         <UButton
-          :to="`/app/datasets/${datasetId}/publish/changelog`"
+          :to="`/app/datasets/${datasetId}/publish/readme`"
           class="w-full"
           size="lg"
           variant="outline"
-          label="Review Changelog"
+          label="Review Readme"
           icon="i-lucide-arrow-left"
         />
 
         <UButton
-          :to="`/app/datasets/${datasetId}/publish/files`"
+          :to="`/app/datasets/${datasetId}/publish/finalize`"
           class="w-full"
           size="lg"
-          label="Review Files"
+          label="Proceed to Publish"
           icon="i-lucide-arrow-right"
         />
       </div>

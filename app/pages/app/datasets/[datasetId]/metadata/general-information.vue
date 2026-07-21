@@ -384,49 +384,50 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         </div>
 
         <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-          <div class="flex w-full flex-col gap-4">
-            <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Titles</h2>
-              <p class="text-gray-500 dark:text-gray-400">Please add some titles that describe the dataset.</p>
-            </div>
-            <UFormField name="titles">
-              <CardCollapsible
-                v-for="(item, index) in state.titles"
-                v-show="!item.deleted"
-                :key="item.id"
-                class="my-1 shadow-none"
-                :title="item.title || `Title ${index + 1}`"
-                bordered
-              >
-                <template #header-extra>
-                  <UButton
-                    icon="i-lucide-trash"
-                    label="Remove title"
-                    variant="soft"
-                    color="error"
-                    :disabled="item.type === 'MainTitle'"
-                    @click="removeTitle(index)"
-                  />
-                </template>
-                <div class="flex flex-col gap-3">
-                  <UFormField :name="`title-${index}`" label="Name" required>
-                    <UInput v-model="item.title" placeholder="Artifical Intelligence" />
-                  </UFormField>
-                  <UFormField :name="`title-type-${index}`" label="Type">
-                    <USelect
-                      v-model="item.type"
-                      class="w-full"
-                      placeholder="Alternative title"
-                      :items="FORM_JSON.datasetTitleTypeOptions"
-                      :disabled="item.type === 'MainTitle'"
-                    />
-                  </UFormField>
-                </div>
-              </CardCollapsible>
-            </UFormField>
-            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Title" @click="addTitle" />
-          </div>
+  <div class="flex w-full flex-col gap-4">
+    <div class="flex w-full flex-col">
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white">Titles</h2>
+      <p class="text-gray-500 dark:text-gray-400">Please add some titles that describe the dataset.</p>
+    </div>
+    <UFormField name="titles">
+      <CardCollapsible
+        v-for="(item, index) in state.titles"
+        v-show="!item.deleted"
+        :key="item.id"
+        class="my-1 shadow-none"
+        :title="item.type === 'MainTitle' ? 'Main Title' : (item.title || `Title ${index + 1}`)"
+        bordered
+      >
+        <template #header-extra>
+          <UButton
+            v-if="item.type !== 'MainTitle'"
+            icon="i-lucide-trash"
+            label="Remove title"
+            variant="soft"
+            color="error"
+            @click="removeTitle(index)"
+          />
+        </template>
+        <div class="flex flex-col gap-3">
+          <UFormField :name="`title-${index}`" label="Name" required>
+            <UInput v-model="item.title" placeholder="Artificial Intelligence" />
+          </UFormField>
+          
+          <!-- Only show Type field if it is NOT a MainTitle -->
+          <UFormField v-if="item.type !== 'MainTitle'" :name="`title-type-${index}`" label="Type">
+            <USelect
+              v-model="item.type"
+              class="w-full"
+              placeholder="Alternative title"
+              :items="FORM_JSON.datasetTitleTypeOptions"
+            />
+          </UFormField>
         </div>
+      </CardCollapsible>
+    </UFormField>
+    <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Title" @click="addTitle" />
+  </div>
+</div>
 
         <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">

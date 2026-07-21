@@ -20,6 +20,7 @@ const { datasetId } = route.params as {
 };
 
 const data = ref<any>(null);
+const isPublishingStarted = ref(false);
 
 const fetchData = async () => {
   await $fetch(`/api/datasets/${datasetId}/publish`, {})
@@ -67,6 +68,11 @@ const timelineItems = ref<TimelineItem[]>([
     title: "Readme",
     description: "Add a readme to the dataset.",
     icon: "i-lucide-file-text",
+  },
+  { 
+    title: "Files", 
+    description: "Review dataset files.", 
+    icon: "i-lucide-folder-open" 
   },
   {
     title: "Publish",
@@ -174,6 +180,7 @@ const columns: TableColumn<{
 ];
 
 const publishDataset = async () => {
+  isPublishingStarted.value = true;
   publishLoading.value = true;
 
   pollingInterval.value = setInterval(async () => {
@@ -243,12 +250,15 @@ onUnmounted(() => {
 
     <div class="flex w-full flex-col gap-6 pb-16">
       <UStepper
-        :default-value="4"
+        :default-value="5"
         :items="timelineItems"
         class="mx-5 w-full pt-5"
       />
 
-      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+      <div 
+        v-if="isPublishingStarted"
+        class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
         <UTable
           :data="tableData"
           :columns="columns"
@@ -282,6 +292,15 @@ onUnmounted(() => {
       </UModal>
 
       <div class="flex justify-end gap-5">
+        <UButton
+          :to="`/app/datasets/${datasetId}/publish/files`"
+          class="w-full"
+          size="lg"
+          variant="outline"
+          label="Review Files"
+          icon="i-lucide-arrow-left"
+        />
+
         <UButton
           class="w-full"
           size="lg"

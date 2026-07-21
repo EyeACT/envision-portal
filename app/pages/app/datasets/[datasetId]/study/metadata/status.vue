@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import * as z from "zod";
+import { toRaw } from "vue";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
 
@@ -42,6 +43,18 @@ const { data, error } = await useFetch(
   {},
 );
 
+watch(() => state.startDate, (newDate) => {
+  if (newDate) {
+    state.startDateType = dayjs(newDate).isAfter(dayjs(), 'day') ? 'Anticipated' : 'Actual';
+  }
+});
+
+watch(() => state.completionDate, (newDate) => {
+  if (newDate) {
+    state.completionDateType = dayjs(newDate).isAfter(dayjs(), 'day') ? 'Anticipated' : 'Actual';
+  }
+});
+
 if (error.value) {
   toast.add({
     title: "Error fetching study",
@@ -66,11 +79,13 @@ if (data.value) {
   state.completionDateType = data.value.StudyStatus?.completionDateType ?? "";
   state.whyStopped = data.value.StudyStatus?.whyStopped ?? "";
 
-  originalStateString.value = JSON.stringify(state);
+  nextTick(() => {
+    originalStateString.value = JSON.stringify(toRaw(state));
+  });
 }
 
 const isDirty = computed(() => {
-  return JSON.stringify(state) !== originalStateString.value;
+  return JSON.stringify(toRaw(state)) !== originalStateString.value;
 });
 
 const { 
@@ -86,60 +101,21 @@ const validate = (state: any): FormError[] => {
   );
 
   if (!state.overallStatus) {
-    errors.push({
-      name: "overallStatus",
-      message: "Overall status is required",
-    });
+    errors.push({ name: "overallStatus", message: "Overall status is required" });
   }
 
   if (state.overallStatus && !enumValues.includes(state.overallStatus)) {
-    errors.push({
-      name: "overallStatus",
-      message: "Overall status must be a valid option",
-    });
+    errors.push({ name: "overallStatus", message: "Overall status must be a valid option" });
   }
 
-  if (
-    state.overallStatus === "Suspended" ||
-    state.overallStatus === "Terminated" ||
-    state.overallStatus === "Withdrawn"
-  ) {
-    if (!state.whyStopped) {
-      errors.push({
-        name: "whyStopped",
-        message:
-          "A valid reason is required when the study is suspended, terminated or withdrawn",
-      });
-    }
+  if (["Suspended", "Terminated", "Withdrawn"].includes(state.overallStatus) && !state.whyStopped) {
+    errors.push({ name: "whyStopped", message: "A valid reason is required when the study is suspended, terminated or withdrawn" });
   }
 
-  if (!state.startDate) {
-    errors.push({
-      name: "startDate",
-      message: "Start date is required",
-    });
-  }
-
-  if (!state.startDateType) {
-    errors.push({
-      name: "startDateType",
-      message: "Start date type is required",
-    });
-  }
-
-  if (!state.completionDate) {
-    errors.push({
-      name: "completionDate",
-      message: "Completion date is required",
-    });
-  }
-
-  if (!state.completionDateType) {
-    errors.push({
-      name: "completionDateType",
-      message: "Completion date type is required",
-    });
-  }
+  if (!state.startDate) errors.push({ name: "startDate", message: "Start date is required" });
+  if (!state.startDateType) errors.push({ name: "startDateType", message: "Start date type is required" });
+  if (!state.completionDate) errors.push({ name: "completionDate", message: "Completion date is required" });
+  if (!state.completionDateType) errors.push({ name: "completionDateType", message: "Completion date type is required" });
 
   return errors;
 };
@@ -147,24 +123,12 @@ const validate = (state: any): FormError[] => {
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
   isSubmitting.value = true;
-
-  const formData = event.data;
-
-  const b = {
-    completionDate: formData.completionDate,
-    completionDateType: formData.completionDateType,
-    overallStatus: formData.overallStatus,
-    startDate: formData.startDate,
-    startDateType: formData.startDateType,
-    whyStopped: formData.whyStopped,
-  };
-
+  
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/status`, {
-      body: b,
+    await $fetch(`/api/datasets/${datasetId}/study/metadata/status`, {
+      body: event.data,
       method: "PUT",
     });
-    console.log(res);
 
     toast.add({
       title: "Success",
@@ -172,10 +136,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       description: "The form has been submitted.",
     });
 
-    originalStateString.value = JSON.stringify(state);
+    originalStateString.value = JSON.stringify(toRaw(state));
   } catch (err) {
-    console.log(err);
-
     toast.add({
       title: "Error",
       color: "error",
@@ -197,13 +159,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         :items="[
           { label: 'Dashboard', to: '/app/dashboard' },
           { label: data?.title, to: `/app/datasets/${datasetId}` },
-          {
-            label: 'Study Metadata',
-          },
-          {
-            label: 'Status',
-            to: `/app/datasets/${datasetId}/study/metadata/status`,
-          },
+          { label: 'Study Metadata' },
+          { label: 'Status', to: `/app/datasets/${datasetId}/study/metadata/status` },
         ]"
       />
 
@@ -236,86 +193,38 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <USelect
                 v-model="state.overallStatus"
                 class="w-full"
-                placeholder="Recruiting"
+                placeholder="Select status"
                 :items="FORM_JSON.studyMetadataStatusOptions"
               />
             </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField
-                label="Start Date"
-                name="startDate"
-                class="w-full"
-                required
-              >
-                <UInput
-                  v-model="state.startDate"
-                  class="w-full"
-                  type="date"
-                  placeholder="1"
-                />
+              <UFormField label="Start Date" name="startDate" class="w-full" required>
+                <UInput v-model="state.startDate" class="w-full" type="date" />
               </UFormField>
 
-              <UFormField
-                label="Start Date Type"
-                name="startDateType"
-                class="w-full"
-                required
-              >
-                <USelect
-                  v-model="state.startDateType"
-                  class="w-full"
-                  placeholder="Actual"
-                  :items="FORM_JSON.studyMetadataEnrollmentTypeOptions"
-                />
+              <UFormField label="Start Date Type" name="startDateType" class="w-full" required>
+                <USelect v-model="state.startDateType" class="w-full" :items="FORM_JSON.studyMetadataEnrollmentTypeOptions" />
               </UFormField>
             </div>
-
-            <UFormField
-              label="Why Stopped"
-              name="whyStopped"
-              :required="
-                state.overallStatus === 'Suspended' ||
-                state.overallStatus === 'Terminated' ||
-                state.overallStatus === 'Withdrawn'
-              "
-            >
-              <UTextarea
-                v-model="state.whyStopped"
-                class="w-full"
-                placeholder="Enter a reason for stopping the study."
-              />
-            </UFormField>
 
             <div class="flex w-full gap-4">
-              <UFormField
-                label="Completion Date"
-                name="completionDate"
-                class="w-full"
-                required
-              >
-                <UInput
-                  v-model="state.completionDate"
-                  class="w-full"
-                  type="date"
-                  placeholder="1"
-                />
+              <UFormField label="Completion Date" name="completionDate" class="w-full" required>
+                <UInput v-model="state.completionDate" class="w-full" type="date" />
               </UFormField>
 
-              <UFormField
-                label="Completion Date Type"
-                name="completionDateType"
-                class="w-full"
-                required
-              >
-                <USelect
-                  v-model="state.completionDateType"
-                  class="w-full"
-                  placeholder="Actual"
-                  :items="FORM_JSON.studyMetadataEnrollmentTypeOptions"
-                />
+              <UFormField label="Completion Date Type" name="completionDateType" class="w-full" required>
+                <USelect v-model="state.completionDateType" class="w-full" :items="FORM_JSON.studyMetadataEnrollmentTypeOptions" />
               </UFormField>
             </div>
+            <UFormField
+              v-if="state.completionDate && ['Suspended', 'Terminated', 'Withdrawn'].includes(state.overallStatus)"
+              label="Why Stopped"
+              name="whyStopped"
+              required
+            >
+              <UTextarea v-model="state.whyStopped" class="w-full" placeholder="Enter a reason for stopping the study." />
+            </UFormField>
           </div>
         </div>
       </UForm>
@@ -346,7 +255,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </p>
           <div class="flex justify-end gap-3 pt-2">
             <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
           </div>
         </div>
       </template>

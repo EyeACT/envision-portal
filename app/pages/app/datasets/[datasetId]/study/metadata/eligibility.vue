@@ -513,116 +513,67 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField
-              label="Inclusion Criteria"
-              name="inclusionCriteria"
-              required
-            >
-              <div v-if="state.inclusionCriteria.length > 0">
-                <div
-                  v-for="(item, index) in state.inclusionCriteria"
-                  :key="index"
-                  class="mb-2 flex gap-2"
-                >
-                  <UFormField
-                    :name="`inclusionCriteria-${index}`"
-                    class="flex-1"
-                  >
-                    <UInput
-                      v-model="state.inclusionCriteria[index]"
-                      class="w-full"
-                      placeholder="Inclusion Criteria rule item"
-                    />
-                  </UFormField>
-
-                  <div class="flex items-start gap-2">
-                    <UButton
-                      size="sm"
-                      color="error"
-                      variant="outline"
-                      icon="i-lucide-trash"
-                      @click="state.inclusionCriteria.splice(index, 1)"
-                    />
-                    <UButton
-                      size="sm"
-                      color="success"
-                      variant="outline"
-                      icon="i-lucide-plus"
-                      @click="state.inclusionCriteria.splice(index + 1, 0, '')"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div v-else>
-                <UButton
-                  :disabled="!state.studyType"
-                  size="sm"
-                  class="w-full"
-                  color="success"
-                  variant="outline"
-                  label="Add Inclusion Criteria"
-                  icon="i-lucide-plus"
-                  @click="state.inclusionCriteria.push('')"
+          <UFormField label="Inclusion Criteria" name="inclusionCriteria" required>
+            <div v-for="(item, index) in state.inclusionCriteria" :key="index" class="mb-4 flex items-start gap-2">
+              <UInput 
+                v-model="state.inclusionCriteria[index]" 
+                class="w-full" 
+                placeholder="Inclusion Criteria rule item" 
+              />
+              
+              <div class="mt-0.5">
+                <UButton 
+                  size="sm" 
+                  color="error" 
+                  variant="outline" 
+                  icon="i-lucide-trash" 
+                  @click="state.inclusionCriteria.splice(index, 1)" 
                 />
               </div>
-            </UFormField>
+            </div>
 
-            <UFormField
-              label="Exclusion Criteria"
-              name="exclusionCriteria"
-              required
-            >
-              <div v-if="state.exclusionCriteria.length > 0">
-                <div
-                  v-for="(item, index) in state.exclusionCriteria"
-                  :key="index"
-                  class="mb-2 flex gap-2"
-                >
-                  <UFormField
-                    class="flex-1"
-                    :name="`exclusionCriteria[${index}]`"
-                  >
-                    <UInput
-                      v-model="state.exclusionCriteria[index]"
-                      class="w-full"
-                      :name="`exclusionCriteria[${index}]`"
-                      placeholder="Exclusion Criteria rule item"
-                    />
-                  </UFormField>
+            <UButton
+              :disabled="!state.studyType"
+              size="sm"
+              class="w-full"
+              color="success"
+              variant="outline"
+              label="Add Inclusion Criteria"
+              icon="i-lucide-plus"
+              @click="state.inclusionCriteria.push('')"
+            />
+          </UFormField>
 
-                  <div class="flex items-start gap-2">
-                    <UButton
-                      size="sm"
-                      color="error"
-                      variant="outline"
-                      icon="i-lucide-trash"
-                      @click="state.exclusionCriteria.splice(index, 1)"
-                    />
-                    <UButton
-                      size="sm"
-                      color="success"
-                      variant="outline"
-                      icon="i-lucide-plus"
-                      @click="state.exclusionCriteria.splice(index + 1, 0, '')"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div v-else>
-                <UButton
-                  :disabled="!state.studyType"
-                  size="sm"
-                  class="w-full"
-                  color="success"
-                  variant="outline"
-                  label="Add Exclusion Criteria"
-                  icon="i-lucide-plus"
-                  @click="state.exclusionCriteria.push('')"
+          <UFormField label="Exclusion Criteria" name="exclusionCriteria" required>
+            <div v-for="(item, index) in state.exclusionCriteria" :key="index" class="mb-4 flex items-start gap-2">
+              <UInput 
+                v-model="state.exclusionCriteria[index]" 
+                class="w-full" 
+                placeholder="Exclusion Criteria rule item" 
+              />
+              
+              <div class="mt-0.5">
+                <UButton 
+                  size="sm" 
+                  color="error" 
+                  variant="outline" 
+                  icon="i-lucide-trash" 
+                  @click="state.exclusionCriteria.splice(index, 1)" 
                 />
               </div>
-            </UFormField>
+            </div>
+
+            <UButton
+              :disabled="!state.studyType"
+              size="sm"
+              class="w-full"
+              color="success"
+              variant="outline"
+              label="Add Exclusion Criteria"
+              icon="i-lucide-plus"
+              @click="state.exclusionCriteria.push('')"
+            />
+          </UFormField>
           </div>
         </div>
       </UForm>
