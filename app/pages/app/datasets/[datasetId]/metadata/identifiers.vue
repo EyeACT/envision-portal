@@ -19,6 +19,9 @@ const saveLoading = ref(false);
 const isSubmitting = ref(false);
 const initialRawData = ref<string>("");
 
+// Keep track of touched/blurred fields to show inline errors on blur
+const touchedFields = reactive<Record<string, boolean>>({});
+
 const schema = z.object({
   secondaryIdentifiers: z.array(
     z.object({
@@ -80,7 +83,6 @@ const {
   cancelLeave 
 } = useUnsavedChangesGuard({ isDirty, isSubmitting });
 
-
 const addSecondaryIdentifier = () => {
   state.secondaryIdentifiers.push({
     id: nanoid(),
@@ -102,6 +104,23 @@ const removeSecondaryIdentifier = (index: number) => {
   } else {
     secondaryIdentifier.deleted = true;
   }
+};
+
+// Helper to check format based on identifier type
+const getFormatError = (identifier: string, type: string): string | null => {
+  if (!identifier?.trim()) return null;
+  const cleanType = type?.trim().toUpperCase();
+
+  if (cleanType === "DOI") {
+    // Basic DOI regex pattern check (e.g. 10.xxxx/...)
+    const doiRegex = /^10.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+    if (!doiRegex.test(identifier.trim())) {
+      return "Invalid DOI format (e.g., 10.1000/182)";
+    }
+  }
+  // Add other type-specific validations here if needed (e.g. URL, RRID, etc.)
+
+  return null;
 };
 
 const validate = (state: any): FormError[] => {
@@ -131,16 +150,32 @@ const validate = (state: any): FormError[] => {
     state.secondaryIdentifiers.forEach((item: any, index: number) => {
       if (item.deleted) return;
 
+      const identifierKey = `secondary-identifier-${index}`;
+      const typeKey = `secondary-type-${index}`;
+
+      // Only evaluate format rules if field has been touched or form is submitting
+      const shouldCheckFormat = touchedFields[identifierKey] || isSubmitting.value;
+
       if (!item.identifier?.trim()) {
-        errors.push({
-          name: `secondary-identifier-${index}`,
-          message: "Identifier value is required.",
-        });
+        if (shouldCheckFormat) {
+          errors.push({
+            name: identifierKey,
+            message: "Identifier value is required.",
+          });
+        }
+      } else if (shouldCheckFormat) {
+        const formatErr = getFormatError(item.identifier, item.type);
+        if (formatErr) {
+          errors.push({
+            name: identifierKey,
+            message: formatErr,
+          });
+        }
       }
 
-      if (!item.type?.trim()) {
+      if (!item.type?.trim() && (touchedFields[typeKey] || isSubmitting.value)) {
         errors.push({
-          name: `secondary-type-${index}`,
+          name: typeKey,
           message: "Identifier type is required.",
         });
       }
@@ -150,7 +185,12 @@ const validate = (state: any): FormError[] => {
   return errors;
 };
 
+const handleBlur = (fieldKey: string) => {
+  touchedFields[fieldKey] = true;
+};
+
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
+  isSubmitting.value = true;
   saveLoading.value = true;
 
   const formData = event.data;
@@ -185,7 +225,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         description: "The form has been submitted.",
       });
 
-      isSubmitting.value = true;
       window.location.reload();
     })
     .catch((err) => {
@@ -196,6 +235,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         color: "error",
         description: "The form submission encountered an error.",
       });
+      isSubmitting.value = false;
     })
     .finally(() => {
       saveLoading.value = false;
@@ -308,21 +348,24 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       <UInput
                         v-model="item.identifier"
                         placeholder="10.1000/182"
+                        @blur="handleBlur(`secondary-identifier-${index}`)"
                       />
                     </UFormField>
 
-                  <UFormField
-                    :name="`secondary-type-${index}`"
-                    label="Type"
-                    required
-                  >
-                    <USelect
-                      v-model="item.type"
-                      class="w-full"
-                      placeholder="DOI"
-                      :items="FORM_JSON.datasetIdentifierTypeOptions"
-                    />
-                  </UFormField>
+                    <UFormField
+                      :name="`secondary-type-${index}`"
+                      label="Type"
+                      required
+                    >
+                      <USelect
+                        v-model="item.type"
+                        class="w-full"
+                        placeholder="DOI"
+                        :items="FORM_JSON.datasetIdentifierTypeOptions"
+                        @blur="handleBlur(`secondary-type-${index}`)"
+                        @change="handleBlur(`secondary-identifier-${index}`)"
+                      />
+                    </UFormField>
                   </div>
                 </CardCollapsible>
               </UFormField>
@@ -366,7 +409,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           
           <div class="flex justify-end gap-3 pt-2">
             <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
           </div>
         </div>
       </template>
