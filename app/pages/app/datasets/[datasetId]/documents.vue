@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDocuments, DOCUMENT_TYPES, type StudyDocument } from "@/composables/useDocuments";
+import {BlockBlobClient} from "@azure/storage-blob";
 
 definePageMeta({
   middleware: ["auth"],
@@ -53,8 +54,27 @@ const onUpload = async () => {
   }
   uploadLoading.value = true;
 
-  // Mock upload — replace with real Azure upload call
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  const formData = new FormData()
+  formData.append("file", uploadFile.value)
+  formData.append("fileName", uploadName.value)
+  formData.append("fileType", uploadType.value ?? "")
+  formData.append("fileExtension", uploadName.value.split(".").pop() ?? "")
+
+  console.log(uploadFile)
+
+
+  try {
+    let res = await $fetch(`/api/datasets/${datasetId}/documents`, {
+      body: formData, 
+      method: "POST"
+    })
+
+
+    console.log("Finished with upload to Documents folder")
+  } catch (err) {
+    console.error(err)
+  }
+
 
   const ext = uploadFile.value.name.split(".").pop()?.toLowerCase() ?? "file";
   documents.value.unshift({
