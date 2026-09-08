@@ -13,7 +13,7 @@ const timelineItems = [
       "Platform foundation: architecture, standards, and first build (2024/2025)",
     list: [
       "Agree on the technical architecture and end-to-end user workflow so everyone is aligned on the big decisions",
-      "Identify data standards to make datasets FAIR and AI-ready (CDS structure, DICOM for imaging, OMOP for clinical tables)",
+      "Identify data standards to make datasets FAIR and AI-ready (CMDS structure, DICOM for imaging, OMOP for clinical tables)",
       "Create initial wireframes and start building the core platform code",
       "Set up an open-source development approach (public GitHub, contributor-friendly structure)",
     ],

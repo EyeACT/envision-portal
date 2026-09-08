@@ -67,3 +67,8 @@ The application uses Prisma to interact with the database.
 ### UI
 
 The application uses [Nuxt UI](https://ui.nuxt.com) to build the UI components. It also uses [Tailwind CSS](https://tailwindcss.com) for styling.
+
+### CMDS Validator
+
+In-browser CMDS path/filename check before upload. See [docs/cmds-validator.md](docs/cmds-validator.md).
+
