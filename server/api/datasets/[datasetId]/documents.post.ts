@@ -2,13 +2,23 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import type { H3Event, MultiPartData } from "h3"
 
 // TODO: Decide return object schema [wip]
-// TODO: file type validation on backend [wip]
-// TODO: refactor, potentially, to include errors with connecting to Azure being sent up/logged (if logging even happens app wide)
-// TODO: Add Database call to check the dataset id exists
-// TODO: Create database entry for the uploaded file in new table
-// TODO: Add guards for undefined values
-// TODO: Eventually add permissions (if not already in place elsewhere) RBAC perhaps
-// TODO: Automated tests?
+// TODO: file extension validation on backend [done]
+// TODO: file type validation [wip]
+// TODO: Raise specific errors for not being able to connect to Azure [wip]
+// TODO: Add Database call to check the dataset id exists [wip]
+// TODO: Create database entry for the uploaded file in new table [wip]
+// TODO: Add guards for undefined values [wip]
+// TODO: Eventually add permissions (if not already in place elsewhere) RBAC perhaps [?]
+// TODO: Automated tests? [?]
+
+const acceptedDocumentExtensions = [
+  "pdf",
+  "md",
+  "txt",
+  "docx",
+  "xlsx",
+  "csv"
+]
 
 
 export default defineEventHandler(async (event) => {
@@ -16,6 +26,8 @@ export default defineEventHandler(async (event) => {
   const { datasetId } = event.context.params as { datasetId: string };
 
   const { file, fileName, fileType, fileExtension } = await parseDocumentUploadForm(event)
+
+  validateDocument(fileExtension, fileType)
 
   const blobName = `${datasetId}/${fileName}`
 
@@ -87,4 +99,15 @@ async function parseDocumentUploadForm(event: H3Event): Promise<DocumentUploadFo
   }
 
   return { file, fileName, fileType, fileExtension }
+}
+
+
+function validateDocument(fileExtension: string, fileType: string | undefined) {
+  const validExtension = acceptedDocumentExtensions.find((extension) => extension === fileExtension)
+  if (!validExtension) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `File must be one of: ${acceptedDocumentExtensions.toString()}`
+    })
+  }
 }
