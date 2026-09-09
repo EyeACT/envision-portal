@@ -15,3 +15,12 @@ export const DOCUMENT_TYPES = [
   { label: "Other", value: "other" },
 ] as const;
 
+export const acceptedDocumentExtensions = [
+  "pdf",
+  "md",
+  "txt",
+  "docx",
+  "xlsx",
+  "csv"
+]
+

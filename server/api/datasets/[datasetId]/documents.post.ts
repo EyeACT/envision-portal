@@ -1,6 +1,6 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import type { H3Event, MultiPartData } from "h3"
-import { DOCUMENT_TYPES } from "#shared/constants/documents"
+import { DOCUMENT_TYPES, acceptedDocumentExtensions } from "#shared/constants/documents"
 
 
 // TODO: Decide return object schema [wip]
@@ -13,14 +13,7 @@ import { DOCUMENT_TYPES } from "#shared/constants/documents"
 // TODO: Eventually add permissions (if not already in place elsewhere) RBAC perhaps [?]
 // TODO: Automated tests? [?]
 
-const acceptedDocumentExtensions = [
-  "pdf",
-  "md",
-  "txt",
-  "docx",
-  "xlsx",
-  "csv"
-]
+
 
 
 export default defineEventHandler(async (event) => {
