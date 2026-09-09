@@ -60,11 +60,9 @@ const onUpload = async () => {
   formData.append("fileType", uploadType.value ?? "")
   formData.append("fileExtension", uploadName.value.split(".").pop() ?? "")
 
-  console.log(uploadFile)
-
 
   try {
-    let res = await $fetch(`/api/datasets/${datasetId}/documents`, {
+    await $fetch(`/api/datasets/${datasetId}/documents`, {
       body: formData, 
       method: "POST"
     })
