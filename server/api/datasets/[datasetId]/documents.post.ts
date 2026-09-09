@@ -3,9 +3,9 @@ import type { H3Event, MultiPartData } from "h3"
 import { DOCUMENT_TYPES, acceptedDocumentExtensions } from "#shared/constants/documents"
 
 
-// TODO: Decide return object schema [wip]
+// TODO: Decide return object schema [done]
 // TODO: file extension validation on backend [done]
-// TODO: file type validation [wip]
+// TODO: file type validation [done]
 // TODO: Raise specific errors for not being able to connect to Azure [wip]
 // TODO: Add Database call to check the dataset id exists [wip]
 // TODO: Create database entry for the uploaded file in new table [wip]
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
   await uploadDocumentsBlob(file.data, blobName, file.type)
 
-  return { uploadedDocuments: 1 }
+  return { statusCode: 201 }
 
 })
 
