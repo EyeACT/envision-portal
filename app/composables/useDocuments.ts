@@ -1,5 +1,6 @@
 import prettyBytes from "pretty-bytes";
 import dayjs from "dayjs";
+import { DOCUMENT_TYPES } from "#shared/constants/documents"
 
 export interface StudyDocument {
   id: string;
@@ -10,22 +11,7 @@ export interface StudyDocument {
   fileExtension: string;
 }
 
-export const DOCUMENT_TYPES = [
-  { label: "Manual of Procedures (MOP)", value: "mop" },
-  { label: "Study Protocol", value: "study_protocol" },
-  { label: "Informed Consent Form (ICF)", value: "icf" },
-  { label: "HIPAA Authorization / Privacy Notice", value: "hipaa" },
-  { label: "Data Dictionary", value: "data_dictionary" },
-  { label: "Case Report Form (CRF)", value: "crf" },
-  { label: "IRB / Ethics Approval Letter", value: "irb" },
-  { label: "Data Use Agreement (DUA)", value: "dua" },
-  { label: "Statistical Analysis Plan (SAP)", value: "sap" },
-  { label: "Protocol Amendment", value: "amendment" },
-  { label: "Training Materials", value: "training" },
-  { label: "Site Agreement", value: "site_agreement" },
-  { label: "Regulatory Correspondence", value: "regulatory" },
-  { label: "Other", value: "other" },
-] as const;
+
 
 // Module-level singleton so all composable callers share the same reactive list
 const documents = ref<StudyDocument[]>([

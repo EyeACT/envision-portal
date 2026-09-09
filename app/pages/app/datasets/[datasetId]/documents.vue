@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useDocuments, DOCUMENT_TYPES, type StudyDocument } from "@/composables/useDocuments";
-import {BlockBlobClient} from "@azure/storage-blob";
+import { useDocuments, type StudyDocument } from "@/composables/useDocuments";
+import {DOCUMENT_TYPES} from "#shared/constants/documents"
 
 definePageMeta({
   middleware: ["auth"],

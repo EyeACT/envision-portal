@@ -1,5 +1,7 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import type { H3Event, MultiPartData } from "h3"
+import { DOCUMENT_TYPES } from "#shared/constants/documents"
+
 
 // TODO: Decide return object schema [wip]
 // TODO: file extension validation on backend [done]
@@ -110,4 +112,15 @@ function validateDocument(fileExtension: string, fileType: string | undefined) {
       statusMessage: `File must be one of: ${acceptedDocumentExtensions.toString()}`
     })
   }
+
+
+  const validDocumentTypes = DOCUMENT_TYPES.map(entry => entry.value)
+  const isValidDocumentType = !fileType || validDocumentTypes.find(docType => docType === fileType)
+  if (!isValidDocumentType) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `File must be one of: ${DOCUMENT_TYPES.map(entry => entry.value).toString()}`
+    })
+  }
+
 }
