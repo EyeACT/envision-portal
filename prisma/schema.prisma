@@ -130,6 +130,8 @@ model Dataset {
     StudyLocation         StudyLocation[]
 
     ControlledDatasetRequest ControlledDatasetRequest[]
+
+    Document Document[]
 }
 
 model Document {
