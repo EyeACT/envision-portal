@@ -132,6 +132,17 @@ model Dataset {
     ControlledDatasetRequest ControlledDatasetRequest[]
 }
 
+model Document {
+    id String @id @default(cuid(2))
+    datasetId String @id
+    dataset Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+    storagePath String 
+    documentName String
+    documentType String
+    mimeType String
+    created DateTime @default(now())
+}
+
 model DatasetMember {
     datasetId String
     dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
