@@ -57,7 +57,10 @@ const documents = ref<StudyDocument[]>([
   },
 ]);
 
-export function useDocuments() {
+export function useDocuments(datasetId: string) {
+
+  const error = ref(null)
+
   const formatBytes = (bytes: number) => prettyBytes(bytes);
 
   const formatDate = (iso: string) => dayjs(iso).format("MMM D, YYYY");
@@ -75,6 +78,23 @@ export function useDocuments() {
       return { name: "vscode-icons:file-type-powerpoint", color: "" };
     return { name: "material-symbols:description", color: "text-gray-400" };
   };
+
+  $fetch(`/api/datasets/${datasetId}/documents`)
+    .then(docs => {
+      // match docs to StudyDocument
+      docs.forEach(doc => {
+        documents.value.push({
+          id: doc.id,
+          name: doc.documentName,
+          type: doc.documentType,
+          size: 4000,
+          uploadedAt: doc.created,
+          fileExtension: doc.documentName.split(".").at(-1)!
+        })
+      })
+    })
+    .catch(err => error.value = err)
+
 
   return {
     documents,

@@ -13,7 +13,8 @@ const { datasetId } = route.params as { datasetId: string };
 
 useSeoMeta({ title: "Documents" });
 
-const { documents, formatBytes, formatDate, docTypeLabel, fileIcon } = useDocuments();
+const { documents, formatBytes, formatDate, docTypeLabel, fileIcon } = useDocuments(datasetId);
+
 
 // Upload modal
 const showUploadModal = ref(false);
@@ -62,10 +63,12 @@ const onUpload = async () => {
 
 
   try {
-    await $fetch(`/api/datasets/${datasetId}/documents`, {
+    const res = await $fetch(`/api/datasets/${datasetId}/documents`, {
       body: formData, 
       method: "POST"
     })
+
+    console.log(res)
 
 
     console.log("Finished with upload to Documents folder")
