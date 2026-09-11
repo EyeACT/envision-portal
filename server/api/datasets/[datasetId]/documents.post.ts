@@ -1,6 +1,7 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import type { H3Event, MultiPartData } from "h3"
 import { DOCUMENT_TYPES, acceptedDocumentExtensions } from "#shared/constants/documents"
+import { fileTypeFromBuffer } from 'file-type';
 
 
 // TODO: Decide return object schema [done]
@@ -26,14 +27,27 @@ export default defineEventHandler(async (event) => {
 
   const blobName = `${datasetId}/${fileName}`
 
-  await uploadDocumentsBlob(file.data, blobName, file.type)
+  const mimeType = await getMimeType(file)
+
+
+  await uploadDocumentsBlob(file.data, blobName, mimeType)
+
+  await prisma.document.create({
+    data: {
+      documentName: fileName,
+      documentType: fileType,
+      storagePath: `documents/${blobName}`,
+      mimeType: mimeType,
+      datasetId: datasetId
+    }
+  })
 
   return { statusCode: 201 }
 
 })
 
 
-async function uploadDocumentsBlob(fileData: Buffer | Uint8Array, blobName: string, mimeType?: string) {
+async function uploadDocumentsBlob(fileData: Buffer | Uint8Array, blobName: string, mimeType: string) {
   const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
 
   const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_DRAFT_CONNECTION_STRING);
@@ -116,4 +130,13 @@ function validateDocument(fileExtension: string, fileType: string | undefined) {
     })
   }
 
+}
+
+
+const getMimeType = async (file: MultiPartData) => {
+  const fileInfo = await fileTypeFromBuffer(file.data)
+
+  let mimeType = fileInfo?.mime ?? ""
+
+  return mimeType
 }
