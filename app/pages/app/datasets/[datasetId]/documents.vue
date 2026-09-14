@@ -106,8 +106,17 @@ const onDelete = async () => {
   if (!deleteTarget.value) return;
   deleteLoading.value = true;
 
+  let doc = deleteTarget.value
+  let documentId = doc.id
+
   // Mock delete — replace with real API call
   await new Promise((resolve) => setTimeout(resolve, 400));
+  await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
+    method: "DELETE",
+    body: {
+      document: deleteTarget.value
+    }
+  })
 
   documents.value = documents.value.filter((d) => d.id !== deleteTarget.value!.id);
   deleteLoading.value = false;

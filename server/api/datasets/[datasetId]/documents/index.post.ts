@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
     data: {
       documentName: fileName,
       documentType: fileType,
-      storagePath: `documents/${blobName}`,
+      storagePath: blobName,
       mimeType: mimeType,
       datasetId: datasetId
     }
