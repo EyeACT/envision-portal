@@ -188,6 +188,11 @@ const datasetNavItems = [
     route: "permissions",
   },
   { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
+  {
+    name: "CMDS Validator",
+    icon: "mdi:folder-check-outline",
+    route: "validator",
+  },
   { name: "Data Upload", icon: "heroicons-outline:upload", route: "upload" },
   {
     name: "Data Processing",
