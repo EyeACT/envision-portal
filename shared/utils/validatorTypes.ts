@@ -16,12 +16,20 @@ export interface Issue {
   stage: ValidationStage;
 }
 
+export interface DatasetTreeNode {
+  id: string;
+  label: string;
+  kind: "datatype" | "modality" | "device" | "participant" | "file";
+  children?: DatasetTreeNode[];
+}
+
 export interface Summary {
   totalFiles: number;
   datatypes: string[];
   modalities: string[];
   devices: string[];
   participants: string[];
+  tree: DatasetTreeNode[];
 }
 
 export interface ValidationResult {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { validateCMDS } from "#shared/utils/cmdsValidator";
 import type {
+  DatasetTreeNode,
   Issue,
   ScannedFile,
   ValidationResult,
@@ -22,6 +23,7 @@ const isValidating = ref(false);
 const folderName = ref("");
 const result = ref<ValidationResult | null>(null);
 const issueFilter = ref<"all" | "ERROR" | "WARNING">("all");
+const selectedDatatype = ref<string | null>(null);
 
 const { data, error } = await useFetch(`/api/datasets/${datasetId}`);
 
@@ -61,12 +63,58 @@ const filteredIssues = computed<Issue[]>(() => {
   return issues.filter((issue) => issue.severity === issueFilter.value);
 });
 
-const sortedParticipants = computed(() => {
-  const ids = result.value?.summary.participants ?? [];
-  return [...ids].sort((a, b) =>
-    a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }),
+const TREE_ICONS: Record<DatasetTreeNode["kind"], string> = {
+  datatype: "i-lucide-folder",
+  modality: "i-lucide-folder-tree",
+  device: "i-lucide-hard-drive",
+  participant: "i-lucide-user",
+  file: "i-lucide-file",
+};
+
+type SummaryTreeItem = {
+  id: string;
+  label: string;
+  icon: string;
+  defaultExpanded?: boolean;
+  children?: SummaryTreeItem[];
+};
+
+const toTreeItems = (nodes: DatasetTreeNode[]): SummaryTreeItem[] =>
+  nodes.map((node) => ({
+    id: node.id,
+    label: node.label,
+    icon: TREE_ICONS[node.kind],
+    defaultExpanded: node.kind === "modality",
+    children: node.children?.length ? toTreeItems(node.children) : undefined,
+  }));
+
+const countTreeNodes = (nodes: DatasetTreeNode[]): number =>
+  nodes.reduce(
+    (count, node) => count + 1 + countTreeNodes(node.children ?? []),
+    0,
   );
+
+const selectedDatatypeNode = computed(() =>
+  result.value?.summary.tree.find(
+    (node) => node.label === selectedDatatype.value,
+  ),
+);
+
+const summaryTreeItems = computed(() => {
+  const children = selectedDatatypeNode.value?.children ?? [];
+  return toTreeItems(children);
 });
+
+const virtualizeSummaryTree = computed(
+  () => countTreeNodes(selectedDatatypeNode.value?.children ?? []) > 400,
+);
+
+watch(
+  () => result.value?.summary.datatypes ?? [],
+  (datatypes) => {
+    selectedDatatype.value = datatypes[0] ?? null;
+  },
+);
 
 const openFolderPicker = () => {
   folderInput.value?.click();
@@ -76,6 +124,7 @@ const resetValidation = () => {
   result.value = null;
   folderName.value = "";
   issueFilter.value = "all";
+  selectedDatatype.value = null;
   if (folderInput.value) {
     folderInput.value.value = "";
   }
@@ -324,89 +373,61 @@ const onFolderSelected = async (event: Event) => {
               Dataset summary
             </h2>
 
-            <div class="space-y-3">
-              <div>
-                <p class="mb-2 text-sm text-gray-500">Datatypes</p>
-                <div class="flex flex-wrap gap-2">
-                  <UBadge
-                    v-for="item in result.summary.datatypes"
-                    :key="item"
-                    color="primary"
-                    variant="soft"
-                  >
-                    {{ item }}
-                  </UBadge>
-                  <span
-                    v-if="!result.summary.datatypes.length"
-                    class="text-sm text-gray-400"
-                  >
-                    None found
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <p class="mb-2 text-sm text-gray-500">Modalities</p>
-                <div class="flex flex-wrap gap-2">
-                  <UBadge
-                    v-for="item in result.summary.modalities"
-                    :key="item"
-                    color="neutral"
-                    variant="soft"
-                  >
-                    {{ item }}
-                  </UBadge>
-                  <span
-                    v-if="!result.summary.modalities.length"
-                    class="text-sm text-gray-400"
-                  >
-                    None found
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <p class="mb-2 text-sm text-gray-500">Devices</p>
-                <div class="flex flex-wrap gap-2">
-                  <UBadge
-                    v-for="item in result.summary.devices"
-                    :key="item"
-                    color="neutral"
-                    variant="soft"
-                  >
-                    {{ item }}
-                  </UBadge>
-                  <span
-                    v-if="!result.summary.devices.length"
-                    class="text-sm text-gray-400"
-                  >
-                    None found
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <p class="mb-2 text-sm text-gray-500">
-                  Participants ({{ result.summary.participants.length }})
-                </p>
-                <div class="flex max-h-40 flex-wrap gap-2 overflow-y-auto">
-                  <UBadge
-                    v-for="item in sortedParticipants"
-                    :key="item"
-                    color="neutral"
-                    variant="outline"
-                  >
-                    {{ item }}
-                  </UBadge>
-                  <span
-                    v-if="!result.summary.participants.length"
-                    class="text-sm text-gray-400"
-                  >
-                    None found
-                  </span>
-                </div>
+            <div>
+              <p class="mb-1 text-sm text-gray-500">Datatypes</p>
+              <p class="mb-3 text-xs text-gray-400">
+                Select a datatype to view its folder tree.
+              </p>
+              <div
+                class="flex flex-wrap gap-2"
+                role="radiogroup"
+                aria-label="Select a datatype"
+              >
+                <UButton
+                  v-for="item in result.summary.datatypes"
+                  :key="item"
+                  size="sm"
+                  color="primary"
+                  :variant="selectedDatatype === item ? 'solid' : 'soft'"
+                  class="rounded-full"
+                  :aria-pressed="selectedDatatype === item"
+                  @click="selectedDatatype = item"
+                >
+                  {{ item }}
+                </UButton>
+                <span
+                  v-if="!result.summary.datatypes.length"
+                  class="text-sm text-gray-400"
+                >
+                  None found
+                </span>
               </div>
             </div>
+
+            <p v-if="selectedDatatype" class="text-sm text-gray-500">
+              Datatype / modality / device / participant
+            </p>
+
+            <div
+              v-if="summaryTreeItems.length"
+              class="max-h-[32rem] overflow-y-auto"
+            >
+              <UTree
+                :key="selectedDatatype ?? 'tree'"
+                color="neutral"
+                :items="summaryTreeItems"
+                :get-key="(item: SummaryTreeItem) => item.id"
+                :virtualize="virtualizeSummaryTree"
+                :class="virtualizeSummaryTree ? 'h-80' : undefined"
+              />
+            </div>
+            <p v-else class="text-sm text-gray-400">
+              {{
+                selectedDatatype
+                  ? "No nested folders for this datatype."
+                  : "None found"
+              }}
+            </p>
           </div>
 
           <div

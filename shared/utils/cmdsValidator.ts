@@ -4,6 +4,7 @@ import type {
   Issue,
   Summary,
   ValidationResult,
+  DatasetTreeNode,
 } from "./validatorTypes";
 import { defaultConfig, type CMDSConfig } from "./cmdsConfig";
 
@@ -100,7 +101,102 @@ function emptySummary(totalFiles: number): Summary {
     modalities: [],
     devices: [],
     participants: [],
+    tree: [],
   };
+}
+
+interface MutableTreeNode {
+  id: string;
+  label: string;
+  kind: DatasetTreeNode["kind"];
+  children: Map<string, MutableTreeNode>;
+}
+
+function ensureChild(
+  parent: MutableTreeNode,
+  label: string,
+  kind: DatasetTreeNode["kind"],
+): MutableTreeNode {
+  let child = parent.children.get(label);
+  if (!child) {
+    child = {
+      id: `${parent.id}/${label}`,
+      label,
+      kind,
+      children: new Map(),
+    };
+    parent.children.set(label, child);
+  }
+  return child;
+}
+
+function addNestedTreePath(
+  roots: Map<string, MutableTreeNode>,
+  parts: string[],
+  skipNested: boolean,
+) {
+  const datatype = parts[0];
+  if (!datatype) return;
+
+  let dt = roots.get(datatype);
+  if (!dt) {
+    dt = {
+      id: datatype,
+      label: datatype,
+      kind: "datatype",
+      children: new Map(),
+    };
+    roots.set(datatype, dt);
+  }
+
+  if (skipNested) {
+    const child = parts[1];
+    if (child) ensureChild(dt, child, "file");
+    return;
+  }
+
+  if (parts.length === 2) {
+    ensureChild(dt, parts[1]!, "file");
+    return;
+  }
+
+  if (!parts[1]) return;
+  const modality = ensureChild(dt, parts[1], "modality");
+  if (!parts[2] || parts.length < 3) return;
+  const device = ensureChild(modality, parts[2], "device");
+  if (!parts[3] || parts.length < 4) return;
+  const participantLabel = normalizeParticipantId(parts[3]) || parts[3];
+  ensureChild(device, participantLabel, "participant");
+}
+
+function toDatasetTree(roots: Map<string, MutableTreeNode>): DatasetTreeNode[] {
+  const convert = (node: MutableTreeNode): DatasetTreeNode => ({
+    id: node.id,
+    label: node.label,
+    kind: node.kind,
+    children: node.children.size
+      ? [...node.children.values()].map(convert)
+      : undefined,
+  });
+
+  return sortTreeChildren([...roots.values()].map(convert));
+}
+
+function sortTreeChildren(nodes: DatasetTreeNode[]): DatasetTreeNode[] {
+  return nodes
+    .slice()
+    .sort((a, b) =>
+      a.label.localeCompare(b.label, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      }),
+    )
+    .map((node) => ({
+      ...node,
+      children: node.children?.length
+        ? sortTreeChildren(node.children)
+        : undefined,
+    }));
 }
 
 function validatePathStage(
@@ -121,6 +217,7 @@ function validatePathStage(
   const modalities = new Set<string>();
   const devices = new Set<string>();
   const participants = new Set<string>();
+  const treeRoots = new Map<string, MutableTreeNode>();
   const foundRootFiles = new Set<string>();
   const foundDatatypeFiles = new Map<string, Set<string>>();
   const foundDatatypeDirs = new Set<string>();
@@ -191,6 +288,7 @@ function validatePathStage(
     }
 
     datatypes.add(datatype);
+    addNestedTreePath(treeRoots, parts, ctx.skipNested.has(datatype));
 
     if (!foundDatatypeFiles.has(datatype)) {
       foundDatatypeFiles.set(datatype, new Set());
@@ -331,6 +429,7 @@ function validatePathStage(
       participants: Array.from(participants).sort((a, b) =>
         a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }),
       ),
+      tree: toDatasetTree(treeRoots),
     },
   };
 }
