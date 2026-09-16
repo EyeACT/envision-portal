@@ -2,7 +2,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import type { H3Event, MultiPartData } from "h3"
 import { DOCUMENT_TYPES, acceptedDocumentExtensions } from "#shared/constants/documents"
 import { fileTypeFromBuffer } from 'file-type';
-
+import sanitize from "sanitize-filename"
 
 // TODO: Decide return object schema [done]
 // TODO: file extension validation on backend [done]
@@ -25,16 +25,17 @@ export default defineEventHandler(async (event) => {
 
   validateDocument(fileExtension, fileType)
 
-  const blobName = `${datasetId}/${fileName}`
-
   const mimeType = await getMimeType(file)
 
+  const sanitizedName = sanitizeFileName(fileName).toLocaleLowerCase()
+
+  const blobName = `${datasetId}/${sanitizedName}`
 
   await uploadDocumentsBlob(file.data, blobName, mimeType)
 
-  await prisma.document.create({
+  const document = await prisma.document.create({
     data: {
-      documentName: fileName,
+      documentName: sanitizedName,
       documentType: fileType,
       storagePath: blobName,
       mimeType: mimeType,
@@ -43,9 +44,32 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  return { statusCode: 201 }
+  let parsedDocument = JSON.stringify(
+    document,
+    (key, value) => (typeof value === "bigint" ? value.toString() : value), // return everything else unchange
+  )
 
+  return parsedDocument
 })
+
+
+const sanitizeFileName = (fileName: string) => {
+  let sanitizedName = sanitize(fileName)
+
+  if (!sanitizedName) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Cannot upload file"
+    })
+  }
+
+  // replace symbols and spaces with dashes
+  sanitizedName = sanitizedName.replace(/[^a-zA-Z0-9\(\)\.]/g, "-")
+
+
+  return sanitizedName
+
+}
 
 
 async function uploadDocumentsBlob(fileData: Buffer | Uint8Array, blobName: string, mimeType: string) {

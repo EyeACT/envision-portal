@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useDocuments, type StudyDocument } from "@/composables/useDocuments";
 import {DOCUMENT_TYPES} from "#shared/constants/documents"
+import type { document } from "~~/shared/types/document";
+
 
 definePageMeta({
   middleware: ["auth"],
@@ -63,33 +65,32 @@ const onUpload = async () => {
 
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/documents`, {
+    const documentResponse = await $fetch(`/api/datasets/${datasetId}/documents`, {
       body: formData, 
       method: "POST"
     })
 
-    console.log(res)
+    const documentReponseParsed = JSON.parse(documentResponse) as document
 
+    const ext = uploadFile.value.name.split(".").pop()?.toLowerCase() ?? "file";
+    documents.value.unshift({
+      id: documentReponseParsed.id,
+      name: documentReponseParsed.documentName,
+      type: uploadType.value,
+      size: Number(uploadFile.value.size),
+      uploadedAt: documentReponseParsed.created,
+      fileExtension: ext,
+    });
 
-    console.log("Finished with upload to Documents folder")
+    uploadLoading.value = false;
+    showUploadModal.value = false;
+    toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
   } catch (err) {
     console.error(err)
+    uploadLoading.value = false;
+    showUploadModal.value = false;
+    toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
   }
-
-
-  const ext = uploadFile.value.name.split(".").pop()?.toLowerCase() ?? "file";
-  documents.value.unshift({
-    id: crypto.randomUUID(),
-    name: uploadName.value || uploadFile.value.name,
-    type: uploadType.value,
-    size: uploadFile.value.size,
-    uploadedAt: new Date().toISOString(),
-    fileExtension: ext,
-  });
-
-  uploadLoading.value = false;
-  showUploadModal.value = false;
-  toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
 };
 
 // Delete

@@ -5,6 +5,6 @@ export interface document {
   documentName: string
   documentType: string
   mimeType: string
-  created: Date
+  created: string
   size: BigInt
 }
