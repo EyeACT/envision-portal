@@ -2,6 +2,7 @@
 
 
 
+
 export default defineEventHandler(async (event) => {
 
   const session = await requireUserSession(event);
@@ -33,5 +34,10 @@ export default defineEventHandler(async (event) => {
   })
 
 
-  return documents || []
+  let parsedDocuments = JSON.stringify(
+    documents,
+    (key, value) => (typeof value === "bigint" ? value.toString() : value), // return everything else unchange
+  )
+
+  return parsedDocuments || ""
 })

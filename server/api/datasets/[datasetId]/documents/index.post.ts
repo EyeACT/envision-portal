@@ -38,7 +38,8 @@ export default defineEventHandler(async (event) => {
       documentType: fileType,
       storagePath: blobName,
       mimeType: mimeType,
-      datasetId: datasetId
+      datasetId: datasetId,
+      size: BigInt(file.data.byteLength)
     }
   })
 

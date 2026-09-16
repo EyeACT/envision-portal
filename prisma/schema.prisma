@@ -143,6 +143,7 @@ model Document {
     documentType String @default("")
     mimeType String @default("")
     created DateTime @default(now())
+    size BigInt @default(0)
 }
 
 model DatasetMember {

@@ -1,6 +1,7 @@
 import prettyBytes from "pretty-bytes";
 import dayjs from "dayjs";
 import { DOCUMENT_TYPES } from "#shared/constants/documents"
+import type { document } from "~~/shared/types/document";
 
 export interface StudyDocument {
   id: string;
@@ -81,14 +82,15 @@ export function useDocuments(datasetId: string) {
 
   $fetch(`/api/datasets/${datasetId}/documents`)
     .then(docs => {
+      let parsedDocs = JSON.parse(docs) as document[]
       // match docs to StudyDocument
-      docs.forEach(doc => {
+      parsedDocs.forEach(doc => {
         documents.value.push({
           id: doc.id,
           name: doc.documentName,
           type: doc.documentType,
-          size: 4000,
-          uploadedAt: doc.created,
+          size: Number(doc.size),
+          uploadedAt: doc.created.toString(),
           fileExtension: doc.documentName.split(".").at(-1)!
         })
       })
