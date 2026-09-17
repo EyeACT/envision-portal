@@ -1,0 +1,247 @@
+{
+  "metadata/general-information": {
+    "pageLabel": "General Information",
+    "fields": [
+      {
+        "key": "main_title",
+        "label": "Main Title",
+        "description": "The primary title of the dataset",
+        "type": "text",
+        "mandatory": true
+      },
+      {
+        "key": "subtitle",
+        "label": "Subtitle",
+        "description": "A secondary or alternative title",
+        "type": "text",
+        "mandatory": false
+      },
+      {
+        "key": "abstract",
+        "label": "Abstract",
+        "description": "A concise summary of the dataset's content and purpose",
+        "type": "textarea",
+        "mandatory": true
+      },
+      {
+        "key": "methods_description",
+        "label": "Methods Description",
+        "description": "Description of the methods used to collect or generate the dataset",
+        "type": "textarea",
+        "mandatory": false
+      },
+      {
+        "key": "collection_start_date",
+        "label": "Collection Start Date",
+        "description": "Date when data collection began",
+        "type": "date",
+        "mandatory": true
+      },
+      {
+        "key": "submission_date",
+        "label": "Submission Date",
+        "description": "Date the dataset was submitted for review",
+        "type": "date",
+        "mandatory": false
+      }
+    ]
+  },
+  "metadata/about": {
+    "pageLabel": "About",
+    "fields": [
+      {
+        "key": "keywords",
+        "label": "Keywords",
+        "description": "Subject terms or tags that describe the dataset",
+        "type": "array",
+        "mandatory": true
+      },
+      {
+        "key": "language",
+        "label": "Language",
+        "description": "Primary language of the dataset content",
+        "type": "text",
+        "mandatory": true
+      },
+      {
+        "key": "version",
+        "label": "Version",
+        "description": "Dataset version string",
+        "type": "text",
+        "mandatory": false
+      }
+    ]
+  },
+  "metadata/access-rights": {
+    "pageLabel": "Access & Rights",
+    "fields": [
+      {
+        "key": "license",
+        "label": "License",
+        "description": "The license under which the dataset is published",
+        "type": "text",
+        "mandatory": true
+      },
+      {
+        "key": "access_type",
+        "label": "Access Type",
+        "description": "Whether the dataset is open, restricted, or embargoed",
+        "type": "text",
+        "mandatory": true
+      },
+      {
+        "key": "rights_statement",
+        "label": "Rights Statement",
+        "description": "Free-text rights or usage conditions",
+        "type": "textarea",
+        "mandatory": false
+      }
+    ]
+  },
+  "metadata/data-management": {
+    "pageLabel": "Data Management",
+    "fields": [
+      {
+        "key": "data_format",
+        "label": "Data Format",
+        "description": "File formats used in the dataset",
+        "type": "text",
+        "mandatory": false
+      },
+      {
+        "key": "collection_method",
+        "label": "Collection Method",
+        "description": "How the data was collected (e.g., survey, sensor, EHR extract)",
+        "type": "textarea",
+        "mandatory": true
+      },
+      {
+        "key": "quality_assurance",
+        "label": "Quality Assurance",
+        "description": "Steps taken to verify or clean the data",
+        "type": "textarea",
+        "mandatory": false
+      }
+    ]
+  },
+  "study/metadata/about": {
+    "pageLabel": "Study About",
+    "fields": [
+      {
+        "key": "brief_title",
+        "label": "Brief Title",
+        "description": "Short title of the clinical study",
+        "type": "text",
+        "mandatory": true
+      },
+      {
+        "key": "official_title",
+        "label": "Official Title",
+        "description": "Full official title of the clinical study",
+        "type": "text",
+        "mandatory": true
+      },
+      {
+        "key": "brief_summary",
+        "label": "Brief Summary",
+        "description": "A short paragraph summarising the study",
+        "type": "textarea",
+        "mandatory": true
+      },
+      {
+        "key": "detailed_description",
+        "label": "Detailed Description",
+        "description": "Extended description of the study background, rationale, and objectives",
+        "type": "textarea",
+        "mandatory": false
+      },
+      {
+        "key": "nct_number",
+        "label": "NCT Number",
+        "description": "ClinicalTrials.gov registration identifier",
+        "type": "text",
+        "mandatory": false
+      }
+    ]
+  },
+  "study/metadata/eligibility": {
+    "pageLabel": "Eligibility",
+    "fields": [
+      {
+        "key": "inclusion_criteria",
+        "label": "Inclusion Criteria",
+        "description": "Criteria a participant must meet to be enrolled",
+        "type": "textarea",
+        "mandatory": true
+      },
+      {
+        "key": "exclusion_criteria",
+        "label": "Exclusion Criteria",
+        "description": "Criteria that disqualify a participant from enrollment",
+        "type": "textarea",
+        "mandatory": true
+      },
+      {
+        "key": "minimum_age",
+        "label": "Minimum Age",
+        "description": "Minimum participant age",
+        "type": "text",
+        "mandatory": false
+      },
+      {
+        "key": "maximum_age",
+        "label": "Maximum Age",
+        "description": "Maximum participant age",
+        "type": "text",
+        "mandatory": false
+      },
+      {
+        "key": "sex",
+        "label": "Sex",
+        "description": "Eligible sex(es) for participation",
+        "type": "text",
+        "mandatory": false
+      }
+    ]
+  },
+  "study/metadata/design": {
+    "pageLabel": "Study Design",
+    "fields": [
+      {
+        "key": "study_type",
+        "label": "Study Type",
+        "description": "Interventional or Observational",
+        "type": "text",
+        "mandatory": true
+      },
+      {
+        "key": "phase",
+        "label": "Phase",
+        "description": "Clinical trial phase (e.g., Phase II)",
+        "type": "text",
+        "mandatory": false
+      },
+      {
+        "key": "allocation",
+        "label": "Allocation",
+        "description": "How participants are assigned to arms (randomized, non-randomized)",
+        "type": "text",
+        "mandatory": false
+      },
+      {
+        "key": "masking",
+        "label": "Masking",
+        "description": "Who is blinded in the trial",
+        "type": "text",
+        "mandatory": false
+      },
+      {
+        "key": "primary_purpose",
+        "label": "Primary Purpose",
+        "description": "Main reason for conducting the study",
+        "type": "text",
+        "mandatory": true
+      }
+    ]
+  }
+}

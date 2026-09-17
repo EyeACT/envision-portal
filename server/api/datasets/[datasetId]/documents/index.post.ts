@@ -1,0 +1,149 @@
+import { BlobServiceClient } from "@azure/storage-blob";
+import type { H3Event, MultiPartData } from "h3"
+import { DOCUMENT_TYPES, acceptedDocumentExtensions } from "#shared/constants/documents"
+import { sanitizeFileName } from "#shared/utils/documents"
+import { fileTypeFromBuffer } from 'file-type';
+
+// TODO: Decide return object schema [done]
+// TODO: file extension validation on backend [done]
+// TODO: file type validation [done]
+// TODO: Raise specific errors for not being able to connect to Azure [wip]
+// TODO: Add Database call to check the dataset id exists [wip]
+// TODO: Create database entry for the uploaded file in new table [wip]
+// TODO: Add guards for undefined values [wip]
+// TODO: Eventually add permissions (if not already in place elsewhere) RBAC perhaps [?]
+// TODO: Automated tests? [?]
+
+
+
+
+export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event);
+  const { datasetId } = event.context.params as { datasetId: string };
+
+  const { file, fileName, fileType, fileExtension } = await parseDocumentUploadForm(event)
+
+  validateDocument(fileExtension, fileType)
+
+  const mimeType = await getMimeType(file)
+
+  const sanitizedName = sanitizeFileName(fileName).toLocaleLowerCase()
+
+  const blobName = `${datasetId}/${sanitizedName}`
+
+  await uploadDocumentsBlob(file.data, blobName, mimeType)
+
+  const document = await prisma.document.create({
+    data: {
+      originalName: fileName,
+      sanitizedName: sanitizedName,
+      documentType: fileType,
+      storagePath: blobName,
+      mimeType: mimeType,
+      datasetId: datasetId,
+      size: BigInt(file.data.byteLength)
+    }
+  })
+
+  let parsedDocument = JSON.stringify(
+    document,
+    (key, value) => (typeof value === "bigint" ? value.toString() : value), // return everything else unchange
+  )
+
+  return parsedDocument
+})
+
+
+async function uploadDocumentsBlob(fileData: Buffer | Uint8Array, blobName: string, mimeType: string) {
+  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
+
+  const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_DRAFT_CONNECTION_STRING);
+  const documentsContainer = blobServiceClient.getContainerClient("documents");
+  await documentsContainer.createIfNotExists()
+
+  const blobClient = documentsContainer.getBlockBlobClient(blobName)
+  await blobClient.uploadData(fileData, {
+    blobHTTPHeaders: {
+      blobContentType: mimeType || "application/octet-stream"
+    }
+  })
+
+}
+
+interface DocumentUploadForm {
+  file: MultiPartData,
+  fileName: string,
+  fileType?: string,
+  fileExtension: string
+}
+
+
+async function parseDocumentUploadForm(event: H3Event): Promise<DocumentUploadForm> {
+  const formData = await readMultipartFormData(event)
+  if (!formData) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Missing form data"
+    })
+  }
+
+
+  const file = formData.find((part) => part.name === "file")
+  const fileName = formData.find((part) => part.name === "fileName")?.data.toString()
+  const fileType = formData.find((part) => part.name === "fileType")?.data.toString()
+  const fileExtension = formData.find((part) => part.name === "fileExtension")?.data.toString()
+
+  if (!file) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "No file included in the form data"
+    })
+  }
+
+  if (!fileName) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Form is missing file name"
+    })
+  }
+
+  if (!fileExtension) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Form is missing file extension"
+    })
+  }
+
+  return { file, fileName, fileType, fileExtension }
+}
+
+
+function validateDocument(fileExtension: string, fileType: string | undefined) {
+  const validExtension = acceptedDocumentExtensions.find((extension) => extension === fileExtension)
+  if (!validExtension) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `File must be one of: ${acceptedDocumentExtensions.toString()}`
+    })
+  }
+
+
+  const validDocumentTypes = DOCUMENT_TYPES.map(entry => entry.value)
+  const isValidDocumentType = !fileType || validDocumentTypes.find(docType => docType === fileType)
+  if (!isValidDocumentType) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `File must be one of: ${DOCUMENT_TYPES.map(entry => entry.value).toString()}`
+    })
+  }
+
+}
+
+
+const getMimeType = async (file: MultiPartData) => {
+  const fileInfo = await fileTypeFromBuffer(file.data)
+
+  let mimeType = fileInfo?.mime ?? ""
+
+  return mimeType
+}
