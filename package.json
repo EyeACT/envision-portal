@@ -25,6 +25,7 @@
     "scripts:create:record": "tsx ./scripts/create-record.ts"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.33.0",
     "@azure/storage-file-datalake": "12.29.0",
     "@internationalized/date": "3.12.1",
     "@nuxt/content": "3.13.0",
