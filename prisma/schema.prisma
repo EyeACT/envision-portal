@@ -139,7 +139,8 @@ model Document {
     datasetId String
     dataset Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
     storagePath String @default("")
-    documentName String @default("")
+    sanitizedName String @default("")
+    originalName String @default("")
     documentType String @default("")
     mimeType String @default("")
     created DateTime @default(now())

@@ -87,11 +87,11 @@ export function useDocuments(datasetId: string) {
       parsedDocs.forEach(doc => {
         documents.value.push({
           id: doc.id,
-          name: doc.documentName,
+          name: doc.originalName,
           type: doc.documentType,
           size: Number(doc.size),
           uploadedAt: doc.created.toString(),
-          fileExtension: doc.documentName.split(".").at(-1)!
+          fileExtension: doc.sanitizedName.split(".").at(-1)!
         })
       })
     })

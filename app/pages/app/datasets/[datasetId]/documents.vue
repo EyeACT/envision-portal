@@ -2,7 +2,9 @@
 import { useDocuments, type StudyDocument } from "@/composables/useDocuments";
 import {DOCUMENT_TYPES} from "#shared/constants/documents"
 import type { document } from "~~/shared/types/document";
+// import { useConfirmDialog } from "~/composables/useConfirmDialog";
 
+// const confirm = useConfirmDialog()
 
 definePageMeta({
   middleware: ["auth"],
@@ -50,11 +52,34 @@ const onDrop = (e: DragEvent) => {
   if (file) handleFileSelect(file);
 };
 
+
+// const documentWillBeReplaced = (documentName: string) => {
+//   return documents.value.some(document => {
+//     return document.name === documentName
+//   })
+// }
+
+
 const onUpload = async () => {
   if (!uploadFile.value) {
     toast.add({ title: "Please select a file", color: "error", icon: "material-symbols:error" });
     return;
   }
+
+  // if (documentWillBeReplaced(uploadName.value) ) {
+  //   let confirmed = await confirm({
+  //     title: "This Will Replace Your Existing Document",
+  //     description: `Continue with the upload?`
+  //   })
+
+  //   if(!confirmed) {
+  //     toast.add({ title: "Document Will Not Be Uploded", description: uploadName.value || uploadFile.value.name });
+  //     uploadLoading.value = false;
+  //     showUploadModal.value = false;
+  //     return
+  //   }
+  // } 
+  
   uploadLoading.value = true;
 
   const formData = new FormData()
@@ -75,7 +100,7 @@ const onUpload = async () => {
     const ext = uploadFile.value.name.split(".").pop()?.toLowerCase() ?? "file";
     documents.value.unshift({
       id: documentReponseParsed.id,
-      name: documentReponseParsed.documentName,
+      name: documentReponseParsed.originalName,
       type: uploadType.value,
       size: Number(uploadFile.value.size),
       uploadedAt: documentReponseParsed.created,
