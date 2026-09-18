@@ -2,9 +2,9 @@
 import { useDocuments, type StudyDocument } from "@/composables/useDocuments";
 import {DOCUMENT_TYPES} from "#shared/constants/documents"
 import type { document } from "~~/shared/types/document";
-// import { useConfirmDialog } from "~/composables/useConfirmDialog";
+import { useConfirmDialog } from "~/composables/useConfirmDialog";
 
-// const confirm = useConfirmDialog()
+const confirm = useConfirmDialog()
 
 definePageMeta({
   middleware: ["auth"],
@@ -53,33 +53,27 @@ const onDrop = (e: DragEvent) => {
 };
 
 
-// const documentWillBeReplaced = (documentName: string) => {
-//   return documents.value.some(document => {
-//     return document.name === documentName
-//   })
-// }
+const documentWillBeReplaced = (documentName: string) => {
+  return documents.value.some(document => {
+    return document.name === documentName
+  })
+}
 
+const getDocumentId = (documentName: string) => {
+  const targetDocument = documents.value.find(document => {
+    return document.name === documentName
+  })
 
-const onUpload = async () => {
+  return targetDocument.id
+}
+
+const createDocument = async () => {
+
   if (!uploadFile.value) {
-    toast.add({ title: "Please select a file", color: "error", icon: "material-symbols:error" });
-    return;
+      toast.add({ title: "Please select a file", color: "error", icon: "material-symbols:error" });
+      return;
   }
 
-  // if (documentWillBeReplaced(uploadName.value) ) {
-  //   let confirmed = await confirm({
-  //     title: "This Will Replace Your Existing Document",
-  //     description: `Continue with the upload?`
-  //   })
-
-  //   if(!confirmed) {
-  //     toast.add({ title: "Document Will Not Be Uploded", description: uploadName.value || uploadFile.value.name });
-  //     uploadLoading.value = false;
-  //     showUploadModal.value = false;
-  //     return
-  //   }
-  // } 
-  
   uploadLoading.value = true;
 
   const formData = new FormData()
@@ -116,6 +110,63 @@ const onUpload = async () => {
     showUploadModal.value = false;
     toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
   }
+}
+
+const replaceDocument = async (documentId: string) => {
+  if(!uploadFile.value) {
+    return
+  }
+
+  const newData = await uploadFile.value.arrayBuffer()
+
+  try {
+    const documentResponse = await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
+      body: {
+        data: newData
+      }, 
+      method: "PUT"
+    })
+
+    const documentReponseParsed = JSON.parse(documentResponse) as document
+
+    const ext = uploadFile.value.name.split(".").pop()?.toLowerCase() ?? "file";
+    // documents.value[indexOf]
+
+    uploadLoading.value = false;
+    showUploadModal.value = false;
+    toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
+  } catch (err) {
+    console.error(err)
+    uploadLoading.value = false;
+    showUploadModal.value = false;
+    toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
+  }
+}
+
+const onUpload = async () => {
+  if (!uploadFile.value) {
+      toast.add({ title: "Please select a file", color: "error", icon: "material-symbols:error" });
+      return;
+  }
+
+  if (documentWillBeReplaced(uploadName.value) ) {
+    let confirmed = await confirm({
+      title: "Document Already Exists",
+      description: `If you continue your current document will be replaced. Continue with the upload?`
+    })
+
+    if(!confirmed) {
+      toast.add({ title: "Document Will Not Be Uploded", description: uploadName.value || uploadFile.value.name });
+      uploadLoading.value = false;
+      showUploadModal.value = false;
+      return
+    }
+
+    return replaceDocument(getDocumentId(uploadName.value))
+  } 
+
+
+  createDocument()
 };
 
 // Delete
