@@ -129,9 +129,11 @@ const replaceDocument = async (documentId: string) => {
     })
 
     const documentReponseParsed = JSON.parse(documentResponse) as document
-
-    const ext = uploadFile.value.name.split(".").pop()?.toLowerCase() ?? "file";
-    // documents.value[indexOf]
+    documents.value.forEach(document => {
+      if(document.id === documentId) {
+        document.size = Number(documentReponseParsed.size);
+      }  
+    })
 
     uploadLoading.value = false;
     showUploadModal.value = false;
