@@ -1,9 +1,10 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import { fileTypeFromBuffer } from 'file-type';
 import { DOCUMENT_TYPES, acceptedDocumentExtensions } from "#shared/constants/documents"
+import type { H3Event, MultiPartData } from "h3"
 
 
-export async function uploadDocument(fileData: Buffer | Uint8Array, blobName: string, mimeType: string) {
+export async function uploadDocument(fileData: Buffer | Uint8Array | ArrayBuffer, blobName: string, mimeType: string) {
   const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
 
   const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_DRAFT_CONNECTION_STRING);
@@ -40,9 +41,46 @@ export function validateDocument(fileExtension: string, fileType: string | undef
   }
 
 }
+interface DocumentUploadForm {
+  file: MultiPartData,
+  fileName: string,
+  fileType?: string,
+  fileExtension: string
+}
+
+export async function parseDocumentUploadForm(formData: MultiPartData[]): Promise<DocumentUploadForm> {
+  const file = formData.find((part) => part.name === "file")
+  const fileName = formData.find((part) => part.name === "fileName")?.data.toString()
+  const fileType = formData.find((part) => part.name === "fileType")?.data.toString()
+  const fileExtension = formData.find((part) => part.name === "fileExtension")?.data.toString()
+
+  if (!file) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "No file included in the form data"
+    })
+  }
+
+  if (!fileName) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Form is missing file name"
+    })
+  }
+
+  if (!fileExtension) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Form is missing file extension"
+    })
+  }
 
 
-export const getMimeType = async (fileData: Uint8Array | Buffer) => {
+  return { file, fileName, fileType, fileExtension }
+}
+
+
+export const getMimeType = async (fileData: ArrayBuffer | Buffer<ArrayBufferLike>) => {
   const fileInfo = await fileTypeFromBuffer(fileData)
 
   let mimeType = fileInfo?.mime ?? ""

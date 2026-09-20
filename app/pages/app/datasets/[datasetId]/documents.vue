@@ -64,7 +64,7 @@ const getDocumentId = (documentName: string) => {
     return document.name === documentName
   })
 
-  return targetDocument.id
+  return targetDocument!.id
 }
 
 const createDocument = async () => {
@@ -121,10 +121,11 @@ const replaceDocument = async (documentId: string) => {
 
   try {
     const documentResponse = await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
-      body: {
-        data: newData
-      }, 
-      method: "PUT"
+      body: newData,
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/octet-stream',
+    },
     })
 
     const documentReponseParsed = JSON.parse(documentResponse) as document
@@ -162,11 +163,13 @@ const onUpload = async () => {
       return
     }
 
+    console.log("Will replace")
+
     return replaceDocument(getDocumentId(uploadName.value))
   } 
 
 
-  createDocument()
+  await createDocument()
 };
 
 // Delete

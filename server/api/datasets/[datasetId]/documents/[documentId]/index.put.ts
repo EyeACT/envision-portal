@@ -38,7 +38,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const body = await readBody(event)
+  const body = await readRawBody(event, false)
+
 
   if (!body) {
     throw createError({
@@ -47,7 +48,13 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const parsedBody = DocumentUpdateBody.parse(body)
+  const fileBuffer = Buffer.isBuffer(body) ? body : Buffer.from(body)
+  const fileData = fileBuffer.buffer.slice(
+    fileBuffer.byteOffset,
+    fileBuffer.byteOffset + fileBuffer.byteLength
+  )
+
+  const parsedBody = DocumentUpdateBody.parse({ data: fileData })
 
   const newFileData = parsedBody.data
 
@@ -81,5 +88,5 @@ export default defineEventHandler(async (event) => {
 
 
 const DocumentUpdateBody = z.object({
-  data: z.instanceof(Uint8Array).or(z.instanceof(Buffer)),
+  data: z.instanceof(ArrayBuffer),
 })

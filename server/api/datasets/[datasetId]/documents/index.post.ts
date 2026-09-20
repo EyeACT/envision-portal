@@ -1,6 +1,6 @@
 
-import { validateDocument, getMimeType, uploadDocument } from "./upload/utils"
-import { DocumentUploadForm } from "./upload/schema"
+import { parseDocumentUploadForm, validateDocument, getMimeType, uploadDocument } from "./upload/utils"
+// import { DocumentUploadForm } from "./upload/schema"
 import { sanitizeFileName } from "#shared/utils/documents"
 
 
@@ -10,9 +10,14 @@ export default defineEventHandler(async (event) => {
 
   const formData = await readMultipartFormData(event)
 
-  const documentForm = DocumentUploadForm.parse(formData)
+  if (!formData) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Missing form data",
+    });
+  }
 
-  const { file, fileExtension, fileName, fileType } = documentForm
+  const { file, fileExtension, fileName, fileType } = await parseDocumentUploadForm(formData)
 
   validateDocument(fileExtension, fileType ?? "")
 
@@ -26,9 +31,9 @@ export default defineEventHandler(async (event) => {
 
   const document = await prisma.document.create({
     data: {
-      originalName: documentForm.fileName,
+      originalName: fileName,
       sanitizedName: sanitizedName,
-      documentType: documentForm.fileType ?? "",
+      documentType: fileType ?? "",
       storagePath,
       mimeType: mimeType,
       datasetId: datasetId,

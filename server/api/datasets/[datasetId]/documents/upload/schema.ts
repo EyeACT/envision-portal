@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 
-export const DocumentUploadForm = z.object({
+export const DocumentUploadFormSchema = z.object({
   file: z.object({
     data: z.instanceof(Uint8Array).or(z.instanceof(Buffer)),
     name: z.string().optional(),
