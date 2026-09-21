@@ -143,7 +143,7 @@ const replaceDocument = async (documentId: string) => {
     uploadLoading.value = false;
     showUploadModal.value = false;
     toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
-  }
+  } 
 }
 
 const onUpload = async () => {
@@ -191,20 +191,22 @@ const onDelete = async () => {
   let doc = deleteTarget.value
   let documentId = doc.id
 
-  // Mock delete — replace with real API call
-  await new Promise((resolve) => setTimeout(resolve, 400));
-  await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
-    method: "DELETE",
-    body: {
-      document: deleteTarget.value
-    }
-  })
+  try {
+    await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
+      method: "DELETE",
+    })
+    documents.value = documents.value.filter((d) => d.id !== deleteTarget.value!.id);
+    toast.add({ title: "Document deleted", description: deleteTarget.value.name });
+  } catch(e) {
+    console.error(e)
+    toast.add({title: "Could not delete document", color: "error", icon: "material-symbols:error"})
+  } finally {
+    deleteLoading.value = false
+    showDeleteModal.value = false;
+    deleteTarget.value = null;
+  }
 
-  documents.value = documents.value.filter((d) => d.id !== deleteTarget.value!.id);
-  deleteLoading.value = false;
-  showDeleteModal.value = false;
-  toast.add({ title: "Document deleted", description: deleteTarget.value.name });
-  deleteTarget.value = null;
+
 };
 </script>
 

@@ -7,17 +7,6 @@ export default defineEventHandler(async (event) => {
 
   const session = await requireUserSession(event);
 
-  const body = await readBody(event)
-
-  if (!body) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "No body",
-    })
-  }
-
-  const document = body.document
-
   const { datasetId, documentId } = event.context.params as {
     datasetId: string;
     documentId: string;
