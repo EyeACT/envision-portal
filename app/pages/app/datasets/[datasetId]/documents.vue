@@ -298,7 +298,7 @@ const onDelete = async () => {
     </div>
 
     <!-- Upload Modal -->
-    <UModal v-model:open="showUploadModal" title="Upload Document" :prevent-close="uploadLoading">
+    <UModal v-model:open="showUploadModal" title="Upload Document" :prevent-close="uploadLoading" :ui="{ content: 'bg-gray-50 dark:bg-gray-900 dark:text-white', title: 'dark:text-white' }">
       <template #body>
         <div class="space-y-5">
           <!-- Drop zone -->
@@ -327,7 +327,7 @@ const onDelete = async () => {
           </div>
 
           <!-- Document name -->
-          <UFormField label="Document name">
+          <UFormField label="Document name" :ui="{label: 'dark:text-white'}">
             <UInput
               v-model="uploadName"
               placeholder="e.g. BRIGHT-MOP-v2.pdf"
@@ -337,7 +337,7 @@ const onDelete = async () => {
           </UFormField>
 
           <!-- Document type (optional) -->
-          <UFormField label="Document type (optional)">
+          <UFormField label="Document type (optional)" :ui="{label: 'dark:text-white'}">
             <USelect
               v-model="uploadType"
               :items="DOCUMENT_TYPES"
@@ -348,13 +348,14 @@ const onDelete = async () => {
             />
           </UFormField>
 
-          <div class="flex justify-end gap-3 pt-1">
+          <div class="flex justify-end gap-3 pt-1" >
             <UButton
               color="neutral"
               variant="ghost"
               label="Cancel"
               :disabled="uploadLoading"
               @click="showUploadModal = false"
+              class="dark:text-white dark:hover:bg-gray-800"
             />
             <UButton
               label="Upload"
@@ -362,6 +363,7 @@ const onDelete = async () => {
               :loading="uploadLoading"
               :disabled="!uploadFile || uploadLoading"
               @click="onUpload"
+              class="dark:text-white"
             />
           </div>
         </div>
@@ -369,7 +371,7 @@ const onDelete = async () => {
     </UModal>
 
     <!-- Delete Confirmation Modal -->
-    <UModal v-model:open="showDeleteModal" title="Delete document" :prevent-close="deleteLoading">
+    <UModal v-model:open="showDeleteModal" title="Delete document" :prevent-close="deleteLoading" :ui="{ content: 'bg-gray-50 dark:bg-gray-900 dark:text-white', title: 'dark:text-white' }">
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -384,6 +386,7 @@ const onDelete = async () => {
               label="Cancel"
               :disabled="deleteLoading"
               @click="showDeleteModal = false"
+              class="dark:text-white dark:hover:bg-gray-800"
             />
             <UButton
               color="error"
