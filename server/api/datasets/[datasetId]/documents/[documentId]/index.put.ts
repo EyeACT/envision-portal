@@ -1,4 +1,4 @@
-import { uploadDocument, getMimeType } from "../upload/utils"
+import { uploadDocument, getMimeType, parseBigInt } from "../upload/utils"
 import { z } from 'zod';
 
 export default defineEventHandler(async (event) => {
@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
 
   let parsedDocument = JSON.stringify(
     document,
-    (key, value) => (typeof value === "bigint" ? value.toString() : value), // return everything else unchange
+    parseBigInt
   )
 
   return parsedDocument

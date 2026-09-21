@@ -87,3 +87,6 @@ export const getMimeType = async (fileData: ArrayBuffer | Buffer<ArrayBufferLike
 
   return mimeType
 }
+
+
+export const parseBigInt = (key: string, value: any) => (typeof value === "bigint" ? value.toString() : value)

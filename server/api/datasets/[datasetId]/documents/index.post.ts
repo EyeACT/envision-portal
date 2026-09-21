@@ -1,5 +1,5 @@
 
-import { parseDocumentUploadForm, validateDocument, getMimeType, uploadDocument } from "./upload/utils"
+import { parseDocumentUploadForm, validateDocument, getMimeType, uploadDocument, parseBigInt } from "./upload/utils"
 // import { DocumentUploadForm } from "./upload/schema"
 import { sanitizeFileName } from "#shared/utils/documents"
 
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
   let parsedDocument = JSON.stringify(
     document,
-    (key, value) => (typeof value === "bigint" ? value.toString() : value), // return everything else unchange
+    parseBigInt
   )
 
   return parsedDocument
