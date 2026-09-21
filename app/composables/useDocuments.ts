@@ -80,20 +80,33 @@ export function useDocuments(datasetId: string) {
     return { name: "material-symbols:description", color: "text-gray-400" };
   };
 
+  console.log("Being ran with ", datasetId)
+
+  // reset current documents -- keep test docs for now
+  documents.value = documents.value.filter(doc => {
+    return ["1", "2", "3", "4", "5"].includes(doc.id)
+  })
+
   $fetch(`/api/datasets/${datasetId}/documents`)
     .then(docs => {
-      let parsedDocs = JSON.parse(docs) as document[]
-      // match docs to StudyDocument
-      parsedDocs.forEach(doc => {
-        documents.value.push({
-          id: doc.id,
-          name: doc.originalName,
-          type: doc.documentType,
-          size: Number(doc.size),
-          uploadedAt: doc.created.toString(),
-          fileExtension: doc.sanitizedName.split(".").at(-1)!
-        })
+      let currentIds = documents.value.map(currentDoc => {
+        return currentDoc.id
       })
+
+      let parsedDocs = JSON.parse(docs) as document[]
+      for (const doc of parsedDocs) {
+        if (!currentIds.includes(doc.id)) {
+          documents.value.push({
+            id: doc.id,
+            name: doc.originalName,
+            type: doc.documentType,
+            size: Number(doc.size),
+            uploadedAt: doc.created.toString(),
+            fileExtension: doc.sanitizedName.split(".").at(-1)!
+          })
+        }
+      }
+
     })
     .catch(err => error.value = err)
 
