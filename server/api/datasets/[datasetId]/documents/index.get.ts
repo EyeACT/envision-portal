@@ -1,5 +1,5 @@
 
-
+import { parseBigInt } from "./upload/utils"
 
 
 
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
   let parsedDocuments = JSON.stringify(
     documents,
-    (key, value) => (typeof value === "bigint" ? value.toString() : value), // return everything else unchange
+    parseBigInt
   )
 
   return parsedDocuments || ""
