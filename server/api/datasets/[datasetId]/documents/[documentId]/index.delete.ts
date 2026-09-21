@@ -38,19 +38,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  try {
-    await prisma.document.delete({
-      where: {
-        id: documentId
-      }
-    })
 
-  } catch (e) {
-    console.log(e)
-    return { statusCode: 404 }
-  }
+  const deletedDocument = await prisma.document.delete({
+    where: {
+      id: documentId
+    }
+  })
 
-  const blobName = `${datasetId}/${document.fileName}`
+  const sanitizedName = deletedDocument.sanitizedName
+  const blobName = `${datasetId}/${sanitizedName}`
 
   await deleteBlob(blobName)
 
