@@ -88,9 +88,7 @@ const createDocument = async () => {
       body: formData, 
       method: "POST"
     })
-
     const documentReponseParsed = JSON.parse(documentResponse) as document
-
     const ext = uploadFile.value.name.split(".").pop()?.toLowerCase() ?? "file";
     documents.value.unshift({
       id: documentReponseParsed.id,
@@ -100,15 +98,13 @@ const createDocument = async () => {
       uploadedAt: documentReponseParsed.created,
       fileExtension: ext,
     });
-
-    uploadLoading.value = false;
-    showUploadModal.value = false;
     toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
-  } catch (err) {
-    console.error(err)
+  } catch (e) {
+    console.error(e)
+    toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
+  } finally {
     uploadLoading.value = false;
     showUploadModal.value = false;
-    toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
   }
 }
 
@@ -134,16 +130,14 @@ const replaceDocument = async (documentId: string) => {
         document.size = Number(documentReponseParsed.size);
       }  
     })
-
-    uploadLoading.value = false;
-    showUploadModal.value = false;
     toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
-  } catch (err) {
-    console.error(err)
+  } catch (e) {
+    console.error(e)
+    toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
+  } finally {
     uploadLoading.value = false;
     showUploadModal.value = false;
-    toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
-  } 
+  }
 }
 
 const onUpload = async () => {
