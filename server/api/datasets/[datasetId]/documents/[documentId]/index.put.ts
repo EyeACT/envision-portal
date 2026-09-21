@@ -48,15 +48,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const fileBuffer = Buffer.isBuffer(body) ? body : Buffer.from(body)
-  const fileData = fileBuffer.buffer.slice(
-    fileBuffer.byteOffset,
-    fileBuffer.byteOffset + fileBuffer.byteLength
-  )
-
-  const parsedBody = DocumentUpdateBody.parse({ data: fileData })
-
-  const newFileData = parsedBody.data
+  const newFileData = DocumentUpdateBody.parse(body)
 
   const mimeType = await getMimeType(newFileData)
 
@@ -87,6 +79,4 @@ export default defineEventHandler(async (event) => {
 })
 
 
-const DocumentUpdateBody = z.object({
-  data: z.instanceof(ArrayBuffer),
-})
+const DocumentUpdateBody = z.instanceof(Buffer)
