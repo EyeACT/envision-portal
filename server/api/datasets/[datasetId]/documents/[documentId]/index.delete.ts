@@ -45,10 +45,7 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  const sanitizedName = deletedDocument.sanitizedName
-  const blobName = `${datasetId}/${sanitizedName}`
-
-  await deleteBlob(blobName)
+  await deleteBlob(deletedDocument.storagePath)
 
 })
 
