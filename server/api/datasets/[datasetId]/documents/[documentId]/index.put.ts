@@ -1,5 +1,4 @@
-import { uploadDocument, getMimeType, parseBigInt } from "../upload/utils"
-import { z } from 'zod';
+import { uploadDocument, getMimeType, parseBigInt, parseDocumentUploadForm } from "../upload/utils"
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -38,19 +37,24 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const body = await readRawBody(event, false)
+  const formData = await readMultipartFormData(event)
 
-
-  if (!body) {
+  if (!formData) {
     throw createError({
       statusCode: 400,
-      statusMessage: "No body",
-    })
+      statusMessage: "Missing form data",
+    });
   }
 
-  const newFileData = DocumentUpdateBody.parse(body)
+  const { file, fileType } = await parseDocumentUploadForm(formData)
 
-  const mimeType = await getMimeType(newFileData)
+  let mimeType = await getMimeType(file.data)
+
+  // could not detect mimetype from binary or is text based
+  if (!mimeType) {
+    // use provided mimetype for now
+    mimeType = file.type!
+  }
 
   if (mimeType !== targetDocument.mimeType) {
     throw createError({
@@ -59,14 +63,15 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  await uploadDocument(newFileData, targetDocument.storagePath, mimeType)
+  await uploadDocument(file.data, targetDocument.storagePath, mimeType)
 
   const document = await prisma.document.update({
     where: {
       id: documentId
     },
     data: {
-      size: BigInt(newFileData.byteLength)
+      size: BigInt(file.data.byteLength),
+      fileType: fileType != targetDocument.documentType ? fileType : targetDocument.documentType
     }
   })
 
@@ -77,6 +82,3 @@ export default defineEventHandler(async (event) => {
 
   return parsedDocument
 })
-
-
-const DocumentUpdateBody = z.instanceof(Buffer)

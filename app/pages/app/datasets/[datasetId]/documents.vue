@@ -111,15 +111,15 @@ const replaceDocument = async (documentId: string) => {
     return
   }
 
-  const newData = await uploadFile.value.arrayBuffer()
+  const formData = new FormData()
+  formData.append("file", uploadFile.value)
+  formData.append("fileType", uploadType.value ?? "")
+  formData.append("fileExtension", uploadName.value.split(".").pop() ?? "")
 
   try {
     const documentResponse = await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
-      body: newData,
+      body: formData,
       method: "PUT",
-      headers: {
-        'Content-Type': 'application/octet-stream',
-    },
     })
 
     const documentReponseParsed = JSON.parse(documentResponse) as document
