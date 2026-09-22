@@ -17,13 +17,28 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { file, fileExtension, fileName, fileType } = await parseDocumentUploadForm(formData)
+  const { file, fileType } = await parseDocumentUploadForm(formData)
 
-  validateDocument(fileExtension, fileType ?? "")
+  let mimeType = await getMimeType(file.data)
 
-  const mimeType = await getMimeType(file.data)
+  // could not detect mimetype from binary or is text based
+  if (!mimeType) {
+    // use provided mimetype for now
+    mimeType = file.type!
+  }
 
-  const sanitizedName = sanitizeFileName(fileName).toLocaleLowerCase()
+  const sanitizedName = sanitizeFileName(file.filename!).toLocaleLowerCase()
+
+  const sanitziedExtension = sanitizedName.split(".").pop()
+
+  if (!sanitziedExtension) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `File missing an extension.`
+    })
+  }
+
+  validateDocument(sanitziedExtension, fileType, mimeType)
 
   const storagePath = `${datasetId}/${sanitizedName}`
 
@@ -31,7 +46,7 @@ export default defineEventHandler(async (event) => {
 
   const document = await prisma.document.create({
     data: {
-      originalName: fileName,
+      originalName: file.filename,
       sanitizedName: sanitizedName,
       documentType: fileType ?? "",
       storagePath,

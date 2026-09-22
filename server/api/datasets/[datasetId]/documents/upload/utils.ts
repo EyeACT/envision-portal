@@ -1,6 +1,6 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import { fileTypeFromBuffer } from 'file-type';
-import { DOCUMENT_TYPES, acceptedDocumentExtensions } from "#shared/constants/documents"
+import { DOCUMENT_TYPES, acceptedDocumentExtensions, acceptedDocumentMimeTypes } from "#shared/constants/documents"
 import type { H3Event, MultiPartData } from "h3"
 
 
@@ -21,7 +21,7 @@ export async function uploadDocument(fileData: Buffer | Uint8Array | ArrayBuffer
 }
 
 
-export function validateDocument(fileExtension: string, fileType: string | undefined) {
+export function validateDocument(fileExtension: string, fileType: string | undefined, mimeType: string) {
   const validExtension = acceptedDocumentExtensions.find((extension) => extension === fileExtension)
   if (!validExtension) {
     throw createError({
@@ -40,19 +40,25 @@ export function validateDocument(fileExtension: string, fileType: string | undef
     })
   }
 
+
+  const isValidMimetype = acceptedDocumentMimeTypes.includes(mimeType)
+  if (!isValidMimetype) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `File mime type is invalid.`
+    })
+  }
+
 }
 interface DocumentUploadForm {
   file: MultiPartData,
-  fileName: string,
   fileType?: string,
-  fileExtension: string
 }
 
 export async function parseDocumentUploadForm(formData: MultiPartData[]): Promise<DocumentUploadForm> {
   const file = formData.find((part) => part.name === "file")
-  const fileName = formData.find((part) => part.name === "fileName")?.data.toString()
   const fileType = formData.find((part) => part.name === "fileType")?.data.toString()
-  const fileExtension = formData.find((part) => part.name === "fileExtension")?.data.toString()
+
 
   if (!file) {
     throw createError({
@@ -61,22 +67,22 @@ export async function parseDocumentUploadForm(formData: MultiPartData[]): Promis
     })
   }
 
-  if (!fileName) {
+  if (!file.filename) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Form is missing file name"
+      statusMessage: "No file name included in the form data"
     })
   }
 
-  if (!fileExtension) {
+  if (!file.type) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Form is missing file extension"
+      statusMessage: "No mimetype included in the form data"
     })
   }
 
 
-  return { file, fileName, fileType, fileExtension }
+  return { file, fileType }
 }
 
 

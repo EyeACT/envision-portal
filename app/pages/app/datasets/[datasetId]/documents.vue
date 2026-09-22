@@ -78,10 +78,8 @@ const createDocument = async () => {
 
   const formData = new FormData()
   formData.append("file", uploadFile.value)
-  formData.append("fileName", uploadName.value)
   formData.append("fileType", uploadType.value ?? "")
   formData.append("fileExtension", uploadName.value.split(".").pop() ?? "")
-
 
   try {
     const documentResponse = await $fetch(`/api/datasets/${datasetId}/documents`, {
@@ -89,7 +87,7 @@ const createDocument = async () => {
       method: "POST"
     })
     const documentReponseParsed = JSON.parse(documentResponse) as document
-    const ext = uploadFile.value.name.split(".").pop()?.toLowerCase() ?? "file";
+    const ext = uploadName.value.split(".").pop()?.toLowerCase() ?? "file";
     documents.value.unshift({
       id: documentReponseParsed.id,
       name: documentReponseParsed.originalName,
@@ -316,7 +314,7 @@ const onDelete = async () => {
               ref="fileInputRef"
               type="file"
               class="hidden"
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
               @change="onFileInputChange"
             />
             <Icon name="i-lucide-upload-cloud" size="32" class="text-gray-400" />

@@ -24,3 +24,13 @@ export const acceptedDocumentExtensions = [
   "csv"
 ]
 
+export const acceptedDocumentMimeTypes = [
+  "application/pdf",
+  "text/markdown",
+  "text/plain",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/csv",
+  "application/msword"
+]
+
