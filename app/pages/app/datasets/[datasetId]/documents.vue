@@ -107,35 +107,18 @@ const createDocument = async () => {
 }
 
 const replaceDocument = async (documentId: string) => {
-  if(!uploadFile.value) {
-    return
-  }
-
-  const formData = new FormData()
-  formData.append("file", uploadFile.value)
-  formData.append("fileType", uploadType.value ?? "")
-  formData.append("fileExtension", uploadName.value.split(".").pop() ?? "")
 
   try {
-    const documentResponse = await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
-      body: formData,
-      method: "PUT",
+    await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
+      method: "DELETE",
     })
-
-    const documentReponseParsed = JSON.parse(documentResponse) as document
-    documents.value.forEach(document => {
-      if(document.id === documentId) {
-        document.size = Number(documentReponseParsed.size);
-      }  
-    })
-    toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
-  } catch (e) {
+    documents.value = documents.value.filter((d) => d.id !== documentId);
+  } catch(e) {
     console.error(e)
-    toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
-  } finally {
-    uploadLoading.value = false;
-    showUploadModal.value = false;
+    toast.add({title: "Could not replace document", color: "error", icon: "material-symbols:error"})
   }
+  
+  await createDocument()
 }
 
 const onUpload = async () => {
