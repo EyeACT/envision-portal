@@ -21,7 +21,9 @@ export const acceptedDocumentExtensions = [
   "txt",
   "docx",
   "xlsx",
-  "csv"
+  "xls",
+  "csv",
+  "doc"
 ]
 
 export const acceptedDocumentMimeTypes = [
@@ -31,6 +33,7 @@ export const acceptedDocumentMimeTypes = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "text/csv",
-  "application/msword"
+  "application/msword",
+  "application/vnd.ms-excel"
 ]
 

@@ -297,7 +297,7 @@ const onDelete = async () => {
               ref="fileInputRef"
               type="file"
               class="hidden"
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.md"
               @change="onFileInputChange"
             />
             <Icon name="i-lucide-upload-cloud" size="32" class="text-gray-400" />
