@@ -97,9 +97,10 @@ const createDocument = async () => {
       fileExtension: ext,
     });
     toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
-  } catch (e) {
+  } catch (error) {
+    const e = error as any
     console.error(e)
-    toast.add({title: "Document upload failed", description: uploadName.value,  color: "error", icon: "material-symbols:error"})
+    toast.add({title: "Document upload failed", description: e.data.statusMessage,  color: "error", icon: "material-symbols:error"})
   } finally {
     uploadLoading.value = false;
     showUploadModal.value = false;
@@ -173,9 +174,10 @@ const onDelete = async () => {
     })
     documents.value = documents.value.filter((d) => d.id !== deleteTarget.value!.id);
     toast.add({ title: "Document deleted", description: deleteTarget.value.name });
-  } catch(e) {
+  } catch(error) {
+    const e = error as any
     console.error(e)
-    toast.add({title: "Could not delete document", color: "error", icon: "material-symbols:error"})
+    toast.add({title: "Could not delete document", description: e.data.statusMessage, color: "error", icon: "material-symbols:error"})
   } finally {
     deleteLoading.value = false
     showDeleteModal.value = false;
@@ -305,7 +307,7 @@ const onDelete = async () => {
             <p class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ uploadFile ? uploadFile.name : "Click or drag a file here" }}
             </p>
-            <p class="mt-1 text-xs text-gray-400">PDF, Word, Excel, PowerPoint, TXT, CSV</p>
+            <p class="mt-1 text-xs text-gray-400">PDF, Word, Excel, TXT, CSV, MD</p>
           </div>
 
           <!-- Document name -->
