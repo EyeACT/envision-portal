@@ -21,7 +21,7 @@ export async function uploadDocument(fileData: Buffer | Uint8Array | ArrayBuffer
 }
 
 
-export function validateDocument(fileExtension: string, fileType: string | undefined, mimeType: string) {
+export function validateDocument(fileExtension: string, fileType: string | undefined, mimeType: string, sizeInBytes: number) {
   const validExtension = acceptedDocumentExtensions.find((extension) => extension === fileExtension)
   if (!validExtension) {
     throw createError({
@@ -46,6 +46,14 @@ export function validateDocument(fileExtension: string, fileType: string | undef
     throw createError({
       statusCode: 400,
       statusMessage: `File mime type is invalid.`
+    })
+  }
+
+  const maxBytes = 15 * 1024 * 1024
+  if (sizeInBytes > maxBytes) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `File size is larger than 15MB.`
     })
   }
 

@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  validateDocument(sanitziedExtension, fileType, mimeType)
+  validateDocument(sanitziedExtension, fileType, mimeType, file.data.byteLength)
 
   const storagePath = `${datasetId}/${sanitizedName}`
 
