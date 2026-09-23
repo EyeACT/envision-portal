@@ -172,6 +172,7 @@ const datasetNavItems = [
     route: "metadata",
   },
   { name: "Files", icon: "ph:files-fill", route: "files" },
+  { name: "Documents", icon: "material-symbols:folder-copy-outline-rounded", route: "documents" },
   {
     name: "Changelog",
     icon: "material-symbols:history",

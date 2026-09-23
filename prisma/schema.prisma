@@ -130,6 +130,21 @@ model Dataset {
     StudyLocation         StudyLocation[]
 
     ControlledDatasetRequest ControlledDatasetRequest[]
+
+    Document Document[]
+}
+
+model Document {
+    id String @id @default(cuid(2))
+    datasetId String
+    dataset Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+    storagePath String @default("")
+    sanitizedName String @default("")
+    originalName String @default("")
+    documentType String @default("")
+    mimeType String @default("")
+    created DateTime @default(now())
+    size BigInt @default(0)
 }
 
 model DatasetMember {
