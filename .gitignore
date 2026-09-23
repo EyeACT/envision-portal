@@ -31,6 +31,3 @@ database.sqlite
 
 # Prisma 
 shared/generated/
-
-# Generated CMDS validator test tree
-mock_cmds_mini/
