@@ -1,6 +1,6 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import { fileTypeFromBuffer } from 'file-type';
-import { DOCUMENT_TYPES, acceptedDocumentExtensions, acceptedDocumentMimeTypes } from "#shared/constants/documents"
+import { DOCUMENT_TYPES, ACCEPTED_DOCUMENT_EXTENSIONS, ACCEPTED_DOCUMENT_MIMETYPES } from "#shared/constants/documents"
 import type { H3Event, MultiPartData } from "h3"
 
 
@@ -22,11 +22,11 @@ export async function uploadDocument(fileData: Buffer | Uint8Array | ArrayBuffer
 
 
 export function validateDocument(fileExtension: string, fileType: string | undefined, mimeType: string, sizeInBytes: number) {
-  const validExtension = acceptedDocumentExtensions.find((extension) => extension === fileExtension)
+  const validExtension = ACCEPTED_DOCUMENT_EXTENSIONS.find((extension) => extension === fileExtension)
   if (!validExtension) {
     throw createError({
       statusCode: 400,
-      statusMessage: `File must be one of: ${acceptedDocumentExtensions.toString()}`
+      statusMessage: `File must be one of: ${ACCEPTED_DOCUMENT_EXTENSIONS.toString()}`
     })
   }
 
@@ -41,7 +41,7 @@ export function validateDocument(fileExtension: string, fileType: string | undef
   }
 
 
-  const isValidMimetype = acceptedDocumentMimeTypes.includes(mimeType)
+  const isValidMimetype = ACCEPTED_DOCUMENT_MIMETYPES.includes(mimeType)
   if (!isValidMimetype) {
     throw createError({
       statusCode: 400,

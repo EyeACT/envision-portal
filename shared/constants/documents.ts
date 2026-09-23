@@ -15,7 +15,7 @@ export const DOCUMENT_TYPES = [
   { label: "Other", value: "other" },
 ] as const;
 
-export const acceptedDocumentExtensions = [
+export const ACCEPTED_DOCUMENT_EXTENSIONS = [
   "pdf",
   "md",
   "txt",
@@ -26,7 +26,7 @@ export const acceptedDocumentExtensions = [
   "doc"
 ]
 
-export const acceptedDocumentMimeTypes = [
+export const ACCEPTED_DOCUMENT_MIMETYPES = [
   "application/pdf",
   "text/markdown",
   "text/plain",
