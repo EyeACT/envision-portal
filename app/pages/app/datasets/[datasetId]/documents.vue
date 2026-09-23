@@ -86,14 +86,14 @@ const createDocument = async () => {
       body: formData, 
       method: "POST"
     })
-    const documentReponseParsed = JSON.parse(documentResponse) as document
+    const newDocument = JSON.parse(documentResponse) as document
     const ext = uploadName.value.split(".").pop()?.toLowerCase() ?? "file";
     documents.value.unshift({
-      id: documentReponseParsed.id,
-      name: documentReponseParsed.originalName,
+      id: newDocument.id,
+      name: newDocument.originalName,
       type: uploadType.value,
       size: Number(uploadFile.value.size),
-      uploadedAt: documentReponseParsed.created,
+      uploadedAt: newDocument.created,
       fileExtension: ext,
     });
     toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
@@ -116,6 +116,7 @@ const replaceDocument = async (documentId: string) => {
   } catch(e) {
     console.error(e)
     toast.add({title: "Could not replace document", color: "error", icon: "material-symbols:error"})
+    return
   }
   
   await createDocument()
