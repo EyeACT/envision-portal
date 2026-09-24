@@ -131,20 +131,23 @@ model Dataset {
 
     ControlledDatasetRequest ControlledDatasetRequest[]
 
-    Document Document[]
+    DatasetSupportingDocument DatasetSupportingDocument[]
 }
 
-model Document {
+model DatasetSupportingDocument {
     id String @id @default(cuid(2))
+
     datasetId String
-    dataset Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
-    storagePath String @default("")
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    storagePath   String @default("")
     sanitizedName String @default("")
-    originalName String @default("")
-    documentType String @default("")
-    mimeType String @default("")
+    originalName  String @default("")
+    documentType  String @default("")
+    mimeType      String @default("")
+    size          BigInt @default(0)
+
     created DateTime @default(now())
-    size BigInt @default(0)
 }
 
 model DatasetMember {
