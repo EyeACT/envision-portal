@@ -142,13 +142,20 @@ const copyToClipboard = async (text: string) => {
             </h2>
 
             <p class="mb-2 text-gray-600">
-              Before uploading, run your files through the Data Validator to
-              catch formatting issues early. The validator checks file
-              structure, required fields, and naming conventions so that uploads
-              succeed on the first attempt.
+              Before uploading, validate that your local folder follows the CMDS
+              folder structure. The in-browser CMDS Validator checks file and
+              directory names on your computer — files are never uploaded.
             </p>
 
-            <div class="mb-4 flex gap-4">
+            <div class="mb-4 flex flex-wrap gap-4">
+              <UButton
+                :to="`/app/datasets/${datasetId}/validator`"
+                color="primary"
+                icon="mdi:folder-check-outline"
+              >
+                Open CMDS Validator
+              </UButton>
+
               <UButton
                 to="https://envisionportal.blob.core.windows.net/apps/data-validator/DataValidator.dmg"
                 target="_blank"
