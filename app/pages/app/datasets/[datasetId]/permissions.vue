@@ -21,6 +21,8 @@ interface DatasetMember {
   owner: boolean;
   role: MemberRole;
   created: string;
+  accepted: boolean;
+  url?: string;
 }
 
 const roleOptions = [
@@ -41,6 +43,18 @@ const roleOptions = [
   },
 ];
 
+
+const currentRole = ref("")
+const currentEmail = ref("")
+
+// email sending loading
+const emailSending = ref(false)
+
+// member removal loading
+const removingMember = ref(false)
+
+
+// NOTE: Accepted will be a foregin field from DatasetInvitation later on
 // TODO: replace with data from `/api/datasets/${datasetId}/members`
 const members = ref<DatasetMember[]>([
   {
@@ -51,6 +65,7 @@ const members = ref<DatasetMember[]>([
     owner: true,
     role: "owner",
     created: "2026-01-12T00:00:00.000Z",
+    accepted: true
   },
   {
     userId: "2",
@@ -60,6 +75,8 @@ const members = ref<DatasetMember[]>([
     owner: false,
     role: "admin",
     created: "2026-02-03T00:00:00.000Z",
+    accepted: true
+
   },
   {
     userId: "3",
@@ -69,6 +86,8 @@ const members = ref<DatasetMember[]>([
     owner: false,
     role: "editor",
     created: "2026-03-21T00:00:00.000Z",
+    accepted: true
+
   },
   {
     userId: "4",
@@ -78,6 +97,8 @@ const members = ref<DatasetMember[]>([
     owner: false,
     role: "viewer",
     created: "2026-05-08T00:00:00.000Z",
+    accepted: false,
+    url: "https://fairdataihub.org/"
   },
 ]);
 
@@ -96,8 +117,12 @@ const filteredMembers = computed(() => {
   );
 });
 
-const displayName = (member: DatasetMember) =>
-  `${member.givenName} ${member.familyName}`.trim() || member.emailAddress;
+const displayName = (member: DatasetMember) => {
+  if(!member.accepted) {
+    return `${member.emailAddress} [invited]`
+  }
+  return `${member.givenName} ${member.familyName}`.trim() || member.emailAddress;
+}
 
 const roleLabel = (role: MemberRole) =>
   role === "owner"
@@ -133,6 +158,56 @@ const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
     updatingMemberId.value = null;
   }
 };
+
+const addMember = async () => {
+  emailSending.value = true;
+
+
+  // TODO: Create real URL
+  // Create Dataset Invitation and url
+  const url = "https://fairdataihub.org/"
+
+
+  // TODO: Send EMAIL INVITATIONS
+  await new Promise((resolve) => setTimeout(resolve, 1800));
+
+  emailSending.value = false;
+  toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
+  // add member if has account to members list
+  members.value.push({
+    userId: "9",
+    givenName: "",
+    familyName: "",
+    emailAddress: currentEmail.value,
+    owner: false,
+    role: currentRole.value,
+    created: "2026-02-03T00:00:00.000Z",
+    accepted: false,
+    url
+  })
+
+  currentRole.value = ""
+  currentEmail.value = ""
+
+}
+
+const removeMember = async (member: DatasetMember) => {
+    removingMember.value = true
+
+    // Mock rescinding invitation and removing user from dataset team
+    await new Promise((resolve) => setTimeout(resolve, 1800));
+
+    removingMember.value = false
+
+    toast.add({
+      title: "Member Removed",
+      icon: "material-symbols:check-circle",
+    });
+
+
+    members.value = members.value.filter(currMember => currMember.emailAddress !== member.emailAddress)
+}
+
 </script>
 
 <template>
@@ -158,6 +233,49 @@ const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
         <p class="text-base text-gray-500 dark:text-gray-400">
           Manage who has access to this dataset and what they can do.
         </p>
+      </div>
+
+      <div
+        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
+        <div class="flex w-full items-center justify-between gap-3">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+          Add Members
+        </h1>
+        </div>
+
+        <p class="flex w-full text-base text-gray-500 dark:text-gray-400">
+          Invite members to your team and assign their role
+        </p>
+
+        <div class="flex w-full py-4 gap-3">
+          <div class="flex flex-col">
+            <label>Email address</label>
+            <UInput
+                v-model="currentEmail"
+                placeholder="Ex. sue@gmail.com"
+                class="w-full sm:w-64"
+            />
+          </div>
+          <div class="flex flex-col">
+            <label>Role</label>
+            <USelect
+              v-model="currentRole"
+              :items="roleOptions"
+              value-key="label"
+              class="w-36"
+              placeholder="Select role"
+            />
+          </div>
+          <div class="flex items-end">
+            <UButton
+              label="Add Member"
+              @click="addMember"
+              :loading="emailSending"
+            />
+          </div>
+        </div>
+
       </div>
 
       <div
@@ -189,8 +307,8 @@ const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
         >
           <li
             v-for="member in filteredMembers"
-            :key="member.userId"
-            class="flex flex-wrap items-center justify-between gap-3 py-4"
+            :key="member.emailAddress"
+            :class="[member.accepted ? 'flex flex-wrap items-center justify-between gap-2 py-4' : 'flex flex-wrap items-center justify-between gap-2 py-4 opacity-60']"
           >
             <div class="flex min-w-0 items-center gap-3">
               <UAvatar :alt="displayName(member)" size="md" />
@@ -219,7 +337,7 @@ const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
             </UBadge>
 
             <USelect
-              v-else
+              v-else-if="member.accepted"
               :model-value="member.role"
               :items="roleOptions"
               :loading="updatingMemberId === member.userId"
@@ -229,6 +347,36 @@ const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
                 (value) => updateRole(member, value as MemberRole)
               "
             />
+
+            <div 
+              v-else
+              class="flex gap-2"
+            >
+              <UBadge 
+                color="neutral"
+                variant="soft"
+                size="md"
+                class="font-bold uppercase"
+              >
+                {{ member.role }}
+              </UBadge>
+              <ULink 
+                as="button"
+                color="primary"
+                variant="soft"
+                size="sm"
+                :to="member.url"
+                target="_blank"
+              >Follow Invite URL</ULink>
+            </div>
+
+            <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                @click="removeMember(member)"
+                :loading="removingMember"
+              />
           </li>
         </ul>
 
@@ -239,3 +387,7 @@ const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
     </div>
   </div>
 </template>
+example.com
+
+
+Vie
