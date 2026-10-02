@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { z } from "zod";
 import type { FormSubmitEvent } from "#ui/types";
+import type { DatasetInvitation, DatasetMember } from "~~/shared/generated/client";
 
 const { loggedIn } = useUserSession();
 const { environment } = useRuntimeConfig().public;
+
+const route = useRoute()
 
 if (loggedIn.value) {
   await navigateTo("/app/dashboard");
@@ -19,6 +22,8 @@ useSeoMeta({
 
 const toast = useToast();
 const loading = ref(false);
+
+const invitation = route.query.invitation
 
 const showPassword = ref(false);
 
@@ -44,6 +49,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     familyName: event.data.familyName,
     givenName: event.data.givenName,
     password: event.data.password,
+    invitation: invitation
   };
 
   loading.value = true;
@@ -52,14 +58,56 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     body,
     method: "POST",
   })
-    .then(async () => {
-      toast.add({
-        title: "Account created successfully",
-        color: "info",
-        description:
-          "Please check your email to verify your account before logging in.",
-        icon: "material-symbols:mail-outline",
-      });
+    .then(async (response) => {
+      let message = response.message
+      if(message == "Invitation Accepted.") {
+        // log user in
+        await $fetch("/api/auth/login", {
+          body,
+          method: "POST",
+        })
+
+
+        // TODO: Consume DatasetInvitations for new users and direct to latest dataset page
+        let invitationResponse = await $fetch(`/api/me/datasetInvitations`)
+        let invitations = await JSON.parse(invitationResponse) as DatasetInvitation[]
+
+        if(!invitations) {
+          window.location.href = "/app/dashboard";
+        }
+        
+        let navigateToDatasetId = ""
+        for (const invitation of invitations) {
+          // create the dataset membership
+          try {
+            let memberResponse = await $fetch(`/api/datasets/${invitation.datasetId}/members`, {
+              method: "POST",
+              body: {
+                invitation: invitation.invitationToken
+              }
+            })
+
+            navigateToDatasetId = memberResponse.datasetId
+          } catch(e) {
+            console.error(e)
+          }
+        }
+
+        if(!navigateToDatasetId) {
+          window.location.href = "/app/dashboard";
+        } else {
+          window.location.href = `/app/datasets/${navigateToDatasetId}`
+        }
+
+      } else {
+        toast.add({
+          title: "Account created successfully",
+          color: "info",
+          description:
+            "Please check your email to verify your account before logging in.",
+          icon: "material-symbols:mail-outline",
+        });
+      }
     })
     .catch((error) => {
       console.error(error.data);

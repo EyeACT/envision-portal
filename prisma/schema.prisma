@@ -48,6 +48,10 @@ model platformInvitation {
 
     emailAddress String
 
+    invitationToken String? @unique  
+    invitationTokenExpires DateTime?
+    invitationAccepted Boolean?
+
     updated DateTime @updatedAt
     created DateTime @default(now())
 }
@@ -176,6 +180,10 @@ model DatasetInvitation {
     user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     emailAddress String? // for users with no accounts
+
+    invitationToken String? @unique  
+    invitationTokenExpires DateTime?
+    invitationAccepted Boolean?
 
     role String @default("viewer") // owner | admin | editor | viewer
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { DatasetInvitation } from '~~/shared/generated/client';
+
 definePageMeta({
   middleware: ["auth"],
 });
@@ -24,6 +26,7 @@ interface DatasetMember {
   accepted: boolean;
   url?: string;
 }
+
 
 const roleOptions = [
   {
@@ -56,7 +59,21 @@ const removingMember = ref(false)
 
 // NOTE: Accepted will be a foregin field from DatasetInvitation later on
 // TODO: replace with data from `/api/datasets/${datasetId}/members`
-const members = ref<DatasetMember[]>([
+$fetch(`/api/datasets/${datasetId}/members`).then(fetchedMembers  => {
+  for(const m of fetchedMembers) {
+    const {user, updated, role, ...mFields} = m 
+    members.value.push({ 
+      accepted: false, // TODO: Get accepted or pre made equivalent from DB on this fetch call
+      role: role as DatasetRole, 
+      ...user, 
+      ...mFields
+    })
+  }
+
+}).catch((error) => {
+  console.error(error)
+})
+const members = ref<DatasetMember []>([
   {
     userId: "1",
     givenName: "Jane",
@@ -163,31 +180,53 @@ const addMember = async () => {
   emailSending.value = true;
 
 
-  // TODO: Create real URL
-  // Create Dataset Invitation and url
-  const url = "https://fairdataihub.org/"
+  console.log(currentRole.value)
 
+  try {
+    const dsi = await $fetch(`/api/datasets/${datasetId}/datasetInvitation`, {
+      method: "POST",
+      body: {
+        emailAddress: currentEmail.value,
+        datasetId: datasetId,
+        role: currentRole.value,
 
-  // TODO: Send EMAIL INVITATIONS
-  await new Promise((resolve) => setTimeout(resolve, 1800));
+      }
+    })
+    console.log(dsi)
+    toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
+    // add member if has account to members list
+    members.value.push({
+      userId: "9", // spoof for now
+      givenName: "",
+      familyName: "",
+      emailAddress: currentEmail.value,
+      owner: false,
+      role: currentRole.value,
+      created: "2026-02-03T00:00:00.000Z",
+      accepted: false,
+      url: dsi
+    })
 
-  emailSending.value = false;
-  toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
-  // add member if has account to members list
-  members.value.push({
-    userId: "9",
-    givenName: "",
-    familyName: "",
-    emailAddress: currentEmail.value,
-    owner: false,
-    role: currentRole.value,
-    created: "2026-02-03T00:00:00.000Z",
-    accepted: false,
-    url
-  })
+  // TODO: Create member if already a user (maybe)
+  // try {
+  //   const addedMember = await $fetch(`/api/datasets/${datasetId}/members`, {
+  //     method: "POST",
+  //     body: email
+  //   })
+  // } catch(error) {
+  //   const e = error as any
+  //   console.error(e)
+  // }
 
-  currentRole.value = ""
-  currentEmail.value = ""
+    currentRole.value = ""
+    currentEmail.value = ""
+  } catch (error) {
+    const e = error as any
+    console.error(e)
+    toast.add({title: "Dataset Invitation Not Sent", description: e.data.statusMessage,  color: "error", icon: "material-symbols:error"})
+  } finally {
+    emailSending.value = false;
+  }
 
 }
 
