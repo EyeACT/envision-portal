@@ -3,20 +3,13 @@ import { z } from "zod"
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
 
-  const body = await readValidatedBody(event, memberSchema.safeParse)
-
-  if (!body) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Missing member information"
-    })
-  }
-
-  const memberToAdd = body.data!
+  const { invitationId } = event.context.params as {
+    invitationId: string;
+  };
 
   const invitation = await prisma.datasetInvitation.findUnique({
     where: {
-      invitationToken: memberToAdd.invitationToken
+      id: invitationId
     }
   })
 
@@ -43,7 +36,7 @@ export default defineEventHandler(async (event) => {
   // TODO: consume invitation token and add the userId
   await prisma.datasetInvitation.update({
     where: {
-      invitationToken: memberToAdd.invitationToken
+      id: invitationId
     },
     data: {
       invitationAccepted: true
@@ -62,10 +55,4 @@ export default defineEventHandler(async (event) => {
 
 
   return addedMember
-})
-
-
-
-const memberSchema = z.object({
-  invitationToken: z.string()
 })

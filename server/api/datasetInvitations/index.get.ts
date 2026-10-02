@@ -4,15 +4,14 @@ export default defineEventHandler(async (event) => {
 
   // todo: add permissions check
   const emailAddress = session.user.emailAddress
-
-  const { datasetId } = event.context.params as {
-    datasetId: string;
-  };
+  const userId = session.user.id
 
   const invitations = await prisma.datasetInvitation.findMany({
     where: {
-      id: datasetId,
-      emailAddress: emailAddress
+      OR: [
+        { emailAddress: emailAddress },
+        { userId: userId }
+      ]
     },
   });
 

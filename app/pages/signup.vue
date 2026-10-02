@@ -69,7 +69,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 
         // TODO: Consume DatasetInvitations for new users and direct to latest dataset page
-        let invitationResponse = await $fetch(`/api/me/datasetInvitations`)
+        let invitationResponse = await $fetch(`/api/datasetInvitations`) 
         let invitations = await JSON.parse(invitationResponse) as DatasetInvitation[]
 
         if(!invitations) {
@@ -80,11 +80,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         for (const invitation of invitations) {
           // create the dataset membership
           try {
-            let memberResponse = await $fetch(`/api/datasets/${invitation.datasetId}/members`, {
+            let memberResponse = await $fetch(`/api/datasetInvitations/${invitation.id}/accept`, {
               method: "POST",
-              body: {
-                invitation: invitation.invitationToken
-              }
             })
 
             navigateToDatasetId = memberResponse.datasetId
