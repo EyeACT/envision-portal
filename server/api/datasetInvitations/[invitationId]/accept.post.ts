@@ -1,7 +1,9 @@
-import { z } from "zod"
+
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
+
+  const userEmail = session.user.emailAddress
 
   const { invitationId } = event.context.params as {
     invitationId: string;
@@ -9,7 +11,8 @@ export default defineEventHandler(async (event) => {
 
   const invitation = await prisma.datasetInvitation.findUnique({
     where: {
-      id: invitationId
+      id: invitationId,
+      emailAddress: userEmail
     }
   })
 
@@ -22,8 +25,8 @@ export default defineEventHandler(async (event) => {
 
   // Check if the invitation has expired
   if (
-    invitation.invitationTokenExpires &&
-    invitation.invitationTokenExpires < new Date()
+    invitation.invitationExpires &&
+    invitation.invitationExpires < new Date()
   ) {
     throw createError({
       statusCode: 410,
@@ -32,26 +35,36 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-
-  // TODO: consume invitation token and add the userId
-  await prisma.datasetInvitation.update({
-    where: {
-      id: invitationId
-    },
-    data: {
-      invitationAccepted: true
-    }
-  })
+  if (invitation.invitationAccepted) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invitation already accepted.",
+    });
+  }
 
 
-  const addedMember = await prisma.datasetMember.create({
-    data: {
-      userId: session.user.id,
-      role: invitation.role,
-      datasetId: invitation.datasetId
+  // consume invitation and create new dataset membership
+  const [consumedInvitation, addedMember] = await prisma.$transaction([
+    prisma.datasetInvitation.update({
+      where: {
+        id: invitationId,
+        emailAddress: userEmail
+      },
+      data: {
+        invitationAccepted: true,
+        userId: session.user.id
+      }
+    }),
 
-    }
-  })
+    prisma.datasetMember.create({
+      data: {
+        userId: session.user.id,
+        role: invitation.role,
+        datasetId: invitation.datasetId
+
+      }
+    })
+  ])
 
 
   return addedMember

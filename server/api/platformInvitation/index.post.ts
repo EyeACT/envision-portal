@@ -1,11 +1,13 @@
 import { hash } from "bcrypt";
 import { nanoid } from "nanoid";
 import dayjs from "dayjs";
-import { config, z } from "zod"
+import { z } from "zod"
 
+// TODO: Restrict platform invitations to platform members/some kind of elevated user
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event);
+
   const config = useRuntimeConfig()
-  // await datasetMinAdminPermission(event)
 
   const body = await readValidatedBody(event, (b) =>
     platformInviteSchema.safeParse(b)

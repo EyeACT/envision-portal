@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (environment === "production" || environment === "staging" && !body.data.invitation) {
+  if ((environment === "production" || environment === "staging") && !body.data.invitation) {
     throw createError({
       statusCode: 403,
       statusMessage: "Signup has been disabled",

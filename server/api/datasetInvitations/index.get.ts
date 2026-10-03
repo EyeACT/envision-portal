@@ -13,8 +13,13 @@ export default defineEventHandler(async (event) => {
         { userId: userId }
       ]
     },
+    select: {
+      id: true,
+      emailAddress: true,
+      userId: true,
+      role: true
+    }
   });
-
 
 
   return invitations || [];

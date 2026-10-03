@@ -69,8 +69,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 
         // TODO: Consume DatasetInvitations for new users and direct to latest dataset page
-        let invitationResponse = await $fetch(`/api/datasetInvitations`) 
-        let invitations = await JSON.parse(invitationResponse) as DatasetInvitation[]
+        let invitations = await $fetch(`/api/datasetInvitations`) 
 
         if(!invitations) {
           window.location.href = "/app/dashboard";
@@ -78,7 +77,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         
         let navigateToDatasetId = ""
         for (const invitation of invitations) {
-          // create the dataset membership
+          // create the dataset membership for any invitations that are valid
           try {
             let memberResponse = await $fetch(`/api/datasetInvitations/${invitation.id}/accept`, {
               method: "POST",
@@ -90,12 +89,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           }
         }
 
+        // no valid invitations
         if(!navigateToDatasetId) {
           window.location.href = "/app/dashboard";
         } else {
           window.location.href = `/app/datasets/${navigateToDatasetId}`
         }
-
       } else {
         toast.add({
           title: "Account created successfully",

@@ -1,11 +1,13 @@
-import { hash } from "bcrypt";
-import { nanoid } from "nanoid";
+
 import dayjs from "dayjs";
-import { config, z } from "zod"
+import { z } from "zod"
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  // await datasetMinAdminPermission(event)
+  await datasetMinAdminPermission(event)
+
+  const { datasetId } = event.context.params as { datasetId: string };
+
 
   const body = await readValidatedBody(event, (b) =>
     datasetInviteSchema.safeParse(b)
@@ -21,38 +23,53 @@ export default defineEventHandler(async (event) => {
   const datasetInvite = body.data
 
 
-  // TODO: Hash token?
-  const invitationToken = nanoid();
-  // TODO: Up time to days later
-  const invitationTokenExpires = dayjs().add(30, "minute").toDate();
+  const user = await prisma.user.findUnique({
+    where: {
+      emailAddress: datasetInvite.emailAddress
+    }
+  })
+
+
+  // TODO: Match platform invitation time later
+  const invitationExpires = dayjs().add(30, "minute").toDate();
 
 
   const datasetInvitation = await prisma.datasetInvitation.create({
     data: {
       ...datasetInvite,
-      invitationToken,
-      invitationTokenExpires
+      invitationExpires,
+      userId: user?.id ?? null
     }
   })
 
 
-  // Send invitation email
-  const invitationLink = `${config.emailVerificationDomain}/signup?invitation=${invitationToken}`
-  // TOOD: EMAIL TEMPLATE
-  // await sendEmail(
-  //   datasetInvite.emailAddress,
-  //   "Sick Invitation Subject",
-  //   invitationLink
-  // )
+  if (user) {
+    // Send invitation email
+    const invitationLink = `${config.emailVerificationDomain}/app/datasets/${datasetId}/permissions?invitation=${datasetInvitation.id}`
+    // TOOD: EMAIL TEMPLATE
+    // await sendEmail(
+    //   datasetInvite.emailAddress,
+    //   "Sick Invitation Subject",
+    //   invitationLink
+    // )
+
+    return invitationLink
+
+  } else {
+    // not platform user 
+    // TODO: Create token for external user flow that gets consumed at signup once 
+    // platform membership levels sorted out
+    const invitationLink = `${config.emailVerificationDomain}/signup?invitation=${1234}`
+    return invitationLink
+  }
 
 
-  return invitationLink
 })
 
 
 let datasetInviteSchema = z.object({
   datasetId: z.string(),
   emailAddress: z.email(),
-  role: z.string(),
+  role: z.enum(DATASET_ROLES),
   userId: z.string().optional()
 })

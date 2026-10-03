@@ -11,6 +11,18 @@ const toast = useToast();
 const { studyId } = route.params as { studyId: string };
 const { datasetId } = route.params as { datasetId: string };
 
+const invitation = route.query.invitation
+
+if(invitation) {
+  // TODO: Show accept MODAL
+  console.log("We are accepting the invitation automatically for now")
+
+  // SESSION protected accept for given invitation
+  await $fetch(`/api/datasetInvitations/${invitation}/accept`, {
+    method: "POST"
+  })
+}
+
 useSeoMeta({ title: "Permissions" });
 
 type MemberRole = "owner" | "admin" | "editor" | "viewer";
