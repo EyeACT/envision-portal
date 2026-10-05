@@ -51,15 +51,16 @@ export default defineEventHandler(async (event) => {
   const verificationToken = nanoid();
   const tokenExpiry = dayjs().add(30, "minute").toDate();
 
+  // TODO: Database transaction for consuming and creating a user
   // signups with successful invitation consumption skip email verification
-  const invitationConsumed = await consumePlatformInvitation(body.data.invitation, body.data.emailAddress)
+  const validInvitation = await hasValidDatasetInvitation(body.data.invitation, body.data.emailAddress)
 
   const newUser = await prisma.user.create({
     data: {
       emailAddress: body.data.emailAddress,
       emailVerificationToken: verificationToken,
       emailVerificationTokenExpires: tokenExpiry,
-      emailVerified: invitationConsumed ? true : false,
+      emailVerified: validInvitation ? true : false,
       familyName: body.data.familyName,
       givenName: body.data.givenName,
       password: hashedPassword,
@@ -74,7 +75,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (!invitationConsumed) {
+  if (!validInvitation) {
     // Send verification email
     const verificationLink = `${config.emailVerificationDomain}/verify-email?token=${verificationToken}`;
 
@@ -88,34 +89,34 @@ export default defineEventHandler(async (event) => {
   }
 
 
-  return { message: "Invitation Accepted." }
+  return { message: "Email already verified. Please login." }
 });
 
 
-const consumePlatformInvitation = async (invitation: string | undefined, emailAddress: string) => {
+const hasValidDatasetInvitation = async (invitation: string | undefined, emailAddress: string) => {
   if (!invitation) {
     return false
   }
 
   // Check if the user has a platform invitation
-  const platformInvitation = await prisma.platformInvitation.findUnique({
+  const datasetInvitation = await prisma.datasetInvitation.findUnique({
     where: {
       emailAddress: emailAddress,
       invitationToken: invitation
     },
   });
 
-  if (!platformInvitation) {
+  if (!datasetInvitation) {
     throw createError({
       statusCode: 401,
-      statusMessage: "User does not have a platform invitation",
+      statusMessage: "User does not have a dataset invitation",
     });
   }
 
   // Check if the invitation has expired
   if (
-    platformInvitation.invitationTokenExpires &&
-    platformInvitation.invitationTokenExpires < new Date()
+    datasetInvitation.invitationExpires &&
+    datasetInvitation.invitationExpires < new Date()
   ) {
     throw createError({
       statusCode: 410,
@@ -124,16 +125,6 @@ const consumePlatformInvitation = async (invitation: string | undefined, emailAd
     });
   }
 
-  // consume invitation
-  await prisma.platformInvitation.update({
-    where: {
-      emailAddress: emailAddress,
-      invitationToken: invitation
-    },
-    data: {
-      invitationAccepted: true
-    }
-  })
 
   return true
 }

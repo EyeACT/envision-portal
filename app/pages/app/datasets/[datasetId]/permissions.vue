@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { roundToNearestHoursWithOptions } from 'date-fns/fp';
 import type { DatasetInvitation } from '~~/shared/generated/client';
 
 definePageMeta({
@@ -35,8 +36,17 @@ interface DatasetMember {
   owner: boolean;
   role: MemberRole;
   created: string;
-  accepted: boolean;
   url?: string;
+}
+
+interface DatasetInvitation {
+  id: string;
+  emailAddress: string | null;
+  role: MemberRole;
+  invitationAccepted: boolean;
+  invitationExpires: string
+  url: string;
+  userId: string | null;
 }
 
 
@@ -75,7 +85,6 @@ $fetch(`/api/datasets/${datasetId}/members`).then(fetchedMembers  => {
   for(const m of fetchedMembers) {
     const {user, updated, role, ...mFields} = m 
     members.value.push({ 
-      accepted: false, // TODO: Get accepted or pre made equivalent from DB on this fetch call
       role: role as DatasetRole, 
       ...user, 
       ...mFields
@@ -85,6 +94,18 @@ $fetch(`/api/datasets/${datasetId}/members`).then(fetchedMembers  => {
 }).catch((error) => {
   console.error(error)
 })
+
+
+$fetch(`/api/datasets/${datasetId}/invitations`).then(fetchedInvitations => {
+  for(const i of fetchedInvitations) {
+    const {role, ...iFields} = i
+    invitations.value.push({...iFields, role: role as DatasetRole})
+  }
+}).catch((error) => {
+  console.error(error)
+})
+
+// TODO: Convert accepted invites to Datasetmembers/remove accetped invites to avoid duplication
 const members = ref<DatasetMember []>([
   {
     userId: "1",
@@ -131,7 +152,59 @@ const members = ref<DatasetMember []>([
   },
 ]);
 
+const invitations = ref<DatasetInvitation []>([])
+
+type PermissionRow = | {
+  kind: "member",
+  key: string;
+  name: string;
+  emailAddress: string;
+  role: MemberRole;
+  owner: boolean; 
+  member: DatasetMember
+} | {
+  kind: "invitation";
+  key: string;
+  owner: boolean;
+  name: string;
+  emailAddress: string | null;
+  role: MemberRole;
+  invitation: DatasetInvitation;
+}
+
 const search = ref("");
+
+const filteredRows = computed<PermissionRow[]>(() => {
+  const rows: PermissionRow[] = [
+    ...members.value.map((member) => ({
+      kind: "member" as const,
+      key: `member:${member.userId}`,
+      name: `${member.givenName} ${member.familyName}`.trim() || member.emailAddress,
+      emailAddress: member.emailAddress,
+      role: member.role,
+      owner: member.owner,
+      member,
+    })),
+    ...invitations.value.filter((invitation) => !invitation.invitationAccepted)
+    .map((invitation) => ({
+      kind: "invitation" as const,
+      key: `invitation:${invitation.id}`,
+      name: `${invitation.emailAddress ?? "Unknown email"} [invited]`,
+      emailAddress: invitation.emailAddress ?? "",
+      role: invitation.role,
+      owner: false,
+      invitation
+    }))
+  ]
+
+  const query = search.value.trim().toLowerCase();
+
+  if(!query) return rows
+
+  return rows.filter((row) => 
+    `${row.name} ${row.emailAddress}`.toLocaleLowerCase().includes(query)
+  );
+})
 
 const filteredMembers = computed(() => {
   const query = search.value.trim().toLowerCase();
@@ -146,12 +219,7 @@ const filteredMembers = computed(() => {
   );
 });
 
-const displayName = (member: DatasetMember) => {
-  if(!member.accepted) {
-    return `${member.emailAddress} [invited]`
-  }
-  return `${member.givenName} ${member.familyName}`.trim() || member.emailAddress;
-}
+
 
 const roleLabel = (role: MemberRole) =>
   role === "owner"
@@ -190,17 +258,15 @@ const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
 
 const addMember = async () => {
   emailSending.value = true;
-
-
-  console.log(currentRole.value)
-
-  try {
-    const dsi = await $fetch(`/api/datasets/${datasetId}/datasetInvitation`, {
+    
+try {
+  // TODO: HANDLE UPDATING INVITATIONS ONCE THEY EXPIRE
+    const dsi = await $fetch(`/api/datasets/${datasetId}/invitations`, {
       method: "POST",
       body: {
         emailAddress: currentEmail.value,
         datasetId: datasetId,
-        role: currentRole.value,
+        role: currentRole.value.toLocaleLowerCase(),
 
       }
     })
@@ -219,17 +285,6 @@ const addMember = async () => {
       url: dsi
     })
 
-  // TODO: Create member if already a user (maybe)
-  // try {
-  //   const addedMember = await $fetch(`/api/datasets/${datasetId}/members`, {
-  //     method: "POST",
-  //     body: email
-  //   })
-  // } catch(error) {
-  //   const e = error as any
-  //   console.error(e)
-  // }
-
     currentRole.value = ""
     currentEmail.value = ""
   } catch (error) {
@@ -242,22 +297,37 @@ const addMember = async () => {
 
 }
 
-const removeMember = async (member: DatasetMember) => {
+const removeMember = async (row: PermissionRow) => {
     removingMember.value = true
 
-    // Mock rescinding invitation and removing user from dataset team
-    await new Promise((resolve) => setTimeout(resolve, 1800));
-
-    removingMember.value = false
-
-    toast.add({
+    if(row.kind == "member") {
+      console.log("Remove later")
+      toast.add({
       title: "Member Removed",
       icon: "material-symbols:check-circle",
     });
 
 
-    members.value = members.value.filter(currMember => currMember.emailAddress !== member.emailAddress)
-}
+    members.value = members.value.filter(currMember => currMember.emailAddress !== row.emailAddress)
+
+    } else {
+      // remove invitation
+      await $fetch(`/api/datasets/${datasetId}/invitations/${row.invitation.id}`, {
+        method: "DELETE"
+      })
+      toast.add({
+        title: "Invitation Rescinded",
+        icon: "material-symbols:check-circle",
+      });
+
+
+
+    }
+
+
+    removingMember.value = false
+  }
+    
 
 </script>
 
@@ -353,32 +423,32 @@ const removeMember = async (member: DatasetMember) => {
         </div>
 
         <ul
-          v-if="filteredMembers.length"
+          v-if="filteredRows.length"
           class="divide-y divide-gray-200 dark:divide-gray-800"
         >
           <li
-            v-for="member in filteredMembers"
-            :key="member.emailAddress"
-            :class="[member.accepted ? 'flex flex-wrap items-center justify-between gap-2 py-4' : 'flex flex-wrap items-center justify-between gap-2 py-4 opacity-60']"
+            v-for="row in filteredRows"
+            :key="row.key"
+            :class="[row.kind == 'member' ? 'flex flex-wrap items-center justify-between gap-2 py-4' : 'flex flex-wrap items-center justify-between gap-2 py-4 opacity-60']"
           >
             <div class="flex min-w-0 items-center gap-3">
-              <UAvatar :alt="displayName(member)" size="md" />
+              <UAvatar :alt="row.name" size="md" />
 
               <div class="min-w-0">
                 <p
                   class="truncate text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  {{ displayName(member) }}
+                  {{ row.name }}
                 </p>
 
                 <p class="truncate text-xs text-gray-500 dark:text-gray-400">
-                  {{ member.emailAddress }}
+                  {{ row.emailAddress }}
                 </p>
               </div>
             </div>
 
             <UBadge
-              v-if="member.owner"
+              v-if="row.kind == 'member' && row.owner"
               color="primary"
               variant="soft"
               size="md"
@@ -388,14 +458,13 @@ const removeMember = async (member: DatasetMember) => {
             </UBadge>
 
             <USelect
-              v-else-if="member.accepted"
-              :model-value="member.role"
+              v-else-if="row.kind === 'member' && !row.owner"
               :items="roleOptions"
-              :loading="updatingMemberId === member.userId"
-              :disabled="updatingMemberId === member.userId"
+              :loading="updatingMemberId === row.member.userId"
+              :disabled="updatingMemberId === row.member.userId"
               class="w-36"
               @update:model-value="
-                (value) => updateRole(member, value as MemberRole)
+                (value) => updateRole(row.member, value as MemberRole)
               "
             />
 
@@ -409,14 +478,14 @@ const removeMember = async (member: DatasetMember) => {
                 size="md"
                 class="font-bold uppercase"
               >
-                {{ member.role }}
+                {{ row.role }}
               </UBadge>
               <ULink 
                 as="button"
                 color="primary"
                 variant="soft"
                 size="sm"
-                :to="member.url"
+                :to="row.invitation.url"
                 target="_blank"
               >Follow Invite URL</ULink>
             </div>
@@ -425,7 +494,7 @@ const removeMember = async (member: DatasetMember) => {
                 color="neutral"
                 variant="ghost"
                 icon="i-lucide-x"
-                @click="removeMember(member)"
+                @click="removeMember(row)"
                 :loading="removingMember"
               />
           </li>

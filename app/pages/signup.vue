@@ -23,7 +23,7 @@ useSeoMeta({
 const toast = useToast();
 const loading = ref(false);
 
-const invitation = route.query.invitation
+const invitation = route.query.datasetInvitation
 
 const showPassword = ref(false);
 
@@ -60,41 +60,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   })
     .then(async (response) => {
       let message = response.message
-      if(message == "Invitation Accepted.") {
-        // log user in
-        await $fetch("/api/auth/login", {
-          body,
-          method: "POST",
-        })
+      if(message == "Email already verified. Please login.") {
+        toast.add({
+          title: "Account created successfully",
+          color: "info",
+          description: "Please log in you can view your dataset invitations.",
+          icon: "material-symbols:mail-outline",
+        });
 
-
-        // TODO: Consume DatasetInvitations for new users and direct to latest dataset page
-        let invitations = await $fetch(`/api/datasetInvitations`) 
-
-        if(!invitations) {
-          window.location.href = "/app/dashboard";
-        }
+        await navigateTo({
+          path: "/login",
+          query: { redirect: "/app/invitations" },
+        });
         
-        let navigateToDatasetId = ""
-        for (const invitation of invitations) {
-          // create the dataset membership for any invitations that are valid
-          try {
-            let memberResponse = await $fetch(`/api/datasetInvitations/${invitation.id}/accept`, {
-              method: "POST",
-            })
-
-            navigateToDatasetId = memberResponse.datasetId
-          } catch(e) {
-            console.error(e)
-          }
-        }
-
-        // no valid invitations
-        if(!navigateToDatasetId) {
-          window.location.href = "/app/dashboard";
-        } else {
-          window.location.href = `/app/datasets/${navigateToDatasetId}`
-        }
       } else {
         toast.add({
           title: "Account created successfully",

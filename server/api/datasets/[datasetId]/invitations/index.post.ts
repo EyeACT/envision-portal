@@ -1,6 +1,8 @@
 
 import dayjs from "dayjs";
 import { z } from "zod"
+import { nanoid } from "nanoid";
+
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -13,10 +15,12 @@ export default defineEventHandler(async (event) => {
     datasetInviteSchema.safeParse(b)
   )
 
+  console.log(body)
+
   if (!body.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing invitation information"
+      statusMessage: "Invalid invitation"
     })
   }
 
@@ -30,36 +34,47 @@ export default defineEventHandler(async (event) => {
   })
 
 
-  // TODO: Match platform invitation time later
-  const invitationExpires = dayjs().add(30, "minute").toDate();
-
-
-  const datasetInvitation = await prisma.datasetInvitation.create({
-    data: {
-      ...datasetInvite,
-      invitationExpires,
-      userId: user?.id ?? null
-    }
-  })
-
-
   if (user) {
-    // Send invitation email
-    const invitationLink = `${config.emailVerificationDomain}/app/datasets/${datasetId}/permissions?invitation=${datasetInvitation.id}`
     // TOOD: EMAIL TEMPLATE
     // await sendEmail(
     //   datasetInvite.emailAddress,
     //   "Sick Invitation Subject",
     //   invitationLink
     // )
+    // TODO: Match platform invitation time later
+    const invitationExpires = dayjs().add(30, "minute").toDate();
+    const datasetInvitation = await prisma.datasetInvitation.create({
+      data: {
+        ...datasetInvite,
+        invitationExpires,
+        userId: user.id
+      }
+    })
+    // Send invitation email
+    // OPTIONALLY SEND TO INVITATIONS PAGE
+    const invitationLink = `${config.emailVerificationDomain}/app/invitations`
 
     return invitationLink
 
   } else {
-    // not platform user 
-    // TODO: Create token for external user flow that gets consumed at signup once 
-    // platform membership levels sorted out
-    const invitationLink = `${config.emailVerificationDomain}/signup?invitation=${1234}`
+    const invitationToken = nanoid();
+    // TODO: Up time to days later
+
+    // TODO: Match platform invitation time later
+    const invitationExpires = dayjs().add(30, "minute").toDate();
+
+
+    const datasetInvitation = await prisma.datasetInvitation.create({
+      data: {
+        ...datasetInvite,
+        invitationToken,
+        invitationExpires,
+        userId: null
+      }
+    })
+
+
+    const invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
     return invitationLink
   }
 
