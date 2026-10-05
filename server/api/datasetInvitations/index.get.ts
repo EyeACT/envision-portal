@@ -13,14 +13,22 @@ export default defineEventHandler(async (event) => {
         { userId: userId }
       ]
     },
-    select: {
-      id: true,
-      emailAddress: true,
-      userId: true,
-      role: true
-    }
+    include: {
+      dataset: {
+        select: {
+          title: true
+        }
+      }
+    },
   });
 
+  const activeInvitations = invitations.filter(invitation => {
+    return (
+      invitation.invitationExpires > new Date() &&
+      !invitation.invitationAccepted
+    )
+  })
 
-  return invitations || [];
+
+  return activeInvitations || [];
 });

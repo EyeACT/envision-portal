@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
     // TODO: Up time to days later
 
     // TODO: Match platform invitation time later
-    const invitationExpires = dayjs().add(30, "minute").toDate();
+    const invitationExpires = dayjs().add(60, "minute").toDate();
 
 
     const datasetInvitation = await prisma.datasetInvitation.create({

@@ -77,6 +77,15 @@ const logout = async () => {
           />
         </UTooltip>
 
+        <UTooltip text="Inbox">
+          <UButton
+            to="/invitations"
+            color="neutral"
+            variant="ghost"
+            icon="material-symbols:inbox-rounded"
+          />
+        </UTooltip>
+
         <UTooltip placement="bottom" text="View Documentation">
           <UButton
             to="https://docs.envision.io"
