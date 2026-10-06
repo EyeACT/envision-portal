@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { roundToNearestHoursWithOptions } from 'date-fns/fp';
-import { InvitationStatuses, type DatasetInvitation } from '~~/shared/generated/client';
+import { InvitationStatuses } from '~~/shared/generated/client';
 
 definePageMeta({
   middleware: ["auth"],
@@ -12,17 +11,6 @@ const toast = useToast();
 const { studyId } = route.params as { studyId: string };
 const { datasetId } = route.params as { datasetId: string };
 
-const invitation = route.query.invitation
-
-if(invitation) {
-  // TODO: Show accept MODAL
-  console.log("We are accepting the invitation automatically for now")
-
-  // SESSION protected accept for given invitation
-  await $fetch(`/api/datasetInvitations/${invitation}/accept`, {
-    method: "POST"
-  })
-}
 
 useSeoMeta({ title: "Permissions" });
 
@@ -47,7 +35,7 @@ interface DatasetInvitation {
   invitationExpires: string
   url: string;
   userId: string | null;
-  invitationStatus: string
+  status: string
 }
 
 
@@ -187,7 +175,7 @@ const filteredRows = computed<PermissionRow[]>(() => {
       member,
     })),
     ...invitations.value.filter((invitation) => { 
-      return invitation.invitationStatus === InvitationStatuses.NORESPONSE
+      return invitation.status === InvitationStatuses.NORESPONSE
     })
     .map((invitation) => ({
       kind: "invitation" as const,
@@ -208,21 +196,6 @@ const filteredRows = computed<PermissionRow[]>(() => {
     `${row.name} ${row.emailAddress}`.toLocaleLowerCase().includes(query)
   );
 })
-
-const filteredMembers = computed(() => {
-  const query = search.value.trim().toLowerCase();
-
-  if (!query) return members.value;
-
-  return members.value.filter((member) =>
-    [member.givenName, member.familyName, member.emailAddress]
-      .join(" ")
-      .toLowerCase()
-      .includes(query),
-  );
-});
-
-
 
 const roleLabel = (role: MemberRole) =>
   role === "owner"
@@ -267,32 +240,30 @@ try {
   let targetEmail = currentEmail.value
 
   // check if invitation already exists but is RESCINDED/EXPIRED/ACCEPTED but member is gone
-  const alreadyMember = members.value.filter(member => {
+  const isMember = members.value.some(member => {
     return member.emailAddress.toLocaleLowerCase() === targetEmail.toLocaleLowerCase()
   })
 
-  if(alreadyMember) {
+  if(isMember) {
     toast.add({title: "Already a member of the dataset", color: "error", icon: "material-symbols:error"})
     return
   }
 
   // check last updated time
-  const pastInvitation = invitations.value.filter(invitation => {
-    return targetEmail.toLocaleLowerCase() === invitation.emailAddress?.toLocaleLowerCase()
-  })
+  const existingInvitation = invitations.value.find(invitation => 
+  targetEmail.toLocaleLowerCase() === invitation.emailAddress?.toLocaleLowerCase()
+  )
 
-  if(pastInvitation) {
+  if(existingInvitation) {
     // update invitation if within update policy time
-    $fetch(`/api/datasets/${datasetId}/invitations/${pastInvitation.id}`, {
-      method: "PATCH",
-      body: {
-        status: InvitationStatuses.NORESPONSE
-      }
+    $fetch(`/api/datasets/${datasetId}/invitations/${existingInvitation.id}/resend`, {
+      method: "POST"
     })
-    return 
+    toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
+    emailSending.value = false;
+    return
   } 
 
-  // TODO: HANDLE UPDATING INVITATIONS ONCE THEY EXPIRE
     const dsi = await $fetch(`/api/datasets/${datasetId}/invitations`, {
       method: "POST",
       body: {
@@ -302,19 +273,15 @@ try {
 
       }
     })
-    console.log(dsi)
     toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
     // add member if has account to members list
-    members.value.push({
-      userId: "9", // spoof for now
-      givenName: "",
-      familyName: "",
+    invitations.value.push({
+      id: dsi.invitation.id,
       emailAddress: currentEmail.value,
       owner: false,
-      role: currentRole.value,
-      created: "2026-02-03T00:00:00.000Z",
-      accepted: false,
-      url: dsi
+      role: currentRole.value as MemberRole,
+      created: new Date(),
+      url: dsi.url
     })
 
     currentRole.value = ""
@@ -354,9 +321,6 @@ const removeRow = async (row: PermissionRow) => {
         title: "Invitation Rescinded",
         icon: "material-symbols:check-circle",
       });
-
-
-
     }
 
 
@@ -542,7 +506,3 @@ const removeRow = async (row: PermissionRow) => {
     </div>
   </div>
 </template>
-example.com
-
-
-Vie

@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
     datasetInviteSchema.safeParse(b)
   )
 
-  console.log(body)
 
   if (!body.success) {
     throw createError({
@@ -34,6 +33,8 @@ export default defineEventHandler(async (event) => {
   })
 
 
+  let invitationLink = ""
+  let datasetInvitation = null
   if (user) {
     // TOOD: EMAIL TEMPLATE
     // await sendEmail(
@@ -43,7 +44,7 @@ export default defineEventHandler(async (event) => {
     // )
     // TODO: Match platform invitation time later
     const invitationExpires = dayjs().add(30, "minute").toDate();
-    const datasetInvitation = await prisma.datasetInvitation.create({
+    datasetInvitation = await prisma.datasetInvitation.create({
       data: {
         ...datasetInvite,
         invitationExpires,
@@ -52,10 +53,7 @@ export default defineEventHandler(async (event) => {
     })
     // Send invitation email
     // OPTIONALLY SEND TO INVITATIONS PAGE
-    const invitationLink = `${config.emailVerificationDomain}/app/invitations`
-
-    return invitationLink
-
+    invitationLink = `${config.emailVerificationDomain}/app/invitations`
   } else {
     const invitationToken = nanoid();
     // TODO: Up time to days later
@@ -64,7 +62,7 @@ export default defineEventHandler(async (event) => {
     const invitationExpires = dayjs().add(60, "minute").toDate();
 
 
-    const datasetInvitation = await prisma.datasetInvitation.create({
+    datasetInvitation = await prisma.datasetInvitation.create({
       data: {
         ...datasetInvite,
         invitationToken,
@@ -72,13 +70,19 @@ export default defineEventHandler(async (event) => {
         userId: null
       }
     })
-
-
-    const invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
-    return invitationLink
+    invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
   }
 
 
+  return {
+    url: invitationLink,
+    invitation: {
+      id: datasetInvitation.id,
+      emailAddress: datasetInvitation.emailAddress,
+      role: datasetInvitation.role,
+      status: datasetInvitation.status
+    }
+  }
 })
 
 

@@ -18,7 +18,8 @@ export default defineEventHandler(async (event) => {
       emailAddress: true,
       invitationExpires: true,
       invitationAccepted: true,
-      userId: true
+      userId: true,
+      status: true
     }
   });
 
