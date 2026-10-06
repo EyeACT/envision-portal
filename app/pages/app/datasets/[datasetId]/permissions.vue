@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { InvitationStatuses } from '~~/shared/generated/client';
+import { InvitationStatuses } from '~~/shared/generated/browser';
 
 definePageMeta({
   middleware: ["auth"],
@@ -479,14 +479,14 @@ const removeRow = async (row: PermissionRow) => {
               >
                 {{ row.role }}
               </UBadge>
-              <ULink 
+               <ULink 
                 as="button"
                 color="primary"
                 variant="soft"
                 size="sm"
                 :to="row.invitation.url"
                 target="_blank"
-              >Follow Invite URL</ULink>
+              >Follow Invite URL</ULink> 
             </div>
 
             <UButton
