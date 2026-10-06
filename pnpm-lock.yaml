@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@azure/storage-blob':
-        specifier: ^12.33.0
+        specifier: 12.33.0
         version: 12.33.0(supports-color@10.2.2)
       '@azure/storage-file-datalake':
         specifier: 12.29.0
@@ -42,7 +42,7 @@ importers:
         specifier: 1.11.21
         version: 1.11.21
       file-type:
-        specifier: ^22.0.2
+        specifier: 22.0.2
         version: 22.0.2(supports-color@10.2.2)
       marked:
         specifier: 18.0.2
@@ -60,7 +60,7 @@ importers:
         specifier: 7.1.0
         version: 7.1.0
       sanitize-filename:
-        specifier: ^1.6.4
+        specifier: 1.6.4
         version: 1.6.4
       sanitize-html:
         specifier: 2.17.3

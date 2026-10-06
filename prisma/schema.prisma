@@ -48,6 +48,10 @@ model platformInvitation {
 
     emailAddress String
 
+    invitationToken String? @unique  
+    invitationTokenExpires DateTime?
+    invitationAccepted Boolean?
+
     updated DateTime @updatedAt
     created DateTime @default(now())
 }
@@ -131,20 +135,23 @@ model Dataset {
 
     ControlledDatasetRequest ControlledDatasetRequest[]
 
-    Document Document[]
+    DatasetSupportingDocument DatasetSupportingDocument[]
 }
 
-model Document {
+model DatasetSupportingDocument {
     id String @id @default(cuid(2))
+
     datasetId String
-    dataset Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
-    storagePath String @default("")
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    storagePath   String @default("")
     sanitizedName String @default("")
-    originalName String @default("")
-    documentType String @default("")
-    mimeType String @default("")
+    originalName  String @default("")
+    documentType  String @default("")
+    mimeType      String @default("")
+    size          BigInt @default(0)
+
     created DateTime @default(now())
-    size BigInt @default(0)
 }
 
 model DatasetMember {
@@ -163,6 +170,13 @@ model DatasetMember {
     @@id([datasetId, userId])
 }
 
+enum InvitationStatuses {
+    ACCEPTED 
+    REJECTED 
+    RESCINDED
+    NORESPONSE
+}
+
 model DatasetInvitation {
     id String @id @default(cuid(2))
 
@@ -172,7 +186,13 @@ model DatasetInvitation {
     userId String? // for users with  accounts
     user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+    status InvitationStatuses @default(NORESPONSE)
+
     emailAddress String? // for users with no accounts
+
+    invitationExpires DateTime @default(now())
+    invitationAccepted Boolean @default(false)
+    invitationToken String? @unique 
 
     role String @default("viewer") // owner | admin | editor | viewer
 

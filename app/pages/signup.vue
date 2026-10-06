@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { z } from "zod";
 import type { FormSubmitEvent } from "#ui/types";
+import type { DatasetInvitation, DatasetMember } from "~~/shared/generated/client";
 
 const { loggedIn } = useUserSession();
 const { environment } = useRuntimeConfig().public;
+
+const route = useRoute()
 
 if (loggedIn.value) {
   await navigateTo("/app/dashboard");
@@ -19,6 +22,8 @@ useSeoMeta({
 
 const toast = useToast();
 const loading = ref(false);
+
+const invitation = route.query.datasetInvitation
 
 const showPassword = ref(false);
 
@@ -44,6 +49,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     familyName: event.data.familyName,
     givenName: event.data.givenName,
     password: event.data.password,
+    invitation: invitation
   };
 
   loading.value = true;
@@ -52,14 +58,30 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     body,
     method: "POST",
   })
-    .then(async () => {
-      toast.add({
-        title: "Account created successfully",
-        color: "info",
-        description:
-          "Please check your email to verify your account before logging in.",
-        icon: "material-symbols:mail-outline",
-      });
+    .then(async (response) => {
+      let message = response.message
+      if(message == "Email already verified. Please login.") {
+        toast.add({
+          title: "Account created successfully",
+          color: "info",
+          description: "Please log in you can view your dataset invitations.",
+          icon: "material-symbols:mail-outline",
+        });
+
+        await navigateTo({
+          path: "/login",
+          query: { redirect: "/app/invitations" },
+        });
+        
+      } else {
+        toast.add({
+          title: "Account created successfully",
+          color: "info",
+          description:
+            "Please check your email to verify your account before logging in.",
+          icon: "material-symbols:mail-outline",
+        });
+      }
     })
     .catch((error) => {
       console.error(error.data);
