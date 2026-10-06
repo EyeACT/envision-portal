@@ -2,7 +2,7 @@ import {
   DataLakeServiceClient,
   StorageSharedKeyCredential,
   generateDataLakeSASQueryParameters,
-  FileSystemSASPermissions,
+  DirectorySASPermissions,
 } from "@azure/storage-file-datalake";
 
 export default defineEventHandler(async (event) => {
@@ -37,7 +37,9 @@ export default defineEventHandler(async (event) => {
   );
 
   const { accountName } = draftDatalakeServiceClient;
-  const fileSystemName = dataset.id;
+  // All datasets share the `datasets` container; uploads go to `{datasetId}/data`
+  const fileSystemName = "datasets";
+  const pathName = `${dataset.id}/data`;
 
   const sharedKeyCredential = new StorageSharedKeyCredential(
     accountName,
@@ -49,22 +51,20 @@ export default defineEventHandler(async (event) => {
 
   expiresOn.setHours(now.getHours() + 1); // 1-hour expiration
 
-  const containerSAS = generateDataLakeSASQueryParameters(
+  // Scope the SAS to the dataset's data folder so it can't access other datasets
+  const directorySAS = generateDataLakeSASQueryParameters(
     {
       expiresOn,
       fileSystemName,
-      // isDirectory: true,
-      // pathName: "/",
-      permissions: FileSystemSASPermissions.parse("racwdl"), // read, add, create, write, delete, list
+      isDirectory: true,
+      pathName,
+      permissions: DirectorySASPermissions.parse("racwdl"), // read, add, create, write, delete, list
       startsOn: now,
     },
     sharedKeyCredential,
   ).toString();
 
-  const sasUrl = `https://${accountName}.dfs.core.windows.net/${fileSystemName}?${containerSAS}`;
-
-  // replace the string `sp=r` with `sp=rl`
-  // sasUrl = sasUrl.replace("sp=racwm&", "sp=racwml&");
+  const sasUrl = `https://${accountName}.dfs.core.windows.net/${fileSystemName}/${pathName}?${directorySAS}`;
 
   return {
     ...dataset,

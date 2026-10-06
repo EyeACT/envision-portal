@@ -1,14 +1,19 @@
-
-import { parseDocumentUploadForm, validateDocument, getMimeType, uploadDocument, parseBigInt } from "./upload/utils"
+import {
+  parseDocumentUploadForm,
+  validateDocument,
+  getMimeType,
+  uploadDocument,
+  parseBigInt,
+  getDocumentStoragePath,
+} from "./upload/utils";
 // import { DocumentUploadForm } from "./upload/schema"
-import { sanitizeFileName } from "#shared/utils/documents"
-
+import { sanitizeFileName } from "#shared/utils/documents";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
   const { datasetId } = event.context.params as { datasetId: string };
 
-  const formData = await readMultipartFormData(event)
+  const formData = await readMultipartFormData(event);
 
   if (!formData) {
     throw createError({
@@ -17,32 +22,37 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { file, fileType } = await parseDocumentUploadForm(formData)
+  const { file, fileType } = await parseDocumentUploadForm(formData);
 
-  let mimeType = await getMimeType(file.data)
+  let mimeType = await getMimeType(file.data);
 
   // could not detect mimetype from binary or is text based
   if (!mimeType) {
     // use provided mimetype for now
-    mimeType = file.type!
+    mimeType = file.type!;
   }
 
-  const sanitizedName = sanitizeFileName(file.filename!).toLocaleLowerCase()
+  const sanitizedName = sanitizeFileName(file.filename!).toLocaleLowerCase();
 
-  const sanitziedExtension = sanitizedName.split(".").pop()
+  const sanitziedExtension = sanitizedName.split(".").pop();
 
   if (!sanitziedExtension) {
     throw createError({
       statusCode: 400,
-      statusMessage: `File missing an extension.`
-    })
+      statusMessage: `File missing an extension.`,
+    });
   }
 
-  validateDocument(sanitziedExtension, fileType, mimeType, file.data.byteLength)
+  validateDocument(
+    sanitziedExtension,
+    fileType,
+    mimeType,
+    file.data.byteLength,
+  );
 
-  const storagePath = `${datasetId}/${sanitizedName}`
+  const storagePath = getDocumentStoragePath(datasetId, sanitizedName);
 
-  await uploadDocument(file.data, storagePath, mimeType)
+  await uploadDocument(file.data, storagePath, mimeType);
 
   const document = await prisma.document.create({
     data: {
@@ -52,16 +62,11 @@ export default defineEventHandler(async (event) => {
       storagePath,
       mimeType: mimeType,
       datasetId: datasetId,
-      size: BigInt(file.data.byteLength)
-    }
-  })
+      size: BigInt(file.data.byteLength),
+    },
+  });
 
-  let parsedDocument = JSON.stringify(
-    document,
-    parseBigInt
-  )
+  let parsedDocument = JSON.stringify(document, parseBigInt);
 
-  return parsedDocument
-})
-
-
+  return parsedDocument || "{}";
+});

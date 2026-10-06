@@ -1,10 +1,11 @@
-import { BlobServiceClient, BlockBlobClient, BlobDeleteOptions, BlobDeleteResponse } from "@azure/storage-blob";
-
-
-
+import {
+  BlobServiceClient,
+  BlockBlobClient,
+  BlobDeleteOptions,
+  BlobDeleteResponse,
+} from "@azure/storage-blob";
 
 export default defineEventHandler(async (event) => {
-
   const session = await requireUserSession(event);
 
   const { datasetId, documentId } = event.context.params as {
@@ -27,37 +28,34 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-
   const deletedDocument = await prisma.document.delete({
     where: {
-      id: documentId
-    }
-  })
+      id: documentId,
+    },
+  });
 
-  await deleteBlob(deletedDocument.storagePath)
+  await deleteBlob(deletedDocument.storagePath);
+});
 
-})
-
-
-async function deleteBlob(
-  blobName: string
-): Promise<BlobDeleteResponse> {
-
+async function deleteBlob(blobName: string): Promise<BlobDeleteResponse> {
   const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
 
-  const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_DRAFT_CONNECTION_STRING);
-  const documentsContainer = blobServiceClient.getContainerClient("documents");
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_DRAFT_CONNECTION_STRING,
+  );
+  const datasetsContainer = blobServiceClient.getContainerClient("datasets");
 
   // Create blob client from container client
-  const blockBlobClient: BlockBlobClient = documentsContainer.getBlockBlobClient(blobName);
+  const blockBlobClient: BlockBlobClient =
+    datasetsContainer.getBlockBlobClient(blobName);
 
   // include: Delete the base blob and all of its snapshots
   // only: Delete only the blob's snapshots and not the blob itself
   const options: BlobDeleteOptions = {
-    deleteSnapshots: 'include'
+    deleteSnapshots: "include",
   };
   const blobDeleteResponse: BlobDeleteResponse =
     await blockBlobClient.delete(options);
 
-  return blobDeleteResponse
+  return blobDeleteResponse;
 }
