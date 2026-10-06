@@ -1,3 +1,4 @@
+import { InvitationStatuses } from "~~/shared/generated/client";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
@@ -25,7 +26,8 @@ export default defineEventHandler(async (event) => {
   const activeInvitations = invitations.filter(invitation => {
     return (
       invitation.invitationExpires > new Date() &&
-      !invitation.invitationAccepted
+      !invitation.invitationAccepted &&
+      invitation.status === InvitationStatuses.NORESPONSE
     )
   })
 

@@ -34,6 +34,24 @@ const accept = (id: string) => {
   }
 }
 
+const rejectLoading = ref(false)
+const reject = (id: string) => {
+  rejectLoading.value = true
+
+  try {
+    $fetch(`/api/datasetInvitations/${id}/reject`, {
+      method: "POST"
+    })
+    toast.add({title: "Dataset Invitation Rejected"})
+    invitations.value = invitations.value ? invitations.value.filter((d) => d.id !== id) : []
+  } catch(e) {
+    console.error(e)
+    toast.add({title: "Dataset Invitation Not Rejected", description: "The invitation could not be rejected. Please try again later.", color: "error", icon: "material-symbols:error"})
+  } finally {
+    rejectLoading.value = false
+  }
+}
+
 const items = [
   {
     icon: "i-lucide-inbox",
@@ -79,6 +97,8 @@ const items = [
                 color="error"
                 label="Reject"
                 size="sm"
+                :loading="rejectLoading"
+                @click="reject(invitation.id)"
               ></UButton>
             </div>
           </li>

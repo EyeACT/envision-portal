@@ -1,3 +1,5 @@
+import { InvitationStatuses } from "~~/shared/generated/client";
+
 export default defineEventHandler(async (event) => {
   await datasetMinViewerPermission(event)
   const config = useRuntimeConfig()
@@ -16,7 +18,6 @@ export default defineEventHandler(async (event) => {
       emailAddress: true,
       invitationExpires: true,
       invitationAccepted: true,
-      invitationToken: true,
       userId: true
     }
   });

@@ -170,6 +170,13 @@ model DatasetMember {
     @@id([datasetId, userId])
 }
 
+enum InvitationStatuses {
+    ACCEPTED 
+    REJECTED 
+    RESCINDED
+    NORESPONSE
+}
+
 model DatasetInvitation {
     id String @id @default(cuid(2))
 
@@ -178,6 +185,8 @@ model DatasetInvitation {
 
     userId String? // for users with  accounts
     user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    status InvitationStatuses @default(NORESPONSE)
 
     emailAddress String? // for users with no accounts
 

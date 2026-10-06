@@ -3,6 +3,7 @@ import { hash } from "bcrypt";
 import { nanoid } from "nanoid";
 import dayjs from "dayjs";
 import { sendEmail } from "../../utils/sendEmail";
+import { InvitationStatuses } from "~~/shared/generated/client";
 
 const signupSchema = z.object({
   emailAddress: z.string().email(),
@@ -122,6 +123,14 @@ const hasValidDatasetInvitation = async (invitation: string | undefined, emailAd
       statusCode: 410,
       statusMessage:
         "Invitation token has expired. Please request a new one.",
+    });
+  }
+
+  if (datasetInvitation.status == InvitationStatuses.RESCINDED) {
+    throw createError({
+      statusCode: 410,
+      statusMessage:
+        "Invitation has been rescinded. Please contact the inviter for a new invitation.",
     });
   }
 

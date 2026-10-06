@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 410,
       statusMessage:
-        "Invitation token has expired. Please request a new one.",
+        "Invitation token has expired. No reason to reject.",
     });
   }
 
@@ -47,34 +47,23 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 410,
       statusMessage:
-        "Invitation has been rescinded. Please contact the inviter for a new invitation.",
+        "Invitation has been rescinded. No need to reject the invitation.",
     });
   }
 
 
   // consume invitation and create new dataset membership
-  const [consumedInvitation, addedMember] = await prisma.$transaction([
-    prisma.datasetInvitation.update({
-      where: {
-        id: invitationId,
-        emailAddress: userEmail
-      },
-      data: {
-        status: InvitationStatuses.ACCEPTED,
-        userId: session.user.id
-      }
-    }),
-
-    prisma.datasetMember.create({
-      data: {
-        userId: session.user.id,
-        role: invitation.role,
-        datasetId: invitation.datasetId
-
-      }
-    })
-  ])
+  const invite = await prisma.datasetInvitation.update({
+    where: {
+      id: invitationId,
+      emailAddress: userEmail
+    },
+    data: {
+      status: InvitationStatuses.REJECTED,
+      userId: session.user.id
+    }
+  })
 
 
-  return addedMember
+  return invite
 })

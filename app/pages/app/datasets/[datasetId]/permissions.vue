@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { roundToNearestHoursWithOptions } from 'date-fns/fp';
-import type { DatasetInvitation } from '~~/shared/generated/client';
+import { InvitationStatuses, type DatasetInvitation } from '~~/shared/generated/client';
 
 definePageMeta({
   middleware: ["auth"],
@@ -47,6 +47,7 @@ interface DatasetInvitation {
   invitationExpires: string
   url: string;
   userId: string | null;
+  invitationStatus: string
 }
 
 
@@ -185,7 +186,9 @@ const filteredRows = computed<PermissionRow[]>(() => {
       owner: member.owner,
       member,
     })),
-    ...invitations.value.filter((invitation) => !invitation.invitationAccepted)
+    ...invitations.value.filter((invitation) => { 
+      return invitation.invitationStatus === InvitationStatuses.NORESPONSE
+    })
     .map((invitation) => ({
       kind: "invitation" as const,
       key: `invitation:${invitation.id}`,
@@ -260,6 +263,35 @@ const addMember = async () => {
   emailSending.value = true;
     
 try {
+
+  let targetEmail = currentEmail.value
+
+  // check if invitation already exists but is RESCINDED/EXPIRED/ACCEPTED but member is gone
+  const alreadyMember = members.value.filter(member => {
+    return member.emailAddress.toLocaleLowerCase() === targetEmail.toLocaleLowerCase()
+  })
+
+  if(alreadyMember) {
+    toast.add({title: "Already a member of the dataset", color: "error", icon: "material-symbols:error"})
+    return
+  }
+
+  // check last updated time
+  const pastInvitation = invitations.value.filter(invitation => {
+    return targetEmail.toLocaleLowerCase() === invitation.emailAddress?.toLocaleLowerCase()
+  })
+
+  if(pastInvitation) {
+    // update invitation if within update policy time
+    $fetch(`/api/datasets/${datasetId}/invitations/${pastInvitation.id}`, {
+      method: "PATCH",
+      body: {
+        status: InvitationStatuses.NORESPONSE
+      }
+    })
+    return 
+  } 
+
   // TODO: HANDLE UPDATING INVITATIONS ONCE THEY EXPIRE
     const dsi = await $fetch(`/api/datasets/${datasetId}/invitations`, {
       method: "POST",
@@ -297,7 +329,7 @@ try {
 
 }
 
-const removeMember = async (row: PermissionRow) => {
+const removeRow = async (row: PermissionRow) => {
     removingMember.value = true
 
     if(row.kind == "member") {
@@ -313,7 +345,10 @@ const removeMember = async (row: PermissionRow) => {
     } else {
       // remove invitation
       await $fetch(`/api/datasets/${datasetId}/invitations/${row.invitation.id}`, {
-        method: "DELETE"
+        method: "PATCH",
+        body: {
+          status: InvitationStatuses.RESCINDED
+        }
       })
       toast.add({
         title: "Invitation Rescinded",
@@ -326,7 +361,7 @@ const removeMember = async (row: PermissionRow) => {
 
 
     removingMember.value = false
-  }
+}
     
 
 </script>
@@ -494,7 +529,7 @@ const removeMember = async (row: PermissionRow) => {
                 color="neutral"
                 variant="ghost"
                 icon="i-lucide-x"
-                @click="removeMember(row)"
+                @click="removeRow(row)"
                 :loading="removingMember"
               />
           </li>
