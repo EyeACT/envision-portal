@@ -76,35 +76,38 @@ const removingMember = ref(false)
 const roleUpdating = ref(false)
 
 
-
-$fetch(`/api/datasets/${datasetId}/members`).then(fetchedMembers  => {
-  for(const m of fetchedMembers) {
-    const {user, updated, role, ...mFields} = m 
-    members.value.push({ 
-      role: role as DatasetRole, 
-      ...user, 
-      ...mFields
-    })
-  }
-
-}).catch((error) => {
-  console.error(error)
-})
-
-
-$fetch(`/api/datasets/${datasetId}/invitations`).then(fetchedInvitations => {
-  for(const i of fetchedInvitations) {
-    const {role, ...iFields} = i
-    invitations.value.push({...iFields, role: role as DatasetRole})
-  }
-}).catch((error) => {
-  console.error(error)
-})
-
-
 const members = ref<DatasetMember []>([]);
 
+const { data: fetchedMembers, error: membersError } = await useFetch(`/api/datasets/${datasetId}/members`);
+
+if (membersError.value) {
+  console.log(membersError.value);
+} else {
+  members.value = (fetchedMembers.value ?? []).map(
+    ({user, role, ...member}) => ({  
+        role: role as DatasetRole, 
+        ...user, 
+        ...member
+    })
+  )
+}
 const invitations = ref<DatasetInvitation []>([])
+
+const {data: fetchedInvitations, error: invitationsError} = await useFetch(`/api/datasets/${datasetId}/invitations`)
+
+if (invitationsError.value) {
+  console.log(invitationsError.value)
+} else {
+  invitations.value = (fetchedInvitations.value ?? []).map(
+    ({role, ...invitation}) => ({
+      role: role as MemberRole,
+      ...invitation
+    })
+  )
+}
+
+
+
 
 type PermissionRow = | {
   kind: "member",
@@ -205,10 +208,8 @@ const updateRole = async (row: PermissionRow, newRole: MemberRole) => {
   }
 };
 
-const addMember = async () => {
+const sendInvitation = async () => {
   emailSending.value = true;
-    
-try {
 
   let targetEmail = currentEmail.value
 
@@ -226,26 +227,25 @@ try {
   const existingInvitation = invitations.value.find(invitation => 
   targetEmail.toLocaleLowerCase() === invitation.emailAddress?.toLocaleLowerCase()
   )
+    
+  try {
+    let dsi = null
 
-  if(existingInvitation) {
-    // update invitation if within update policy time
-    $fetch(`/api/datasets/${datasetId}/invitations/${existingInvitation.id}/resend`, {
-      method: "POST"
-    })
-    toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
-    emailSending.value = false;
-    return
-  } 
+    if (existingInvitation) {
+      dsi = await $fetch(`/api/datasets/${datasetId}/invitations/${existingInvitation.id}/resend`, {
+        method: "POST"
+      })
+    } else {
+      dsi = await $fetch(`/api/datasets/${datasetId}/invitations`, {
+        method: "POST",
+        body: {
+          emailAddress: currentEmail.value,
+          datasetId: datasetId,
+          role: currentRole.value.toLocaleLowerCase(),
+        }
+      })
+    }
 
-    const dsi = await $fetch(`/api/datasets/${datasetId}/invitations`, {
-      method: "POST",
-      body: {
-        emailAddress: currentEmail.value,
-        datasetId: datasetId,
-        role: currentRole.value.toLocaleLowerCase(),
-
-      }
-    })
     toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
     // add member if has account to members list
     invitations.value.push({
@@ -270,35 +270,46 @@ const removeRow = async (row: PermissionRow) => {
     removingMember.value = true
 
     if(row.kind == "member") {
-
-      await $fetch(`/api/datasets/${datasetId}/members/${row.member.userId}`, {
-        method: "DELETE"
-      })
-
-      toast.add({
-      title: "Member Removed",
-      icon: "material-symbols:check-circle",
-    });
-    members.value = members.value.filter(currMember => currMember.emailAddress !== row.emailAddress)
-
+      try {
+        await $fetch(`/api/datasets/${datasetId}/members/${row.member.userId}`, {
+          method: "DELETE"
+        })
+        toast.add({
+          title: "Member Removed",
+          icon: "material-symbols:check-circle",
+        });
+        members.value = members.value.filter(currMember => currMember.emailAddress !== row.emailAddress)
+      } catch(error) {
+        console.error(error)
+        const e = error as any
+        toast.add({title: "Member Not Removed", description: e.data.statusMessage,  color: "error", icon: "material-symbols:error"})
+      } finally {
+        removingMember.value = false
+      }
     } else {
-      // remove invitation
-      await $fetch(`/api/datasets/${datasetId}/invitations/${row.invitation.id}`, {
-        method: "PATCH",
-        body: {
-          status: InvitationStatuses.RESCINDED
-        }
-      })
-      toast.add({
-        title: "Invitation Rescinded",
-        icon: "material-symbols:check-circle",
-      });
-      invitations.value = invitations.value.filter(currInvitation => currInvitation.id !== row.invitation.id)
-    }
-
-
-    removingMember.value = false
+      try {
+        // remove invitation
+        await $fetch(`/api/datasets/${datasetId}/invitations/${row.invitation.id}`, {
+          method: "PATCH",
+          body: {
+            status: InvitationStatuses.RESCINDED
+          }
+        })
+        toast.add({
+          title: "Invitation Rescinded",
+          icon: "material-symbols:check-circle",
+        });
+        invitations.value = invitations.value.filter(currInvitation => currInvitation.id !== row.invitation.id)
+      } catch(error) {
+        console.error(error)
+        const e = error as any
+        toast.add({title: "Invitation Not Rescinded", description: e.data.statusMessage,  color: "error", icon: "material-symbols:error"})
+      } finally {
+        removingMember.value = false
+      }
+  } 
 }
+
 </script>
 
 <template>
@@ -361,7 +372,7 @@ const removeRow = async (row: PermissionRow) => {
           <div class="flex items-end">
             <UButton
               label="Add Member"
-              @click="addMember"
+              @click="sendInvitation"
               :loading="emailSending"
             />
           </div>

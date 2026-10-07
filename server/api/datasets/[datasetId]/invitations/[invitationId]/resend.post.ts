@@ -1,6 +1,5 @@
 
 import dayjs from "dayjs";
-import { z } from "zod"
 import { nanoid } from "nanoid";
 import { InvitationStatuses } from "~~/shared/generated/enums";
 
@@ -13,7 +12,8 @@ export default defineEventHandler(async (event) => {
 
   const invitation = await prisma.datasetInvitation.findUnique({
     where: {
-      id: invitationId
+      id: invitationId,
+      datasetId: datasetId
     }
   })
 
@@ -31,8 +31,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-
-  // TODO: Eventually we will want to handle case where an invitee accidentally rejects an invitation.
+  // TODO: Eventually allow at least one resend if status is REJECTED without waiting.
   // Inviter must wait for invitation to expire before resending
   if (invitation.invitationExpires > new Date()) {
     throw createError({
@@ -60,10 +59,13 @@ export default defineEventHandler(async (event) => {
   })
 
 
+  let invitationLink = ""
+  let datasetInvitation = null
+
   if (user) {
     // TODO: Match platform invitation time later
     const invitationExpires = dayjs().add(30, "minute").toDate();
-    const datasetInvitation = await prisma.datasetInvitation.update({
+    datasetInvitation = await prisma.datasetInvitation.update({
       where: {
         id: invitationId
       },
@@ -75,7 +77,7 @@ export default defineEventHandler(async (event) => {
     })
     // Send invitation email
     // OPTIONALLY SEND TO INVITATIONS PAGE
-    const invitationLink = `${config.emailVerificationDomain}/invitations`
+    invitationLink = `${config.emailVerificationDomain}/invitations`
 
     // TOOD: EMAIL TEMPLATE
     // await sendEmail(
@@ -84,15 +86,13 @@ export default defineEventHandler(async (event) => {
     //   invitationLink
     // )
 
-    return invitationLink
-
   } else {
     const invitationToken = nanoid();
 
     // TODO: Match platform invitation time later
     const invitationExpires = dayjs().add(60, "minute").toDate();
 
-    const datasetInvitation = await prisma.datasetInvitation.update({
+    datasetInvitation = await prisma.datasetInvitation.update({
       where: {
         id: invitationId
       },
@@ -104,9 +104,16 @@ export default defineEventHandler(async (event) => {
     })
 
 
-    const invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
-    return invitationLink
+    invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
   }
 
-
+  return {
+    url: invitationLink,
+    invitation: {
+      id: datasetInvitation.id,
+      emailAddress: datasetInvitation.emailAddress,
+      role: datasetInvitation.role,
+      status: datasetInvitation.status
+    }
+  }
 })

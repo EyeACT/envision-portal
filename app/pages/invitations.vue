@@ -62,7 +62,6 @@ const items = [
 
 </script>
 
-// TODO: Read the /api/datasetInvitations endpoint for the sessioned user
 // ALLOW THEM TO ACCEPT OR REJECT THAT WAY
 <template>
   <UTabs

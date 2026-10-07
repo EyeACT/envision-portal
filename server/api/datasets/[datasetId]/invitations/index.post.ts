@@ -8,9 +8,6 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   await datasetMinAdminPermission(event)
 
-  const { datasetId } = event.context.params as { datasetId: string };
-
-
   const body = await readValidatedBody(event, (b) =>
     datasetInviteSchema.safeParse(b)
   )
@@ -25,13 +22,20 @@ export default defineEventHandler(async (event) => {
 
   const datasetInvite = body.data
 
+  const { datasetId } = event.context.params as { datasetId: string };
+  if (datasetId !== datasetInvite.datasetId) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid request"
+    })
+  }
+
 
   const user = await prisma.user.findUnique({
     where: {
       emailAddress: datasetInvite.emailAddress
     }
   })
-
 
   let invitationLink = ""
   let datasetInvitation = null
@@ -90,5 +94,4 @@ let datasetInviteSchema = z.object({
   datasetId: z.string(),
   emailAddress: z.email(),
   role: z.enum(DATASET_ROLES),
-  userId: z.string().optional()
 })
