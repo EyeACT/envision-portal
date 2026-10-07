@@ -8,10 +8,7 @@ const createDatasetSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
-  const session = await requireUserSession(event);
-
-  const { user } = session;
-  const _userId = user.id;
+  await datasetMinAdminPermission(event)
 
   // todo: add permissions check
 

@@ -2,10 +2,7 @@ import { StudyMetadataInterventionsSchema } from "#shared/utils/study_schemas";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
-
-  const { user } = session;
-  const userId = user.id;
+  await datasetMinEditorPermission(event)
 
   const { datasetId } = event.context.params as { datasetId: string };
 
