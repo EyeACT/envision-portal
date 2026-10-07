@@ -413,6 +413,7 @@ const removeRow = async (row: PermissionRow) => {
               :items="roleOptions"
               :loading="updatingMemberId === row.member.userId"
               :disabled="updatingMemberId === row.member.userId"
+              :model-value="row.member.role"
               class="w-36"
               @update:model-value="
                 (value) => updateRole(row.member, value as MemberRole)
