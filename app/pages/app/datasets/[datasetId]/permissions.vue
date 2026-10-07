@@ -36,6 +36,7 @@ interface DatasetInvitation {
 }
 
 const {user} = useUserSession()
+console.log(user)
 const canManageRoles = computed(() => {
   const currentMember = members.value.find(
     (member) => member.userId === user.value?.id
@@ -415,7 +416,7 @@ const removeRow = async (row: PermissionRow) => {
             </UBadge>
 
             <USelect
-              v-else-if="row.kind === 'member' && 'canManageRoles'"
+              v-else-if="row.kind === 'member' && canManageRoles"
               :items="roleOptions"
               :loading="updatingMemberId === row.member.userId"
               :disabled="updatingMemberId === row.member.userId || row.member.userId == user.id"
@@ -425,6 +426,17 @@ const removeRow = async (row: PermissionRow) => {
                 (value) => updateRole(row, value as MemberRole)
               "
             />
+
+            <div v-else-if="row.kind == 'member' && !canManageRoles" class="flex gap-2">
+              <UBadge 
+                color="neutral"
+                variant="soft"
+                size="md"
+                class="font-bold uppercase"
+              >
+                {{ row.role }}
+              </UBadge>
+            </div>
 
             <div 
               v-else
