@@ -36,7 +36,6 @@ interface DatasetInvitation {
 }
 
 const {user} = useUserSession()
-console.log(user)
 const canManageRoles = computed(() => {
   const currentMember = members.value.find(
     (member) => member.userId === user.value?.id
@@ -73,9 +72,11 @@ const emailSending = ref(false)
 // member removal loading
 const removingMember = ref(false)
 
+// role updating
+const roleUpdating = ref(false)
 
-// NOTE: Accepted will be a foregin field from DatasetInvitation later on
-// TODO: replace with data from `/api/datasets/${datasetId}/members`
+
+
 $fetch(`/api/datasets/${datasetId}/members`).then(fetchedMembers  => {
   for(const m of fetchedMembers) {
     const {user, updated, role, ...mFields} = m 
@@ -100,7 +101,7 @@ $fetch(`/api/datasets/${datasetId}/invitations`).then(fetchedInvitations => {
   console.error(error)
 })
 
-// TODO: Convert accepted invites to Datasetmembers/remove accetped invites to avoid duplication
+
 const members = ref<DatasetMember []>([]);
 
 const invitations = ref<DatasetInvitation []>([])
@@ -166,9 +167,12 @@ const roleLabel = (role: MemberRole) =>
 
 const updatingMemberId = ref<string | null>(null);
 
+
+
 const updateRole = async (row: PermissionRow, newRole: MemberRole) => {
   if (row.kind == "invitation") return
   if (row.member.owner || row.member.role === newRole) return;
+  roleUpdating.value = true
 
   const previousRole = row.member.role;
 
@@ -176,7 +180,12 @@ const updateRole = async (row: PermissionRow, newRole: MemberRole) => {
   updatingMemberId.value = row.member.userId;
 
   try {
-    // TODO: persist with PUT `/api/datasets/${datasetId}/members/${member.userId}`
+    await $fetch(`/api/datasets/${datasetId}/members/${row.member.userId}`, {
+      method: "PATCH",
+      body: {
+        role: newRole
+      }
+    })
     toast.add({
       title: "Role updated",
       description: `${row.name} is now ${roleLabel(newRole).toLowerCase()}`,
@@ -191,6 +200,7 @@ const updateRole = async (row: PermissionRow, newRole: MemberRole) => {
       icon: "material-symbols:error",
     });
   } finally {
+    roleUpdating.value = false
     updatingMemberId.value = null;
   }
 };
@@ -418,7 +428,7 @@ const removeRow = async (row: PermissionRow) => {
             <USelect
               v-else-if="row.kind === 'member' && canManageRoles"
               :items="roleOptions"
-              :loading="updatingMemberId === row.member.userId"
+              :loading="roleUpdating"
               :disabled="updatingMemberId === row.member.userId || row.member.userId == user.id"
               :model-value="row.member.role"
               class="w-36"
