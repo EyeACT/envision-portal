@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
     })
     // Send invitation email
     // OPTIONALLY SEND TO INVITATIONS PAGE
-    const invitationLink = `${config.emailVerificationDomain}/app/invitations`
+    const invitationLink = `${config.emailVerificationDomain}/invitations`
 
     // TOOD: EMAIL TEMPLATE
     // await sendEmail(

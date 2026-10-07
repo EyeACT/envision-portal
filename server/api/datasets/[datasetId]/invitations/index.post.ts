@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
     })
     // Send invitation email
     // OPTIONALLY SEND TO INVITATIONS PAGE
-    invitationLink = `${config.emailVerificationDomain}/app/invitations`
+    invitationLink = `${config.emailVerificationDomain}/invitations`
   } else {
     const invitationToken = nanoid();
     // TODO: Up time to days later

@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   return datasetInvitations.map(invitation => (
     {
       ...invitation,
-      url: invitation.userId ? `${config.emailVerificationDomain}/app/invitations` : `${config.emailVerificationDomain}/signup?datasetInvitation=${invitation.invitationToken}`
+      url: invitation.userId ? `${config.emailVerificationDomain}/invitations` : `${config.emailVerificationDomain}/signup?datasetInvitation=${invitation.invitationToken}`
     }
   )
   ) || []
