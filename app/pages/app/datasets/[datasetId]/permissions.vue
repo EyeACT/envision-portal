@@ -272,6 +272,7 @@ const removeRow = async (row: PermissionRow) => {
         title: "Invitation Rescinded",
         icon: "material-symbols:check-circle",
       });
+      invitations.value = invitations.value.filter(currInvitation => currInvitation.id !== row.invitation.id)
     }
 
 
