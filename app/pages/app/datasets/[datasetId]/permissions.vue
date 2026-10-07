@@ -35,6 +35,14 @@ interface DatasetInvitation {
   status: (typeof InvitationStatuses)[keyof typeof InvitationStatuses]
 }
 
+const {user} = useUserSession()
+const canManageRoles = computed(() => {
+  const currentMember = members.value.find(
+    (member) => member.userId === user.value?.id
+  )
+
+  return currentMember?.owner || currentMember?.role == "admin";
+})
 
 const roleOptions = [
   {
@@ -69,7 +77,6 @@ const removingMember = ref(false)
 // TODO: replace with data from `/api/datasets/${datasetId}/members`
 $fetch(`/api/datasets/${datasetId}/members`).then(fetchedMembers  => {
   for(const m of fetchedMembers) {
-    console.log(m)
     const {user, updated, role, ...mFields} = m 
     members.value.push({ 
       role: role as DatasetRole, 
@@ -158,24 +165,25 @@ const roleLabel = (role: MemberRole) =>
 
 const updatingMemberId = ref<string | null>(null);
 
-const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
-  if (member.owner || member.role === newRole) return;
+const updateRole = async (row: PermissionRow, newRole: MemberRole) => {
+  if (row.kind == "invitation") return
+  if (row.member.owner || row.member.role === newRole) return;
 
-  const previousRole = member.role;
+  const previousRole = row.member.role;
 
-  member.role = newRole;
-  updatingMemberId.value = member.userId;
+  row.member.role = newRole;
+  updatingMemberId.value = row.member.userId;
 
   try {
     // TODO: persist with PUT `/api/datasets/${datasetId}/members/${member.userId}`
     toast.add({
       title: "Role updated",
-      description: `${displayName(member)} is now ${roleLabel(newRole).toLowerCase()}`,
+      description: `${row.name} is now ${roleLabel(newRole).toLowerCase()}`,
       icon: "material-symbols:check-circle",
     });
   } catch (error) {
     console.error(error);
-    member.role = previousRole;
+    row.member.role = previousRole;
     toast.add({
       title: "Could not update role",
       color: "error",
@@ -251,7 +259,7 @@ const removeRow = async (row: PermissionRow) => {
     removingMember.value = true
 
     if(row.kind == "member") {
-      console.log("Remove later")
+      // TODO: REMOVE MEMBER
       toast.add({
       title: "Member Removed",
       icon: "material-symbols:check-circle",
@@ -278,8 +286,6 @@ const removeRow = async (row: PermissionRow) => {
 
     removingMember.value = false
 }
-    
-
 </script>
 
 <template>
@@ -409,14 +415,14 @@ const removeRow = async (row: PermissionRow) => {
             </UBadge>
 
             <USelect
-              v-else-if="row.kind === 'member' && !row.owner"
+              v-else-if="row.kind === 'member' && 'canManageRoles'"
               :items="roleOptions"
               :loading="updatingMemberId === row.member.userId"
-              :disabled="updatingMemberId === row.member.userId"
+              :disabled="updatingMemberId === row.member.userId || row.member.userId == user.id"
               :model-value="row.member.role"
               class="w-36"
               @update:model-value="
-                (value) => updateRole(row.member, value as MemberRole)
+                (value) => updateRole(row, value as MemberRole)
               "
             />
 
@@ -445,6 +451,7 @@ const removeRow = async (row: PermissionRow) => {
             <UButton
                 color="neutral"
                 variant="ghost"
+                :disabled="!canManageRoles"
                 icon="i-lucide-x"
                 @click="removeRow(row)"
                 :loading="removingMember"
