@@ -270,13 +270,15 @@ const removeRow = async (row: PermissionRow) => {
     removingMember.value = true
 
     if(row.kind == "member") {
-      // TODO: REMOVE MEMBER
+
+      await $fetch(`/api/datasets/${datasetId}/members/${row.member.userId}`, {
+        method: "DELETE"
+      })
+
       toast.add({
       title: "Member Removed",
       icon: "material-symbols:check-circle",
     });
-
-
     members.value = members.value.filter(currMember => currMember.emailAddress !== row.emailAddress)
 
     } else {
