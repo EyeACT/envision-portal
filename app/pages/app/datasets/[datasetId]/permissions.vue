@@ -31,11 +31,8 @@ interface DatasetInvitation {
   id: string;
   emailAddress: string | null;
   role: MemberRole;
-  invitationAccepted: boolean;
-  invitationExpires: string
   url: string;
-  userId: string | null;
-  status: string
+  status: (typeof InvitationStatuses)[keyof typeof InvitationStatuses]
 }
 
 
@@ -72,6 +69,7 @@ const removingMember = ref(false)
 // TODO: replace with data from `/api/datasets/${datasetId}/members`
 $fetch(`/api/datasets/${datasetId}/members`).then(fetchedMembers  => {
   for(const m of fetchedMembers) {
+    console.log(m)
     const {user, updated, role, ...mFields} = m 
     members.value.push({ 
       role: role as DatasetRole, 
@@ -95,51 +93,7 @@ $fetch(`/api/datasets/${datasetId}/invitations`).then(fetchedInvitations => {
 })
 
 // TODO: Convert accepted invites to Datasetmembers/remove accetped invites to avoid duplication
-const members = ref<DatasetMember []>([
-  {
-    userId: "1",
-    givenName: "Jane",
-    familyName: "Doe",
-    emailAddress: "jane.doe@example.com",
-    owner: true,
-    role: "owner",
-    created: "2026-01-12T00:00:00.000Z",
-    accepted: true
-  },
-  {
-    userId: "2",
-    givenName: "John",
-    familyName: "Smith",
-    emailAddress: "john.smith@example.com",
-    owner: false,
-    role: "admin",
-    created: "2026-02-03T00:00:00.000Z",
-    accepted: true
-
-  },
-  {
-    userId: "3",
-    givenName: "Alex",
-    familyName: "Lee",
-    emailAddress: "alex.lee@example.com",
-    owner: false,
-    role: "editor",
-    created: "2026-03-21T00:00:00.000Z",
-    accepted: true
-
-  },
-  {
-    userId: "4",
-    givenName: "",
-    familyName: "",
-    emailAddress: "sam.patel@example.com",
-    owner: false,
-    role: "viewer",
-    created: "2026-05-08T00:00:00.000Z",
-    accepted: false,
-    url: "https://fairdataihub.org/"
-  },
-]);
+const members = ref<DatasetMember []>([]);
 
 const invitations = ref<DatasetInvitation []>([])
 
@@ -276,12 +230,9 @@ try {
     toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
     // add member if has account to members list
     invitations.value.push({
-      id: dsi.invitation.id,
-      emailAddress: currentEmail.value,
-      owner: false,
-      role: currentRole.value as MemberRole,
-      created: new Date(),
-      url: dsi.url
+      ...dsi.invitation,
+      url: dsi.url,
+      role: dsi.invitation.role as MemberRole
     })
 
     currentRole.value = ""
