@@ -134,6 +134,13 @@ const hasValidDatasetInvitation = async (invitation: string | undefined, emailAd
     });
   }
 
+  if (datasetInvitation.status !== InvitationStatuses.NORESPONSE) {
+    throw createError({
+      statusCode: 410,
+      statusMessage: "This invitation is no longer valid."
+    })
+  }
+
 
   return true
 }
