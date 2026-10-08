@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { roundToNearestHoursWithOptions } from 'date-fns/fp';
-import { InvitationStatuses, type DatasetInvitation } from '~~/shared/generated/client';
+import { InvitationStatuses } from '~~/shared/generated/browser';
 
 definePageMeta({
   middleware: ["auth"],
@@ -12,17 +11,6 @@ const toast = useToast();
 const { studyId } = route.params as { studyId: string };
 const { datasetId } = route.params as { datasetId: string };
 
-const invitation = route.query.invitation
-
-if(invitation) {
-  // TODO: Show accept MODAL
-  console.log("We are accepting the invitation automatically for now")
-
-  // SESSION protected accept for given invitation
-  await $fetch(`/api/datasetInvitations/${invitation}/accept`, {
-    method: "POST"
-  })
-}
 
 useSeoMeta({ title: "Permissions" });
 
@@ -43,13 +31,19 @@ interface DatasetInvitation {
   id: string;
   emailAddress: string | null;
   role: MemberRole;
-  invitationAccepted: boolean;
-  invitationExpires: string
   url: string;
-  userId: string | null;
-  invitationStatus: string
+  status: (typeof InvitationStatuses)[keyof typeof InvitationStatuses]
+  invitationExpires: string;
 }
 
+const {user} = useUserSession()
+const canManageRoles = computed(() => {
+  const currentMember = members.value.find(
+    (member) => member.userId === user.value?.id
+  )
+
+  return currentMember?.owner || currentMember?.role == "admin";
+})
 
 const roleOptions = [
   {
@@ -79,81 +73,42 @@ const emailSending = ref(false)
 // member removal loading
 const removingMember = ref(false)
 
+// role updating
+const roleUpdating = ref(false)
 
-// NOTE: Accepted will be a foregin field from DatasetInvitation later on
-// TODO: replace with data from `/api/datasets/${datasetId}/members`
-$fetch(`/api/datasets/${datasetId}/members`).then(fetchedMembers  => {
-  for(const m of fetchedMembers) {
-    const {user, updated, role, ...mFields} = m 
-    members.value.push({ 
-      role: role as DatasetRole, 
-      ...user, 
-      ...mFields
+
+const members = ref<DatasetMember []>([]);
+
+const { data: fetchedMembers, error: membersError } = await useFetch(`/api/datasets/${datasetId}/members`);
+
+if (membersError.value) {
+  console.log(membersError.value);
+} else {
+  members.value = (fetchedMembers.value ?? []).map(
+    ({user, role, ...member}) => ({  
+        role: role as DatasetRole, 
+        ...user, 
+        ...member
     })
-  }
-
-}).catch((error) => {
-  console.error(error)
-})
-
-
-$fetch(`/api/datasets/${datasetId}/invitations`).then(fetchedInvitations => {
-  for(const i of fetchedInvitations) {
-    const {role, ...iFields} = i
-    invitations.value.push({...iFields, role: role as DatasetRole})
-  }
-}).catch((error) => {
-  console.error(error)
-})
-
-// TODO: Convert accepted invites to Datasetmembers/remove accetped invites to avoid duplication
-const members = ref<DatasetMember []>([
-  {
-    userId: "1",
-    givenName: "Jane",
-    familyName: "Doe",
-    emailAddress: "jane.doe@example.com",
-    owner: true,
-    role: "owner",
-    created: "2026-01-12T00:00:00.000Z",
-    accepted: true
-  },
-  {
-    userId: "2",
-    givenName: "John",
-    familyName: "Smith",
-    emailAddress: "john.smith@example.com",
-    owner: false,
-    role: "admin",
-    created: "2026-02-03T00:00:00.000Z",
-    accepted: true
-
-  },
-  {
-    userId: "3",
-    givenName: "Alex",
-    familyName: "Lee",
-    emailAddress: "alex.lee@example.com",
-    owner: false,
-    role: "editor",
-    created: "2026-03-21T00:00:00.000Z",
-    accepted: true
-
-  },
-  {
-    userId: "4",
-    givenName: "",
-    familyName: "",
-    emailAddress: "sam.patel@example.com",
-    owner: false,
-    role: "viewer",
-    created: "2026-05-08T00:00:00.000Z",
-    accepted: false,
-    url: "https://fairdataihub.org/"
-  },
-]);
-
+  )
+}
 const invitations = ref<DatasetInvitation []>([])
+
+const {data: fetchedInvitations, error: invitationsError} = await useFetch(`/api/datasets/${datasetId}/invitations`)
+
+if (invitationsError.value) {
+  console.log(invitationsError.value)
+} else {
+  invitations.value = (fetchedInvitations.value ?? []).map(
+    ({role, ...invitation}) => ({
+      role: role as MemberRole,
+      ...invitation
+    })
+  )
+}
+
+
+
 
 type PermissionRow = | {
   kind: "member",
@@ -187,7 +142,7 @@ const filteredRows = computed<PermissionRow[]>(() => {
       member,
     })),
     ...invitations.value.filter((invitation) => { 
-      return invitation.invitationStatus === InvitationStatuses.NORESPONSE
+      return invitation.status === InvitationStatuses.NORESPONSE && Date.parse(invitation.invitationExpires) > Date.now()
     })
     .map((invitation) => ({
       kind: "invitation" as const,
@@ -209,21 +164,6 @@ const filteredRows = computed<PermissionRow[]>(() => {
   );
 })
 
-const filteredMembers = computed(() => {
-  const query = search.value.trim().toLowerCase();
-
-  if (!query) return members.value;
-
-  return members.value.filter((member) =>
-    [member.givenName, member.familyName, member.emailAddress]
-      .join(" ")
-      .toLowerCase()
-      .includes(query),
-  );
-});
-
-
-
 const roleLabel = (role: MemberRole) =>
   role === "owner"
     ? "Owner"
@@ -231,90 +171,99 @@ const roleLabel = (role: MemberRole) =>
 
 const updatingMemberId = ref<string | null>(null);
 
-const updateRole = async (member: DatasetMember, newRole: MemberRole) => {
-  if (member.owner || member.role === newRole) return;
 
-  const previousRole = member.role;
 
-  member.role = newRole;
-  updatingMemberId.value = member.userId;
+const updateRole = async (row: PermissionRow, newRole: MemberRole) => {
+  if (row.kind == "invitation") return
+  if (row.member.owner || row.member.role === newRole) return;
+  roleUpdating.value = true
+
+  const previousRole = row.member.role;
+
+  row.member.role = newRole;
+  updatingMemberId.value = row.member.userId;
 
   try {
-    // TODO: persist with PUT `/api/datasets/${datasetId}/members/${member.userId}`
+    await $fetch(`/api/datasets/${datasetId}/members/${row.member.userId}`, {
+      method: "PATCH",
+      body: {
+        role: newRole
+      }
+    })
     toast.add({
       title: "Role updated",
-      description: `${displayName(member)} is now ${roleLabel(newRole).toLowerCase()}`,
+      description: `${row.name} is now ${roleLabel(newRole).toLowerCase()}`,
       icon: "material-symbols:check-circle",
     });
   } catch (error) {
     console.error(error);
-    member.role = previousRole;
+    row.member.role = previousRole;
     toast.add({
       title: "Could not update role",
       color: "error",
       icon: "material-symbols:error",
     });
   } finally {
+    roleUpdating.value = false
     updatingMemberId.value = null;
   }
 };
 
-const addMember = async () => {
+const sendInvitation = async () => {
   emailSending.value = true;
-    
-try {
 
   let targetEmail = currentEmail.value
 
   // check if invitation already exists but is RESCINDED/EXPIRED/ACCEPTED but member is gone
-  const alreadyMember = members.value.filter(member => {
+  const isMember = members.value.some(member => {
     return member.emailAddress.toLocaleLowerCase() === targetEmail.toLocaleLowerCase()
   })
 
-  if(alreadyMember) {
+  if(isMember) {
     toast.add({title: "Already a member of the dataset", color: "error", icon: "material-symbols:error"})
     return
   }
 
   // check last updated time
-  const pastInvitation = invitations.value.filter(invitation => {
-    return targetEmail.toLocaleLowerCase() === invitation.emailAddress?.toLocaleLowerCase()
-  })
+  const existingInvitation = invitations.value.find(invitation => 
+  targetEmail.toLocaleLowerCase() === invitation.emailAddress?.toLocaleLowerCase()
+  )
+    
+  try {
+    let dsi = null
 
-  if(pastInvitation) {
-    // update invitation if within update policy time
-    $fetch(`/api/datasets/${datasetId}/invitations/${pastInvitation.id}`, {
-      method: "PATCH",
-      body: {
-        status: InvitationStatuses.NORESPONSE
+    if (existingInvitation) {
+      dsi = await $fetch(`/api/datasets/${datasetId}/invitations/${existingInvitation.id}/resend`, {
+        method: "POST"
+      })
+
+      // find and replace the existing invitation 
+      for(const invitation of invitations.value) {
+        if(invitation.id === dsi.invitation.id) {
+          invitation.invitationExpires = dsi.invitation.invitationExpires;
+        } 
       }
-    })
-    return 
-  } 
+      toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
+      currentRole.value = ""
+      currentEmail.value = ""
+      return 
+    } else {
+      dsi = await $fetch(`/api/datasets/${datasetId}/invitations`, {
+        method: "POST",
+        body: {
+          emailAddress: currentEmail.value,
+          datasetId: datasetId,
+          role: currentRole.value.toLocaleLowerCase(),
+        }
+      })
+    }
 
-  // TODO: HANDLE UPDATING INVITATIONS ONCE THEY EXPIRE
-    const dsi = await $fetch(`/api/datasets/${datasetId}/invitations`, {
-      method: "POST",
-      body: {
-        emailAddress: currentEmail.value,
-        datasetId: datasetId,
-        role: currentRole.value.toLocaleLowerCase(),
-
-      }
-    })
-    console.log(dsi)
     toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
-    // add member if has account to members list
-    members.value.push({
-      userId: "9", // spoof for now
-      givenName: "",
-      familyName: "",
-      emailAddress: currentEmail.value,
-      owner: false,
-      role: currentRole.value,
-      created: "2026-02-03T00:00:00.000Z",
-      accepted: false,
-      url: dsi
+    // add invitations to list
+    invitations.value.push({
+      ...dsi.invitation,
+      url: dsi.url,
+      role: dsi.invitation.role as MemberRole
     })
 
     currentRole.value = ""
@@ -333,36 +282,45 @@ const removeRow = async (row: PermissionRow) => {
     removingMember.value = true
 
     if(row.kind == "member") {
-      console.log("Remove later")
-      toast.add({
-      title: "Member Removed",
-      icon: "material-symbols:check-circle",
-    });
-
-
-    members.value = members.value.filter(currMember => currMember.emailAddress !== row.emailAddress)
-
+      try {
+        await $fetch(`/api/datasets/${datasetId}/members/${row.member.userId}`, {
+          method: "DELETE"
+        })
+        toast.add({
+          title: "Member Removed",
+          icon: "material-symbols:check-circle",
+        });
+        members.value = members.value.filter(currMember => currMember.emailAddress !== row.emailAddress)
+      } catch(error) {
+        console.error(error)
+        const e = error as any
+        toast.add({title: "Member Not Removed", description: e.data.statusMessage,  color: "error", icon: "material-symbols:error"})
+      } finally {
+        removingMember.value = false
+      }
     } else {
-      // remove invitation
-      await $fetch(`/api/datasets/${datasetId}/invitations/${row.invitation.id}`, {
-        method: "PATCH",
-        body: {
-          status: InvitationStatuses.RESCINDED
-        }
-      })
-      toast.add({
-        title: "Invitation Rescinded",
-        icon: "material-symbols:check-circle",
-      });
-
-
-
-    }
-
-
-    removingMember.value = false
+      try {
+        // remove invitation
+        await $fetch(`/api/datasets/${datasetId}/invitations/${row.invitation.id}`, {
+          method: "PATCH",
+          body: {
+            status: InvitationStatuses.RESCINDED
+          }
+        })
+        toast.add({
+          title: "Invitation Rescinded",
+          icon: "material-symbols:check-circle",
+        });
+        invitations.value = invitations.value.filter(currInvitation => currInvitation.id !== row.invitation.id)
+      } catch(error) {
+        console.error(error)
+        const e = error as any
+        toast.add({title: "Invitation Not Rescinded", description: e.data.statusMessage,  color: "error", icon: "material-symbols:error"})
+      } finally {
+        removingMember.value = false
+      }
+  } 
 }
-    
 
 </script>
 
@@ -426,7 +384,7 @@ const removeRow = async (row: PermissionRow) => {
           <div class="flex items-end">
             <UButton
               label="Add Member"
-              @click="addMember"
+              @click="sendInvitation"
               :loading="emailSending"
             />
           </div>
@@ -493,15 +451,27 @@ const removeRow = async (row: PermissionRow) => {
             </UBadge>
 
             <USelect
-              v-else-if="row.kind === 'member' && !row.owner"
+              v-else-if="row.kind === 'member' && canManageRoles"
               :items="roleOptions"
-              :loading="updatingMemberId === row.member.userId"
-              :disabled="updatingMemberId === row.member.userId"
+              :loading="roleUpdating"
+              :disabled="updatingMemberId === row.member.userId || row.member.userId == user.id"
+              :model-value="row.member.role"
               class="w-36"
               @update:model-value="
-                (value) => updateRole(row.member, value as MemberRole)
+                (value) => updateRole(row, value as MemberRole)
               "
             />
+
+            <div v-else-if="row.kind == 'member' && !canManageRoles" class="flex gap-2">
+              <UBadge 
+                color="neutral"
+                variant="soft"
+                size="md"
+                class="font-bold uppercase"
+              >
+                {{ row.role }}
+              </UBadge>
+            </div>
 
             <div 
               v-else
@@ -515,19 +485,20 @@ const removeRow = async (row: PermissionRow) => {
               >
                 {{ row.role }}
               </UBadge>
-              <ULink 
+               <ULink 
                 as="button"
                 color="primary"
                 variant="soft"
                 size="sm"
                 :to="row.invitation.url"
                 target="_blank"
-              >Follow Invite URL</ULink>
+              >Follow Invite URL</ULink> 
             </div>
 
             <UButton
                 color="neutral"
                 variant="ghost"
+                :disabled="!canManageRoles"
                 icon="i-lucide-x"
                 @click="removeRow(row)"
                 :loading="removingMember"
@@ -542,7 +513,3 @@ const removeRow = async (row: PermissionRow) => {
     </div>
   </div>
 </template>
-example.com
-
-
-Vie

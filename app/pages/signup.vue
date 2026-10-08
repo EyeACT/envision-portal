@@ -70,7 +70,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
         await navigateTo({
           path: "/login",
-          query: { redirect: "/app/invitations" },
+          query: { redirect: "/invitations" },
         });
         
       } else {

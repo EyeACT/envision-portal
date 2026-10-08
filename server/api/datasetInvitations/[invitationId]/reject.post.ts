@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 410,
       statusMessage:
-        "Invitation token has expired. No reason to reject.",
+        "Invitation has expired. No reason to reject.",
     });
   }
 

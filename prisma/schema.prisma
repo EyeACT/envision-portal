@@ -191,7 +191,6 @@ model DatasetInvitation {
     emailAddress String? // for users with no accounts
 
     invitationExpires DateTime @default(now())
-    invitationAccepted Boolean @default(false)
     invitationToken String? @unique 
 
     role String @default("viewer") // owner | admin | editor | viewer

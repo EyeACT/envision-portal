@@ -3,7 +3,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 // Function to convert blob paths into a tree structure for UTree
 function convertBlobsToTree(blobs: any[]) {
   const tree: any[] = [];
-  
+
   // Sort paths to ensure directories come before their files
   const sortedBlobs = blobs.sort((a, b) => {
     const aDepth = (a.name.match(/\//g) || []).length;
@@ -80,7 +80,7 @@ function getFileIcon(filename: string): string {
 
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
-  await requireUserSession(event);
+  await datasetMinViewerPermission(event)
 
   const { datasetId } = event.context.params as {
     datasetId: string;

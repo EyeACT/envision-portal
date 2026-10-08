@@ -5,10 +5,9 @@ const DatasetChangelogSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
+  const member = await datasetMinEditorPermission(event)
 
-  const { user } = session;
-  const userId = user.id;
+  const userId = member.userId;
 
   const { datasetId } = event.context.params as {
     datasetId: string;

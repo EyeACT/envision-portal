@@ -70,7 +70,6 @@ export default defineEventHandler(async (event) => {
         userId: session.user.id,
         role: invitation.role,
         datasetId: invitation.datasetId
-
       }
     })
   ])
