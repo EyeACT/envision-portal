@@ -2,6 +2,7 @@
 import dayjs from "dayjs";
 import { z } from "zod"
 import { nanoid } from "nanoid";
+import { sendInvitationEmail } from "~~/server/utils/sendInvitationEmail";
 
 
 export default defineEventHandler(async (event) => {
@@ -38,13 +39,29 @@ export default defineEventHandler(async (event) => {
     }
   })
 
+  const dataset = await prisma.dataset.findUnique({
+    where: {
+      id: datasetId
+    }
+  })
+
+  if (!dataset) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Dataset not found."
+    })
+  }
+
+  const datasetTitle = dataset.title
+
   let invitationLink = ""
   let datasetInvitation = null
   if (user) {
-    // TOOD: EMAIL TEMPLATE
-    // await sendEmail(
-    //   datasetInvite.emailAddress,
-    //   "Sick Invitation Subject",
+    // await sendInvitationEmail(
+    //   normalizedEmailAddress,
+    //   `You Have Been Invited to Collaborate on an Envision Portal Dataset`,
+    //   "internal",
+    //   datasetTitle,
     //   invitationLink
     // )
     // TODO: Match platform invitation time later
@@ -80,6 +97,14 @@ export default defineEventHandler(async (event) => {
       }
     })
     invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
+
+    // await sendInvitationEmail(
+    //   normalizedEmailAddress,
+    //   `You Have Been Invited to Collaborate on an Envision Portal Dataset`,
+    //   "external",
+    //   datasetTitle,
+    //   invitationLink
+    // )
   }
 
 
@@ -89,7 +114,8 @@ export default defineEventHandler(async (event) => {
       id: datasetInvitation.id,
       emailAddress: normalizedEmailAddress,
       role: datasetInvitation.role,
-      status: datasetInvitation.status
+      status: datasetInvitation.status,
+      invitationExpires: datasetInvitation.invitationExpires
     }
   }
 })

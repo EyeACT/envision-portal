@@ -33,6 +33,7 @@ interface DatasetInvitation {
   role: MemberRole;
   url: string;
   status: (typeof InvitationStatuses)[keyof typeof InvitationStatuses]
+  invitationExpires: string;
 }
 
 const {user} = useUserSession()
@@ -141,7 +142,7 @@ const filteredRows = computed<PermissionRow[]>(() => {
       member,
     })),
     ...invitations.value.filter((invitation) => { 
-      return invitation.status === InvitationStatuses.NORESPONSE
+      return invitation.status === InvitationStatuses.NORESPONSE && Date.parse(invitation.invitationExpires) > Date.now()
     })
     .map((invitation) => ({
       kind: "invitation" as const,
@@ -235,6 +236,17 @@ const sendInvitation = async () => {
       dsi = await $fetch(`/api/datasets/${datasetId}/invitations/${existingInvitation.id}/resend`, {
         method: "POST"
       })
+
+      // find and replace the existing invitation 
+      for(const invitation of invitations.value) {
+        if(invitation.id === dsi.invitation.id) {
+          invitation.invitationExpires = dsi.invitation.invitationExpires;
+        } 
+      }
+      toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
+      currentRole.value = ""
+      currentEmail.value = ""
+      return 
     } else {
       dsi = await $fetch(`/api/datasets/${datasetId}/invitations`, {
         method: "POST",
@@ -247,7 +259,7 @@ const sendInvitation = async () => {
     }
 
     toast.add({ title: "Invite Sent", description: `${currentEmail.value}` })
-    // add member if has account to members list
+    // add invitations to list
     invitations.value.push({
       ...dsi.invitation,
       url: dsi.url,

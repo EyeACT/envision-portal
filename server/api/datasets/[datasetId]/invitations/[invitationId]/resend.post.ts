@@ -121,7 +121,8 @@ export default defineEventHandler(async (event) => {
       id: datasetInvitation.id,
       emailAddress: emailAddress,
       role: datasetInvitation.role,
-      status: datasetInvitation.status
+      status: datasetInvitation.status,
+      invitationExpires: datasetInvitation.invitationExpires
     }
   }
 })
