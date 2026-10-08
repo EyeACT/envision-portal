@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
   }
 
   let userId = invitation?.userId
-  let emailAddress = invitation?.emailAddress
+  let emailAddress = invitation?.emailAddress?.toLocaleLowerCase()
 
   if (!userId && !emailAddress) {
     throw createError({
@@ -103,6 +103,14 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    // TOOD: EMAIL TEMPLATE
+    // await sendEmail(
+    //   datasetInvite.emailAddress,
+    //   "Sick Invitation Subject",
+    //   invitationLink
+    // )
+
+
 
     invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
   }
@@ -111,7 +119,7 @@ export default defineEventHandler(async (event) => {
     url: invitationLink,
     invitation: {
       id: datasetInvitation.id,
-      emailAddress: datasetInvitation.emailAddress,
+      emailAddress: emailAddress,
       role: datasetInvitation.role,
       status: datasetInvitation.status
     }

@@ -30,10 +30,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const normalizedEmailAddress = datasetInvite.emailAddress.toLocaleLowerCase()
 
   const user = await prisma.user.findUnique({
     where: {
-      emailAddress: datasetInvite.emailAddress
+      emailAddress: normalizedEmailAddress
     }
   })
 
@@ -50,7 +51,9 @@ export default defineEventHandler(async (event) => {
     const invitationExpires = dayjs().add(30, "minute").toDate();
     datasetInvitation = await prisma.datasetInvitation.create({
       data: {
-        ...datasetInvite,
+        datasetId: datasetInvite.datasetId,
+        role: datasetInvite.role,
+        emailAddress: normalizedEmailAddress,
         invitationExpires,
         userId: user.id
       }
@@ -68,7 +71,9 @@ export default defineEventHandler(async (event) => {
 
     datasetInvitation = await prisma.datasetInvitation.create({
       data: {
-        ...datasetInvite,
+        datasetId: datasetInvite.datasetId,
+        role: datasetInvite.role,
+        emailAddress: normalizedEmailAddress,
         invitationToken,
         invitationExpires,
         userId: null
@@ -82,7 +87,7 @@ export default defineEventHandler(async (event) => {
     url: invitationLink,
     invitation: {
       id: datasetInvitation.id,
-      emailAddress: datasetInvitation.emailAddress,
+      emailAddress: normalizedEmailAddress,
       role: datasetInvitation.role,
       status: datasetInvitation.status
     }
