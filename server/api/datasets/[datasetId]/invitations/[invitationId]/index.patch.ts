@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  const updateStatus = body.data.status
+  const updateStatus = body.status
 
   if (updateStatus === InvitationStatuses.RESCINDED) {
     await prisma.datasetInvitation.update({

@@ -26,7 +26,6 @@ export default defineEventHandler(async (event) => {
   const activeInvitations = invitations.filter(invitation => {
     return (
       invitation.invitationExpires > new Date() &&
-      !invitation.invitationAccepted &&
       invitation.status === InvitationStatuses.NORESPONSE
     )
   })

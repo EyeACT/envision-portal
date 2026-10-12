@@ -1,7 +1,6 @@
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
+  await datasetMinViewerPermission(event)
 
-  // todo: add permissions check
 
   const { datasetId } = event.context.params as {
     datasetId: string;

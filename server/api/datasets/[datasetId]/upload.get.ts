@@ -8,7 +8,7 @@ import {
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_ACCOUNT_KEY, AZURE_DRAFT_CONNECTION_STRING } =
     useRuntimeConfig();
-  const session = await requireUserSession(event);
+  await datasetMinEditorPermission(event)
 
   // todo: add permissions check
   // only allow users with the role of data-curator or higher

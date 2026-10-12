@@ -5,7 +5,7 @@ import { parseBigInt } from "./upload/utils"
 
 export default defineEventHandler(async (event) => {
 
-  const session = await requireUserSession(event);
+  await datasetMinViewerPermission(event)
 
   const { datasetId } = event.context.params as {
     datasetId: string;
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   }
 
 
-  const documents = await prisma.document.findMany({
+  const documents = await prisma.datasetSupportingDocument.findMany({
     where: {
       datasetId: datasetId
     }

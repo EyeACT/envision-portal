@@ -1,7 +1,6 @@
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
+  const member = await datasetMinViewerPermission(event)
 
-  const { user } = session;
 
   const { datasetId, requestId } = event.context.params as {
     datasetId: string;
@@ -18,7 +17,7 @@ export default defineEventHandler(async (event) => {
       dataset: {
         DatasetMember: {
           some: {
-            userId: user.id,
+            userId: member.userId,
           },
         },
       },

@@ -1,7 +1,7 @@
 
 import dayjs from "dayjs";
-import { z } from "zod"
 import { nanoid } from "nanoid";
+import { InvitationStatuses } from "~~/shared/generated/enums";
 
 
 export default defineEventHandler(async (event) => {
@@ -10,81 +10,119 @@ export default defineEventHandler(async (event) => {
 
   const { datasetId, invitationId } = event.context.params as { datasetId: string, invitationId: string };
 
+  const invitation = await prisma.datasetInvitation.findUnique({
+    where: {
+      id: invitationId,
+      datasetId: datasetId
+    }
+  })
 
-  const body = await readValidatedBody(event, (b) =>
-    datasetInviteSchema.safeParse(b)
-  )
-
-  console.log(body)
-
-  if (!body.success) {
+  if (!invitation) {
     throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid invitation"
+      statusCode: 404,
+      statusMessage: "Cannot find invitation."
     })
   }
 
-  const datasetInvite = body.data
+  if (invitation.status == InvitationStatuses.ACCEPTED) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Cannot send another invitation."
+    })
+  }
 
+  // TODO: Eventually allow at least one resend if status is REJECTED without waiting.
+  // Inviter must wait for invitation to expire before resending
+  if (invitation.invitationExpires > new Date()) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Cannot send another invitation right now."
+    })
+  }
+
+  let userId = invitation?.userId
+  let emailAddress = invitation?.emailAddress?.toLocaleLowerCase()
+
+  if (!userId && !emailAddress) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Could not find a user to invite."
+    })
+  }
+
+  const condition = userId ? { id: userId! } : { emailAddress: emailAddress! }
 
   const user = await prisma.user.findUnique({
     where: {
-      emailAddress: datasetInvite.emailAddress
+      ...condition
     }
   })
 
 
+  let invitationLink = ""
+  let datasetInvitation = null
+
   if (user) {
+    // TODO: Match platform invitation time later
+    const invitationExpires = dayjs().add(30, "minute").toDate();
+    datasetInvitation = await prisma.datasetInvitation.update({
+      where: {
+        id: invitationId
+      },
+      data: {
+        invitationExpires,
+        status: InvitationStatuses.NORESPONSE,
+        invitationToken: null
+      }
+    })
+    // Send invitation email
+    // OPTIONALLY SEND TO INVITATIONS PAGE
+    invitationLink = `${config.emailVerificationDomain}/invitations`
+
     // TOOD: EMAIL TEMPLATE
     // await sendEmail(
     //   datasetInvite.emailAddress,
     //   "Sick Invitation Subject",
     //   invitationLink
     // )
-    // TODO: Match platform invitation time later
-    const invitationExpires = dayjs().add(30, "minute").toDate();
-    const datasetInvitation = await prisma.datasetInvitation.create({
-      data: {
-        ...datasetInvite,
-        invitationExpires,
-        userId: user.id
-      }
-    })
-    // Send invitation email
-    // OPTIONALLY SEND TO INVITATIONS PAGE
-    const invitationLink = `${config.emailVerificationDomain}/app/invitations`
-
-    return invitationLink
 
   } else {
     const invitationToken = nanoid();
-    // TODO: Up time to days later
 
     // TODO: Match platform invitation time later
     const invitationExpires = dayjs().add(60, "minute").toDate();
 
-
-    const datasetInvitation = await prisma.datasetInvitation.create({
+    datasetInvitation = await prisma.datasetInvitation.update({
+      where: {
+        id: invitationId
+      },
       data: {
-        ...datasetInvite,
-        invitationToken,
         invitationExpires,
-        userId: null
+        status: InvitationStatuses.NORESPONSE,
+        invitationToken: invitationToken
       }
     })
 
+    // TOOD: EMAIL TEMPLATE
+    // await sendEmail(
+    //   datasetInvite.emailAddress,
+    //   "Sick Invitation Subject",
+    //   invitationLink
+    // )
 
-    const invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
-    return invitationLink
+
+
+    invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
   }
 
-
-})
-
-
-let datasetInviteSchema = z.object({
-  datasetId: z.string(),
-  emailAddress: z.email(),
-  role: z.enum(DATASET_ROLES),
-  userId: z.string().optional()
+  return {
+    url: invitationLink,
+    invitation: {
+      id: datasetInvitation.id,
+      emailAddress: emailAddress,
+      role: datasetInvitation.role,
+      status: datasetInvitation.status,
+      invitationExpires: datasetInvitation.invitationExpires
+    }
+  }
 })

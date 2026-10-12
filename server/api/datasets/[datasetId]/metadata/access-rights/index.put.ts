@@ -2,10 +2,8 @@ import { DatasetMetadataAccessRightsSchema } from "#shared/utils/dataset_schemas
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
+  await datasetMinEditorPermission(event)
 
-  const { user } = session;
-  const userId = user.id;
 
   const { datasetId } = event.context.params as {
     datasetId: string;

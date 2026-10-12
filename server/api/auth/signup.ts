@@ -33,10 +33,12 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const normalizedEmailAddress = body.data.emailAddress.toLocaleLowerCase()
+
   // Check if the user already exists
   const user = await prisma.user.findUnique({
     where: {
-      emailAddress: body.data.emailAddress,
+      emailAddress: normalizedEmailAddress,
     },
   });
 
@@ -54,11 +56,11 @@ export default defineEventHandler(async (event) => {
 
   // TODO: Database transaction for consuming and creating a user
   // signups with successful invitation consumption skip email verification
-  const validInvitation = await hasValidDatasetInvitation(body.data.invitation, body.data.emailAddress)
+  const validInvitation = await hasValidDatasetInvitation(body.data.invitation, normalizedEmailAddress)
 
   const newUser = await prisma.user.create({
     data: {
-      emailAddress: body.data.emailAddress,
+      emailAddress: normalizedEmailAddress,
       emailVerificationToken: verificationToken,
       emailVerificationTokenExpires: tokenExpiry,
       emailVerified: validInvitation ? true : false,
@@ -132,6 +134,13 @@ const hasValidDatasetInvitation = async (invitation: string | undefined, emailAd
       statusMessage:
         "Invitation has been rescinded. Please contact the inviter for a new invitation.",
     });
+  }
+
+  if (datasetInvitation.status !== InvitationStatuses.NORESPONSE) {
+    throw createError({
+      statusCode: 410,
+      statusMessage: "This invitation is no longer valid."
+    })
   }
 
 
