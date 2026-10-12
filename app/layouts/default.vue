@@ -173,6 +173,11 @@ const datasetNavItems = [
   },
   { name: "Files", icon: "ph:files-fill", route: "files" },
   {
+    name: "Documents",
+    icon: "mdi:file-document-multiple-outline",
+    route: "documents",
+  },
+  {
     name: "Changelog",
     icon: "material-symbols:history",
     route: "changelog",
