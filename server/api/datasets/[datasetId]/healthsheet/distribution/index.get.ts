@@ -1,10 +1,8 @@
 import { DatasetHealthsheetRecords } from "~/types/dataset";
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
-
-  const { user } = session;
-  const userId = user.id;
+  const member = await datasetMinViewerPermission(event)
+  const userId = member.userId
 
   const { datasetId } = event.context.params as {
     datasetId: string;
@@ -36,9 +34,9 @@ export default defineEventHandler(async (event) => {
   const parsedDistribution = dataset.DatasetHealthsheet?.distribution
     ? JSON.parse(dataset.DatasetHealthsheet?.distribution as string)
     : {
-        records: [],
-        version: 1,
-      };
+      records: [],
+      version: 1,
+    };
 
   const distribution = parsedDistribution as DatasetHealthsheetRecords;
 

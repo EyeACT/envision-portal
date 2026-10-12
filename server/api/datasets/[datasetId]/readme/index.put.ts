@@ -5,10 +5,7 @@ const DatasetReadmeSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
-
-  const { user } = session;
-  const userId = user.id;
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as {
     datasetId: string;
@@ -34,11 +31,6 @@ export default defineEventHandler(async (event) => {
     },
     where: {
       id: datasetId,
-      DatasetMember: {
-        some: {
-          userId,
-        },
-      },
     },
   });
 

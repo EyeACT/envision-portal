@@ -62,9 +62,9 @@ function convertPathsToTree(paths: any[]) {
           // Add file metadata if it's a file
           ...(isLastPart && !isDirectory
             ? {
-                // lastModified: path.lastModified,
-                // size: path.contentLength,
-              }
+              // lastModified: path.lastModified,
+              // size: path.contentLength,
+            }
             : {}),
         };
 
@@ -120,10 +120,8 @@ export default defineEventHandler(async (event) => {
 
   const { environment } = useRuntimeConfig().public;
 
-  const session = await requireUserSession(event);
-
-  const { user } = session;
-  const userId = user.id;
+  const member = await datasetMinAdminPermission(event)
+  const userId = member.userId
 
   const { datasetId } = event.context.params as {
     datasetId: string;

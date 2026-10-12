@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
+  await datasetMinViewerPermission(event)
   const { datasetId } = event.context.params as { datasetId: string };
 
   if (!datasetId) {

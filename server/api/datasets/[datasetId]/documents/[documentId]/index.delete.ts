@@ -6,7 +6,7 @@ import {
 } from "@azure/storage-blob";
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
+  await datasetMinEditorPermission(event);
 
   const { datasetId, documentId } = event.context.params as {
     datasetId: string;
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const deletedDocument = await prisma.document.delete({
+  const deletedDocument = await prisma.datasetSupportingDocument.delete({
     where: {
       id: documentId,
     },

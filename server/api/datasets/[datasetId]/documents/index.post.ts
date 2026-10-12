@@ -10,7 +10,7 @@ import {
 import { sanitizeFileName } from "#shared/utils/documents";
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event);
+  await datasetMinEditorPermission(event)
   const { datasetId } = event.context.params as { datasetId: string };
 
   const formData = await readMultipartFormData(event);
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
 
   await uploadDocument(file.data, storagePath, mimeType);
 
-  const document = await prisma.document.create({
+  const document = await prisma.datasetSupportingDocument.create({
     data: {
       originalName: file.filename,
       sanitizedName: sanitizedName,

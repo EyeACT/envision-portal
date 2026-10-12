@@ -57,6 +57,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       });
 
       if (routeQueryParams.redirect) {
+        // TODO: Validate redirect
         console.log("redirecting to", routeQueryParams.redirect);
         window.location.href = routeQueryParams.redirect as string;
       } else {
