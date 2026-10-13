@@ -52,32 +52,6 @@ function convertBlobsToTree(blobs: any[]) {
   return tree;
 }
 
-// Function to get appropriate icon based on file extension
-function getFileIcon(filename: string): string {
-  const extension = filename.split(".").pop()?.toLowerCase();
-
-  switch (extension) {
-    case "csv":
-      return "i-vscode-icons-file-type-csv";
-    case "json":
-      return "i-vscode-icons-file-type-json";
-    case "xlsx":
-    case "xls":
-      return "i-vscode-icons-file-type-excel";
-    case "md":
-    case "txt":
-      return "i-heroicons-document-text";
-    case "zip":
-      return "i-vscode-icons-file-type-zip";
-    case "tsv":
-      return "i-vscode-icons-file-type-csv";
-    case "dcm":
-      return "i-vscode-icons-file-type-dicom";
-    default:
-      return "i-heroicons-document";
-  }
-}
-
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   await datasetMinViewerPermission(event)
