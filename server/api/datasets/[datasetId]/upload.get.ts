@@ -32,6 +32,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // No new upload SAS once publishing has been requested. Tokens already issued
+  // expire before the publish task runs (see PUBLISH_DELAY_HOURS in publish/finalize.post.ts)
+  await assertDatasetUnlocked(dataset.id);
+
   const draftDatalakeServiceClient = DataLakeServiceClient.fromConnectionString(
     AZURE_DRAFT_CONNECTION_STRING,
   );

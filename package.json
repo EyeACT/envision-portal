@@ -22,7 +22,8 @@
     "reset": "rm -rf node_modules .nuxt .output dist && pnpm install",
     "prune-branches": "npx git-removed-branches --prune --force",
     "scripts:edit:record": "tsx ./scripts/edit-record.ts",
-    "scripts:create:record": "tsx ./scripts/create-record.ts"
+    "scripts:create:record": "tsx ./scripts/create-record.ts",
+    "scripts:process:task-queue": "tsx ./scripts/process-task-queue.ts"
   },
   "dependencies": {
     "@azure/storage-blob": "12.33.0",
@@ -61,6 +62,7 @@
     "@types/sanitize-html": "2.16.1",
     "@typescript-eslint/parser": "8.59.0",
     "dayjs-nuxt": "2.1.11",
+    "dotenv": "18.0.5",
     "eslint": "10.2.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-perfectionist": "5.9.0",
