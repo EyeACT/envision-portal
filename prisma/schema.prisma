@@ -89,6 +89,8 @@ model Dataset {
 
     status String @default("draft") // draft | published
 
+    lockedAt DateTime? // Set when publishing is requested. Edits and upload SAS are blocked while set
+
     changelog String @default("")
     readme    String @default("")
 
@@ -136,6 +138,8 @@ model Dataset {
     ControlledDatasetRequest ControlledDatasetRequest[]
 
     DatasetSupportingDocument DatasetSupportingDocument[]
+
+    Task Task[]
 }
 
 model DatasetSupportingDocument {
@@ -804,6 +808,31 @@ model DatasetPublishingStatus {
 
     updated DateTime @updatedAt
     created DateTime @default(now())
+}
+
+// Background work picked up by scripts/process-task-queue.ts
+model Task {
+    id String @id @default(cuid(2))
+
+    type   String // publish-dataset
+    status String @default("pending") // pending | running | completed | failed
+
+    datasetId String
+    dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+    payload Json @default("{}") // Task-specific input, written when the task is queued
+
+    runAfter DateTime @default(now()) // The task is not picked up before this time
+    attempts Int      @default(0)
+    error    String   @default("") // Last failure message
+
+    startedAt   DateTime?
+    completedAt DateTime?
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+
+    @@index([status, runAfter])
 }
 
 model PublishedDataset {

@@ -1,4 +1,4 @@
-import { BlobServiceClient } from "@azure/storage-blob";
+import { DataLakeServiceClient } from "@azure/storage-file-datalake";
 
 // Function to convert blob paths into a tree structure for UTree
 function convertBlobsToTree(blobs: any[]) {
@@ -52,32 +52,6 @@ function convertBlobsToTree(blobs: any[]) {
   return tree;
 }
 
-// Function to get appropriate icon based on file extension
-function getFileIcon(filename: string): string {
-  const extension = filename.split(".").pop()?.toLowerCase();
-
-  switch (extension) {
-    case "csv":
-      return "i-vscode-icons-file-type-csv";
-    case "json":
-      return "i-vscode-icons-file-type-json";
-    case "xlsx":
-    case "xls":
-      return "i-vscode-icons-file-type-excel";
-    case "md":
-    case "txt":
-      return "i-heroicons-document-text";
-    case "zip":
-      return "i-vscode-icons-file-type-zip";
-    case "tsv":
-      return "i-vscode-icons-file-type-csv";
-    case "dcm":
-      return "i-vscode-icons-file-type-dicom";
-    default:
-      return "i-heroicons-document";
-  }
-}
-
 export default defineEventHandler(async (event) => {
   const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   await datasetMinViewerPermission(event)
@@ -101,33 +75,31 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Initialize the standard BlobServiceClient
-  const blobServiceClient = BlobServiceClient.fromConnectionString(
+  const datalakeServiceClient = DataLakeServiceClient.fromConnectionString(
     AZURE_DRAFT_CONNECTION_STRING,
   );
 
-  // Azure container names must be lowercase
-  const containerClient = blobServiceClient.getContainerClient(dataset.id.toLowerCase());
+  // Owner uploads live in `{datasetId}/data` inside the shared `datasets` container
+  const fileSystemClient =
+    datalakeServiceClient.getFileSystemClient("datasets");
+  const dataPath = `${dataset.id}/data`;
 
   const blobs: any[] = [];
 
   try {
-    // Gracefully check if the container exists before attempting to list blobs
-    if (!(await containerClient.exists())) {
-      return {
-        ...dataset,
-        files: [],
-        paths: [],
-      };
-    }
+    // List recursively; skip directory entries since the tree is built from file paths
+    for await (const path of fileSystemClient.listPaths({
+      path: dataPath,
+      recursive: true,
+    })) {
+      if (path.isDirectory || !path.name) continue;
 
-    // List all blobs flatly; forward slashes ("/") represent virtual directories
-    for await (const blob of containerClient.listBlobsFlat()) {
-      blobs.push({ name: blob.name });
+      // Strip the `{datasetId}/data/` prefix so paths match what the owner sees
+      blobs.push({ name: path.name.slice(dataPath.length + 1) });
     }
   } catch (error: any) {
-    // Fallback safeguard if Azure throws a 404 during iteration
-    if (error.statusCode === 404 || error.code === 'ContainerNotFound') {
+    // The data folder (or container) doesn't exist yet, so there are no files
+    if (error.statusCode === 404) {
       return {
         ...dataset,
         files: [],

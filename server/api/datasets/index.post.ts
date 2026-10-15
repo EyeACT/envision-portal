@@ -32,15 +32,15 @@ export default defineEventHandler(async (event) => {
 
   // TODO: remove this
   // delete the dataset if it already exists
-  try {
-    await prisma.dataset.delete({
-      where: {
-        id: "cm880mrva00000cl20uo80c7e",
-      },
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  // try {
+  //   await prisma.dataset.delete({
+  //     where: {
+  //       id: "cm880mrva00000cl20uo80c7e",
+  //     },
+  //   });
+  // } catch (error) {
+  //   console.error(error);
+  // }
 
   const newDataset = await prisma.dataset.create({
     data: {
@@ -218,16 +218,19 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  // Create a new container for the dataset
+  // Create the dataset's data folder in the shared `datasets` container
+  // The container itself is created once during storage setup
   const datalakeServiceClient = DataLakeServiceClient.fromConnectionString(
     AZURE_DRAFT_CONNECTION_STRING,
   );
 
-  const fileSystemClient = datalakeServiceClient.getFileSystemClient(
-    newDataset.id,
-  );
+  const fileSystemClient =
+    datalakeServiceClient.getFileSystemClient("datasets");
 
-  await fileSystemClient.create();
+  // createIfNotExists creates intermediate directories (`{datasetId}/`) as well
+  await fileSystemClient
+    .getDirectoryClient(`${newDataset.id}/data`)
+    .createIfNotExists();
 
   return {
     data: { datasetId: newDataset.id },

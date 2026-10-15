@@ -1,106 +1,123 @@
 import { BlobServiceClient } from "@azure/storage-blob";
-import { fileTypeFromBuffer } from 'file-type';
-import { DOCUMENT_TYPES, ACCEPTED_DOCUMENT_EXTENSIONS, ACCEPTED_DOCUMENT_MIMETYPES } from "#shared/constants/documents"
-import type { H3Event, MultiPartData } from "h3"
+import { fileTypeFromBuffer } from "file-type";
+import {
+  DOCUMENT_TYPES,
+  ACCEPTED_DOCUMENT_EXTENSIONS,
+  ACCEPTED_DOCUMENT_MIMETYPES,
+} from "#shared/constants/documents";
+import type { H3Event, MultiPartData } from "h3";
 
-
-export async function uploadDocument(fileData: Buffer | Uint8Array | ArrayBuffer, blobName: string, mimeType: string) {
-  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
-
-  const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_DRAFT_CONNECTION_STRING);
-  const documentsContainer = blobServiceClient.getContainerClient("documents");
-  await documentsContainer.createIfNotExists()
-
-  const blobClient = documentsContainer.getBlockBlobClient(blobName)
-  await blobClient.uploadData(fileData, {
-    blobHTTPHeaders: {
-      blobContentType: mimeType || "application/octet-stream"
-    }
-  })
-
+// Documents are stored under `{datasetId}/documents/` inside the `datasets` container
+export function getDocumentStoragePath(datasetId: string, fileName: string) {
+  return `${datasetId}/documents/${fileName}`;
 }
 
+export async function uploadDocument(
+  fileData: Buffer | Uint8Array | ArrayBuffer,
+  blobName: string,
+  mimeType: string,
+) {
+  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
 
-export function validateDocument(fileExtension: string, fileType: string | undefined, mimeType: string, sizeInBytes: number) {
-  const validExtension = ACCEPTED_DOCUMENT_EXTENSIONS.find((extension) => extension === fileExtension)
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_DRAFT_CONNECTION_STRING,
+  );
+  const datasetsContainer = blobServiceClient.getContainerClient("datasets");
+
+  const blobClient = datasetsContainer.getBlockBlobClient(blobName);
+  await blobClient.uploadData(fileData, {
+    blobHTTPHeaders: {
+      blobContentType: mimeType || "application/octet-stream",
+    },
+  });
+}
+
+export function validateDocument(
+  fileExtension: string,
+  fileType: string | undefined,
+  mimeType: string,
+  sizeInBytes: number,
+) {
+  const validExtension = ACCEPTED_DOCUMENT_EXTENSIONS.find(
+    (extension) => extension === fileExtension,
+  );
   if (!validExtension) {
     throw createError({
       statusCode: 400,
-      statusMessage: `File must be one of: ${ACCEPTED_DOCUMENT_EXTENSIONS.toString()}`
-    })
+      statusMessage: `File must be one of: ${ACCEPTED_DOCUMENT_EXTENSIONS.toString()}`,
+    });
   }
 
-
-  const validDocumentTypes = DOCUMENT_TYPES.map(entry => entry.value)
-  const isValidDocumentType = !fileType || validDocumentTypes.find(docType => docType === fileType)
+  const validDocumentTypes = DOCUMENT_TYPES.map((entry) => entry.value);
+  const isValidDocumentType =
+    !fileType || validDocumentTypes.find((docType) => docType === fileType);
   if (!isValidDocumentType) {
     throw createError({
       statusCode: 400,
-      statusMessage: `File must be one of: ${DOCUMENT_TYPES.map(entry => entry.value).toString()}`
-    })
+      statusMessage: `File must be one of: ${DOCUMENT_TYPES.map((entry) => entry.value).toString()}`,
+    });
   }
 
-
-  const isValidMimetype = ACCEPTED_DOCUMENT_MIMETYPES.includes(mimeType)
+  const isValidMimetype = ACCEPTED_DOCUMENT_MIMETYPES.includes(mimeType);
   if (!isValidMimetype) {
     throw createError({
       statusCode: 400,
-      statusMessage: `File mime type is invalid.`
-    })
+      statusMessage: `File mime type is invalid.`,
+    });
   }
 
-  const maxBytes = 15 * 1024 * 1024
+  const maxBytes = 15 * 1024 * 1024;
   if (sizeInBytes > maxBytes) {
     throw createError({
       statusCode: 400,
-      statusMessage: `File size is larger than 15MB.`
-    })
+      statusMessage: `File size is larger than 15MB.`,
+    });
   }
-
 }
 interface DocumentUploadForm {
-  file: MultiPartData,
-  fileType?: string,
+  file: MultiPartData;
+  fileType?: string;
 }
 
-export async function parseDocumentUploadForm(formData: MultiPartData[]): Promise<DocumentUploadForm> {
-  const file = formData.find((part) => part.name === "file")
-  const fileType = formData.find((part) => part.name === "fileType")?.data.toString()
-
+export async function parseDocumentUploadForm(
+  formData: MultiPartData[],
+): Promise<DocumentUploadForm> {
+  const file = formData.find((part) => part.name === "file");
+  const fileType = formData
+    .find((part) => part.name === "fileType")
+    ?.data.toString();
 
   if (!file) {
     throw createError({
       statusCode: 400,
-      statusMessage: "No file included in the form data"
-    })
+      statusMessage: "No file included in the form data",
+    });
   }
 
   if (!file.filename) {
     throw createError({
       statusCode: 400,
-      statusMessage: "No file name included in the form data"
-    })
+      statusMessage: "No file name included in the form data",
+    });
   }
 
   if (!file.type) {
     throw createError({
       statusCode: 400,
-      statusMessage: "No mimetype included in the form data"
-    })
+      statusMessage: "No mimetype included in the form data",
+    });
   }
 
-
-  return { file, fileType }
+  return { file, fileType };
 }
 
+export const getMimeType = async (
+  fileData: ArrayBuffer | Buffer<ArrayBufferLike>,
+) => {
+  const fileInfo = await fileTypeFromBuffer(fileData);
 
-export const getMimeType = async (fileData: ArrayBuffer | Buffer<ArrayBufferLike>) => {
-  const fileInfo = await fileTypeFromBuffer(fileData)
+  return fileInfo?.mime ?? "";
+};
 
-  let mimeType = fileInfo?.mime ?? ""
-
-  return mimeType
-}
-
-
-export const parseBigInt = (key: string, value: any) => (typeof value === "bigint" ? value.toString() : value)
+export const parseBigInt = (key: string, value: any) =>
+  typeof value === "bigint" ? value.toString() : value;
