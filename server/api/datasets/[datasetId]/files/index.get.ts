@@ -1,5 +1,3 @@
-import { DataLakeServiceClient } from "@azure/storage-file-datalake";
-
 // Function to convert blob paths into a tree structure for UTree
 function convertBlobsToTree(blobs: any[]) {
   const tree: any[] = [];
@@ -53,7 +51,6 @@ function convertBlobsToTree(blobs: any[]) {
 }
 
 export default defineEventHandler(async (event) => {
-  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   await datasetMinViewerPermission(event)
 
   const { datasetId } = event.context.params as {
@@ -75,39 +72,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const datalakeServiceClient = DataLakeServiceClient.fromConnectionString(
-    AZURE_DRAFT_CONNECTION_STRING,
-  );
-
-  // Owner uploads live in `{datasetId}/data` inside the shared `datasets` container
-  const fileSystemClient =
-    datalakeServiceClient.getFileSystemClient("datasets");
-  const dataPath = `${dataset.id}/data`;
-
-  const blobs: any[] = [];
-
-  try {
-    // List recursively; skip directory entries since the tree is built from file paths
-    for await (const path of fileSystemClient.listPaths({
-      path: dataPath,
-      recursive: true,
-    })) {
-      if (path.isDirectory || !path.name) continue;
-
-      // Strip the `{datasetId}/data/` prefix so paths match what the owner sees
-      blobs.push({ name: path.name.slice(dataPath.length + 1) });
-    }
-  } catch (error: any) {
-    // The data folder (or container) doesn't exist yet, so there are no files
-    if (error.statusCode === 404) {
-      return {
-        ...dataset,
-        files: [],
-        paths: [],
-      };
-    }
-    throw error;
-  }
+  // Paths are relative to the data folder so they match what the owner sees
+  const blobs = (await listDatasetDataFiles(dataset)).map(({ path }) => ({
+    name: path,
+  }));
 
   // Convert raw blob paths into a nested tree format for your UI component
   const files = convertBlobsToTree(blobs);

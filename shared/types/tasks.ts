@@ -13,3 +13,19 @@ export interface PublishDatasetPayload {
     versionTitle: string;
   };
 }
+
+// Written by the publish task to `{canonicalId}/manifests/{datasetId}.json` in the
+// study account and as `manifest.json` in the published container
+export interface PublishManifest {
+  canonicalId: string;
+  createdAt: string;
+  datasetId: string;
+  // Every file under `data/` and `documents/`, relative to the published container
+  files: {
+    // Base64 Content-MD5, when the uploader set one
+    md5?: string;
+    path: string;
+    size: number;
+  }[];
+  version: string;
+}

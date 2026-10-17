@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { DataLakeServiceClient } from "@azure/storage-file-datalake";
 
 const createDatasetSchema = z.object({
   title: z.string().min(1),
@@ -10,7 +9,6 @@ const createDatasetSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   const session = await requireUserSession(event);
 
   const { user } = session;
@@ -218,19 +216,8 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  // Create the dataset's data folder in the shared `datasets` container
-  // The container itself is created once during storage setup
-  const datalakeServiceClient = DataLakeServiceClient.fromConnectionString(
-    AZURE_DRAFT_CONNECTION_STRING,
-  );
-
-  const fileSystemClient =
-    datalakeServiceClient.getFileSystemClient("datasets");
-
-  // createIfNotExists creates intermediate directories (`{datasetId}/`) as well
-  await fileSystemClient
-    .getDirectoryClient(`${newDataset.id}/data`)
-    .createIfNotExists();
+  // Create `{canonicalId}/` and its subfolders in the shared `datasets` container
+  await createStudyDatasetFolders(newDataset.canonicalId);
 
   return {
     data: { datasetId: newDataset.id },

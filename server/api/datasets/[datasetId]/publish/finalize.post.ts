@@ -5,10 +5,6 @@ import {
 } from "#shared/utils/validations";
 import type { PublishDatasetPayload } from "#shared/types/tasks";
 
-// The publish task waits this long before copying files. It must be at least the
-// upload SAS lifetime (upload.get.ts) so no token issued before the lock is still valid.
-const PUBLISH_DELAY_HOURS = 24;
-
 const parseRecords = (section: any): any[] => {
   if (!section) return [];
   const parsed = typeof section === "string" ? JSON.parse(section) : section;
@@ -154,106 +150,128 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  // 4. Generate the metadata files now. The dataset is locked below, so this
-  // snapshot matches what was validated
+  // 4. Lock the dataset. This blocks edits, document changes, and new upload SAS.
+  // Only lock an unlocked dataset so two requests can't both queue a task
 
-  const datasetDescription = await generateDatasetDescription(
-    datasetId,
-    userId,
-  );
-  const studyDescription = await generateStudyDescription(datasetId, userId);
-
-  const healthsheet = await generateHealthsheet(datasetId, userId);
-  const license = await generateLicense(datasetId, userId);
-  const readme = await generateReadme(datasetId, userId);
-  const changelog = await generateChangelog(datasetId, userId);
-
-  const primaryStudyIdentification = dataset.StudyIdentification?.find(
-    (id) => !id.isSecondary,
-  );
-
-  const payload: PublishDatasetPayload = {
-    metadataFiles: {
-      "dataset_description.json": datasetDescription,
-      "study_description.json": studyDescription,
-      "healthsheet.md": healthsheet,
-      "CHANGELOG.md": changelog,
-      "README.md": readme,
-      LICENSE: license,
+  const { count } = await prisma.dataset.updateMany({
+    data: {
+      lockedAt: new Date(),
     },
-    publishedDataset: {
-      title: dataset.title,
-      canonicalId: dataset.canonicalId,
-      description: dataset.description,
-      publishedMetadata: {
-        datasetDescription: JSON.parse(datasetDescription),
-        studyDescription: JSON.parse(studyDescription),
-        healthsheet: {
-          motivation: parseRecords(dataset.DatasetHealthsheet?.motivation),
-          composition: parseRecords(dataset.DatasetHealthsheet?.composition),
-          collection: parseRecords(dataset.DatasetHealthsheet?.collection),
-          preprocessing: parseRecords(
-            dataset.DatasetHealthsheet?.preprocessing,
-          ),
-          uses: parseRecords(dataset.DatasetHealthsheet?.uses),
-          distribution: parseRecords(dataset.DatasetHealthsheet?.distribution),
-          maintenance: parseRecords(dataset.DatasetHealthsheet?.maintenance),
-        },
-        readme,
+    where: {
+      id: datasetId,
+      lockedAt: null,
+    },
+  });
+
+  if (count === 0) {
+    throw createError({
+      statusCode: 409,
+      statusMessage: "Dataset is already being published",
+    });
+  }
+
+  let frozen = false;
+
+  try {
+    // 5. Rename `data/` to `data-{datasetId}/`. This is atomic on HNS and cuts
+    // off every outstanding owner SAS, so the task can copy straight away
+
+    await freezeDraftData(dataset.canonicalId, datasetId);
+    frozen = true;
+
+    // 6. Generate the metadata files. The dataset is locked, so this snapshot
+    // matches what was validated
+
+    const datasetDescription = await generateDatasetDescription(
+      datasetId,
+      userId,
+    );
+    const studyDescription = await generateStudyDescription(datasetId, userId);
+
+    const healthsheet = await generateHealthsheet(datasetId, userId);
+    const license = await generateLicense(datasetId, userId);
+    const readme = await generateReadme(datasetId, userId);
+    const changelog = await generateChangelog(datasetId, userId);
+
+    const primaryStudyIdentification = dataset.StudyIdentification?.find(
+      (id) => !id.isSecondary,
+    );
+
+    const payload: PublishDatasetPayload = {
+      metadataFiles: {
+        "dataset_description.json": datasetDescription,
+        "study_description.json": studyDescription,
+        "healthsheet.md": healthsheet,
+        "CHANGELOG.md": changelog,
+        "README.md": readme,
+        LICENSE: license,
       },
-      studyTitle: primaryStudyIdentification?.identifier ?? "",
-      versionTitle: dataset.version ?? "1.0.0",
-    },
-  };
+      publishedDataset: {
+        title: dataset.title,
+        canonicalId: dataset.canonicalId,
+        description: dataset.description,
+        publishedMetadata: {
+          datasetDescription: JSON.parse(datasetDescription),
+          studyDescription: JSON.parse(studyDescription),
+          healthsheet: {
+            motivation: parseRecords(dataset.DatasetHealthsheet?.motivation),
+            composition: parseRecords(dataset.DatasetHealthsheet?.composition),
+            collection: parseRecords(dataset.DatasetHealthsheet?.collection),
+            preprocessing: parseRecords(
+              dataset.DatasetHealthsheet?.preprocessing,
+            ),
+            uses: parseRecords(dataset.DatasetHealthsheet?.uses),
+            distribution: parseRecords(
+              dataset.DatasetHealthsheet?.distribution,
+            ),
+            maintenance: parseRecords(dataset.DatasetHealthsheet?.maintenance),
+          },
+          readme,
+        },
+        studyTitle: primaryStudyIdentification?.identifier ?? "",
+        versionTitle: dataset.version ?? "1.0.0",
+      },
+    };
 
-  // 5. Lock the dataset and queue the file copy. The copy waits out the upload
-  // SAS lifetime so late writes from an unexpired token won't be missed.
+    // 7. Queue the file copy for scripts/process-task-queue.ts
 
-  const runAfter = new Date();
+    await prisma.$transaction([
+      prisma.task.create({
+        data: {
+          datasetId,
+          payload: payload as any,
+          type: "publish-dataset",
+        },
+      }),
+      prisma.datasetPublishingStatus.update({
+        data: {
+          comment: "Queued for publishing",
+          status: getPublishingStatusIndex("indexing-dataset"),
+        },
+        where: {
+          datasetId,
+        },
+      }),
+    ]);
+  } catch (error) {
+    // Nothing was queued, so undo the lock and let the owner try again
+    if (frozen) {
+      await unfreezeData(dataset.canonicalId, datasetId);
+    }
 
-  runAfter.setHours(runAfter.getHours() + PUBLISH_DELAY_HOURS);
-
-  await prisma.$transaction(async (tx) => {
-    // Only lock an unlocked dataset so two requests can't both queue a task
-    const { count } = await tx.dataset.updateMany({
+    await prisma.dataset.update({
       data: {
-        lockedAt: new Date(),
+        lockedAt: null,
       },
       where: {
         id: datasetId,
-        lockedAt: null,
       },
     });
 
-    if (count === 0) {
-      throw createError({
-        statusCode: 409,
-        statusMessage: "Dataset is already being published",
-      });
-    }
-
-    await tx.task.create({
-      data: {
-        datasetId,
-        payload: payload as any,
-        runAfter,
-        type: "publish-dataset",
-      },
-    });
-
-    await tx.datasetPublishingStatus.update({
-      data: {
-        comment: `Queued. Files will be copied after ${runAfter.toUTCString()}`,
-        status: getPublishingStatusIndex("indexing-dataset"),
-      },
-      where: {
-        datasetId,
-      },
-    });
-  });
+    throw error;
+  }
 
   return {
-    runAfter,
     success: true,
   };
 });

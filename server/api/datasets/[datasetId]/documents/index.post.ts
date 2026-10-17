@@ -13,6 +13,18 @@ export default defineEventHandler(async (event) => {
   await datasetMinEditorPermission(event)
   const { datasetId } = event.context.params as { datasetId: string };
 
+  const dataset = await prisma.dataset.findUnique({
+    select: { canonicalId: true },
+    where: { id: datasetId },
+  });
+
+  if (!dataset) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Dataset not found",
+    });
+  }
+
   const formData = await readMultipartFormData(event);
 
   if (!formData) {
@@ -50,7 +62,7 @@ export default defineEventHandler(async (event) => {
     file.data.byteLength,
   );
 
-  const storagePath = getDocumentStoragePath(datasetId, sanitizedName);
+  const storagePath = getDocumentStoragePath(dataset.canonicalId, sanitizedName);
 
   await uploadDocument(file.data, storagePath, mimeType);
 

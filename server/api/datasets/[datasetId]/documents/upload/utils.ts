@@ -7,9 +7,10 @@ import {
 } from "#shared/constants/documents";
 import type { H3Event, MultiPartData } from "h3";
 
-// Documents are stored under `{datasetId}/documents/` inside the `datasets` container
-export function getDocumentStoragePath(datasetId: string, fileName: string) {
-  return `${datasetId}/documents/${fileName}`;
+// Documents are stored under `{canonicalId}/documents/` inside the `datasets`
+// container, shared by every version of the dataset
+export function getDocumentStoragePath(canonicalId: string, fileName: string) {
+  return `${studyPaths.documents(canonicalId)}/${fileName}`;
 }
 
 export async function uploadDocument(
@@ -22,7 +23,8 @@ export async function uploadDocument(
   const blobServiceClient = BlobServiceClient.fromConnectionString(
     AZURE_DRAFT_CONNECTION_STRING,
   );
-  const datasetsContainer = blobServiceClient.getContainerClient("datasets");
+  const datasetsContainer =
+    blobServiceClient.getContainerClient(STUDY_FILE_SYSTEM);
 
   const blobClient = datasetsContainer.getBlockBlobClient(blobName);
   await blobClient.uploadData(fileData, {
