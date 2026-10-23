@@ -380,6 +380,8 @@ const publishDataset = async (task: Task) => {
 
   const { canonicalId } = dataset;
 
+  // TODO: Update attempts before attempt run (if process queue crashes there will be no log of the attempt in the db; bad for dead letters)
+
   // 1. Write the manifest, covering the frozen data and the documents
   await updatePublishingStatus(datasetId, {
     comment: "Listing files",
@@ -422,7 +424,6 @@ const publishDataset = async (task: Task) => {
   const containerClient = BlobServiceClient.fromConnectionString(
     AZURE_PUBLISHED_CONNECTION_STRING,
   ).getContainerClient(datasetId);
-
   await containerClient.createIfNotExists();
 
   const heldBlobs = await listHeldBlobs(containerClient);
@@ -560,6 +561,7 @@ const TASK_HANDLERS: Record<string, (task: Task) => Promise<void>> = {
 
 // Claims the oldest due task, or returns null when none are due
 const claimNextTask = async (): Promise<Task | null> => {
+  // TODO: Do not continuously retry dead letter tasks (attempts > 3, maybe)
   const next = await prisma.task.findFirst({
     orderBy: {
       runAfter: "asc",
@@ -592,10 +594,19 @@ const claimNextTask = async (): Promise<Task | null> => {
   return count === 1 ? next : claimNextTask();
 };
 
+// TODO: Randomize slightly so not all workers poll at the same time
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 const main = async () => {
   let task: Task | null;
 
-  while ((task = await claimNextTask())) {
+  while (true) {
+    task = await claimNextTask()
+    if (!task) {
+      await wait(1000)
+      console.log("Polling")
+      continue;
+    }
     console.log(
       `Running ${task.type} task ${task.id} for dataset ${task.datasetId}`,
     );

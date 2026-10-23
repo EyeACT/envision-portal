@@ -1,0 +1,21 @@
+FROM node:22-alpine
+
+RUN apk add --no-cache openssl \
+  && corepack enable \
+  && corepack prepare pnpm@11 --activate
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY prisma/schema.prisma ./prisma/schema.prisma
+COPY prisma.config.ts ./
+COPY scripts/process-task-queue.ts ./scripts/
+COPY app/assets/data/publishing-status.json ./app/assets/data/
+COPY server/utils/getFileIcon.ts server/utils/studyStorage.ts ./server/utils/
+
+RUN pnpm install --frozen-lockfile --ignore-scripts \
+  && pnpm rebuild @prisma/engines \
+  && DATABASE_URL="postgresql://user:password@localhost:5432/build" pnpm prisma:generate \
+  && pnpm store prune
+
+CMD ["pnpm", "scripts:process:task-queue"]
