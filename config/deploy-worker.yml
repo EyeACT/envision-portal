@@ -1,6 +1,6 @@
 # Kamal Deployment Configuration for Worker
 
-service: <%= ENV["KAMAL_APP_NAME"] %>
+service: <%= ENV["KAMAL_WORKER_APP_NAME"] %>
 
 image: <%= ENV["KAMAL_WORKER_APP_NAME"] %>
 
@@ -8,8 +8,12 @@ servers:
   worker:
     hosts:
       - <%= ENV["KAMAL_WORKER_SERVER_IP"] %>
+    options:
+      restart: unless-stopped
 
 proxy: false
+
+primary_role: workers
 
 # Credentials for your image host.
 # Configure access to your Docker registry (Docker Hub, GitHub Container Registry, etc.)
