@@ -567,9 +567,6 @@ const claimNextTask = async (): Promise<Task | null> => {
       runAfter: "asc",
     },
     where: {
-      runAfter: {
-        lte: new Date(),
-      },
       status: "pending",
     },
   });
@@ -604,9 +601,9 @@ const main = async () => {
     task = await claimNextTask()
     if (!task) {
       await wait(1000)
-      console.log("Polling")
       continue;
     }
+
     console.log(
       `Running ${task.type} task ${task.id} for dataset ${task.datasetId}`,
     );

@@ -1,0 +1,42 @@
+# Kamal Deployment Configuration for Worker
+
+service: <%= ENV["KAMAL_APP_NAME"] %>
+
+image: <%= ENV["KAMAL_WORKER_APP_NAME"] %>
+
+servers:
+  worker:
+    hosts:
+      - <%= ENV["KAMAL_WORKER_SERVER_IP"] %>
+
+proxy: false
+
+# Credentials for your image host.
+# Configure access to your Docker registry (Docker Hub, GitHub Container Registry, etc.)
+registry:
+  # Specify the registry server, if you're not using Docker Hub
+  # server: registry.digitalocean.com / ghcr.io / ...
+  server: <%= ENV["KAMAL_REGISTRY_LOGIN_SERVER"] %>
+  username: <%= ENV["KAMAL_REGISTRY_USERNAME"] %>
+
+  # Always use an access token rather than real password (pulled from .kamal/secrets).
+  # This is more secure than using your actual password
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder: 
+  arch: amd64
+  context: .
+  dockerfile: Dockerfile.task-queue
+
+env: 
+  clear: 
+    NODE_ENV: production
+  secret:
+    - DATABASE_URL
+    - AZURE_DRAFT_ACCOUNT_KEY
+    - AZURE_DRAFT_CONNECTION_STRING
+    - AZURE_PUBLISHED_CONNECTION_STRING
+
+ssh:
+  user: azureuser
