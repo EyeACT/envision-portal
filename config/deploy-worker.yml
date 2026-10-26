@@ -6,14 +6,13 @@ image: <%= ENV["KAMAL_WORKER_APP_NAME"] %>
 
 servers:
   worker:
+    proxy: false
     hosts:
       - <%= ENV["KAMAL_WORKER_SERVER_IP"] %>
     options:
       restart: unless-stopped
 
-proxy: false
-
-primary_role: workers
+primary_role: worker
 
 # Credentials for your image host.
 # Configure access to your Docker registry (Docker Hub, GitHub Container Registry, etc.)
