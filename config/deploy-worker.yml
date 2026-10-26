@@ -35,7 +35,7 @@ builder:
 
 env: 
   clear: 
-    NODE_ENV: production
+    NODE_ENV: test
   secret:
     - DATABASE_URL
     - AZURE_DRAFT_ACCOUNT_KEY
