@@ -28,7 +28,7 @@ on:
 jobs:
   deploy-worker:
     runs-on: ubuntu-latest
-    environment: prd
+    environment: dev
 
     env:
       DOCKER_BUILDKIT: 1
