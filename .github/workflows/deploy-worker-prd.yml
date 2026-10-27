@@ -21,8 +21,6 @@ on:
       - "prisma/schema.prisma"
       - "scripts/process-task-queue.ts"
       - "app/assets/data/publishing-status.json"
-      - "server/utils/getFileIcon.ts"
-      - "server/utils/studyStorage.ts"
   workflow_dispatch:
 
 jobs:
