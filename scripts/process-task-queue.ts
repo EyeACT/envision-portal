@@ -561,13 +561,14 @@ const TASK_HANDLERS: Record<string, (task: Task) => Promise<void>> = {
 
 // Claims the oldest due task, or returns null when none are due
 const claimNextTask = async (): Promise<Task | null> => {
-  // TODO: Do not continuously retry dead letter tasks (attempts > 3, maybe)
+
   const next = await prisma.task.findFirst({
     orderBy: {
-      runAfter: "asc",
+      created: "asc",
     },
     where: {
-      status: "pending",
+      or: [{ status: "pending" }, { status: "failed" }],
+      attempts: { lte: 2 }
     },
   });
 
@@ -584,7 +585,6 @@ const claimNextTask = async (): Promise<Task | null> => {
     },
     where: {
       id: next.id,
-      status: "pending",
     },
   });
 
@@ -594,6 +594,7 @@ const claimNextTask = async (): Promise<Task | null> => {
 // TODO: Randomize slightly so not all workers poll at the same time
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
+// TODO: Handle task staying stuck on "running" (server crash leaves status unupdated)
 const main = async () => {
   let task: Task | null;
 
@@ -615,8 +616,26 @@ const main = async () => {
         throw new Error(`Unknown task type ${task.type}`);
       }
 
-      await handler(task);
 
+      try {
+        await handler(task);
+      } catch (err: unknown) {
+        const errorText = err instanceof Error ? err.stack ?? err.message : typeof err === "string" ? err : JSON.stringify(err)
+        // TODO: Small in memory queue for failed jobs that could not be updated to DB
+        await prisma.task.update({
+          data: {
+            status: "failed",
+            error: errorText,
+          },
+          where: {
+            id: task.id
+          }
+        })
+        continue;
+      }
+
+
+      // TODO: Small in memory queue for successful jobs that could not be updated to DB
       await prisma.task.update({
         data: {
           completedAt: new Date(),
