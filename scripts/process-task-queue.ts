@@ -1,5 +1,11 @@
 import "dotenv/config";
-import { BlobServiceClient, type ContainerClient } from "@azure/storage-blob";
+import {
+  BlobServiceClient,
+  ContainerSASPermissions,
+  StorageSharedKeyCredential as BlobStorageSharedKeyCredential,
+  generateBlobSASQueryParameters,
+  type ContainerClient,
+} from "@azure/storage-blob";
 import {
   DataLakeServiceClient,
   DirectorySASPermissions,
@@ -21,6 +27,7 @@ import type {
 const {
   AZURE_DRAFT_ACCOUNT_KEY,
   AZURE_DRAFT_CONNECTION_STRING,
+  AZURE_PUBLISHED_ACCOUNT_KEY,
   AZURE_PUBLISHED_CONNECTION_STRING,
   DATABASE_URL,
 } = process.env;
@@ -29,10 +36,11 @@ if (
   !DATABASE_URL ||
   !AZURE_DRAFT_ACCOUNT_KEY ||
   !AZURE_DRAFT_CONNECTION_STRING ||
+  !AZURE_PUBLISHED_ACCOUNT_KEY ||
   !AZURE_PUBLISHED_CONNECTION_STRING
 ) {
   console.error(
-    "DATABASE_URL, AZURE_DRAFT_ACCOUNT_KEY, AZURE_DRAFT_CONNECTION_STRING and AZURE_PUBLISHED_CONNECTION_STRING must be set",
+    "DATABASE_URL, AZURE_DRAFT_ACCOUNT_KEY, AZURE_DRAFT_CONNECTION_STRING, AZURE_PUBLISHED_ACCOUNT_KEY and AZURE_PUBLISHED_CONNECTION_STRING must be set",
   );
   process.exit(1);
 }
@@ -132,6 +140,16 @@ interface SourceFile {
 const draftContainerClient = BlobServiceClient.fromConnectionString(
   AZURE_DRAFT_CONNECTION_STRING,
 ).getContainerClient(STUDY_FILE_SYSTEM);
+
+// Data Lake API on the same study container, for directory renames and deletes
+const draftFileSystemClient = DataLakeServiceClient.fromConnectionString(
+  AZURE_DRAFT_CONNECTION_STRING,
+).getFileSystemClient(STUDY_FILE_SYSTEM);
+
+const getPublishedContainerClient = (containerName: string) =>
+  BlobServiceClient.fromConnectionString(
+    AZURE_PUBLISHED_CONNECTION_STRING,
+  ).getContainerClient(containerName);
 
 /**
  * Every file under a study account folder, mapped into `destinationFolder` of the
@@ -419,9 +437,7 @@ const publishDataset = async (task: Task) => {
     });
 
   // 2. Create the published container, one per version
-  const containerClient = BlobServiceClient.fromConnectionString(
-    AZURE_PUBLISHED_CONNECTION_STRING,
-  ).getContainerClient(datasetId);
+  const containerClient = getPublishedContainerClient(datasetId);
 
   await containerClient.createIfNotExists();
 
@@ -554,8 +570,147 @@ const publishDataset = async (task: Task) => {
   });
 };
 
+/**
+ * Copy a published version's `data/` back into `data-{datasetId}/` in the study
+ * account. Queued when a draft created from this version is deleted, since the
+ * draft took over the frozen folder. Safe to re-run: copies overwrite.
+ */
+const rebuildFrozenData = async (task: Task) => {
+  const { datasetId } = task;
+
+  const dataset = await prisma.dataset.findUnique({
+    where: {
+      id: datasetId,
+    },
+  });
+
+  if (!dataset) {
+    throw new Error(`Dataset ${datasetId} not found`);
+  }
+
+  const frozenPath = studyPaths.frozenData(dataset.canonicalId, datasetId);
+
+  // Created up front so a version with no files still has its folder
+  await draftFileSystemClient.getDirectoryClient(frozenPath).createIfNotExists();
+
+  const publishedContainerClient = getPublishedContainerClient(datasetId);
+
+  // Published before the storage rework, so there are no files to copy
+  if (!(await publishedContainerClient.exists())) return;
+
+  const startsOn = new Date();
+  const expiresOn = new Date(startsOn);
+
+  expiresOn.setHours(startsOn.getHours() + SOURCE_SAS_LIFETIME_HOURS);
+
+  const sourceSAS = generateBlobSASQueryParameters(
+    {
+      containerName: datasetId,
+      expiresOn,
+      permissions: ContainerSASPermissions.parse("r"),
+      startsOn,
+    },
+    new BlobStorageSharedKeyCredential(
+      publishedContainerClient.accountName,
+      AZURE_PUBLISHED_ACCOUNT_KEY,
+    ),
+  ).toString();
+
+  const sourceFiles: { name: string; size: number }[] = [];
+
+  for await (const blob of publishedContainerClient.listBlobsFlat({
+    prefix: "data/",
+  })) {
+    sourceFiles.push({
+      name: blob.name,
+      size: blob.properties.contentLength ?? 0,
+    });
+  }
+
+  const copyFile = async ({ name }: { name: string }) => {
+    const sourceUrl = `${publishedContainerClient.getBlobClient(name).url}?${sourceSAS}`;
+    const destinationPath = `${frozenPath}/${name.slice("data/".length)}`;
+
+    const poller = await draftContainerClient
+      .getBlobClient(destinationPath)
+      .beginCopyFromURL(sourceUrl, { intervalInMs: COPY_POLL_INTERVAL_MS });
+    const result = await poller.pollUntilDone();
+
+    if (result.copyStatus !== "success") {
+      throw new Error(`Failed to copy ${name}: ${result.copyStatus}`);
+    }
+  };
+
+  for (let i = 0; i < sourceFiles.length; i += COPY_CONCURRENCY) {
+    await Promise.all(
+      sourceFiles.slice(i, i + COPY_CONCURRENCY).map(copyFile),
+    );
+  }
+
+  // Every published file is now in the frozen folder with the same size
+  const copied = new Map<string, number>();
+
+  for await (const blob of draftContainerClient.listBlobsFlat({
+    includeMetadata: true,
+    prefix: `${frozenPath}/`,
+  })) {
+    if (blob.metadata?.hdi_isfolder === "true") continue;
+
+    copied.set(
+      blob.name.slice(frozenPath.length + 1),
+      blob.properties.contentLength ?? 0,
+    );
+  }
+
+  const mismatched = sourceFiles.filter(
+    ({ name, size }) => copied.get(name.slice("data/".length)) !== size,
+  );
+
+  if (mismatched.length > 0) {
+    throw new Error(
+      `${mismatched.length} files did not copy correctly, e.g. ${mismatched[0]!.name}`,
+    );
+  }
+};
+
+/**
+ * Remove a deleted draft's `data-{datasetId}/` once its grace period is over.
+ * The Dataset record is kept for history.
+ */
+const purgeDraft = async (task: Task) => {
+  const { datasetId } = task;
+
+  const dataset = await prisma.dataset.findUnique({
+    where: {
+      id: datasetId,
+    },
+  });
+
+  if (!dataset) {
+    throw new Error(`Dataset ${datasetId} not found`);
+  }
+
+  // Restored by scripts/restore-draft.ts since the task was queued
+  if (!dataset.deletedAt) return;
+
+  await draftFileSystemClient
+    .getDirectoryClient(studyPaths.frozenData(dataset.canonicalId, datasetId))
+    .deleteIfExists(true);
+
+  await prisma.dataset.update({
+    data: {
+      purgedAt: new Date(),
+    },
+    where: {
+      id: datasetId,
+    },
+  });
+};
+
 const TASK_HANDLERS: Record<string, (task: Task) => Promise<void>> = {
   "publish-dataset": publishDataset,
+  "purge-draft": purgeDraft,
+  "rebuild-frozen-data": rebuildFrozenData,
 };
 
 // Claims the oldest due task, or returns null when none are due

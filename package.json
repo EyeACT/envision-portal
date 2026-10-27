@@ -23,7 +23,8 @@
     "prune-branches": "npx git-removed-branches --prune --force",
     "scripts:edit:record": "tsx ./scripts/edit-record.ts",
     "scripts:create:record": "tsx ./scripts/create-record.ts",
-    "scripts:process:task-queue": "tsx ./scripts/process-task-queue.ts"
+    "scripts:process:task-queue": "tsx ./scripts/process-task-queue.ts",
+    "scripts:restore:draft": "tsx ./scripts/restore-draft.ts"
   },
   "dependencies": {
     "@azure/storage-blob": "12.34.0",
