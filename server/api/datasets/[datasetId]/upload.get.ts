@@ -1,13 +1,4 @@
-import {
-  DataLakeServiceClient,
-  StorageSharedKeyCredential,
-  generateDataLakeSASQueryParameters,
-  DirectorySASPermissions,
-} from "@azure/storage-file-datalake";
-
 export default defineEventHandler(async (event) => {
-  const { AZURE_DRAFT_ACCOUNT_KEY, AZURE_DRAFT_CONNECTION_STRING } =
-    useRuntimeConfig();
   await datasetMinEditorPermission(event)
 
   // todo: add permissions check
@@ -32,43 +23,19 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // No new upload SAS once publishing has been requested. Tokens already issued
-  // expire before the publish task runs (see PUBLISH_DELAY_HOURS in publish/finalize.post.ts)
+  // Only an open draft gets upload access. Publishing locks the dataset and
+  // renames `data/`, which also cuts off tokens issued before the lock
+  if (dataset.status !== "draft") {
+    throw createError({
+      statusCode: 423,
+      statusMessage: "Dataset is not a draft",
+    });
+  }
+
   await assertDatasetUnlocked(dataset.id);
 
-  const draftDatalakeServiceClient = DataLakeServiceClient.fromConnectionString(
-    AZURE_DRAFT_CONNECTION_STRING,
-  );
-
-  const { accountName } = draftDatalakeServiceClient;
-  // All datasets share the `datasets` container; uploads go to `{datasetId}/data`
-  const fileSystemName = "datasets";
-  const pathName = `${dataset.id}/data`;
-
-  const sharedKeyCredential = new StorageSharedKeyCredential(
-    accountName,
-    AZURE_DRAFT_ACCOUNT_KEY,
-  );
-
-  const now = new Date();
-  const expiresOn = new Date(now);
-
-  expiresOn.setHours(now.getHours() + 1); // 1-hour expiration
-
-  // Scope the SAS to the dataset's data folder so it can't access other datasets
-  const directorySAS = generateDataLakeSASQueryParameters(
-    {
-      expiresOn,
-      fileSystemName,
-      isDirectory: true,
-      pathName,
-      permissions: DirectorySASPermissions.parse("racwdl"), // read, add, create, write, delete, list
-      startsOn: now,
-    },
-    sharedKeyCredential,
-  ).toString();
-
-  const sasUrl = `https://${accountName}.dfs.core.windows.net/${fileSystemName}/${pathName}?${directorySAS}`;
+  // Scoped to the dataset's `data/` folder so it can't access anything else
+  const { expiresOn, sasUrl } = await getOwnerUploadSasUrl(dataset.canonicalId);
 
   return {
     ...dataset,

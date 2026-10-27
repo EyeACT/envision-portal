@@ -43,7 +43,8 @@ async function deleteBlob(blobName: string): Promise<BlobDeleteResponse> {
   const blobServiceClient = BlobServiceClient.fromConnectionString(
     AZURE_DRAFT_CONNECTION_STRING,
   );
-  const datasetsContainer = blobServiceClient.getContainerClient("datasets");
+  const datasetsContainer =
+    blobServiceClient.getContainerClient(STUDY_FILE_SYSTEM);
 
   // Create blob client from container client
   const blockBlobClient: BlockBlobClient =

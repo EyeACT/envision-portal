@@ -9,8 +9,12 @@ import {
 import { PrismaPg } from "@prisma/adapter-pg";
 import PublishingStatus from "../app/assets/data/publishing-status.json";
 import { getFileIcon } from "../server/utils/getFileIcon";
+import { STUDY_FILE_SYSTEM, studyPaths } from "../server/utils/studyStorage";
 import { PrismaClient, type Task } from "../shared/generated/client";
-import type { PublishDatasetPayload } from "../shared/types/tasks";
+import type {
+  PublishDatasetPayload,
+  PublishManifest,
+} from "../shared/types/tasks";
 
 // Runs every due task in the Task table, then exits.
 
@@ -36,15 +40,12 @@ if (
 const adapter = new PrismaPg({ connectionString: DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// Owner uploads live in `{datasetId}/data` inside this container in the study account
-const DRAFT_FILE_SYSTEM = "datasets";
-
-// The source SAS is backend-only and read-only on one dataset's `data/` folder.
+// The source SAS is backend-only and read-only on one folder of one dataset.
 // It is refreshed during long copies so a copy never starts close to its expiry.
 const SOURCE_SAS_LIFETIME_HOURS = 24;
 const SOURCE_SAS_REFRESH_HOURS = 12;
 
-// Number of server-side copies in flight at once
+// Number of server-side copies (and legal hold requests) in flight at once
 const COPY_CONCURRENCY = 8;
 
 // beginCopyFromURL polls every 15s (slow for small files)
@@ -118,44 +119,123 @@ const convertPathsToTree = (paths: string[]) => {
   return tree;
 };
 
+interface SourceFile {
+  // Path in the published container, e.g. `data/a/b.csv`
+  destinationPath: string;
+  md5?: string;
+  size: number;
+  // Folder the file is copied from, e.g. `{canonicalId}/data-{datasetId}`
+  sourceFolder: string;
+  sourcePath: string;
+}
+
+const draftContainerClient = BlobServiceClient.fromConnectionString(
+  AZURE_DRAFT_CONNECTION_STRING,
+).getContainerClient(STUDY_FILE_SYSTEM);
+
 /**
- * Server-side copy of every file under `datasets/{datasetId}/data` in the study
- * account into `data/` of the published container. File data never passes
- * through this process. Draft files are left in place.
- *
- * Returns the copied paths relative to the container root and their total size.
+ * Every file under a study account folder, mapped into `destinationFolder` of the
+ * published container. Uses the blob API since the Data Lake API has no Content-MD5.
  */
-const copyDataToPublished = async (
+const listSourceFiles = async (
+  datasetId: string,
+  sourceFolder: string,
+  destinationFolder: string,
+) => {
+  const files: SourceFile[] = [];
+
+  for await (const blob of draftContainerClient.listBlobsFlat({
+    includeMetadata: true,
+    prefix: `${sourceFolder}/`,
+  })) {
+    // HNS lists directories as empty blobs marked with hdi_isfolder
+    if (blob.metadata?.hdi_isfolder === "true") continue;
+
+    const { contentLength, contentMD5 } = blob.properties;
+
+    files.push({
+      destinationPath: `${destinationFolder}/${blob.name.slice(sourceFolder.length + 1)}`,
+      md5: contentMD5 ? Buffer.from(contentMD5).toString("base64") : undefined,
+      size: contentLength ?? 0,
+      sourceFolder,
+      sourcePath: blob.name,
+    });
+
+    if (files.length % 1000 === 0) {
+      await updatePublishingStatus(datasetId, {
+        comment: `Discovered ${files.length} files in ${destinationFolder}/...`,
+      });
+    }
+  }
+
+  return files;
+};
+
+// Read-only SAS per source folder so the published account can read the files
+const createSourceSASProvider = () => {
+  const credential = new StorageSharedKeyCredential(
+    draftContainerClient.accountName,
+    AZURE_DRAFT_ACCOUNT_KEY,
+  );
+  const cache = new Map<string, { refreshAt: number; sas: string }>();
+
+  return (folderPath: string) => {
+    const cached = cache.get(folderPath);
+
+    if (cached && Date.now() < cached.refreshAt) return cached.sas;
+
+    const startsOn = new Date();
+    const expiresOn = new Date(startsOn);
+
+    expiresOn.setHours(startsOn.getHours() + SOURCE_SAS_LIFETIME_HOURS);
+
+    const sas = generateDataLakeSASQueryParameters(
+      {
+        expiresOn,
+        fileSystemName: STUDY_FILE_SYSTEM,
+        isDirectory: true,
+        pathName: folderPath,
+        permissions: DirectorySASPermissions.parse("r"),
+        startsOn,
+      },
+      credential,
+    ).toString();
+
+    cache.set(folderPath, {
+      refreshAt: startsOn.getTime() + SOURCE_SAS_REFRESH_HOURS * 60 * 60 * 1000,
+      sas,
+    });
+
+    return sas;
+  };
+};
+
+// Names of blobs in the published container that already have a legal hold
+const listHeldBlobs = async (containerClient: ContainerClient) => {
+  const held = new Set<string>();
+
+  for await (const blob of containerClient.listBlobsFlat({
+    includeLegalHold: true,
+  })) {
+    if (blob.properties.legalHold) held.add(blob.name);
+  }
+
+  return held;
+};
+
+/**
+ * Server-side copy of the source files into the published container. File data
+ * never passes through this process. Files already under a legal hold were
+ * copied by an earlier attempt and can't be overwritten, so they are skipped.
+ */
+const copyFilesToPublished = async (
   datasetId: string,
   containerClient: ContainerClient,
+  sourceFiles: SourceFile[],
+  heldBlobs: Set<string>,
 ) => {
-  const draftServiceClient = DataLakeServiceClient.fromConnectionString(
-    AZURE_DRAFT_CONNECTION_STRING,
-  );
-  const { accountName } = draftServiceClient;
-  const dataPath = `${datasetId}/data`;
-
-  // 1. List the draft files
-  const sourceFiles: { path: string; size: number }[] = [];
-
-  try {
-    for await (const path of draftServiceClient
-      .getFileSystemClient(DRAFT_FILE_SYSTEM)
-      .listPaths({ path: dataPath, recursive: true })) {
-      if (path.isDirectory || !path.name) continue;
-
-      sourceFiles.push({ path: path.name, size: path.contentLength ?? 0 });
-
-      if (sourceFiles.length % 1000 === 0) {
-        await updatePublishingStatus(datasetId, {
-          comment: `Discovered ${sourceFiles.length} files...`,
-        });
-      }
-    }
-  } catch (error: any) {
-    // The data folder doesn't exist, so there is nothing to copy
-    if (error.statusCode !== 404) throw error;
-  }
+  const { accountName } = draftContainerClient;
+  const getSourceSAS = createSourceSASProvider();
 
   await updatePublishingStatus(datasetId, {
     comment: `Copying ${sourceFiles.length} files`,
@@ -164,86 +244,119 @@ const copyDataToPublished = async (
     status: getPublishingStatusIndex("moving-dataset-to-published-storage"),
   });
 
-  // 2. Read-only SAS on the data folder so the published account can read the source
-  const credential = new StorageSharedKeyCredential(
-    accountName,
-    AZURE_DRAFT_ACCOUNT_KEY,
-  );
-  let sourceSAS = "";
-  let sourceSASRefreshAt = 0;
+  const copyFile = async (file: SourceFile) => {
+    if (heldBlobs.has(file.destinationPath)) return;
 
-  const getSourceSAS = () => {
-    if (Date.now() < sourceSASRefreshAt) return sourceSAS;
-
-    const startsOn = new Date();
-    const expiresOn = new Date(startsOn);
-
-    expiresOn.setHours(startsOn.getHours() + SOURCE_SAS_LIFETIME_HOURS);
-
-    sourceSAS = generateDataLakeSASQueryParameters(
-      {
-        expiresOn,
-        fileSystemName: DRAFT_FILE_SYSTEM,
-        isDirectory: true,
-        pathName: dataPath,
-        permissions: DirectorySASPermissions.parse("r"),
-        startsOn,
-      },
-      credential,
-    ).toString();
-    sourceSASRefreshAt =
-      startsOn.getTime() + SOURCE_SAS_REFRESH_HOURS * 60 * 60 * 1000;
-
-    return sourceSAS;
-  };
-
-  // 3. Copy each file into `data/` of the published container
-  const copyFile = async (sourcePath: string) => {
-    // `{datasetId}/data/a/b.csv` -> `data/a/b.csv`
-    const destinationPath = `data/${sourcePath.slice(dataPath.length + 1)}`;
-    const encodedSourcePath = sourcePath
+    const encodedSourcePath = file.sourcePath
       .split("/")
       .map(encodeURIComponent)
       .join("/");
-    const sourceUrl = `https://${accountName}.blob.core.windows.net/${DRAFT_FILE_SYSTEM}/${encodedSourcePath}?${getSourceSAS()}`;
+    const sourceUrl = `https://${accountName}.blob.core.windows.net/${STUDY_FILE_SYSTEM}/${encodedSourcePath}?${getSourceSAS(file.sourceFolder)}`;
 
     const poller = await containerClient
-      .getBlobClient(destinationPath)
+      .getBlobClient(file.destinationPath)
       .beginCopyFromURL(sourceUrl, { intervalInMs: COPY_POLL_INTERVAL_MS });
     const result = await poller.pollUntilDone();
 
     if (result.copyStatus !== "success") {
-      throw new Error(`Failed to copy ${sourcePath}: ${result.copyStatus}`);
+      throw new Error(
+        `Failed to copy ${file.sourcePath}: ${result.copyStatus}`,
+      );
     }
-
-    return destinationPath;
   };
-
-  const copiedPaths: string[] = [];
 
   for (let i = 0; i < sourceFiles.length; i += COPY_CONCURRENCY) {
     const batch = sourceFiles.slice(i, i + COPY_CONCURRENCY);
 
-    copiedPaths.push(
-      ...(await Promise.all(batch.map(({ path }) => copyFile(path)))),
-    );
+    await Promise.all(batch.map(copyFile));
 
     await updatePublishingStatus(datasetId, {
-      comment: `Copied ${copiedPaths.at(-1)}`,
-      currentFileNumber: copiedPaths.length,
+      comment: `Copied ${batch.at(-1)!.destinationPath}`,
+      currentFileNumber: i + batch.length,
+    });
+  }
+};
+
+// Compare `data/` and `documents/` of the published container against the manifest
+const verifyAgainstManifest = async (
+  containerClient: ContainerClient,
+  manifest: PublishManifest,
+) => {
+  const published = new Map<string, { md5?: string; size: number }>();
+
+  for await (const blob of containerClient.listBlobsFlat()) {
+    if (!blob.name.startsWith("data/") && !blob.name.startsWith("documents/")) {
+      continue;
+    }
+
+    const { contentLength, contentMD5 } = blob.properties;
+
+    published.set(blob.name, {
+      md5: contentMD5 ? Buffer.from(contentMD5).toString("base64") : undefined,
+      size: contentLength ?? 0,
     });
   }
 
-  return {
-    paths: copiedPaths,
-    size: sourceFiles.reduce((total, { size }) => total + size, 0),
-  };
+  const problems: string[] = [];
+
+  for (const file of manifest.files) {
+    const publishedFile = published.get(file.path);
+
+    if (!publishedFile) {
+      problems.push(`${file.path} is missing`);
+    } else if (publishedFile.size !== file.size) {
+      problems.push(
+        `${file.path} is ${publishedFile.size} bytes, expected ${file.size}`,
+      );
+    } else if (file.md5 && publishedFile.md5 !== file.md5) {
+      problems.push(`${file.path} has a different MD5`);
+    }
+
+    published.delete(file.path);
+  }
+
+  for (const path of published.keys()) {
+    problems.push(`${path} is not in the manifest`);
+  }
+
+  if (problems.length > 0) {
+    const shown = problems.slice(0, 5).join("; ");
+    const more = problems.length > 5 ? ` and ${problems.length - 5} more` : "";
+
+    throw new Error(
+      `Published copy does not match the manifest: ${shown}${more}`,
+    );
+  }
 };
 
 /**
- * Copy a locked dataset's files and metadata into the published account and
- * register the published dataset. Safe to re-run after a failure: copies and
- * uploads overwrite, and the database records are only written at the end.
+ * Put a legal hold on every blob in the published container so it can't be
+ * modified or deleted. Needs version-level immutability on the published account.
+ */
+const applyImmutability = async (containerClient: ContainerClient) => {
+  const pending: string[] = [];
+
+  for await (const blob of containerClient.listBlobsFlat({
+    includeLegalHold: true,
+  })) {
+    if (!blob.properties.legalHold) pending.push(blob.name);
+  }
+
+  for (let i = 0; i < pending.length; i += COPY_CONCURRENCY) {
+    await Promise.all(
+      pending
+        .slice(i, i + COPY_CONCURRENCY)
+        .map((name) => containerClient.getBlobClient(name).setLegalHold(true)),
+    );
+  }
+};
+
+/**
+ * Copy a locked dataset's frozen `data-{datasetId}/` folder, its documents, and
+ * its metadata into the `{datasetId}` container of the published account and
+ * register the published dataset. Safe to re-run after a failure: the source
+ * is frozen, copies overwrite (or are skipped once held), and the database
+ * records are only written at the end.
  */
 const publishDataset = async (task: Task) => {
   const { datasetId } = task;
@@ -265,46 +378,116 @@ const publishDataset = async (task: Task) => {
     throw new Error(`Dataset ${datasetId} is not locked`);
   }
 
-  // 1. Create the published container. Named after the dataset ID for now (no version suffix)
+  const { canonicalId } = dataset;
+
+  // 1. Write the manifest, covering the frozen data and the documents
+  await updatePublishingStatus(datasetId, {
+    comment: "Listing files",
+    status: getPublishingStatusIndex("indexing-dataset"),
+  });
+
+  const sourceFiles = [
+    ...(await listSourceFiles(
+      datasetId,
+      studyPaths.frozenData(canonicalId, datasetId),
+      "data",
+    )),
+    ...(await listSourceFiles(
+      datasetId,
+      studyPaths.documents(canonicalId),
+      "documents",
+    )),
+  ];
+
+  const manifest: PublishManifest = {
+    canonicalId,
+    createdAt: new Date().toISOString(),
+    datasetId,
+    files: sourceFiles.map(({ destinationPath, md5, size }) => ({
+      md5,
+      path: destinationPath,
+      size,
+    })),
+    version: publishedDataset.versionTitle,
+  };
+  const manifestData = Buffer.from(JSON.stringify(manifest, null, 2));
+
+  await draftContainerClient
+    .getBlockBlobClient(studyPaths.manifest(canonicalId, datasetId))
+    .upload(manifestData, manifestData.length, {
+      blobHTTPHeaders: { blobContentType: "application/json" },
+    });
+
+  // 2. Create the published container, one per version
   const containerClient = BlobServiceClient.fromConnectionString(
     AZURE_PUBLISHED_CONNECTION_STRING,
   ).getContainerClient(datasetId);
 
   await containerClient.createIfNotExists();
 
-  // 2. Copy `data/`
-  await updatePublishingStatus(datasetId, {
-    comment: "Listing files",
-    status: getPublishingStatusIndex("indexing-dataset"),
-  });
+  const heldBlobs = await listHeldBlobs(containerClient);
 
-  const copied = await copyDataToPublished(datasetId, containerClient);
+  // 3. Copy `data-{datasetId}/` into `data/` and `documents/` into `documents/`
+  await copyFilesToPublished(
+    datasetId,
+    containerClient,
+    sourceFiles,
+    heldBlobs,
+  );
 
-  // 3. Upload the metadata files generated when the dataset was locked
+  // 4. Upload the metadata files generated when the dataset was locked, and the manifest
   await updatePublishingStatus(datasetId, {
     comment: "",
     status: getPublishingStatusIndex("generating-uploading-metadata-files"),
   });
 
-  for (const [name, content] of Object.entries(metadataFiles)) {
-    await updatePublishingStatus(datasetId, {
-      comment: `Uploading the ${name} metadata file`,
-    });
+  const rootFiles: Record<string, Buffer> = {
+    ...Object.fromEntries(
+      Object.entries(metadataFiles).map(([name, content]) => [
+        name,
+        Buffer.from(content),
+      ]),
+    ),
+    "manifest.json": manifestData,
+  };
 
-    const data = Buffer.from(content);
+  for (const [name, data] of Object.entries(rootFiles)) {
+    if (heldBlobs.has(name)) continue;
+
+    await updatePublishingStatus(datasetId, {
+      comment: `Uploading ${name}`,
+    });
 
     await containerClient.getBlockBlobClient(name).upload(data, data.length);
   }
 
-  // 4. Register the published dataset
+  // 5. Verify the copy against the manifest
+  await updatePublishingStatus(datasetId, {
+    comment: "Verifying the published files",
+  });
+
+  await verifyAgainstManifest(containerClient, manifest);
+
+  // 6. Apply the immutability policy
+  await updatePublishingStatus(datasetId, {
+    comment: "Locking the published files",
+  });
+
+  await applyImmutability(containerClient);
+
+  // 7. Register the published dataset
   await updatePublishingStatus(datasetId, {
     comment: "",
     status: getPublishingStatusIndex("registering-doi"),
   });
 
+  const dataFiles = sourceFiles.filter(({ destinationPath }) =>
+    destinationPath.startsWith("data/"),
+  );
+
   const fileTree = convertPathsToTree([
-    ...copied.paths,
-    ...Object.keys(metadataFiles),
+    ...sourceFiles.map(({ destinationPath }) => destinationPath),
+    ...Object.keys(rootFiles),
   ]);
 
   await updatePublishingStatus(datasetId, {
@@ -317,8 +500,8 @@ const publishDataset = async (task: Task) => {
         ...publishedDataset,
         containerId: datasetId,
         data: {
-          size: copied.size,
-          fileCount: copied.paths.length,
+          size: dataFiles.reduce((total, { size }) => total + size, 0),
+          fileCount: dataFiles.length,
           viewCount: 0,
           labelingMethod: "",
           validationInfo: "",
@@ -344,7 +527,8 @@ const publishDataset = async (task: Task) => {
       },
     });
 
-    // The dataset stays locked: published versions are not edited
+    // The dataset stays locked: published versions are not edited.
+    // `data-{datasetId}/` stays in the study account for the next version
     await tx.dataset.update({
       data: {
         doi,

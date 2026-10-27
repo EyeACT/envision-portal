@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { DataLakeServiceClient } from "@azure/storage-file-datalake";
 
 const createDatasetSchema = z.object({
   id: z.string(),
@@ -7,7 +6,6 @@ const createDatasetSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   await datasetMinAdminPermission(event)
 
   // todo: add permissions check
@@ -43,6 +41,7 @@ export default defineEventHandler(async (event) => {
       DatasetRelatedIdentifier: true,
       DatasetRights: true,
       DatasetSubject: true,
+      DatasetSupportingDocument: true,
       DatasetTitle: true,
       StudyArm: true,
       StudyCentralContact: true,
@@ -69,6 +68,49 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 404,
       statusMessage: "Dataset not found",
+    });
+  }
+
+  // The new version starts from the latest version's frozen `data-{datasetId}/`
+  // folder, so only the latest version can be versioned, and only once the
+  // publish task is done reading from that folder
+  const latestVersion = await prisma.dataset.findFirst({
+    orderBy: {
+      created: "desc",
+    },
+    select: {
+      id: true,
+      status: true,
+    },
+    where: {
+      canonicalId: originalDataset.canonicalId,
+    },
+  });
+
+  if (latestVersion?.id !== originalDataset.id) {
+    throw createError({
+      statusCode: 409,
+      statusMessage: "A newer version of this dataset already exists",
+    });
+  }
+
+  const publishTask = await prisma.task.findFirst({
+    orderBy: {
+      created: "desc",
+    },
+    where: {
+      datasetId: originalDataset.id,
+      type: "publish-dataset",
+    },
+  });
+
+  if (
+    originalDataset.status !== "published" ||
+    (publishTask && publishTask.status !== "completed")
+  ) {
+    throw createError({
+      statusCode: 409,
+      statusMessage: "The latest version must finish publishing first",
     });
   }
 
@@ -277,6 +319,18 @@ export default defineEventHandler(async (event) => {
           schemeUri: subject.schemeUri,
           subject: subject.subject,
           valueUri: subject.valueUri,
+        })),
+      },
+
+      // Documents live in `{canonicalId}/documents/`, shared by every version
+      DatasetSupportingDocument: {
+        create: originalDataset.DatasetSupportingDocument.map((document) => ({
+          documentType: document.documentType,
+          mimeType: document.mimeType,
+          originalName: document.originalName,
+          sanitizedName: document.sanitizedName,
+          size: document.size,
+          storagePath: document.storagePath,
         })),
       },
 
@@ -535,16 +589,35 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  // Create a new container for the dataset
-  const datalakeServiceClient = DataLakeServiceClient.fromConnectionString(
-    AZURE_DRAFT_CONNECTION_STRING,
-  );
+  // Two requests can pass the checks above at the same time. Only one draft may
+  // own `data/`, so back out if another version was created alongside this one
+  const newerVersions = await prisma.dataset.count({
+    where: {
+      canonicalId: originalDataset.canonicalId,
+      created: {
+        gt: originalDataset.created,
+      },
+    },
+  });
 
-  const fileSystemClient = datalakeServiceClient.getFileSystemClient(
-    newDataset.id,
-  );
+  if (newerVersions > 1) {
+    await prisma.dataset.delete({ where: { id: newDataset.id } });
 
-  await fileSystemClient.create();
+    throw createError({
+      statusCode: 409,
+      statusMessage: "A newer version of this dataset already exists",
+    });
+  }
+
+  // Rename `data-{previousDatasetId}/` back to `data/`. The new version is
+  // editable straight away with the previous version's files, with no copy
+  try {
+    await unfreezeData(originalDataset.canonicalId, originalDataset.id);
+  } catch (error) {
+    await prisma.dataset.delete({ where: { id: newDataset.id } });
+
+    throw error;
+  }
 
   return {
     data: { datasetId: newDataset.id },

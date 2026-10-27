@@ -1,21 +1,24 @@
-import { BlobServiceClient } from "@azure/storage-blob";
-
 export default defineEventHandler(async (event) => {
   await datasetMinViewerPermission(event)
-  const { AZURE_DRAFT_CONNECTION_STRING } = useRuntimeConfig();
   const { datasetId } = event.context.params as { datasetId: string };
 
+  const dataset = await prisma.dataset.findUnique({
+    select: { canonicalId: true, id: true, lockedAt: true },
+    where: { id: datasetId },
+  });
+
+  if (!dataset) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Dataset not found",
+    });
+  }
+
   try {
-    const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_DRAFT_CONNECTION_STRING);
-    const containerClient = blobServiceClient.getContainerClient(datasetId);
+    const files = await listDatasetDataFiles(dataset);
 
-    let fileCount = 0;
-    let totalSizeBytes = 0;
-
-    for await (const blob of containerClient.listBlobsFlat()) {
-      fileCount++;
-      totalSizeBytes += blob.properties.contentLength || 0;
-    }
+    const fileCount = files.length;
+    const totalSizeBytes = files.reduce((total, { size }) => total + size, 0);
 
     return {
       fileCount,

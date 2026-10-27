@@ -49,3 +49,31 @@ export function getPublishedContainerSasUrl(containerName: string) {
     sasUrl: `${containerUrl}?${containerSAS}`,
   };
 }
+
+// Files under `data/` of a published version container, relative to `data/`
+export async function listPublishedDataFiles(containerName: string) {
+  const { AZURE_PUBLISHED_CONNECTION_STRING } = useRuntimeConfig();
+
+  const containerClient = BlobServiceClient.fromConnectionString(
+    AZURE_PUBLISHED_CONNECTION_STRING,
+  ).getContainerClient(containerName);
+
+  const files: { path: string; size: number }[] = [];
+
+  try {
+    for await (const blob of containerClient.listBlobsFlat({
+      prefix: "data/",
+    })) {
+      files.push({
+        path: blob.name.slice("data/".length),
+        size: blob.properties.contentLength ?? 0,
+      });
+    }
+  } catch (error: any) {
+    // The container doesn't exist yet, so the version has no published files
+    if (error.statusCode === 404) return [];
+    throw error;
+  }
+
+  return files;
+}
