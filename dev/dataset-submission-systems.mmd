@@ -1,0 +1,46 @@
+%% Envision Portal: systems involved in dataset submission
+%% Full sequence: dataset-submission-workflow.mmd
+
+flowchart LR
+    Owner(["Dataset owner"])
+    Requester(["Approved requester"])
+
+    subgraph Client["Owner's machine"]
+        FE["Frontend"]
+        ASE["Azure Storage Explorer"]
+    end
+
+    subgraph App["Envision Portal server"]
+        BE["Backend"]
+        MW["Dataset lock check<br/>blocks edits while locked"]
+    end
+
+    DB[("Database")]
+
+    subgraph TQ["Task queue VM (deployed manually)"]
+        VM["Task queue<br/>Docker container<br/>publish dataset |<br/>rebuild frozen data | purge draft"]
+    end
+
+    subgraph Study["Study storage account"]
+        direction TB
+        SC["datasets container<br/>{canonicalId}/<br/>data/ | data-{datasetId}/ | documents/ |<br/>manifests/ | previews/ | exports/"]
+    end
+
+    subgraph Pub["Published storage account (immutable)"]
+        direction TB
+        PC["{datasetId} container<br/>data/ | documents/ |<br/>metadata files | manifest.json"]
+    end
+
+    Owner --> FE
+    Owner --> ASE
+    FE --> MW --> BE
+    BE -- "read / write records" --> DB
+    BE -- "create folders | freeze data/ |<br/>issue upload SAS" --> SC
+    BE -- "issue read-only<br/>download SAS" --> PC
+    ASE -- "upload SAS on data/" --> SC
+    VM -- "claim tasks | update progress |<br/>register published dataset" --> DB
+    VM -- "list files | write manifest" --> SC
+    SC -- "server-side copy" --> PC
+    VM -- "create container | upload metadata |<br/>verify | lock files" --> PC
+    Requester --> FE
+    Requester -- "download with<br/>read-only SAS" --> PC
