@@ -91,6 +91,9 @@ model Dataset {
 
     lockedAt DateTime? // Set when publishing is requested. Edits and upload SAS are blocked while set
 
+    deletedAt DateTime? // Set when a draft version is deleted. The dataset is hidden and its data is kept until the purge
+    purgedAt  DateTime? // Set when a deleted draft's data has been removed from storage
+
     changelog String @default("")
     readme    String @default("")
 
@@ -814,7 +817,7 @@ model DatasetPublishingStatus {
 model Task {
     id String @id @default(cuid(2))
 
-    type   String // publish-dataset
+    type   String // publish-dataset | rebuild-frozen-data | purge-draft
     status String @default("pending") // pending | running | completed | failed
 
     datasetId String

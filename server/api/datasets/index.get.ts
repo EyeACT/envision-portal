@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
           userId,
         },
       },
+      deletedAt: null,
     },
   });
 

@@ -158,6 +158,7 @@ export default defineEventHandler(async (event) => {
       lockedAt: new Date(),
     },
     where: {
+      deletedAt: null,
       id: datasetId,
       lockedAt: null,
     },

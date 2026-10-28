@@ -1,12 +1,12 @@
 import type { H3Event } from "h3";
 
-// Throws a 404 if the dataset in the route params does not exist
+// Throws a 404 if the dataset in the route params does not exist or has been deleted
 export const datasetExists = async (event: H3Event) => {
   const { datasetId } = event.context.params as { datasetId: string };
 
   const dataset = await prisma.dataset.findUnique({
     select: { id: true },
-    where: { id: datasetId },
+    where: { deletedAt: null, id: datasetId },
   });
 
   if (!dataset) {

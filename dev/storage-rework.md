@@ -180,14 +180,37 @@ Empty directories in the study account do not carry over, since flat storage has
 
 The new version is editable immediately with the previous version's files, with no copy. The previous version remains available from its published container.
 
-### Delete dataset
+### Deleting datasets
 
-1. Mark the dataset deleted in the database (stops new SAS).
-2. Delete `datasets/{canonicalId}/` immediately or after a short grace period. On HNS this is a single atomic directory delete.
-3. If any version was published, its manifest is already preserved in the published container as `manifest.json`.
-4. The reconciliation script removes any files written afterward by an unexpired SAS.
+Datasets cannot be deleted. `datasets/{canonicalId}/` and every published `{datasetId}` container are kept for the life of the dataset. A first version that has never been published is a dataset, so it cannot be deleted either.
 
-Deletion is permanent. Dataset owners are expected to keep local copies, and the UI states this.
+### Delete draft version
+
+Only a draft created from a published version can be deleted. Deletion is a soft delete followed by a purge through the task queue, so a draft deleted by mistake in the UI can be restored by an admin during a grace period (30 days). Restoring is not available from the UI.
+
+**Request (`[datasetId]/index.delete.ts`)**
+
+1. Set `deletedAt` on the draft. This blocks edits and new upload SAS, and hides it from the UI.
+2. Queue a `rebuild-frozen-data` task for the previous version, and a `purge-draft` task with `runAfter` set to the end of the grace period.
+3. Rename `datasets/{canonicalId}/data` to `datasets/{canonicalId}/data-{draftDatasetId}`. This keeps the draft's edits and cuts off every outstanding owner SAS.
+
+**`rebuild-frozen-data` task**
+
+The previous version's `data-{previousDatasetId}/` was renamed into the draft's `data/`, so it no longer exists. This task server-side copies the published `{previousDatasetId}` container's `data/` into `datasets/{canonicalId}/data-{previousDatasetId}/`, so the [new version](#new-version) flow works unchanged. A new version cannot be created until it completes.
+
+**`purge-draft` task**
+
+1. Skip if `deletedAt` has been cleared (the draft was restored).
+2. Delete `datasets/{canonicalId}/data-{draftDatasetId}/`.
+3. Set `purgedAt` on the draft. The `Dataset` record is kept for history.
+
+Setting `deletedAt` and queueing both tasks happen in one transaction before the rename, so a new version can't claim `data/` while the delete is in progress.
+
+**Restore (`scripts/restore-draft.ts`, admin only)**
+
+1. Allowed only before the purge runs and while no newer version exists for the dataset.
+2. Cancel the pending `purge-draft` task and any unfinished `rebuild-frozen-data` task.
+3. Rename `data-{draftDatasetId}/` back to `data/`, delete the rebuilt `data-{previousDatasetId}/` (it is a copy of the published container), and clear `deletedAt`.
 
 ### Requester access
 
@@ -200,7 +223,7 @@ Deletion is permanent. Dataset owners are expected to keep local copies, and the
 Automations are handled by scripts run manually rather than Azure-specific services.
 
 - **Task queue:** `scripts/process-task-queue.ts` runs every due task in the `Task` table, then exits. Run on a schedule or after a publish request.
-- **Reconciliation:** list top-level folders in `datasets` and remove any whose `canonicalId` has no active dataset in the database. Also remove a `data/` folder in any dataset whose latest version is locked or published. Run periodically and after deletes or publishes. This catches files written by an unexpired SAS.
+- **Reconciliation:** remove a `data/` folder in any dataset whose latest version is locked, published, or deleted. Report (but do not remove) top-level folders in `datasets` whose `canonicalId` has no dataset in the database. Run periodically and after publishes or draft deletes. This catches files written by an unexpired SAS.
 - **Publish verification:** compare a published container against its `manifest.json`.
 - **Key rotation:** switch the backend to key2, then regenerate key1 on the affected account. This invalidates every SAS signed with key1. Active users then request fresh links from the UI. Use this if a token or key leaks, and optionally on a regular schedule.
 
@@ -208,10 +231,6 @@ Automations are handled by scripts run manually rather than Azure-specific servi
 
 - Azure lifecycle management rules filter by path prefix from the start of the container, so a rule cannot target "every dataset's `previews/` folder". If per-type retention or tiering is ever needed, those folders would need to move into their own containers.
 - `documents/` is shared across versions and is not renamed on publish. Only the backend writes to it, so the `lockedAt` check is enough to freeze it during the copy.
-
-## Open Questions
-
-- **Deleting a draft version.** If a draft created from a previous version is deleted, its `data/` has no frozen counterpart left (`data-{previousDatasetId}/` was renamed into it). Either rename `data/` back to `data-{previousDatasetId}/` (keeping the draft's edits) or delete it and copy from the published container when the next version is created.
 
 ## Implementation Checklist
 
@@ -233,7 +252,9 @@ Automations are handled by scripts run manually rather than Azure-specific servi
 - [ ] Publish request sets `lockedAt`, renames `data/` to `data-{datasetId}/`, and queues the task
 - [ ] Publish task copies from `data-{datasetId}/` and `documents/`, writes manifest, verifies, applies immutability
 - [ ] New version waits for the publish task, removes stray `data/`, and renames `data-{previousDatasetId}/` back to `data/`
-- [ ] Delete flow (DB flag, then delete `datasets/{canonicalId}/`)
+- [ ] Draft version soft delete (`deletedAt`, rename `data/` to `data-{draftDatasetId}/`, queue `rebuild-frozen-data` and a delayed `purge-draft`)
+- [ ] Draft version restore script for admins (`pnpm scripts:restore:draft <datasetId>`)
+- [ ] New version blocked until `rebuild-frozen-data` has completed
 - [ ] Requester grants table and read-only SAS endpoint
 
 ### Scripts

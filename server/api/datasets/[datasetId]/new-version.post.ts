@@ -84,6 +84,7 @@ export default defineEventHandler(async (event) => {
     },
     where: {
       canonicalId: originalDataset.canonicalId,
+      deletedAt: null,
     },
   });
 
@@ -103,6 +104,26 @@ export default defineEventHandler(async (event) => {
       type: "publish-dataset",
     },
   });
+
+  // Deleting a draft queues a copy of this version's published files back into
+  // `data-{datasetId}/`. The rename below needs that copy to be finished
+  const pendingRebuild = await prisma.task.findFirst({
+    where: {
+      datasetId: originalDataset.id,
+      status: {
+        not: "completed",
+      },
+      type: "rebuild-frozen-data",
+    },
+  });
+
+  if (pendingRebuild) {
+    throw createError({
+      statusCode: 409,
+      statusMessage:
+        "The files of the latest version are still being restored. Try again later",
+    });
+  }
 
   if (
     originalDataset.status !== "published" ||
@@ -597,6 +618,7 @@ export default defineEventHandler(async (event) => {
       created: {
         gt: originalDataset.created,
       },
+      deletedAt: null,
     },
   });
 
