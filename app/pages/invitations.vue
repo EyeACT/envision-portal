@@ -55,7 +55,7 @@ const reject = (id: string) => {
 const items = [
   {
     icon: "i-lucide-inbox",
-    label: "Invitations",
+    label: "Dataset Invitations",
     slot: "Invitations",
   },
 ];
