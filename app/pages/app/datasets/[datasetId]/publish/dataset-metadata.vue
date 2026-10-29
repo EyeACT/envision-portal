@@ -90,7 +90,7 @@ const timelineItems = ref<TimelineItem[]>([
         orientation="horizontal"
         :default-value="1"
         :items="timelineItems"
-        class="mx-5 w-full pt-5"
+        class="w-full pt-5"
       />
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
