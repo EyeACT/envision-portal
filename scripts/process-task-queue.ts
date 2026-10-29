@@ -713,16 +713,15 @@ const TASK_HANDLERS: Record<string, (task: Task) => Promise<void>> = {
   "rebuild-frozen-data": rebuildFrozenData,
 };
 
+
 // Claims the oldest due task, or returns null when none are due
 const claimNextTask = async (): Promise<Task | null> => {
+
   const next = await prisma.task.findFirst({
     orderBy: {
-      runAfter: "asc",
+      created: "asc",
     },
     where: {
-      runAfter: {
-        lte: new Date(),
-      },
       status: "pending",
     },
   });
@@ -740,17 +739,26 @@ const claimNextTask = async (): Promise<Task | null> => {
     },
     where: {
       id: next.id,
-      status: "pending",
     },
   });
 
   return count === 1 ? next : claimNextTask();
 };
 
+// TODO: Randomize slightly so not all workers poll at the same time
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+// TODO: Handle task staying stuck on "running" if the server crashed (use Heartbeat and fork-join pattern - probably)
 const main = async () => {
   let task: Task | null;
 
-  while ((task = await claimNextTask())) {
+  while (true) {
+    task = await claimNextTask()
+    if (!task) {
+      await wait(1000)
+      continue;
+    }
+
     console.log(
       `Running ${task.type} task ${task.id} for dataset ${task.datasetId}`,
     );
@@ -764,6 +772,7 @@ const main = async () => {
 
       await handler(task);
 
+      // TODO: Small in memory queue for successful jobs that could not be updated to DB
       await prisma.task.update({
         data: {
           completedAt: new Date(),

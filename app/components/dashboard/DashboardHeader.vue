@@ -77,12 +77,12 @@ const logout = async () => {
           />
         </UTooltip>
 
-        <UTooltip text="Inbox">
+        <UTooltip text="Invitations">
           <UButton
             to="/invitations"
             color="neutral"
             variant="ghost"
-            icon="material-symbols:inbox-rounded"
+            icon="material-symbols:person-add-rounded"
           />
         </UTooltip>
 
