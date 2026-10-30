@@ -138,17 +138,17 @@ interface SourceFile {
 }
 
 const draftContainerClient = BlobServiceClient.fromConnectionString(
-  AZURE_DRAFT_CONNECTION_STRING,
+  AZURE_DRAFT_CONNECTION_STRING_TEMP,
 ).getContainerClient(STUDY_FILE_SYSTEM);
 
 // Data Lake API on the same study container, for directory renames and deletes
 const draftFileSystemClient = DataLakeServiceClient.fromConnectionString(
-  AZURE_DRAFT_CONNECTION_STRING,
+  AZURE_DRAFT_CONNECTION_STRING_TEMP,
 ).getFileSystemClient(STUDY_FILE_SYSTEM);
 
 const getPublishedContainerClient = (containerName: string) =>
   BlobServiceClient.fromConnectionString(
-    AZURE_PUBLISHED_CONNECTION_STRING,
+    AZURE_PUBLISHED_CONNECTION_STRING_TEMP,
   ).getContainerClient(containerName);
 
 /**
@@ -193,7 +193,7 @@ const listSourceFiles = async (
 const createSourceSASProvider = () => {
   const credential = new StorageSharedKeyCredential(
     draftContainerClient.accountName,
-    AZURE_DRAFT_ACCOUNT_KEY,
+    AZURE_DRAFT_ACCOUNT_KEY_TEMP,
   );
   const cache = new Map<string, { refreshAt: number; sas: string }>();
 
@@ -612,7 +612,7 @@ const rebuildFrozenData = async (task: Task) => {
     },
     new BlobStorageSharedKeyCredential(
       publishedContainerClient.accountName,
-      AZURE_PUBLISHED_ACCOUNT_KEY,
+      AZURE_PUBLISHED_ACCOUNT_KEY_TEMP,
     ),
   ).toString();
 
