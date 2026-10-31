@@ -26,7 +26,7 @@ on:
 jobs:
   deploy-worker:
     runs-on: ubuntu-latest
-    environment: stg
+    environment: prd
 
     env:
       DOCKER_BUILDKIT: 1
@@ -42,10 +42,6 @@ jobs:
       SSH_PRIVATE_KEY_WORKER: ${{secrets.SSH_PRIVATE_KEY_WORKER}}
       AZURE_PUBLISHED_ACCOUNT_KEY: ${{secrets.AZURE_PUBLISHED_ACCOUNT_KEY}}
 
-      AZURE_DRAFT_ACCOUNT_KEY_TEMP: ${{ secrets.AZURE_DRAFT_ACCOUNT_KEY_TEMP }}
-      AZURE_DRAFT_CONNECTION_STRING_TEMP: ${{ secrets.AZURE_DRAFT_CONNECTION_STRING_TEMP }}
-      AZURE_PUBLISHED_CONNECTION_STRING_TEMP: ${{ secrets.AZURE_PUBLISHED_CONNECTION_STRING_TEMP }}
-      AZURE_PUBLISHED_ACCOUNT_KEY_TEMP: ${{secrets.AZURE_PUBLISHED_ACCOUNT_KEY_TEMP}}
 
     steps:
       - uses: actions/checkout@v4

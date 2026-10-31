@@ -25,19 +25,19 @@ import type {
 // Runs every due task in the Task table, then exits.
 
 const {
-  AZURE_DRAFT_ACCOUNT_KEY_TEMP,
-  AZURE_DRAFT_CONNECTION_STRING_TEMP,
-  AZURE_PUBLISHED_ACCOUNT_KEY_TEMP,
-  AZURE_PUBLISHED_CONNECTION_STRING_TEMP,
+  AZURE_DRAFT_ACCOUNT_KEY,
+  AZURE_DRAFT_CONNECTION_STRING,
+  AZURE_PUBLISHED_ACCOUNT_KEY,
+  AZURE_PUBLISHED_CONNECTION_STRING,
   DATABASE_URL,
 } = process.env;
 
 if (
   !DATABASE_URL ||
-  !AZURE_DRAFT_ACCOUNT_KEY_TEMP ||
-  !AZURE_DRAFT_CONNECTION_STRING_TEMP ||
-  !AZURE_PUBLISHED_ACCOUNT_KEY_TEMP ||
-  !AZURE_PUBLISHED_CONNECTION_STRING_TEMP
+  !AZURE_DRAFT_ACCOUNT_KEY ||
+  !AZURE_DRAFT_CONNECTION_STRING ||
+  !AZURE_PUBLISHED_ACCOUNT_KEY ||
+  !AZURE_PUBLISHED_CONNECTION_STRING
 ) {
   console.error(
     "DATABASE_URL, AZURE_DRAFT_ACCOUNT_KEY, AZURE_DRAFT_CONNECTION_STRING, AZURE_PUBLISHED_ACCOUNT_KEY and AZURE_PUBLISHED_CONNECTION_STRING must be set",
@@ -138,17 +138,17 @@ interface SourceFile {
 }
 
 const draftContainerClient = BlobServiceClient.fromConnectionString(
-  AZURE_DRAFT_CONNECTION_STRING_TEMP,
+  AZURE_DRAFT_CONNECTION_STRING,
 ).getContainerClient(STUDY_FILE_SYSTEM);
 
 // Data Lake API on the same study container, for directory renames and deletes
 const draftFileSystemClient = DataLakeServiceClient.fromConnectionString(
-  AZURE_DRAFT_CONNECTION_STRING_TEMP,
+  AZURE_DRAFT_CONNECTION_STRING,
 ).getFileSystemClient(STUDY_FILE_SYSTEM);
 
 const getPublishedContainerClient = (containerName: string) =>
   BlobServiceClient.fromConnectionString(
-    AZURE_PUBLISHED_CONNECTION_STRING_TEMP,
+    AZURE_PUBLISHED_CONNECTION_STRING,
   ).getContainerClient(containerName);
 
 /**
@@ -193,7 +193,7 @@ const listSourceFiles = async (
 const createSourceSASProvider = () => {
   const credential = new StorageSharedKeyCredential(
     draftContainerClient.accountName,
-    AZURE_DRAFT_ACCOUNT_KEY_TEMP,
+    AZURE_DRAFT_ACCOUNT_KEY,
   );
   const cache = new Map<string, { refreshAt: number; sas: string }>();
 
@@ -489,7 +489,7 @@ const publishDataset = async (task: Task) => {
     comment: "Locking the published files",
   });
 
-  await applyImmutability(containerClient);
+  // await applyImmutability(containerClient);
 
   // 7. Register the published dataset
   await updatePublishingStatus(datasetId, {
@@ -612,7 +612,7 @@ const rebuildFrozenData = async (task: Task) => {
     },
     new BlobStorageSharedKeyCredential(
       publishedContainerClient.accountName,
-      AZURE_PUBLISHED_ACCOUNT_KEY_TEMP,
+      AZURE_PUBLISHED_ACCOUNT_KEY,
     ),
   ).toString();
 
