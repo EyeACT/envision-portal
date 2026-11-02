@@ -2,7 +2,7 @@
 import type { TimelineItem } from "@nuxt/ui";
 
 definePageMeta({
-  middleware: ["auth"],
+  middleware: ["auth", "publish-started"],
 });
 
 const route = useRoute();

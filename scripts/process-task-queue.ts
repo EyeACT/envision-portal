@@ -22,7 +22,9 @@ import type {
   PublishManifest,
 } from "../shared/types/tasks";
 
-// Runs every due task in the Task table, then exits.
+// Runs every due task in the Task table, then exits. With `--watch`, keeps
+// checking for due tasks until it receives SIGINT or SIGTERM, so it can run as a
+// long-lived container.
 
 const {
   AZURE_DRAFT_ACCOUNT_KEY,
@@ -58,6 +60,23 @@ const COPY_CONCURRENCY = 8;
 
 // beginCopyFromURL polls every 15s (slow for small files)
 const COPY_POLL_INTERVAL_MS = 1000;
+
+const WATCH = process.argv.includes("--watch");
+
+// How long `--watch` waits before checking again once the queue is empty
+const WATCH_INTERVAL_MS = Number(process.env.TASK_QUEUE_INTERVAL_MS) || 10_000;
+
+// Set on SIGINT/SIGTERM. The running task is allowed to finish first
+let shuttingDown = false;
+
+// A running task's heartbeat is refreshed this often. If it goes longer than
+// STALE_TASK_AFTER_MS without one, the runner was stopped (container killed,
+// VM restarted) and the task is put back in the queue
+const HEARTBEAT_INTERVAL_MS = 30_000;
+const STALE_TASK_AFTER_MS = 5 * 60 * 1000;
+
+// A task that stalls this many times is marked failed instead of requeued
+const MAX_STALLED_ATTEMPTS = 3;
 
 const getPublishingStatusIndex = (status: keyof typeof PublishingStatus) =>
   PublishingStatus[status].index;
@@ -531,7 +550,8 @@ const publishDataset = async (task: Task) => {
       },
     });
 
-    // TODO: Replace DOI prefix with real registered prefix
+    // Placeholder DOI until DataCite is set up. It is not registered anywhere.
+    // TODO: Mint the DOI with DataCite in the registering-doi step
     const doi = `10.1000/envision.${created.id}`;
 
     await tx.publishedDataset.update({
@@ -591,7 +611,9 @@ const rebuildFrozenData = async (task: Task) => {
   const frozenPath = studyPaths.frozenData(dataset.canonicalId, datasetId);
 
   // Created up front so a version with no files still has its folder
-  await draftFileSystemClient.getDirectoryClient(frozenPath).createIfNotExists();
+  await draftFileSystemClient
+    .getDirectoryClient(frozenPath)
+    .createIfNotExists();
 
   const publishedContainerClient = getPublishedContainerClient(datasetId);
 
@@ -642,9 +664,7 @@ const rebuildFrozenData = async (task: Task) => {
   };
 
   for (let i = 0; i < sourceFiles.length; i += COPY_CONCURRENCY) {
-    await Promise.all(
-      sourceFiles.slice(i, i + COPY_CONCURRENCY).map(copyFile),
-    );
+    await Promise.all(sourceFiles.slice(i, i + COPY_CONCURRENCY).map(copyFile));
   }
 
   // Every published file is now in the frozen folder with the same size
@@ -713,6 +733,78 @@ const TASK_HANDLERS: Record<string, (task: Task) => Promise<void>> = {
   "rebuild-frozen-data": rebuildFrozenData,
 };
 
+/**
+ * Requeue tasks whose runner stopped mid-task. Every handler is safe to re-run,
+ * so the task starts over. After MAX_STALLED_ATTEMPTS it is marked failed and
+ * can be retried from the UI (publish) or by setting it back to "pending".
+ */
+const recoverStaleTasks = async () => {
+  const cutoff = new Date(Date.now() - STALE_TASK_AFTER_MS);
+
+  const staleTasks = await prisma.task.findMany({
+    where: {
+      OR: [
+        {
+          heartbeatAt: {
+            lt: cutoff,
+          },
+        },
+        // Claimed before heartbeats were added
+        {
+          heartbeatAt: null,
+          startedAt: {
+            lt: cutoff,
+          },
+        },
+      ],
+      status: "running",
+    },
+  });
+
+  for (const task of staleTasks) {
+    const giveUp = task.attempts >= MAX_STALLED_ATTEMPTS;
+    const error = `The task runner stopped during attempt ${task.attempts}`;
+
+    // Only touch it if the heartbeat hasn't moved since it was read, so a
+    // runner that just recovered isn't overridden
+    const { count } = await prisma.task.updateMany({
+      data: {
+        error,
+        status: giveUp ? "failed" : "pending",
+      },
+      where: {
+        heartbeatAt: task.heartbeatAt,
+        id: task.id,
+        status: "running",
+      },
+    });
+
+    if (count === 0) continue;
+
+    console.warn(
+      `${error} of ${task.type} task ${task.id}, ${giveUp ? "marking it failed" : "requeueing it"}`,
+    );
+
+    if (task.type === "publish-dataset") {
+      await prisma.datasetPublishingStatus.updateMany({
+        data: giveUp
+          ? {
+              comment: `Publishing failed: ${error}`,
+              status: -1,
+            }
+          : {
+              comment: "Restarting after an interruption",
+              currentFileNumber: 0,
+              fileCount: 0,
+              status: getPublishingStatusIndex("indexing-dataset"),
+            },
+        where: {
+          datasetId: task.datasetId,
+        },
+      });
+    }
+  }
+};
 
 // Claims the oldest due task, or returns null when none are due
 const claimNextTask = async (): Promise<Task | null> => {
@@ -734,6 +826,7 @@ const claimNextTask = async (): Promise<Task | null> => {
       attempts: {
         increment: 1,
       },
+      heartbeatAt: new Date(),
       startedAt: new Date(),
       status: "running",
     },
@@ -745,23 +838,30 @@ const claimNextTask = async (): Promise<Task | null> => {
   return count === 1 ? next : claimNextTask();
 };
 
-// TODO: Randomize slightly so not all workers poll at the same time
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+const runDueTasks = async () => {
+  await recoverStaleTasks();
 
-// TODO: Handle task staying stuck on "running" if the server crashed (use Heartbeat and fork-join pattern - probably)
-const main = async () => {
   let task: Task | null;
 
-  while (true) {
-    task = await claimNextTask()
-    if (!task) {
-      await wait(1000)
-      continue;
-    }
-
+  while (!shuttingDown && (task = await claimNextTask())) {
     console.log(
       `Running ${task.type} task ${task.id} for dataset ${task.datasetId}`,
     );
+
+    const taskId = task.id;
+
+    const heartbeat = setInterval(() => {
+      prisma.task
+        .update({
+          data: {
+            heartbeatAt: new Date(),
+          },
+          where: {
+            id: taskId,
+          },
+        })
+        .catch((error) => console.error(`Heartbeat failed: ${error}`));
+    }, HEARTBEAT_INTERVAL_MS);
 
     try {
       const handler = TASK_HANDLERS[task.type];
@@ -790,8 +890,9 @@ const main = async () => {
 
       console.error(`Task ${task.id} failed: ${message}`);
 
-      // Failed tasks are not retried automatically. Set status back to
-      // "pending" to retry once the cause is fixed.
+      // Failed tasks are not retried automatically. A failed publish can be
+      // retried by the owner from the finalize page (publish/retry.post.ts).
+      // Other tasks: set status back to "pending" once the cause is fixed.
       await prisma.task.update({
         data: {
           error: message,
@@ -813,6 +914,39 @@ const main = async () => {
           },
         });
       }
+    } finally {
+      clearInterval(heartbeat);
+    }
+  }
+};
+
+const main = async () => {
+  if (!WATCH) {
+    await runDueTasks();
+    return;
+  }
+
+  for (const signal of ["SIGINT", "SIGTERM"] as const) {
+    process.on(signal, () => {
+      console.log(`Received ${signal}, stopping after the current task`);
+      shuttingDown = true;
+    });
+  }
+
+  console.log(`Watching for tasks every ${WATCH_INTERVAL_MS / 1000}s`);
+
+  while (!shuttingDown) {
+    try {
+      await runDueTasks();
+    } catch (error) {
+      // A database blip shouldn't stop the watcher. Try again next round
+      console.error(error);
+    }
+
+    // Sleep in short steps so a shutdown signal isn't kept waiting
+    for (let waited = 0; waited < WATCH_INTERVAL_MS && !shuttingDown;) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      waited += 500;
     }
   }
 };

@@ -1,0 +1,160 @@
+%% Envision Portal: dataset submission workflow
+%% Systems view: dataset-submission-systems.mmd. Storage layout and access rules: storage-rework.md
+%%
+%% Notes
+%% - Two phases. The publish request is fast: it validates, locks, freezes the data folder and queues a task.
+%%   The task queue does the slow copy, so the request never waits on storage, and file data never passes
+%%   through the backend or the VM.
+%% - Task queue deployment. Runs in a Docker container on a manually deployed VM, separate from the portal
+%%   server. It only needs access to the database and the two storage accounts.
+%% - Locking. The dataset stays locked after publishing because published versions are never edited.
+%%   Changes go into a new version.
+%% - Healthsheet validation shows up as a progress step, but nothing is checked there yet.
+%% - Access keys. Only the backend and the task queue hold the storage account keys. Owners and requesters
+%%   only ever get scoped, time-limited SAS links.
+%% - Deleting a draft version is a separate flow, described in storage-rework.md.
+
+sequenceDiagram
+    autonumber
+    actor Owner as Dataset owner
+    participant FE as Frontend
+    participant BE as Backend
+    participant DB as Database
+    participant ASE as Azure Storage<br/>Explorer
+    participant SA as Study storage<br/>datasets container
+    participant VM as Task queue<br/>(Docker on VM)
+    participant PA as Published storage<br/>{datasetId} container
+    actor Req as Requester
+
+    %% ---------- 1. Create ----------
+    rect rgba(120, 160, 220, 0.12)
+    Note over Owner,SA: 1. Create dataset
+    Owner->>FE: Create dataset
+    FE->>BE: Create dataset
+    BE->>DB: Save dataset as draft<br/>(assigns datasetId + canonicalId)
+    BE->>SA: Create {canonicalId}/ with data/, documents/,<br/>manifests/, previews/, exports/
+    BE-->>FE: Dataset created
+    end
+
+    %% ---------- 2. Prepare ----------
+    rect rgba(120, 200, 160, 0.12)
+    Note over Owner,SA: 2. Prepare draft (edits are rejected while the dataset is locked)
+    Owner->>FE: Edit metadata (dataset, study, healthsheet,<br/>README, changelog, documents)
+    FE->>BE: Save metadata
+    BE->>DB: Save metadata (document files go to {canonicalId}/documents/)
+    Owner->>FE: Request upload access
+    FE->>BE: Request upload access
+    BE->>DB: Check dataset is a draft and not locked
+    alt not a draft or locked
+        BE-->>FE: Upload not allowed
+    else editable
+        BE->>SA: Make sure {canonicalId}/data/ exists
+        BE->>BE: Issue upload SAS for {canonicalId}/data/
+        BE-->>FE: Upload link + expiry
+        Owner->>ASE: Paste upload link
+        ASE->>SA: Upload, rename, delete files in data/
+    end
+    end
+
+    %% ---------- 3. Review ----------
+    rect rgba(200, 180, 120, 0.12)
+    Note over Owner,SA: 3. Review before publishing
+    Owner->>FE: Review study metadata, dataset metadata,<br/>changelog, README, files
+    FE->>BE: Load review
+    BE->>DB: Read metadata
+    BE->>SA: List files in data/
+    BE-->>FE: Previews + validation results
+    end
+
+    %% ---------- 4. Finalize ----------
+    rect rgba(220, 140, 120, 0.12)
+    Note over Owner,VM: 4. Publish request (admin or higher)
+    Owner->>FE: Publish
+    FE->>BE: Publish dataset
+    BE->>DB: Progress = preparing
+    BE->>DB: Validate dataset metadata, then study metadata
+    alt validation fails
+        BE-->>FE: Validation failed
+    else valid
+        BE->>DB: Lock dataset (only if not already locked)
+        alt already locked
+            BE-->>FE: Already being published
+        else locked now
+            BE->>SA: Rename data/ → data-{datasetId}/<br/>(cuts off every upload link)
+            BE->>DB: Read all metadata
+            BE->>BE: Generate dataset description, study description,<br/>healthsheet, license, README, changelog
+            BE->>DB: Queue publish task with the metadata files<br/>Progress = indexing
+            opt any step after the lock fails
+                BE->>SA: Rename data-{datasetId}/ back to data/
+                BE->>DB: Unlock dataset
+                BE-->>FE: Error, owner can try again
+            end
+            BE-->>FE: Publish queued
+        end
+    end
+    end
+
+    %% ---------- Progress polling ----------
+    par Owner watches progress
+        loop until completed or failed
+            FE->>BE: Check progress
+            BE->>DB: Read progress
+            BE-->>FE: Step, message, file x of y
+        end
+    and 5. Background publish
+        rect rgba(170, 130, 210, 0.12)
+        Note over DB,PA: 5. Publish task in the task queue container
+        VM->>DB: Claim next due task
+        VM->>DB: Check dataset is still locked
+        VM->>SA: List files in data-{datasetId}/ and documents/
+        VM->>SA: Write manifest for this version
+        VM->>PA: Create {datasetId} container
+        VM->>PA: Find files already locked by an earlier attempt
+        loop 8 files at a time
+            VM->>PA: Start server-side copy
+            PA->>SA: Read source file
+            VM->>DB: Progress = moving, file x of y
+        end
+        VM->>PA: Upload metadata files + manifest
+        VM->>PA: Verify every file against the manifest
+        VM->>PA: Lock every file (immutable)
+        VM->>DB: Create published dataset + DOI,<br/>mark dataset published, progress = completed
+        VM->>DB: Mark task completed
+        end
+    end
+
+    alt task fails (any step)
+        VM->>DB: Mark task failed, save error<br/>Progress = failed
+        Note over VM,DB: Not retried automatically. Fix the cause and set the task back to pending. Re-running is safe: locked files are skipped.
+    end
+
+    FE-->>Owner: Published, link to dataset page
+
+    %% ---------- Access ----------
+    rect rgba(120, 180, 200, 0.12)
+    Note over FE,Req: Access by requesters
+    Req->>FE: Find dataset, request access
+    FE->>BE: Submit access request
+    BE->>DB: Save request, approve
+    Req->>FE: Open approved request
+    FE->>BE: Get download link
+    BE->>BE: Issue read-only SAS for {datasetId} container
+    BE-->>FE: Download link + expiry
+    Req->>PA: Download data/, documents/, manifest
+    end
+
+    %% ---------- 6. New version ----------
+    rect rgba(120, 200, 160, 0.12)
+    Note over Owner,SA: 6. New version
+    Owner->>FE: Create new version
+    FE->>BE: Create new version
+    BE->>DB: Check latest version finished publishing<br/>and no newer version exists
+    alt checks fail
+        BE-->>FE: Cannot create a new version yet
+    else ok
+        BE->>DB: Create new draft (same canonicalId)<br/>with a copy of the metadata
+        BE->>SA: Delete stray data/ left by an old upload link
+        BE->>SA: Rename data-{previousId}/ → data/ (no copy)
+        BE-->>FE: New draft ready, back to step 2
+    end
+    end
