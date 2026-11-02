@@ -370,7 +370,7 @@ watch(sidebarCollapsed, (newVal) => {
     <!-- Main Content -->
     <main
       :class="[
-        'flex-1 transition-all duration-300',
+        'min-w-0 flex-1 transition-all duration-300',
         sidebarCollapsed ? 'ml-20' : 'ml-64',
       ]"
     >
