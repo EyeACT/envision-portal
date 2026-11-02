@@ -18,4 +18,4 @@ RUN pnpm install --frozen-lockfile --ignore-scripts \
   && DATABASE_URL="postgresql://user:password@localhost:5432/build" pnpm prisma:generate \
   && pnpm store prune
 
-CMD ["pnpm", "scripts:process:task-queue"]
+CMD ["pnpm", "scripts:process:task-queue:watch"]
