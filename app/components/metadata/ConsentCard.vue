@@ -25,7 +25,7 @@ const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
       <div>
         <p :class="sectionTitleClass">Consent Type</p>
 
-        <p>{{ formattedConsentType }}</p>
+        <p>{{ formattedConsentType || "N/A"}}</p>
       </div>
 
       <!-- Non-commercial use -->

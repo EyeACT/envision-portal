@@ -126,7 +126,17 @@ const funderColumns: TableColumn<
 <template>
   <div class="h-auto space-y-6">
     <CardCollapsibleContent title="Creators">
+      <UAlert
+        v-if="
+          !props.metadata.creator || props.metadata.creator.length === 0
+        "
+        color="info"
+        variant="subtle"
+        title="No creators"
+        description="There are no creators for this dataset."
+      />
       <UTable
+        v-else
         :data="props.metadata.creator"
         :columns="creatorColumns"
         class="flex-1"
@@ -153,7 +163,17 @@ const funderColumns: TableColumn<
     </CardCollapsibleContent>
 
     <CardCollapsibleContent title="Funders">
+      <UAlert
+        v-if="
+          !props.metadata.fundingReference || props.metadata.fundingReference.length === 0
+        "
+        color="info"
+        variant="subtle"
+        title="No funders"
+        description="There are no funders for this dataset."
+      />
       <UTable
+        v-else
         :data="props.metadata.fundingReference"
         :columns="funderColumns"
       />
