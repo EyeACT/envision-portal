@@ -170,14 +170,14 @@ const isStudyMetadataEmpty = computed(() => {
           <div>
             <p :class="sectionTitleClass">
               Enrollment Count ({{
-                props.metadata.designModule.enrollmentInfo.enrollmentType ||
+                props.metadata.designModule?.enrollmentInfo?.enrollmentType ||
                 "Type Unknown"
               }})
             </p>
 
             <p>
               {{
-                props.metadata.designModule.enrollmentInfo.enrollmentCount ||
+                props.metadata.designModule?.enrollmentInfo?.enrollmentCount ||
                 "N/A"
               }}
             </p>
@@ -481,7 +481,7 @@ const isStudyMetadataEmpty = computed(() => {
 
             <p>
               {{
-                props.metadata.identificationModule.orgStudyIdInfo.orgStudyId
+                props.metadata.identificationModule?.orgStudyIdInfo?.orgStudyId
               }}
             </p>
           </div>
@@ -492,18 +492,18 @@ const isStudyMetadataEmpty = computed(() => {
 
             <p>
               {{
-                props.metadata.identificationModule.orgStudyIdInfo
-                  .orgStudyIdType
+                props.metadata.identificationModule?.orgStudyIdInfo
+                  ?.orgStudyIdType
               }}
             </p>
           </div>
 
           <!-- Secondary Id -->
-          <div v-if="props.metadata.identificationModule.secondaryIdInfoList">
+          <div v-if="props.metadata.identificationModule?.secondaryIdInfoList">
             <p :class="sectionTitleClass">Secondary ID</p>
 
             <UTable
-              :data="props.metadata.identificationModule.secondaryIdInfoList"
+              :data="props.metadata.identificationModule?.secondaryIdInfoList"
               :columns="identInfoColumn"
               class="flex-1"
             />
@@ -520,7 +520,7 @@ const isStudyMetadataEmpty = computed(() => {
               human subjects protection review board?
             </p>
 
-            <p>{{ props.metadata.oversightModule.humanSubjectReviewStatus }}</p>
+            <p>{{ props.metadata.oversightModule?.humanSubjectReviewStatus }}</p>
           </div>
 
           <!-- FDA Regulated Drug -->
@@ -568,8 +568,7 @@ const isStudyMetadataEmpty = computed(() => {
 
             <p>
               {{
-                props.metadata.sponsorCollaboratorsModule.leadSponsor
-                  .leadSponsorName
+                props.metadata.sponsorCollaboratorsModule?.leadSponsor?.leadSponsorName
               }}
             </p>
           </div>
@@ -579,7 +578,7 @@ const isStudyMetadataEmpty = computed(() => {
             <p :class="sectionTitleClass">Collaborators</p>
 
             <UTable
-              :data="props.metadata.sponsorCollaboratorsModule.collaboratorList"
+              :data="props.metadata.sponsorCollaboratorsModule?.collaboratorList"
               :columns="collaboratorsColumns"
               class="flex-1"
             />
