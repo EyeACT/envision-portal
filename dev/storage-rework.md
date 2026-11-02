@@ -222,7 +222,7 @@ Setting `deletedAt` and queueing both tasks happen in one transaction before the
 
 Automations are handled by scripts run manually rather than Azure-specific services.
 
-- **Task queue:** `scripts/process-task-queue.ts` runs every due task in the `Task` table, then exits. Run on a schedule or after a publish request.
+- **Task queue:** `scripts/process-task-queue.ts` runs every due task in the `Task` table, then exits. Run on a schedule or after a publish request, or run it with `--watch` (`pnpm scripts:process:task-queue:watch`) to keep checking for tasks every 10 seconds (`TASK_QUEUE_INTERVAL_MS`). On SIGINT or SIGTERM it finishes the running task before exiting. A running task refreshes `heartbeatAt` every 30 seconds. A task with no heartbeat for 5 minutes (the runner was killed) is requeued, and marked failed after 3 stalled attempts. A failed publish can be retried by the owner from the finalize page (`publish/retry.post.ts`), which requeues the same task for the still locked dataset.
 - **Reconciliation:** remove a `data/` folder in any dataset whose latest version is locked, published, or deleted. Report (but do not remove) top-level folders in `datasets` whose `canonicalId` has no dataset in the database. Run periodically and after publishes or draft deletes. This catches files written by an unexpired SAS.
 - **Publish verification:** compare a published container against its `manifest.json`.
 - **Key rotation:** switch the backend to key2, then regenerate key1 on the affected account. This invalidates every SAS signed with key1. Active users then request fresh links from the UI. Use this if a token or key leaks, and optionally on a regular schedule.
