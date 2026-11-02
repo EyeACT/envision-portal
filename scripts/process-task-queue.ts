@@ -508,7 +508,7 @@ const publishDataset = async (task: Task) => {
     comment: "Locking the published files",
   });
 
-  await applyImmutability(containerClient);
+  // await applyImmutability(containerClient);
 
   // 7. Register the published dataset
   await updatePublishingStatus(datasetId, {
@@ -808,14 +808,12 @@ const recoverStaleTasks = async () => {
 
 // Claims the oldest due task, or returns null when none are due
 const claimNextTask = async (): Promise<Task | null> => {
+
   const next = await prisma.task.findFirst({
     orderBy: {
-      runAfter: "asc",
+      created: "asc",
     },
     where: {
-      runAfter: {
-        lte: new Date(),
-      },
       status: "pending",
     },
   });
@@ -834,7 +832,6 @@ const claimNextTask = async (): Promise<Task | null> => {
     },
     where: {
       id: next.id,
-      status: "pending",
     },
   });
 
@@ -875,6 +872,7 @@ const runDueTasks = async () => {
 
       await handler(task);
 
+      // TODO: Small in memory queue for successful jobs that could not be updated to DB
       await prisma.task.update({
         data: {
           completedAt: new Date(),
