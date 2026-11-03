@@ -290,9 +290,24 @@ const copyFilesToPublished = async (
       .join("/");
     const sourceUrl = `https://${accountName}.blob.core.windows.net/${STUDY_FILE_SYSTEM}/${encodedSourcePath}?${getSourceSAS(file.sourceFolder)}`;
 
-    const poller = await containerClient
-      .getBlobClient(file.destinationPath)
-      .beginCopyFromURL(sourceUrl, { intervalInMs: COPY_POLL_INTERVAL_MS });
+    const destination = containerClient.getBlobClient(file.destinationPath)
+
+    if (await destination.exists()) {
+      const properties = await destination.getProperties()
+      if (properties.copyStatus === "pending") {
+        if (!properties.copyId) {
+          throw new Error(`Pending copy has no copy ID: ${file.destinationPath}`)
+        }
+        await destination.abortCopyFromURL(properties.copyId)
+      } else if (
+        properties.copyStatus === "success" &&
+        properties.contentLength === file.size &&
+        (!file.md5 || (properties.contentMD5 && Buffer.from(properties.contentMD5).toString("base64") === file.md5))) {
+        return;
+      }
+    }
+
+    const poller = await destination.beginCopyFromURL(sourceUrl, { intervalInMs: COPY_POLL_INTERVAL_MS });
     const result = await poller.pollUntilDone();
 
     if (result.copyStatus !== "success") {
@@ -789,15 +804,15 @@ const recoverStaleTasks = async () => {
       await prisma.datasetPublishingStatus.updateMany({
         data: giveUp
           ? {
-              comment: `Publishing failed: ${error}`,
-              status: -1,
-            }
+            comment: `Publishing failed: ${error}`,
+            status: -1,
+          }
           : {
-              comment: "Restarting after an interruption",
-              currentFileNumber: 0,
-              fileCount: 0,
-              status: getPublishingStatusIndex("indexing-dataset"),
-            },
+            comment: "Restarting after an interruption",
+            currentFileNumber: 0,
+            fileCount: 0,
+            status: getPublishingStatusIndex("indexing-dataset"),
+          },
         where: {
           datasetId: task.datasetId,
         },
