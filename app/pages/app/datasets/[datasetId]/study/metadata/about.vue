@@ -491,28 +491,31 @@ const validate = (state: any): FormError[] => {
     }
   });
 
-  hasConditionErrors.value = errors.some(
+  console.log(errors)
+  return errors;
+};
+
+const onValidationError = (event: FormErrorEvent) => {
+  hasConditionErrors.value = event.errors.some(
     ({name}) => 
     name === "conditions" || 
     name?.startsWith("conditions[") || 
     name?.startsWith("conditions."),
   )
 
-  hasSecondaryIdentifierErrors.value = errors.some(
+  hasSecondaryIdentifierErrors.value = event.errors.some(
     ({name}) => 
       name === "secondaryIdentifiers" ||
       name?.startsWith("secondaryIdentifiers[") ||
       name?.startsWith("secondaryIdentifiers.")
   )
-
-  console.log(errors)
-  return errors;
-};
+}
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
-  console.log("Submitting")
   saveLoading.value = true;
   isSubmitting.value = true;
+  hasConditionErrors.value = false;
+  hasSecondaryIdentifierErrors.value = false;
 
   const formData = event.data;
 
@@ -616,6 +619,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         :state="state"
         class="space-y-6"
         @submit="onSubmit"
+        @error="onValidationError"
       >
         <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full items-center justify-between gap-3">
@@ -777,7 +781,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 @click="addCondition"
               />
               <span v-if="hasConditionErrors" class="text-sm text-red-500" role="alert">
-                Missing conditions
+                You must add at least one condition and provide a name.
               </span>
             </div>
           </div>
@@ -870,6 +874,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </CardCollapsible>
             </div>
 
+            <div class="flex items-center gap-3">
+
             <UButton
               icon="i-lucide-plus"
               variant="outline"
@@ -878,6 +884,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               class="w-fit"
               @click="addSecondaryIdentifier"
             />
+              <span v-if="hasSecondaryIdentifierErrors" class="text-sm text-red-500" role="alert">
+                  You must add at least one alternative identifier.
+              </span>
+              </div>
           </div>
         </div>
       </UForm>
