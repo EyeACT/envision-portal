@@ -80,6 +80,7 @@ const state = reactive<Schema>({
   secondaryIdentifiers: [],
 });
 
+
 const { data, error } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/about`,
   {},
@@ -124,6 +125,8 @@ if (data.value) {
     schemeUri: condition.schemeUri,
   }));
 
+
+
   state.primaryIdentifier = {
     domain: data.value.primaryIdentifier?.identifierDomain || "",
     identifier: data.value.primaryIdentifier?.identifier || "",
@@ -143,8 +146,12 @@ if (data.value) {
     }),
   );
 
+
   originalStateString.value = JSON.stringify(state);
 }
+
+const hasConditionErrors = ref(false)
+const hasSecondaryIdentifierErrors = ref(false)
 
 const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
@@ -155,6 +162,7 @@ const {
   confirmLeave, 
   cancelLeave 
 } = useUnsavedChangesGuard({ isDirty, isSubmitting });
+
 
 const addSecondaryIdentifier = () => {
   state.secondaryIdentifiers.push({
@@ -444,7 +452,7 @@ const validate = (state: any): FormError[] => {
     const key = `${identifier.identifier?.trim().toLowerCase()}|${identifier.type?.trim().toLowerCase()}`;
     if (seenSecondaryIDs.has(key)) {
       errors.push({
-        name: `secondaryIdentifiers[${index}].identifier`,
+        name: `secondaryIdentifiers.$index.identifier`,
         message: "Duplicate secondary identifier with same identifier and type",
       });
     }
@@ -456,37 +464,53 @@ const validate = (state: any): FormError[] => {
 
     if (!identifier.identifier) {
       errors.push({
-        name: `secondaryIdentifiers[${index}].identifier`,
+        name: `secondaryIdentifiers.$index.identifier`,
         message: "Identifier is required",
       });
     }
 
     if (!identifier.type) {
       errors.push({
-        name: `secondaryIdentifiers[${index}].type`,
+        name: `secondaryIdentifiers.$index.type`,
         message: "Identifier type is required",
       });
     }
 
     if (identifier.domain && !isValidUrl(identifier.domain)) {
       errors.push({
-        name: `secondaryIdentifiers[${index}].domain`,
+        name: `secondaryIdentifiers.$index.domain`,
         message: "Invalid URL format",
       });
     }
 
     if (identifier.link && !isValidUrl(identifier.link)) {
       errors.push({
-        name: `secondaryIdentifiers[${index}].link`,
+        name: `secondaryIdentifiers.$index.link`,
         message: "Invalid URL format",
       });
     }
   });
 
+  hasConditionErrors.value = errors.some(
+    ({name}) => 
+    name === "conditions" || 
+    name?.startsWith("conditions[") || 
+    name?.startsWith("conditions."),
+  )
+
+  hasSecondaryIdentifierErrors.value = errors.some(
+    ({name}) => 
+      name === "secondaryIdentifiers" ||
+      name?.startsWith("secondaryIdentifiers[") ||
+      name?.startsWith("secondaryIdentifiers.")
+  )
+
+  console.log(errors)
   return errors;
 };
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
+  console.log("Submitting")
   saveLoading.value = true;
   isSubmitting.value = true;
 
@@ -742,14 +766,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </CardCollapsible>
             </div>
 
-            <UButton
-              icon="i-lucide-plus"
-              variant="outline"
-              color="primary"
-              label="Add Condition"
-              class="w-fit"
-              @click="addCondition"
-            />
+            <div class="flex items-center gap-3">
+              <UButton
+                icon="i-lucide-plus"
+                variant="outline"
+                color="primary"
+                label="Add Condition"
+                class="w-fit"
+                :color="hasConditionErrors ? 'error' : 'primary'"
+                @click="addCondition"
+              />
+              <span v-if="hasConditionErrors" class="text-sm text-red-500" role="alert">
+                Missing conditions
+              </span>
+            </div>
           </div>
         </div>
 
@@ -787,7 +817,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alternative Identifiers</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alternative Identifiers 
+                <span class="text-red-500 text-sm">*</span>
+              </h2>
+
               <p class="text-gray-500 dark:text-gray-400">
                 Please add some secondary identifiers that describe the study. These are usually any other identifiers that are not the primary identifier.
               </p>
@@ -813,11 +846,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Identifier" :name="`secondaryIdentifiers[${index}].identifier`" required>
+                  <UFormField label="Identifier" :name="`secondaryIdentifiers.$index.identifier`" required>
                     <UInput v-model="item.identifier" placeholder="10.1234/1234567890" />
                   </UFormField>
 
-                  <UFormField label="Identifier Type" :name="`secondaryIdentifiers[${index}].type`" required>
+                  <UFormField label="Identifier Type" :name="`secondaryIdentifiers.$index.type`" required>
                     <USelect
                       v-model="item.type"
                       class="w-full"
@@ -826,11 +859,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Domain" :name="`secondaryIdentifiers[${index}].domain`">
+                  <UFormField label="Identifier Domain" :name="`secondaryIdentifiers.$index.domain`">
                     <UInput v-model="item.domain" placeholder="https://doi.org" />
                   </UFormField>
 
-                  <UFormField label="Identifier Link" :name="`secondaryIdentifiers[${index}].link`">
+                  <UFormField label="Identifier Link" :name="`secondaryIdentifiers.$index.link`">
                     <UInput v-model="item.link" placeholder="https://doi.org/10.1234/1234567890" />
                   </UFormField>
                 </div>
