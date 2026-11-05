@@ -125,7 +125,9 @@ export default defineEventHandler(async (event) => {
 
   // 4. Paginate in JS
   const pageRows = filtered.slice(offset, offset + limit);
-  const canonicalIds = pageRows.map((d) => d.canonicalId);
+  const canonicalIds = pageRows
+    .map((d) => d.canonicalId)
+    .filter((id): id is string => id != null);
 
   // 5. Version counts for this page's canonicalIds (Prisma groupBy)
   const versionCounts = await prisma.publishedDataset.groupBy({

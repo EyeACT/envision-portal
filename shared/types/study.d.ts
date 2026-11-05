@@ -499,7 +499,7 @@ interface AdditionalData {
 
 interface Dataset {
   id: string;
-  doi: string;
+  doi: string | null;
   title: string;
   description: string;
   versionTitle: string;
@@ -534,7 +534,7 @@ interface VersionArrayItem {
   id: string;
   createdAt: number;
   title: string;
-  doi: string;
+  doi: string | null;
 }
 
 interface Keyword {

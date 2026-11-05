@@ -23,7 +23,10 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>("open", { default: false });
 
-const { documents, docTypeLabel, fileIcon } = useDocuments();
+const route = useRoute();
+const { documents, docTypeLabel, fileIcon } = useDocuments(
+  route.params.datasetId as string,
+);
 
 const selectedDocIds = ref<Set<string>>(new Set());
 const extractLoading = ref(false);
@@ -136,7 +139,9 @@ const onClose = () => {
                 size="36"
                 class="text-gray-300 dark:text-gray-600"
               />
-              <p class="mt-3 text-sm text-gray-400">No documents uploaded yet.</p>
+              <p class="mt-3 text-sm text-gray-400">
+                No documents uploaded yet.
+              </p>
               <UButton
                 class="mt-3"
                 size="sm"
@@ -177,7 +182,10 @@ const onClose = () => {
                   >
                     {{ doc.name }}
                   </p>
-                  <p v-if="docTypeLabel(doc.type)" class="mt-0.5 text-xs text-gray-400">
+                  <p
+                    v-if="docTypeLabel(doc.type)"
+                    class="mt-0.5 text-xs text-gray-400"
+                  >
                     {{ docTypeLabel(doc.type) }}
                   </p>
                 </div>
@@ -203,9 +211,13 @@ const onClose = () => {
                 class="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-gray-800 dark:bg-gray-800"
               >
                 <div class="flex items-center justify-between gap-2">
-                  <p class="text-sm font-medium text-gray-800 dark:text-gray-100">
+                  <p
+                    class="text-sm font-medium text-gray-800 dark:text-gray-100"
+                  >
                     {{ field.label }}
-                    <span v-if="field.mandatory" class="ml-0.5 text-red-500">*</span>
+                    <span v-if="field.mandatory" class="ml-0.5 text-red-500"
+                      >*</span
+                    >
                   </p>
                   <UBadge
                     :label="field.type"
@@ -237,7 +249,10 @@ const onClose = () => {
               :disabled="selectedDocIds.size === 0 || extractLoading"
               @click="onExtract"
             />
-            <p v-if="selectedDocIds.size === 0" class="text-center text-xs text-gray-400">
+            <p
+              v-if="selectedDocIds.size === 0"
+              class="text-center text-xs text-gray-400"
+            >
               Select at least one document to continue
             </p>
           </template>

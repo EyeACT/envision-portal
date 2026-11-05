@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { InternalApi } from "nitropack/types";
 definePageMeta({
   middleware: ["auth"],
 });
@@ -13,7 +14,10 @@ const { datasetId, requestId } = route.params as {
 
 const baseUrl = `/api/datasets/${datasetId}/requests/${requestId}`;
 
-const { data, error, refresh } = await useFetch(baseUrl);
+const { data, error, refresh } =
+  await useFetch<
+    InternalApi["/api/datasets/:datasetId/requests/:requestId"]["get"]
+  >(baseUrl);
 
 if (error.value) {
   toast.add({
@@ -51,7 +55,12 @@ type Action = "approve" | "reject" | "revoke";
 
 const ACTION_COPY: Record<
   Action,
-  { title: string; description: string; confirm: string; color: "success" | "error" | "warning" }
+  {
+    title: string;
+    description: string;
+    confirm: string;
+    color: "success" | "error" | "warning";
+  }
 > = {
   approve: {
     title: "Approve this request?",
@@ -193,8 +202,8 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
             </h1>
 
             <p class="text-gray-500 dark:text-gray-400">
-              Submitted {{ displayDateDifference(data.created) }} ago ·
-              Version {{ data.PublishedDataset.versionTitle }}
+              Submitted {{ displayDateDifference(data.created) }} ago · Version
+              {{ data.PublishedDataset.versionTitle }}
             </p>
           </div>
 
@@ -323,7 +332,10 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
               v-if="data.agreements.unsigned"
               class="flex items-center gap-2 text-sm"
             >
-              <Icon name="material-symbols:check-circle" class="text-green-500" />
+              <Icon
+                name="material-symbols:check-circle"
+                class="text-green-500"
+              />
 
               <ULink
                 :to="`${baseUrl}/agreements/unsigned`"
@@ -353,7 +365,9 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
               />
 
               <UButton
-                :label="data.agreements.unsigned ? 'Replace' : 'Send to requester'"
+                :label="
+                  data.agreements.unsigned ? 'Replace' : 'Send to requester'
+                "
                 icon="mynaui:send-solid"
                 :disabled="!unsignedFile"
                 :loading="uploading === 'unsigned'"
@@ -377,7 +391,10 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
               v-if="data.agreements.signed"
               class="flex items-center gap-2 text-sm"
             >
-              <Icon name="material-symbols:check-circle" class="text-green-500" />
+              <Icon
+                name="material-symbols:check-circle"
+                class="text-green-500"
+              />
 
               <ULink
                 :to="`${baseUrl}/agreements/signed`"
@@ -407,7 +424,10 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
               v-if="data.agreements.final"
               class="flex items-center gap-2 text-sm"
             >
-              <Icon name="material-symbols:check-circle" class="text-green-500" />
+              <Icon
+                name="material-symbols:check-circle"
+                class="text-green-500"
+              />
 
               <ULink
                 :to="`${baseUrl}/agreements/final`"
@@ -419,7 +439,10 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
               </ULink>
             </div>
 
-            <div v-if="canEditAgreements" class="flex flex-wrap items-end gap-3">
+            <div
+              v-if="canEditAgreements"
+              class="flex flex-wrap items-end gap-3"
+            >
               <UFileUpload
                 v-model="finalFile"
                 accept=".pdf,.doc,.docx"
@@ -454,7 +477,11 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
       <template #body>
         <div v-if="pendingAction" class="flex flex-col gap-4">
           <UFormField
-            :label="pendingAction === 'approve' ? 'Note (optional)' : 'Reason (optional)'"
+            :label="
+              pendingAction === 'approve'
+                ? 'Note (optional)'
+                : 'Reason (optional)'
+            "
             description="Shown to the requester on their request page."
           >
             <UTextarea v-model="actionComment" class="w-full" :rows="4" />

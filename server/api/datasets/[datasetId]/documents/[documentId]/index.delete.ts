@@ -1,8 +1,8 @@
 import {
   BlobServiceClient,
   BlockBlobClient,
-  BlobDeleteOptions,
-  BlobDeleteResponse,
+  type BlobDeleteOptions,
+  type BlobDeleteResponse,
 } from "@azure/storage-blob";
 
 export default defineEventHandler(async (event) => {

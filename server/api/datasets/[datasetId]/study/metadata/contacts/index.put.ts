@@ -2,7 +2,7 @@ import { StudyMetadataContactsSchema } from "#shared/utils/study_schemas";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as { datasetId: string };
 
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { studyContacts } = body.data;
+  const { studyContacts = [] } = body.data;
 
   const studyContactsToUpdate = studyContacts.filter((contact) => contact.id);
 

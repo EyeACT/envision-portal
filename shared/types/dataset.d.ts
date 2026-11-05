@@ -24,9 +24,9 @@ interface DiscoveryListDatasetCreator {
 
 export interface DiscoveryDatasetList {
   id: number;
-  canonicalId: string;
-  datasetId: string;
-  doi: string;
+  canonicalId: string | null;
+  datasetId: string | null;
+  doi: string | null;
   external: boolean;
   title: string;
   description: string;

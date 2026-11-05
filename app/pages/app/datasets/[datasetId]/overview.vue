@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import type { InternalApi } from "nitropack/types";
 definePageMeta({ middleware: ["auth"] });
 
 const route = useRoute();
 const toast = useToast();
 const { datasetId } = route.params as { datasetId: string };
 
-const { data: dataset, error } = await useFetch(`/api/datasets/${datasetId}`);
+const { data: dataset, error } = await useFetch<
+  InternalApi["/api/datasets/:datasetId"]["get"]
+>(`/api/datasets/${datasetId}`);
 const { data: storage, pending: storageLoading } = await useFetch(
   `/api/datasets/${datasetId}/storage`,
 );

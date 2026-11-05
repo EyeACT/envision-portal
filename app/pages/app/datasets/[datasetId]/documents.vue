@@ -68,6 +68,9 @@ const uploadLoading = ref(false);
 const uploadFile = ref<File | null>(null);
 const uploadName = ref("");
 const uploadType = ref<string | null>(null);
+const documentTypeItems: { label: string; value: string }[] = [
+  ...DOCUMENT_TYPES,
+];
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const dragOver = ref(false);
 
@@ -487,12 +490,13 @@ const onDelete = async () => {
             :ui="{ label: 'dark:text-white' }"
           >
             <USelect
-              v-model="uploadType"
-              :items="DOCUMENT_TYPES"
+              :model-value="uploadType ?? undefined"
+              :items="documentTypeItems"
               value-key="value"
               placeholder="Select a type..."
               :disabled="!uploadFile"
               class="w-full"
+              @update:model-value="uploadType = $event"
             />
           </UFormField>
 

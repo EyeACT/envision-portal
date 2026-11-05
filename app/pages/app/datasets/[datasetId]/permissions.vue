@@ -554,7 +554,7 @@ const copyInviteLink = async (row: PermissionRow) => {
                 :loading="roleUpdating"
                 :disabled="
                   updatingMemberId === row.member.userId ||
-                  row.member.userId == user.id
+                  row.member.userId == user?.id
                 "
                 :model-value="row.member.role"
                 class="w-full"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { InternalApi } from "nitropack/types";
 definePageMeta({
   layout: "public",
 });
@@ -46,9 +47,9 @@ const datasetIndexData = ref<DatasetIndexResponse | null>(null);
 
 const { datasetid } = route.params as { datasetid: string };
 
-const { data: dataset, error } = await useFetch(
-  `/api/discover/dataset/${datasetid}`,
-);
+const { data: dataset, error } = await useFetch<
+  InternalApi["/api/discover/dataset/:datasetid"]["get"]
+>(`/api/discover/dataset/${datasetid}`);
 
 if (error.value) {
   toast.add({

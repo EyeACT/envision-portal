@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { InternalApi } from "nitropack/types";
 import { validateCMDS } from "#shared/utils/cmdsValidator";
 import type {
   DatasetTreeNode,
@@ -25,7 +26,9 @@ const result = ref<ValidationResult | null>(null);
 const issueFilter = ref<"all" | "ERROR" | "WARNING">("all");
 const selectedDatatype = ref<string | null>(null);
 
-const { data, error } = await useFetch(`/api/datasets/${datasetId}`);
+const { data, error } = await useFetch<
+  InternalApi["/api/datasets/:datasetId"]["get"]
+>(`/api/datasets/${datasetId}`);
 
 if (error.value) {
   toast.add({
@@ -49,12 +52,14 @@ onMounted(() => {
 });
 
 const errorCount = computed(
-  () => result.value?.issues.filter((issue) => issue.severity === "ERROR").length ?? 0,
+  () =>
+    result.value?.issues.filter((issue) => issue.severity === "ERROR").length ??
+    0,
 );
 const warningCount = computed(
   () =>
-    result.value?.issues.filter((issue) => issue.severity === "WARNING").length ??
-    0,
+    result.value?.issues.filter((issue) => issue.severity === "WARNING")
+      .length ?? 0,
 );
 
 const filteredIssues = computed<Issue[]>(() => {
@@ -140,7 +145,8 @@ const findRootParticipantsTsv = (files: BrowserFile[]) => {
       parts: relativePathOf(file).split("/").filter(Boolean),
     }))
     .filter(
-      ({ parts }) => parts[parts.length - 1]?.toLowerCase() === "participants.tsv",
+      ({ parts }) =>
+        parts[parts.length - 1]?.toLowerCase() === "participants.tsv",
     )
     .sort((a, b) => a.parts.length - b.parts.length);
 
@@ -159,7 +165,8 @@ const onFolderSelected = async (event: Event) => {
 
   try {
     const firstPath = relativePathOf(files[0]!);
-    folderName.value = firstPath.split("/").filter(Boolean)[0] ?? "Selected folder";
+    folderName.value =
+      firstPath.split("/").filter(Boolean)[0] ?? "Selected folder";
 
     const scanned: ScannedFile[] = files.map((file) => ({
       relativePath: relativePathOf(file),
@@ -252,7 +259,9 @@ const onFolderSelected = async (event: Event) => {
             @click="openFolderPicker"
           />
 
-          <UCollapsible class="flex w-full max-w-md flex-col items-center gap-2">
+          <UCollapsible
+            class="flex w-full max-w-md flex-col items-center gap-2"
+          >
             <UButton
               color="neutral"
               variant="ghost"
@@ -280,7 +289,10 @@ const onFolderSelected = async (event: Event) => {
 
           <div class="max-w-lg space-y-1 text-sm text-gray-500">
             <p>Path and filename validation.</p>
-            <p>Selecting a dataset only performs validation. Files are never uploaded.</p>
+            <p>
+              Selecting a dataset only performs validation. Files are never
+              uploaded.
+            </p>
           </div>
         </div>
 
@@ -337,9 +349,7 @@ const onFolderSelected = async (event: Event) => {
             />
 
             <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <div
-                class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800"
-              >
+              <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                 <p class="text-sm text-gray-500">Files</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-white">
                   {{ result.summary.totalFiles }}
@@ -463,10 +473,7 @@ const onFolderSelected = async (event: Event) => {
               </div>
             </div>
 
-            <p
-              v-if="filteredIssues.length === 0"
-              class="text-sm text-gray-500"
-            >
+            <p v-if="filteredIssues.length === 0" class="text-sm text-gray-500">
               No issues in this view.
             </p>
 

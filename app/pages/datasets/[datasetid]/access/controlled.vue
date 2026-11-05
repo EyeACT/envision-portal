@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { InternalApi } from "nitropack/types";
 import * as z from "zod";
 import type { FormSubmitEvent } from "@nuxt/ui";
 
@@ -16,9 +17,9 @@ const loading = ref(false);
 
 const { datasetid } = route.params as { datasetid: string };
 
-const { data: dataset, error } = await useFetch(
-  `/api/discover/dataset/${datasetid}`,
-);
+const { data: dataset, error } = await useFetch<
+  InternalApi["/api/discover/dataset/:datasetid"]["get"]
+>(`/api/discover/dataset/${datasetid}`);
 
 if (error.value) {
   toast.add({

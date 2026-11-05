@@ -80,7 +80,6 @@ const state = reactive<Schema>({
   secondaryIdentifiers: [],
 });
 
-
 const { data, error } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/about`,
   {},
@@ -125,8 +124,6 @@ if (data.value) {
     schemeUri: condition.schemeUri,
   }));
 
-
-
   state.primaryIdentifier = {
     domain: data.value.primaryIdentifier?.identifierDomain || "",
     identifier: data.value.primaryIdentifier?.identifier || "",
@@ -146,23 +143,20 @@ if (data.value) {
     }),
   );
 
-
   originalStateString.value = JSON.stringify(state);
 }
 
-const hasConditionErrors = ref(false)
-const hasSecondaryIdentifierErrors = ref(false)
+const hasConditionErrors = ref(false);
+const hasSecondaryIdentifierErrors = ref(false);
 
 const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
-
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addSecondaryIdentifier = () => {
   state.secondaryIdentifiers.push({
@@ -265,7 +259,7 @@ const validate = (state: any): FormError[] => {
           message: "A name is required",
         });
       }
-      
+
       if (
         (keyword.classificationCode && !keyword.scheme) ||
         (!keyword.classificationCode && keyword.scheme)
@@ -273,12 +267,14 @@ const validate = (state: any): FormError[] => {
         errors.push(
           {
             name: `keywords[${index}].classificationCode`,
-            message: "Both identifier and scheme are required if either is provided",
+            message:
+              "Both identifier and scheme are required if either is provided",
           },
           {
             name: `keywords[${index}].scheme`,
-            message: "Both identifier and scheme are required if either is provided",
-          }
+            message:
+              "Both identifier and scheme are required if either is provided",
+          },
         );
       }
 
@@ -345,7 +341,10 @@ const validate = (state: any): FormError[] => {
     if (condition.deleted) return;
 
     if (!condition.name) {
-      errors.push({ name: `conditions[${index}].name`, message: "Name is required" });
+      errors.push({
+        name: `conditions[${index}].name`,
+        message: "Name is required",
+      });
     }
 
     if (
@@ -355,12 +354,14 @@ const validate = (state: any): FormError[] => {
       errors.push(
         {
           name: `conditions[${index}].classificationCode`,
-          message: "Both Identifier and scheme are required if either is provided",
+          message:
+            "Both Identifier and scheme are required if either is provided",
         },
         {
           name: `conditions[${index}].scheme`,
-          message: "Both Identifier and scheme are required if either is provided",
-        }
+          message:
+            "Both Identifier and scheme are required if either is provided",
+        },
       );
     }
 
@@ -452,7 +453,7 @@ const validate = (state: any): FormError[] => {
     const key = `${identifier.identifier?.trim().toLowerCase()}|${identifier.type?.trim().toLowerCase()}`;
     if (seenSecondaryIDs.has(key)) {
       errors.push({
-        name: `secondaryIdentifiers.$index.identifier`,
+        name: `secondaryIdentifiers[${index}].identifier`,
         message: "Duplicate secondary identifier with same identifier and type",
       });
     }
@@ -464,53 +465,53 @@ const validate = (state: any): FormError[] => {
 
     if (!identifier.identifier) {
       errors.push({
-        name: `secondaryIdentifiers.$index.identifier`,
+        name: `secondaryIdentifiers[${index}].identifier`,
         message: "Identifier is required",
       });
     }
 
     if (!identifier.type) {
       errors.push({
-        name: `secondaryIdentifiers.$index.type`,
+        name: `secondaryIdentifiers[${index}].type`,
         message: "Identifier type is required",
       });
     }
 
     if (identifier.domain && !isValidUrl(identifier.domain)) {
       errors.push({
-        name: `secondaryIdentifiers.$index.domain`,
+        name: `secondaryIdentifiers[${index}].domain`,
         message: "Invalid URL format",
       });
     }
 
     if (identifier.link && !isValidUrl(identifier.link)) {
       errors.push({
-        name: `secondaryIdentifiers.$index.link`,
+        name: `secondaryIdentifiers[${index}].link`,
         message: "Invalid URL format",
       });
     }
   });
 
   hasConditionErrors.value = errors.some(
-    ({name}) => 
-    name === "conditions" || 
-    name?.startsWith("conditions[") || 
-    name?.startsWith("conditions."),
-  )
+    ({ name }) =>
+      name === "conditions" ||
+      name?.startsWith("conditions[") ||
+      name?.startsWith("conditions."),
+  );
 
   hasSecondaryIdentifierErrors.value = errors.some(
-    ({name}) => 
+    ({ name }) =>
       name === "secondaryIdentifiers" ||
       name?.startsWith("secondaryIdentifiers[") ||
-      name?.startsWith("secondaryIdentifiers.")
-  )
+      name?.startsWith("secondaryIdentifiers."),
+  );
 
-  console.log(errors)
+  console.log(errors);
   return errors;
 };
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
-  console.log("Submitting")
+  console.log("Submitting");
   saveLoading.value = true;
   isSubmitting.value = true;
 
@@ -563,10 +564,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   console.log(JSON.stringify(b, null, 2));
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/about`, {
-      body: b,
-      method: "PUT",
-    });
+    const res = await $fetch(
+      `/api/datasets/${datasetId}/study/metadata/about`,
+      {
+        body: b,
+        method: "PUT",
+      },
+    );
     console.log(res);
 
     toast.add({
@@ -592,9 +596,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -617,18 +620,28 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white justify-between">About</h1>
+            <h1
+              class="justify-between text-2xl font-bold text-gray-900 dark:text-white"
+            >
+              About
+            </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
             Some basic information about the study is displayed here.
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Description</h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Description
+            </h2>
 
             <UFormField label="Brief Summary" name="briefSummary" required>
               <UTextarea
@@ -648,12 +661,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Keywords</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Keywords
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add at least one keyword that describes the study. These will be used to help find the study when searching for it.
+                Please add at least one keyword that describes the study. These
+                will be used to help find the study when searching for it.
               </p>
             </div>
 
@@ -677,24 +695,52 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`keywords[${index}].name`" required>
-                    <UInput v-model="item.name" placeholder="Artificial Intelligence" />
+                  <UFormField
+                    label="Name"
+                    :name="`keywords[${index}].name`"
+                    required
+                  >
+                    <UInput
+                      v-model="item.name"
+                      placeholder="Artificial Intelligence"
+                    />
                   </UFormField>
 
-                  <UFormField label="Identifier" :name="`keywords[${index}].classificationCode`">
-                    <UInput v-model="item.classificationCode" placeholder="D001185" />
+                  <UFormField
+                    label="Identifier"
+                    :name="`keywords[${index}].classificationCode`"
+                  >
+                    <UInput
+                      v-model="item.classificationCode"
+                      placeholder="D001185"
+                    />
                   </UFormField>
 
-                  <UFormField label="Identifier Scheme" :name="`keywords[${index}].scheme`">
+                  <UFormField
+                    label="Identifier Scheme"
+                    :name="`keywords[${index}].scheme`"
+                  >
                     <UInput v-model="item.scheme" placeholder="MeSH" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" :name="`keywords[${index}].schemeUri`">
-                    <UInput v-model="item.schemeUri" placeholder="https://meshb.nlm.nih.gov/" />
+                  <UFormField
+                    label="Scheme URI"
+                    :name="`keywords[${index}].schemeUri`"
+                  >
+                    <UInput
+                      v-model="item.schemeUri"
+                      placeholder="https://meshb.nlm.nih.gov/"
+                    />
                   </UFormField>
 
-                  <UFormField label="Keyword URI" :name="`keywords[${index}].keywordUri`">
-                    <UInput v-model="item.keywordUri" placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185" />
+                  <UFormField
+                    label="Keyword URI"
+                    :name="`keywords[${index}].keywordUri`"
+                  >
+                    <UInput
+                      v-model="item.keywordUri"
+                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                    />
                   </UFormField>
                 </div>
               </CardCollapsible>
@@ -711,15 +757,19 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Conditions
-                <span class="text-red-500 text-sm">*</span>
+                <span class="text-sm text-red-500">*</span>
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some conditions that describe the study. These are usually the diseases or conditions that the study is investigating.
+                Please add some conditions that describe the study. These are
+                usually the diseases or conditions that the study is
+                investigating.
               </p>
             </div>
 
@@ -743,24 +793,49 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`conditions[${index}].name`" required>
+                  <UFormField
+                    label="Name"
+                    :name="`conditions[${index}].name`"
+                    required
+                  >
                     <UInput v-model="item.name" placeholder="Glaucoma" />
                   </UFormField>
 
-                  <UFormField label="Identifier" :name="`conditions[${index}].classificationCode`">
-                    <UInput v-model="item.classificationCode" placeholder="D001185" />
+                  <UFormField
+                    label="Identifier"
+                    :name="`conditions[${index}].classificationCode`"
+                  >
+                    <UInput
+                      v-model="item.classificationCode"
+                      placeholder="D001185"
+                    />
                   </UFormField>
 
-                  <UFormField label="Identifier Scheme" :name="`conditions[${index}].scheme`">
+                  <UFormField
+                    label="Identifier Scheme"
+                    :name="`conditions[${index}].scheme`"
+                  >
                     <UInput v-model="item.scheme" placeholder="MeSH" />
                   </UFormField>
 
-                  <UFormField label="Scheme URI" :name="`conditions[${index}].schemeUri`">
-                    <UInput v-model="item.schemeUri" placeholder="https://meshb.nlm.nih.gov/" />
+                  <UFormField
+                    label="Scheme URI"
+                    :name="`conditions[${index}].schemeUri`"
+                  >
+                    <UInput
+                      v-model="item.schemeUri"
+                      placeholder="https://meshb.nlm.nih.gov/"
+                    />
                   </UFormField>
 
-                  <UFormField label="Condition URI" :name="`conditions[${index}].conditionUri`">
-                    <UInput v-model="item.conditionUri" placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185" />
+                  <UFormField
+                    label="Condition URI"
+                    :name="`conditions[${index}].conditionUri`"
+                  >
+                    <UInput
+                      v-model="item.conditionUri"
+                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                    />
                   </UFormField>
                 </div>
               </CardCollapsible>
@@ -770,24 +845,35 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UButton
                 icon="i-lucide-plus"
                 variant="outline"
-                color="primary"
                 label="Add Condition"
                 class="w-fit"
                 :color="hasConditionErrors ? 'error' : 'primary'"
                 @click="addCondition"
               />
-              <span v-if="hasConditionErrors" class="text-sm text-red-500" role="alert">
+              <span
+                v-if="hasConditionErrors"
+                class="text-sm text-red-500"
+                role="alert"
+              >
                 Missing conditions
               </span>
             </div>
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Primary Identifier</h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Primary Identifier
+            </h2>
 
-            <UFormField label="Identifier" name="primaryIdentifier.identifier" required>
+            <UFormField
+              label="Identifier"
+              name="primaryIdentifier.identifier"
+              required
+            >
               <UInput
                 v-model="state.primaryIdentifier.identifier"
                 class="w-full"
@@ -795,34 +881,54 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <UFormField label="Identifier Type" name="primaryIdentifier.type" required>
+            <UFormField
+              label="Identifier Type"
+              name="primaryIdentifier.type"
+              required
+            >
               <USelect
                 v-model="state.primaryIdentifier.type"
                 class="w-full"
                 placeholder="NIH Grant Number"
-                :items="FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions"
+                :items="
+                  FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions
+                "
               />
             </UFormField>
 
-            <UFormField label="Identifier Domain" name="primaryIdentifier.domain">
-              <UInput v-model="state.primaryIdentifier.domain" placeholder="https://doi.org" />
+            <UFormField
+              label="Identifier Domain"
+              name="primaryIdentifier.domain"
+            >
+              <UInput
+                v-model="state.primaryIdentifier.domain"
+                placeholder="https://doi.org"
+              />
             </UFormField>
 
             <UFormField label="Identifier Link" name="primaryIdentifier.link">
-              <UInput v-model="state.primaryIdentifier.link" placeholder="https://doi.org/10.1234/1234567890" />
+              <UInput
+                v-model="state.primaryIdentifier.link"
+                placeholder="https://doi.org/10.1234/1234567890"
+              />
             </UFormField>
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alternative Identifiers 
-                <span class="text-red-500 text-sm">*</span>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Alternative Identifiers
+                <span class="text-sm text-red-500">*</span>
               </h2>
 
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some secondary identifiers that describe the study. These are usually any other identifiers that are not the primary identifier.
+                Please add some secondary identifiers that describe the study.
+                These are usually any other identifiers that are not the primary
+                identifier.
               </p>
             </div>
 
@@ -846,25 +952,50 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Identifier" :name="`secondaryIdentifiers.$index.identifier`" required>
-                    <UInput v-model="item.identifier" placeholder="10.1234/1234567890" />
+                  <UFormField
+                    label="Identifier"
+                    :name="`secondaryIdentifiers[${index}].identifier`"
+                    required
+                  >
+                    <UInput
+                      v-model="item.identifier"
+                      placeholder="10.1234/1234567890"
+                    />
                   </UFormField>
 
-                  <UFormField label="Identifier Type" :name="`secondaryIdentifiers.$index.type`" required>
+                  <UFormField
+                    label="Identifier Type"
+                    :name="`secondaryIdentifiers[${index}].type`"
+                    required
+                  >
                     <USelect
                       v-model="item.type"
                       class="w-full"
                       placeholder="NIH Grant Number"
-                      :items="FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions"
+                      :items="
+                        FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions
+                      "
                     />
                   </UFormField>
 
-                  <UFormField label="Identifier Domain" :name="`secondaryIdentifiers.$index.domain`">
-                    <UInput v-model="item.domain" placeholder="https://doi.org" />
+                  <UFormField
+                    label="Identifier Domain"
+                    :name="`secondaryIdentifiers[${index}].domain`"
+                  >
+                    <UInput
+                      v-model="item.domain"
+                      placeholder="https://doi.org"
+                    />
                   </UFormField>
 
-                  <UFormField label="Identifier Link" :name="`secondaryIdentifiers.$index.link`">
-                    <UInput v-model="item.link" placeholder="https://doi.org/10.1234/1234567890" />
+                  <UFormField
+                    label="Identifier Link"
+                    :name="`secondaryIdentifiers[${index}].link`"
+                  >
+                    <UInput
+                      v-model="item.link"
+                      placeholder="https://doi.org/10.1234/1234567890"
+                    />
                   </UFormField>
                 </div>
               </CardCollapsible>
@@ -883,7 +1014,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="study-metadata-about-form"
         type="submit"
@@ -896,7 +1027,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -904,11 +1035,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>
