@@ -196,9 +196,7 @@ export const DatasetMetadataDataManagementSchema = z
   .object({
     consent: consentSchema,
     deidentLevel: deIdentSchema,
-    subjects: z
-      .array(subjectSchema.superRefine(subjectRefine))
-      .min(1, "At least one subject is required"),
+    subjects: z.array(subjectSchema.superRefine(subjectRefine)),
   })
   .strict();
 

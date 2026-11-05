@@ -177,12 +177,7 @@ const validate = (state: any): FormError[] => {
 
   const activeSubjects = state.subjects?.filter((s: any) => !s.deleted) ?? [];
 
-  if (activeSubjects.length === 0) {
-    errors.push({
-      name: "subjects",
-      message: "Please add at least one subject",
-    });
-  } else {
+  if (activeSubjects.length > 0) {
     const seenSubjects = new Set<string>();
     activeSubjects.forEach((subject: any, index: number) => {
       const key = subject.subject?.trim().toLowerCase();
@@ -483,7 +478,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Subjects
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add subjects for this dataset.
+                Optionally, add any subjects for this dataset.
               </p>
             </div>
 
