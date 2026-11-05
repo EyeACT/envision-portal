@@ -159,7 +159,8 @@ if (data.value) {
     name: data.value.managingOrganization?.name ?? "",
     identifier: data.value.managingOrganization?.identifier ?? "",
     identifierScheme: data.value.managingOrganization?.identifierScheme ?? "",
-    identifierSchemeUri: data.value.managingOrganization?.identifierSchemeUri ?? "",
+    identifierSchemeUri:
+      data.value.managingOrganization?.identifierSchemeUri ?? "",
   };
 
   originalStateString.value = JSON.stringify(state);
@@ -169,11 +170,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addContributor = () => {
   state.contributors.push({
@@ -258,7 +258,8 @@ const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
 
   // Validate creators
-  const activeCreators = state.creators?.filter((creator: any) => !creator.deleted) ?? [];
+  const activeCreators =
+    state.creators?.filter((creator: any) => !creator.deleted) ?? [];
 
   if (activeCreators.length === 0) {
     errors.push({
@@ -272,7 +273,8 @@ const validate = (state: any): FormError[] => {
       if (seenCreators.has(key)) {
         errors.push({
           name: `creators[${index}].givenName`,
-          message: "Duplicate creator with same given name, family name, and name type.",
+          message:
+            "Duplicate creator with same given name, family name, and name type.",
         });
       }
       seenCreators.add(key);
@@ -298,16 +300,20 @@ const validate = (state: any): FormError[] => {
         });
       }
       if (
-        (creator.nameIdentifier.trim() !== "" && creator.nameIdentifierScheme.trim() === "") ||
-        (creator.nameIdentifier.trim() === "" && creator.nameIdentifierScheme.trim() !== "")
+        (creator.nameIdentifier.trim() !== "" &&
+          creator.nameIdentifierScheme.trim() === "") ||
+        (creator.nameIdentifier.trim() === "" &&
+          creator.nameIdentifierScheme.trim() !== "")
       ) {
         errors.push({
           name: `creators[${index}].nameIdentifier`,
-          message: "Identifier scheme is required when identifier scheme is provided",
+          message:
+            "Identifier scheme is required when identifier scheme is provided",
         });
         errors.push({
           name: `creators[${index}].nameIdentifierScheme`,
-          message: "Identifier value is required when identifier value is provided",
+          message:
+            "Identifier value is required when identifier value is provided",
         });
       }
       if (
@@ -330,7 +336,10 @@ const validate = (state: any): FormError[] => {
           message: "Invalid ROR value",
         });
       }
-      if (creator.nameIdentifierSchemeUri && !isValidUrl(creator.nameIdentifierSchemeUri)) {
+      if (
+        creator.nameIdentifierSchemeUri &&
+        !isValidUrl(creator.nameIdentifierSchemeUri)
+      ) {
         errors.push({
           name: `creators[${index}].nameIdentifierSchemeUri`,
           message: "Invalid URL",
@@ -346,16 +355,20 @@ const validate = (state: any): FormError[] => {
         }
 
         if (
-          (affiliation.identifier?.trim() !== "" && affiliation.identifierScheme?.trim() === "") ||
-          (affiliation.identifier?.trim() === "" && affiliation.identifierScheme?.trim() !== "")
+          (affiliation.identifier?.trim() !== "" &&
+            affiliation.identifierScheme?.trim() === "") ||
+          (affiliation.identifier?.trim() === "" &&
+            affiliation.identifierScheme?.trim() !== "")
         ) {
           errors.push({
             name: `creators[${index}].affiliations[${affIndex}].identifier`,
-            message: "Identifier scheme is required when identifier scheme is provided",
+            message:
+              "Identifier scheme is required when identifier scheme is provided",
           });
           errors.push({
             name: `creators[${index}].affiliations[${affIndex}].identifierScheme`,
-            message: "Identifier value is required when identifier value is provided",
+            message:
+              "Identifier value is required when identifier value is provided",
           });
         }
         if (
@@ -378,7 +391,10 @@ const validate = (state: any): FormError[] => {
             message: "Invalid ROR value",
           });
         }
-        if (affiliation.identifierSchemeUri && !isValidUrl(affiliation.identifierSchemeUri)) {
+        if (
+          affiliation.identifierSchemeUri &&
+          !isValidUrl(affiliation.identifierSchemeUri)
+        ) {
           errors.push({
             name: `creators[${index}].affiliations[${affIndex}].identifierSchemeUri`,
             message: "Invalid URL",
@@ -389,21 +405,19 @@ const validate = (state: any): FormError[] => {
   }
 
   // Validate contributors
-  const activeContributors = state.contributors?.filter((contributor: any) => !contributor.deleted) ?? [];
+  const activeContributors =
+    state.contributors?.filter((contributor: any) => !contributor.deleted) ??
+    [];
 
-  if (activeContributors.length === 0) {
-    errors.push({
-      name: "contributors",
-      message: "Please add at least one contributor",
-    });
-  } else {
+  if (activeContributors.length > 0) {
     const seenContributors = new Set<string>();
     activeContributors.forEach((contributor: any, index: number) => {
       const key = `${contributor.givenName?.trim().toLowerCase()}|${contributor.familyName?.trim().toLowerCase()}|${contributor.nameType?.trim().toLowerCase()}|${contributor.contributorType?.trim().toLowerCase()}`;
       if (seenContributors.has(key)) {
         errors.push({
           name: `contributors[${index}].givenName`,
-          message: "Duplicate contributor. Contributors are unique by name, name type, and contributor type",
+          message:
+            "Duplicate contributor. Contributors are unique by name, name type, and contributor type",
         });
       }
       seenContributors.add(key);
@@ -429,16 +443,20 @@ const validate = (state: any): FormError[] => {
         });
       }
       if (
-        (contributor.nameIdentifier.trim() !== "" && contributor.nameIdentifierScheme.trim() === "") ||
-        (contributor.nameIdentifier.trim() === "" && contributor.nameIdentifierScheme.trim() !== "")
+        (contributor.nameIdentifier.trim() !== "" &&
+          contributor.nameIdentifierScheme.trim() === "") ||
+        (contributor.nameIdentifier.trim() === "" &&
+          contributor.nameIdentifierScheme.trim() !== "")
       ) {
         errors.push({
           name: `contributors[${index}].nameIdentifier`,
-          message: "Identifier scheme is required when identifier scheme is provided",
+          message:
+            "Identifier scheme is required when identifier scheme is provided",
         });
         errors.push({
           name: `contributors[${index}].nameIdentifierScheme`,
-          message: "Identifier value is required when identifier value is provided",
+          message:
+            "Identifier value is required when identifier value is provided",
         });
       }
       if (
@@ -461,7 +479,10 @@ const validate = (state: any): FormError[] => {
           message: "Invalid ROR value",
         });
       }
-      if (contributor.nameIdentifierSchemeUri && !isValidUrl(contributor.nameIdentifierSchemeUri)) {
+      if (
+        contributor.nameIdentifierSchemeUri &&
+        !isValidUrl(contributor.nameIdentifierSchemeUri)
+      ) {
         errors.push({
           name: `contributors[${index}].nameIdentifierSchemeUri`,
           message: "Invalid URL",
@@ -477,16 +498,20 @@ const validate = (state: any): FormError[] => {
         }
 
         if (
-          (affiliation.identifier?.trim() !== "" && affiliation.identifierScheme?.trim() === "") ||
-          (affiliation.identifier?.trim() === "" && affiliation.identifierScheme?.trim() !== "")
+          (affiliation.identifier?.trim() !== "" &&
+            affiliation.identifierScheme?.trim() === "") ||
+          (affiliation.identifier?.trim() === "" &&
+            affiliation.identifierScheme?.trim() !== "")
         ) {
           errors.push({
             name: `contributors[${index}].affiliations[${affIndex}].identifier`,
-            message: "Identifier scheme is required when identifier scheme is provided",
+            message:
+              "Identifier scheme is required when identifier scheme is provided",
           });
           errors.push({
             name: `contributors[${index}].affiliations[${affIndex}].identifierScheme`,
-            message: "Identifier value is required when identifier value is provided",
+            message:
+              "Identifier value is required when identifier value is provided",
           });
         }
         if (
@@ -509,7 +534,10 @@ const validate = (state: any): FormError[] => {
             message: "Invalid ROR value",
           });
         }
-        if (affiliation.identifierSchemeUri && !isValidUrl(affiliation.identifierSchemeUri)) {
+        if (
+          affiliation.identifierSchemeUri &&
+          !isValidUrl(affiliation.identifierSchemeUri)
+        ) {
           errors.push({
             name: `contributors[${index}].affiliations[${affIndex}].identifierSchemeUri`,
             message: "Invalid URL",
@@ -520,7 +548,8 @@ const validate = (state: any): FormError[] => {
   }
 
   // Validate funders
-  const activeFunders = state.funders?.filter((funder: any) => !funder.deleted) ?? [];
+  const activeFunders =
+    state.funders?.filter((funder: any) => !funder.deleted) ?? [];
 
   if (activeFunders.length === 0) {
     errors.push({
@@ -534,7 +563,8 @@ const validate = (state: any): FormError[] => {
       if (seenFunders.has(key)) {
         errors.push({
           name: `funders[${index}].name`,
-          message: "Duplicate funder. Funders are unique by name and award number",
+          message:
+            "Duplicate funder. Funders are unique by name and award number",
         });
       }
       seenFunders.add(key);
@@ -549,8 +579,10 @@ const validate = (state: any): FormError[] => {
       }
 
       if (
-        (funder.identifier?.trim() !== "" && funder.identifierType?.trim() === "") ||
-        (funder.identifier?.trim() === "" && funder.identifierType?.trim() !== "")
+        (funder.identifier?.trim() !== "" &&
+          funder.identifierType?.trim() === "") ||
+        (funder.identifier?.trim() === "" &&
+          funder.identifierType?.trim() !== "")
       ) {
         errors.push({
           name: `funders[${index}].identifier`,
@@ -584,7 +616,10 @@ const validate = (state: any): FormError[] => {
         });
       }
 
-      if (funder.identifierSchemeUri && !isValidUrl(funder.identifierSchemeUri)) {
+      if (
+        funder.identifierSchemeUri &&
+        !isValidUrl(funder.identifierSchemeUri)
+      ) {
         errors.push({
           name: `funders[${index}].identifierSchemeUri`,
           message: "Invalid Identifier Scheme URI",
@@ -608,12 +643,15 @@ const validate = (state: any): FormError[] => {
     });
   }
   if (
-    (state.managingOrganization.identifier.trim() !== "" && state.managingOrganization.identifierScheme.trim() === "") ||
-    (state.managingOrganization.identifier.trim() === "" && state.managingOrganization.identifierScheme.trim() !== "")
+    (state.managingOrganization.identifier.trim() !== "" &&
+      state.managingOrganization.identifierScheme.trim() === "") ||
+    (state.managingOrganization.identifier.trim() === "" &&
+      state.managingOrganization.identifierScheme.trim() !== "")
   ) {
     errors.push({
       name: "managingOrganization.identifier",
-      message: "Identifier scheme is required when identifier scheme is provided",
+      message:
+        "Identifier scheme is required when identifier scheme is provided",
     });
     errors.push({
       name: "managingOrganization.identifierScheme",
@@ -640,7 +678,10 @@ const validate = (state: any): FormError[] => {
       message: "Invalid ROR value",
     });
   }
-  if (state.managingOrganization.identifierSchemeUri && !isValidUrl(state.managingOrganization.identifierSchemeUri)) {
+  if (
+    state.managingOrganization.identifierSchemeUri &&
+    !isValidUrl(state.managingOrganization.identifierSchemeUri)
+  ) {
     errors.push({
       name: "managingOrganization.identifierSchemeUri",
       message: "Invalid URL",
@@ -730,9 +771,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -752,16 +792,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Team</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Team
+            </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
             Some basic information about the dataset is displayed here.
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -778,7 +824,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-show="!item.deleted"
                 :key="item.id"
                 class="my-1 shadow-none"
-                :title="item.givenName || item.familyName ? `${item.givenName} ${item.familyName}` : `Creator ${index + 1}`"
+                :title="
+                  item.givenName || item.familyName
+                    ? `${item.givenName} ${item.familyName}`
+                    : `Creator ${index + 1}`
+                "
                 bordered
               >
                 <template #header-extra>
@@ -792,7 +842,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name Type" :name="`creators[${index}].nameType`" required>
+                  <UFormField
+                    label="Name Type"
+                    :name="`creators[${index}].nameType`"
+                    required
+                  >
                     <USelect
                       v-model="item.nameType"
                       class="w-full"
@@ -802,75 +856,174 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </UFormField>
 
                   <div class="flex w-full gap-3">
-                    <UFormField label="Given Name" :name="`creators[${index}].givenName`" class="w-full" required>
-                      <UInput v-model="item.givenName" placeholder="John" class="w-full" />
+                    <UFormField
+                      label="Given Name"
+                      :name="`creators[${index}].givenName`"
+                      class="w-full"
+                      required
+                    >
+                      <UInput
+                        v-model="item.givenName"
+                        placeholder="John"
+                        class="w-full"
+                      />
                     </UFormField>
 
-                    <UFormField label="Family Name" :name="`creators[${index}].familyName`" class="w-full" required>
-                      <UInput v-model="item.familyName" placeholder="Doe" class="w-full" />
+                    <UFormField
+                      label="Family Name"
+                      :name="`creators[${index}].familyName`"
+                      class="w-full"
+                      required
+                    >
+                      <UInput
+                        v-model="item.familyName"
+                        placeholder="Doe"
+                        class="w-full"
+                      />
                     </UFormField>
                   </div>
 
                   <div class="flex w-full gap-3">
-                    <UFormField label="Name Identifier" :name="`creators[${index}].nameIdentifier`" class="w-full">
-                      <UInput v-model="item.nameIdentifier" placeholder="0000-0000-0000-0000" class="w-full" />
+                    <UFormField
+                      label="Name Identifier"
+                      :name="`creators[${index}].nameIdentifier`"
+                      class="w-full"
+                    >
+                      <UInput
+                        v-model="item.nameIdentifier"
+                        placeholder="0000-0000-0000-0000"
+                        class="w-full"
+                      />
                     </UFormField>
 
-                    <UFormField label="Name Identifier Scheme" :name="`creators[${index}].nameIdentifierScheme`" class="w-full">
-                      <UInput v-model="item.nameIdentifierScheme" placeholder="ORCID" class="w-full" />
+                    <UFormField
+                      label="Name Identifier Scheme"
+                      :name="`creators[${index}].nameIdentifierScheme`"
+                      class="w-full"
+                    >
+                      <UInput
+                        v-model="item.nameIdentifierScheme"
+                        placeholder="ORCID"
+                        class="w-full"
+                      />
                     </UFormField>
 
-                    <UFormField label="Name Identifier Scheme URI" :name="`creators[${index}].nameIdentifierSchemeUri`" class="w-full">
-                      <UInput v-model="item.nameIdentifierSchemeUri" placeholder="https://orcid.org" class="w-full" />
+                    <UFormField
+                      label="Name Identifier Scheme URI"
+                      :name="`creators[${index}].nameIdentifierSchemeUri`"
+                      class="w-full"
+                    >
+                      <UInput
+                        v-model="item.nameIdentifierSchemeUri"
+                        placeholder="https://orcid.org"
+                        class="w-full"
+                      />
                     </UFormField>
                   </div>
 
                   <UFormField label="Affiliations" name="affiliations">
-                    <div v-for="(affiliation, affIndex) in item.affiliations" :key="affIndex" class="mb-2 flex gap-2">
+                    <div
+                      v-for="(affiliation, affIndex) in item.affiliations"
+                      :key="affIndex"
+                      class="mb-2 flex gap-2"
+                    >
                       <div class="flex w-full flex-col gap-2">
-                        <UFormField label="Name" :name="`creators[${index}].affiliations[${affIndex}].affiliation`" required>
-                          <UInput v-model="affiliation.affiliation" class="w-full" placeholder="University of Example" />
+                        <UFormField
+                          label="Name"
+                          :name="`creators[${index}].affiliations[${affIndex}].affiliation`"
+                          required
+                        >
+                          <UInput
+                            v-model="affiliation.affiliation"
+                            class="w-full"
+                            placeholder="University of Example"
+                          />
                         </UFormField>
 
                         <div class="flex w-full gap-2">
-                          <UFormField label="Identifier" :name="`creators[${index}].affiliations[${affIndex}].identifier`" class="w-full">
-                            <UInput v-model="affiliation.identifier" class="w-full" placeholder="1234567890" />
+                          <UFormField
+                            label="Identifier"
+                            :name="`creators[${index}].affiliations[${affIndex}].identifier`"
+                            class="w-full"
+                          >
+                            <UInput
+                              v-model="affiliation.identifier"
+                              class="w-full"
+                              placeholder="1234567890"
+                            />
                           </UFormField>
 
-                          <UFormField label="Identifier Scheme" :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`" class="w-full">
-                            <UInput v-model="affiliation.identifierScheme" class="w-full" placeholder="ROR" />
+                          <UFormField
+                            label="Identifier Scheme"
+                            :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`"
+                            class="w-full"
+                          >
+                            <UInput
+                              v-model="affiliation.identifierScheme"
+                              class="w-full"
+                              placeholder="ROR"
+                            />
                           </UFormField>
 
-                          <UFormField label="Identifier Scheme URI" :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`" class="w-full">
-                            <UInput v-model="affiliation.identifierSchemeUri" class="w-full" placeholder="https://ror.org" />
+                          <UFormField
+                            label="Identifier Scheme URI"
+                            :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`"
+                            class="w-full"
+                          >
+                            <UInput
+                              v-model="affiliation.identifierSchemeUri"
+                              class="w-full"
+                              placeholder="https://ror.org"
+                            />
                           </UFormField>
                         </div>
                       </div>
 
                       <div class="flex items-end pb-1">
-                        <UButton size="sm" color="error" variant="outline" icon="i-lucide-trash" @click="item.affiliations.splice(affIndex, 1)" />
+                        <UButton
+                          size="sm"
+                          color="error"
+                          variant="outline"
+                          icon="i-lucide-trash"
+                          @click="item.affiliations.splice(affIndex, 1)"
+                        />
                       </div>
                     </div>
 
                     <UButton
                       size="sm"
-                      class="w-full mt-2"
+                      class="mt-2 w-full"
                       color="success"
                       variant="outline"
                       label="Add Affiliation"
                       icon="i-lucide-plus"
-                      @click="item.affiliations.push({ affiliation: '', identifier: '', identifierScheme: '', identifierSchemeUri: '' })"
+                      @click="
+                        item.affiliations.push({
+                          affiliation: '',
+                          identifier: '',
+                          identifierScheme: '',
+                          identifierSchemeUri: '',
+                        })
+                      "
                     />
                   </UFormField>
                 </div>
               </CardCollapsible>
             </UFormField>
 
-            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Creator" @click="addCreator" />
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Creator"
+              @click="addCreator"
+            />
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -887,7 +1040,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-show="!item.deleted"
                 :key="item.id"
                 class="my-1 shadow-none"
-                :title="item.givenName || item.familyName ? `${item.givenName} ${item.familyName}` : `Contributor ${index + 1}`"
+                :title="
+                  item.givenName || item.familyName
+                    ? `${item.givenName} ${item.familyName}`
+                    : `Contributor ${index + 1}`
+                "
                 bordered
               >
                 <template #header-extra>
@@ -901,7 +1058,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Contributor Type" :name="`contributors[${index}].contributorType`" required>
+                  <UFormField
+                    label="Contributor Type"
+                    :name="`contributors[${index}].contributorType`"
+                    required
+                  >
                     <USelect
                       v-model="item.contributorType"
                       class="w-full"
@@ -910,7 +1071,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField label="Name Type" :name="`contributors[${index}].nameType`" required>
+                  <UFormField
+                    label="Name Type"
+                    :name="`contributors[${index}].nameType`"
+                    required
+                  >
                     <USelect
                       v-model="item.nameType"
                       class="w-full"
@@ -920,75 +1085,174 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </UFormField>
 
                   <div class="flex w-full gap-3">
-                    <UFormField label="Given Name" :name="`contributors[${index}].givenName`" class="w-full" required>
-                      <UInput v-model="item.givenName" placeholder="John" class="w-full" />
+                    <UFormField
+                      label="Given Name"
+                      :name="`contributors[${index}].givenName`"
+                      class="w-full"
+                      required
+                    >
+                      <UInput
+                        v-model="item.givenName"
+                        placeholder="John"
+                        class="w-full"
+                      />
                     </UFormField>
 
-                    <UFormField label="Family Name" :name="`contributors[${index}].familyName`" class="w-full" required>
-                      <UInput v-model="item.familyName" placeholder="Doe" class="w-full" />
+                    <UFormField
+                      label="Family Name"
+                      :name="`contributors[${index}].familyName`"
+                      class="w-full"
+                      required
+                    >
+                      <UInput
+                        v-model="item.familyName"
+                        placeholder="Doe"
+                        class="w-full"
+                      />
                     </UFormField>
                   </div>
 
                   <div class="flex w-full gap-3">
-                    <UFormField label="Name Identifier" :name="`contributors[${index}].nameIdentifier`" class="w-full">
-                      <UInput v-model="item.nameIdentifier" placeholder="0000-0000-0000-0000" class="w-full" />
+                    <UFormField
+                      label="Name Identifier"
+                      :name="`contributors[${index}].nameIdentifier`"
+                      class="w-full"
+                    >
+                      <UInput
+                        v-model="item.nameIdentifier"
+                        placeholder="0000-0000-0000-0000"
+                        class="w-full"
+                      />
                     </UFormField>
 
-                    <UFormField label="Name Identifier Scheme" :name="`contributors[${index}].nameIdentifierScheme`" class="w-full">
-                      <UInput v-model="item.nameIdentifierScheme" placeholder="ORCID" class="w-full" />
+                    <UFormField
+                      label="Name Identifier Scheme"
+                      :name="`contributors[${index}].nameIdentifierScheme`"
+                      class="w-full"
+                    >
+                      <UInput
+                        v-model="item.nameIdentifierScheme"
+                        placeholder="ORCID"
+                        class="w-full"
+                      />
                     </UFormField>
 
-                    <UFormField label="Name Identifier Scheme URI" :name="`contributors[${index}].nameIdentifierSchemeUri`" class="w-full">
-                      <UInput v-model="item.nameIdentifierSchemeUri" placeholder="https://orcid.org" class="w-full" />
+                    <UFormField
+                      label="Name Identifier Scheme URI"
+                      :name="`contributors[${index}].nameIdentifierSchemeUri`"
+                      class="w-full"
+                    >
+                      <UInput
+                        v-model="item.nameIdentifierSchemeUri"
+                        placeholder="https://orcid.org"
+                        class="w-full"
+                      />
                     </UFormField>
                   </div>
 
                   <UFormField label="Affiliations" name="affiliations">
-                    <div v-for="(affiliation, affIndex) in item.affiliations" :key="affIndex" class="mb-2 flex gap-2">
+                    <div
+                      v-for="(affiliation, affIndex) in item.affiliations"
+                      :key="affIndex"
+                      class="mb-2 flex gap-2"
+                    >
                       <div class="flex w-full flex-col gap-2">
-                        <UFormField label="Name" :name="`creators[${index}].affiliations[${affIndex}].affiliation`" required>
-                          <UInput v-model="affiliation.affiliation" class="w-full" placeholder="University of Example" />
+                        <UFormField
+                          label="Name"
+                          :name="`creators[${index}].affiliations[${affIndex}].affiliation`"
+                          required
+                        >
+                          <UInput
+                            v-model="affiliation.affiliation"
+                            class="w-full"
+                            placeholder="University of Example"
+                          />
                         </UFormField>
 
                         <div class="flex w-full gap-2">
-                          <UFormField label="Identifier" :name="`creators[${index}].affiliations[${affIndex}].identifier`" class="w-full">
-                            <UInput v-model="affiliation.identifier" class="w-full" placeholder="1234567890" />
+                          <UFormField
+                            label="Identifier"
+                            :name="`creators[${index}].affiliations[${affIndex}].identifier`"
+                            class="w-full"
+                          >
+                            <UInput
+                              v-model="affiliation.identifier"
+                              class="w-full"
+                              placeholder="1234567890"
+                            />
                           </UFormField>
 
-                          <UFormField label="Identifier Scheme" :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`" class="w-full">
-                            <UInput v-model="affiliation.identifierScheme" class="w-full" placeholder="ROR" />
+                          <UFormField
+                            label="Identifier Scheme"
+                            :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`"
+                            class="w-full"
+                          >
+                            <UInput
+                              v-model="affiliation.identifierScheme"
+                              class="w-full"
+                              placeholder="ROR"
+                            />
                           </UFormField>
 
-                          <UFormField label="Identifier Scheme URI" :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`" class="w-full">
-                            <UInput v-model="affiliation.identifierSchemeUri" class="w-full" placeholder="https://ror.org" />
+                          <UFormField
+                            label="Identifier Scheme URI"
+                            :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`"
+                            class="w-full"
+                          >
+                            <UInput
+                              v-model="affiliation.identifierSchemeUri"
+                              class="w-full"
+                              placeholder="https://ror.org"
+                            />
                           </UFormField>
+                        </div>
+                      </div>
+
+                      <div class="flex items-end pb-1">
+                        <UButton
+                          size="sm"
+                          color="error"
+                          variant="outline"
+                          icon="i-lucide-trash"
+                          @click="item.affiliations.splice(affIndex, 1)"
+                        />
                       </div>
                     </div>
 
-                    <div class="flex items-end pb-1">
-                      <UButton size="sm" color="error" variant="outline" icon="i-lucide-trash" @click="item.affiliations.splice(affIndex, 1)" />
-                    </div>
-                  </div>
-
-                  <UButton
-                    size="sm"
-                    class="w-full mt-2"
-                    color="success"
-                    variant="outline"
-                    label="Add Affiliation"
-                    icon="i-lucide-plus"
-                    @click="item.affiliations.push({ affiliation: '', identifier: '', identifierScheme: '', identifierSchemeUri: '' })"
-                  />
-                </UFormField>
+                    <UButton
+                      size="sm"
+                      class="mt-2 w-full"
+                      color="success"
+                      variant="outline"
+                      label="Add Affiliation"
+                      icon="i-lucide-plus"
+                      @click="
+                        item.affiliations.push({
+                          affiliation: '',
+                          identifier: '',
+                          identifierScheme: '',
+                          identifierSchemeUri: '',
+                        })
+                      "
+                    />
+                  </UFormField>
                 </div>
               </CardCollapsible>
             </UFormField>
 
-            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Contributor" @click="addContributor" />
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Contributor"
+              @click="addContributor"
+            />
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -1019,16 +1283,36 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex flex-col gap-3">
-                  <UFormField label="Name" :name="`funders[${index}].name`" required>
-                    <UInput v-model="item.name" placeholder="National Institutes of Health" class="w-full" />
+                  <UFormField
+                    label="Name"
+                    :name="`funders[${index}].name`"
+                    required
+                  >
+                    <UInput
+                      v-model="item.name"
+                      placeholder="National Institutes of Health"
+                      class="w-full"
+                    />
                   </UFormField>
 
                   <div class="flex w-full gap-3">
-                    <UFormField label="Identifier" :name="`funders[${index}].identifier`" class="w-full">
-                      <UInput v-model="item.identifier" placeholder="1234567890" class="w-full" />
+                    <UFormField
+                      label="Identifier"
+                      :name="`funders[${index}].identifier`"
+                      class="w-full"
+                    >
+                      <UInput
+                        v-model="item.identifier"
+                        placeholder="1234567890"
+                        class="w-full"
+                      />
                     </UFormField>
 
-                    <UFormField label="Identifier Type" :name="`funders[${index}].identifierType`" class="w-full">
+                    <UFormField
+                      label="Identifier Type"
+                      :name="`funders[${index}].identifierType`"
+                      class="w-full"
+                    >
                       <USelect
                         v-model="item.identifierType"
                         placeholder="GRID"
@@ -1037,31 +1321,68 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       />
                     </UFormField>
 
-                    <UFormField label="Identifier Scheme URI" :name="`funders[${index}].identifierSchemeUri`" class="w-full">
-                      <UInput v-model="item.identifierSchemeUri" placeholder="https://grid.ac" class="w-full" />
+                    <UFormField
+                      label="Identifier Scheme URI"
+                      :name="`funders[${index}].identifierSchemeUri`"
+                      class="w-full"
+                    >
+                      <UInput
+                        v-model="item.identifierSchemeUri"
+                        placeholder="https://grid.ac"
+                        class="w-full"
+                      />
                     </UFormField>
                   </div>
 
-                  <UFormField label="Award Number" :name="`funders[${index}].awardNumber`">
-                    <UInput v-model="item.awardNumber" placeholder="R01GM123456" class="w-full" />
+                  <UFormField
+                    label="Award Number"
+                    :name="`funders[${index}].awardNumber`"
+                  >
+                    <UInput
+                      v-model="item.awardNumber"
+                      placeholder="R01GM123456"
+                      class="w-full"
+                    />
                   </UFormField>
 
-                  <UFormField label="Award Title" :name="`funders[${index}].awardTitle`">
-                    <UInput v-model="item.awardTitle" placeholder="Research Project Grant" class="w-full" />
+                  <UFormField
+                    label="Award Title"
+                    :name="`funders[${index}].awardTitle`"
+                  >
+                    <UInput
+                      v-model="item.awardTitle"
+                      placeholder="Research Project Grant"
+                      class="w-full"
+                    />
                   </UFormField>
 
-                  <UFormField label="Award URI" :name="`funders[${index}].awardUri`">
-                    <UInput v-model="item.awardUri" placeholder="https://reporter.nih.gov/project-details/12345678" class="w-full" />
+                  <UFormField
+                    label="Award URI"
+                    :name="`funders[${index}].awardUri`"
+                  >
+                    <UInput
+                      v-model="item.awardUri"
+                      placeholder="https://reporter.nih.gov/project-details/12345678"
+                      class="w-full"
+                    />
                   </UFormField>
                 </div>
               </CardCollapsible>
             </UFormField>
 
-            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Funder" @click="addFunder" />
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Funder"
+              @click="addFunder"
+            />
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -1073,20 +1394,48 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <UFormField label="Name" name="managingOrganization.name" required>
-              <UInput v-model="state.managingOrganization.name" placeholder="University of Example" class="w-full" />
+              <UInput
+                v-model="state.managingOrganization.name"
+                placeholder="University of Example"
+                class="w-full"
+              />
             </UFormField>
 
             <div class="flex w-full gap-3">
-              <UFormField label="Identifier" name="managingOrganization.identifier" class="w-full">
-                <UInput v-model="state.managingOrganization.identifier" placeholder="1234567890" class="w-full" />
+              <UFormField
+                label="Identifier"
+                name="managingOrganization.identifier"
+                class="w-full"
+              >
+                <UInput
+                  v-model="state.managingOrganization.identifier"
+                  placeholder="1234567890"
+                  class="w-full"
+                />
               </UFormField>
 
-              <UFormField label="Identifier Scheme" name="managingOrganization.identifierScheme" class="w-full">
-                <UInput v-model="state.managingOrganization.identifierScheme" placeholder="ROR" class="w-full" />
+              <UFormField
+                label="Identifier Scheme"
+                name="managingOrganization.identifierScheme"
+                class="w-full"
+              >
+                <UInput
+                  v-model="state.managingOrganization.identifierScheme"
+                  placeholder="ROR"
+                  class="w-full"
+                />
               </UFormField>
 
-              <UFormField label="Identifier Scheme URI" name="managingOrganization.identifierSchemeUri" class="w-full">
-                <UInput v-model="state.managingOrganization.identifierSchemeUri" placeholder="https://ror.org" class="w-full" />
+              <UFormField
+                label="Identifier Scheme URI"
+                name="managingOrganization.identifierSchemeUri"
+                class="w-full"
+              >
+                <UInput
+                  v-model="state.managingOrganization.identifierSchemeUri"
+                  placeholder="https://ror.org"
+                  class="w-full"
+                />
               </UFormField>
             </div>
           </div>
@@ -1094,7 +1443,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="metadata-team-form"
         type="submit"
@@ -1107,7 +1456,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -1115,11 +1464,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>
