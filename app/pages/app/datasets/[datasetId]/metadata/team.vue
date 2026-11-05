@@ -402,12 +402,7 @@ const validate = (state: any): FormError[] => {
   const activeFunders =
     state.funders?.filter((funder: any) => !funder.deleted) ?? [];
 
-  if (activeFunders.length === 0) {
-    errors.push({
-      name: "funders",
-      message: "Please add at least one funder",
-    });
-  } else {
+  if (activeFunders.length > 0) {
     const seenFunders = new Set<string>();
     activeFunders.forEach((funder: any, index: number) => {
       const key = `${funder.name?.trim().toLowerCase()}|${funder.awardNumber?.trim().toLowerCase()}`;
