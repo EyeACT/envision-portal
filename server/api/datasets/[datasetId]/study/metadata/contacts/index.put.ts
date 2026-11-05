@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
         phone: contact.phone,
         phoneExt: contact.phoneExt,
       },
-      where: { id: contact.id },
+      where: { id: contact.id, datasetId },
     });
   }
 
@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
 
   for (const contact of studyContactsToDelete) {
     await prisma.studyCentralContact.delete({
-      where: { id: contact.id },
+      where: { id: contact.id, datasetId },
     });
   }
 

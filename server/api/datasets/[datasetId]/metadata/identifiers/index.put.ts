@@ -2,8 +2,7 @@ import { DatasetMetadataIdentifiersSchema } from "#shared/utils/dataset_schemas"
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
-
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as {
     datasetId: string;
@@ -35,7 +34,7 @@ export default defineEventHandler(async (event) => {
         identifier: alternateIdentifier.identifier,
         type: alternateIdentifier.type,
       },
-      where: { id: alternateIdentifier.id },
+      where: { id: alternateIdentifier.id, datasetId },
     });
   }
 
@@ -61,7 +60,7 @@ export default defineEventHandler(async (event) => {
 
   for (const alternateIdentifier of alternateIdentifiersToDelete) {
     await prisma.datasetAlternateIdentifier.delete({
-      where: { id: alternateIdentifier.id },
+      where: { id: alternateIdentifier.id, datasetId },
     });
   }
 

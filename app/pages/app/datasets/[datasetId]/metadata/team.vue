@@ -86,7 +86,7 @@ const state = reactive<Schema>({
   },
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/metadata/team`,
   {},
 );
@@ -131,10 +131,9 @@ const toFormAffiliations = (affiliations: any[] | null | undefined) =>
     identifier: item.identifier ?? "",
   }));
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
   state.contributors = data.value.contributors.map((item: any) => ({
     id: item.id,
@@ -171,7 +170,14 @@ if (data.value) {
     name: data.value.managingOrganization?.name ?? "",
     identifier: data.value.managingOrganization?.identifier ?? "",
   };
+};
 
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
+
+  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -271,7 +277,9 @@ const validate = (state: any): FormError[] => {
     });
   } else {
     const seenCreators = new Set<string>();
-    activeCreators.forEach((creator: any, index: number) => {
+    state.creators.forEach((creator: any, index: number) => {
+      if (creator.deleted) return;
+
       const key = `${creator.givenName?.trim().toLowerCase()}|${creator.familyName?.trim().toLowerCase()}|${creator.nameType?.trim().toLowerCase()}`;
       if (seenCreators.has(key)) {
         errors.push({
@@ -283,7 +291,9 @@ const validate = (state: any): FormError[] => {
       seenCreators.add(key);
     });
 
-    activeCreators.forEach((creator: any, index: number) => {
+    state.creators.forEach((creator: any, index: number) => {
+      if (creator.deleted) return;
+
       if (!creator.givenName) {
         errors.push({
           name: `creators[${index}].givenName`,
@@ -337,7 +347,9 @@ const validate = (state: any): FormError[] => {
 
   if (activeContributors.length > 0) {
     const seenContributors = new Set<string>();
-    activeContributors.forEach((contributor: any, index: number) => {
+    state.contributors.forEach((contributor: any, index: number) => {
+      if (contributor.deleted) return;
+
       const key = `${contributor.givenName?.trim().toLowerCase()}|${contributor.familyName?.trim().toLowerCase()}|${contributor.nameType?.trim().toLowerCase()}|${contributor.contributorType?.trim().toLowerCase()}`;
       if (seenContributors.has(key)) {
         errors.push({
@@ -349,7 +361,9 @@ const validate = (state: any): FormError[] => {
       seenContributors.add(key);
     });
 
-    activeContributors.forEach((contributor: any, index: number) => {
+    state.contributors.forEach((contributor: any, index: number) => {
+      if (contributor.deleted) return;
+
       if (!contributor.givenName) {
         errors.push({
           name: `contributors[${index}].givenName`,
@@ -404,7 +418,9 @@ const validate = (state: any): FormError[] => {
 
   if (activeFunders.length > 0) {
     const seenFunders = new Set<string>();
-    activeFunders.forEach((funder: any, index: number) => {
+    state.funders.forEach((funder: any, index: number) => {
+      if (funder.deleted) return;
+
       const key = `${funder.name?.trim().toLowerCase()}|${funder.awardNumber?.trim().toLowerCase()}`;
       if (seenFunders.has(key)) {
         errors.push({
@@ -416,7 +432,9 @@ const validate = (state: any): FormError[] => {
       seenFunders.add(key);
     });
 
-    activeFunders.forEach((funder: any, index: number) => {
+    state.funders.forEach((funder: any, index: number) => {
+      if (funder.deleted) return;
+
       if (!funder.name?.trim()) {
         errors.push({
           name: `funders[${index}].name`,
@@ -549,19 +567,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/metadata/team`, {
+    await $fetch(`/api/datasets/${datasetId}/metadata/team`, {
       body: b,
       method: "PUT",
     });
-    console.log(res);
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
     toast.add({

@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
   const deletedDocument = await prisma.datasetSupportingDocument.delete({
     where: {
       id: documentId,
+      datasetId,
     },
   });
 

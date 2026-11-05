@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
         nameIdentifierSchemeUri: creator.nameIdentifierSchemeUri,
         nameType: creator.nameType,
       },
-      where: { id: creator.id, creator: true },
+      where: { id: creator.id, creator: true, datasetId },
     });
   }
 
@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
 
   for (const creator of creatorsToDelete) {
     await prisma.datasetContributor.delete({
-      where: { id: creator.id, creator: true },
+      where: { id: creator.id, creator: true, datasetId },
     });
   }
 
@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
         nameIdentifierSchemeUri: contributor.nameIdentifierSchemeUri,
         nameType: contributor.nameType,
       },
-      where: { id: contributor.id, creator: false },
+      where: { id: contributor.id, creator: false, datasetId },
     });
   }
 
@@ -122,7 +122,7 @@ export default defineEventHandler(async (event) => {
 
   for (const contributor of contributorsToDelete) {
     await prisma.datasetContributor.delete({
-      where: { id: contributor.id, creator: false },
+      where: { id: contributor.id, creator: false, datasetId },
     });
   }
 
@@ -140,7 +140,7 @@ export default defineEventHandler(async (event) => {
         identifierSchemeUri: funder.identifierSchemeUri,
         identifierType: funder.identifierType,
       },
-      where: { id: funder.id },
+      where: { id: funder.id, datasetId },
     });
   }
 
@@ -167,7 +167,7 @@ export default defineEventHandler(async (event) => {
 
   for (const funder of fundersToDelete) {
     await prisma.datasetFunder.delete({
-      where: { id: funder.id },
+      where: { id: funder.id, datasetId },
     });
   }
 

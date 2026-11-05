@@ -40,7 +40,7 @@ const state = reactive<Schema>({
   studyType: "",
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/arms`,
   {},
 );
@@ -53,10 +53,9 @@ if (error.value) {
   });
 }
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
   state.studyArms = data.value.StudyArm.map((arm: any) => ({
     id: arm.id,
@@ -68,7 +67,14 @@ if (data.value) {
     type: arm.type || "",
   }));
   state.studyType = data.value.StudyDesign?.studyType ?? "";
+};
 
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
+
+  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -123,7 +129,9 @@ const validate = (state: any): FormError[] => {
   }
 
   const seen = new Set<string>();
-  activeArms.forEach((arm: any, index: number) => {
+  state.studyArms.forEach((arm: any, index: number) => {
+    if (arm.deleted) return;
+
     const key = arm.label?.trim().toLowerCase();
     if (seen.has(key)) {
       errors.push({
@@ -134,7 +142,9 @@ const validate = (state: any): FormError[] => {
     seen.add(key);
   });
 
-  activeArms.forEach((arm: any, index: number) => {
+  state.studyArms.forEach((arm: any, index: number) => {
+    if (arm.deleted) return;
+
     if (arm.label.trim() === "") {
       errors.push({
         name: `label-${index}`,
@@ -179,19 +189,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/arms`, {
+    await $fetch(`/api/datasets/${datasetId}/study/metadata/arms`, {
       body: b,
       method: "PUT",
     });
-    console.log(res);
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
 

@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         title: title.title,
         type: title.type,
       },
-      where: { id: title.id },
+      where: { id: title.id, datasetId },
     });
   }
 
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
 
   for (const title of titlesToDelete) {
     await prisma.datasetTitle.delete({
-      where: { id: title.id },
+      where: { id: title.id, datasetId },
     });
   }
 
@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
         description: description.description,
         type: description.type,
       },
-      where: { id: description.id },
+      where: { id: description.id, datasetId },
     });
   }
 
@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
 
   for (const description of descriptionsToDelete) {
     await prisma.datasetDescription.delete({
-      where: { id: description.id },
+      where: { id: description.id, datasetId },
     });
   }
 
@@ -110,7 +110,7 @@ export default defineEventHandler(async (event) => {
         information: date.information,
         type: date.type,
       },
-      where: { id: date.id },
+      where: { id: date.id, datasetId },
     });
   }
 
@@ -133,7 +133,7 @@ export default defineEventHandler(async (event) => {
 
   for (const date of datesToDelete) {
     await prisma.datasetDate.delete({
-      where: { id: date.id },
+      where: { id: date.id, datasetId },
     });
   }
 

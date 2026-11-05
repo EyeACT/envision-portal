@@ -38,7 +38,7 @@ const state = reactive<Schema>({
   studyInterventions: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/interventions`,
   {},
 );
@@ -51,10 +51,9 @@ if (error.value) {
   });
 }
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
   state.studyInterventions = data.value.StudyIntervention.map(
     (intervention: any) => ({
@@ -63,7 +62,14 @@ if (data.value) {
       local: false,
     }),
   );
+};
 
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
+
+  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -123,7 +129,9 @@ const validate = (state: any): FormError[] => {
   }
 
   const seenInterventions = new Set<string>();
-  activeInterventions.forEach((intervention: any, index: number) => {
+  state.studyInterventions.forEach((intervention: any, index: number) => {
+    if (intervention.deleted) return;
+
     const key = intervention.name?.trim().toLowerCase();
     if (seenInterventions.has(key)) {
       errors.push({
@@ -134,7 +142,9 @@ const validate = (state: any): FormError[] => {
     seenInterventions.add(key);
   });
 
-  activeInterventions.forEach((intervention: any, index: number) => {
+  state.studyInterventions.forEach((intervention: any, index: number) => {
+    if (intervention.deleted) return;
+
     if (intervention.name.trim() === "") {
       errors.push({
         name: `name-${index}`,
@@ -191,22 +201,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(
-      `/api/datasets/${datasetId}/study/metadata/interventions`,
-      {
-        body: b,
-        method: "PUT",
-      },
-    );
-    console.log(res);
+    await $fetch(`/api/datasets/${datasetId}/study/metadata/interventions`, {
+      body: b,
+      method: "PUT",
+    });
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
 

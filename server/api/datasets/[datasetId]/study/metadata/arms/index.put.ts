@@ -2,7 +2,7 @@ import { StudyMetadataArmsSchema } from "#shared/utils/study_schemas";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as { datasetId: string };
 
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
         label: arm.label,
         type: arm.type || "",
       },
-      where: { id: arm.id },
+      where: { id: arm.id, datasetId },
     });
   }
 
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
   for (const arm of studyArmsToDelete) {
     await prisma.studyArm.delete({
-      where: { id: arm.id },
+      where: { id: arm.id, datasetId },
     });
   }
 

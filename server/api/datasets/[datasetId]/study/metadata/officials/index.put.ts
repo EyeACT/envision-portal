@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
         identifierSchemeUri: official.identifierSchemeUri,
         role: official.role,
       },
-      where: { id: official.id },
+      where: { id: official.id, datasetId },
     });
   }
 
@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
 
   for (const official of studyOverallOfficialsToDelete) {
     await prisma.studyOverallOfficials.delete({
-      where: { id: official.id },
+      where: { id: official.id, datasetId },
     });
   }
 

@@ -42,7 +42,7 @@ const state = reactive<Schema>({
   identifiers: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/metadata/related-identifiers`,
   {},
 );
@@ -55,10 +55,9 @@ if (error.value) {
   });
 }
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
   state.identifiers = data.value.DatasetRelatedIdentifier.map((item: any) => ({
     id: item.id,
@@ -72,7 +71,14 @@ if (data.value) {
     schemeType: item.schemeType,
     schemeUri: item.schemeUri,
   }));
+};
 
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
+
+  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -80,11 +86,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addIdentifier = () => {
   state.identifiers.push({
@@ -130,18 +135,23 @@ const validate = (state: any): FormError[] => {
   }
 
   const seenIdentifiers = new Set<string>();
-  activeIdentifiers.forEach((identifier: any, index: number) => {
+  state.identifiers.forEach((identifier: any, index: number) => {
+    if (identifier.deleted) return;
+
     const key = `${identifier.identifier?.trim().toLowerCase()}|${identifier.identifierType?.trim().toLowerCase()}|${identifier.relationType?.trim().toLowerCase()}`;
     if (seenIdentifiers.has(key)) {
       errors.push({
         name: `identifiers[${index}].identifier`,
-        message: "Duplicate related identifier with same value, type, and relation.",
+        message:
+          "Duplicate related identifier with same value, type, and relation.",
       });
     }
     seenIdentifiers.add(key);
   });
 
-  activeIdentifiers.forEach((identifier: any, index: number) => {
+  state.identifiers.forEach((identifier: any, index: number) => {
+    if (identifier.deleted) return;
+
     if (!identifier.identifier?.trim()) {
       errors.push({
         name: `identifiers[${index}].identifier`,
@@ -237,19 +247,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/metadata/related-identifiers`, {
+    await $fetch(`/api/datasets/${datasetId}/metadata/related-identifiers`, {
       body: b,
       method: "PUT",
     });
-    console.log(res);
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
     toast.add({
@@ -265,9 +277,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -287,7 +298,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
               Related Identifiers
@@ -298,7 +311,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -362,7 +377,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       v-model="item.relationType"
                       class="w-full"
                       placeholder="Is Part Of"
-                      :items="FORM_JSON.datasetRelatedIdentifierRelationTypeOptions"
+                      :items="
+                        FORM_JSON.datasetRelatedIdentifierRelationTypeOptions
+                      "
                     />
                   </UFormField>
 
@@ -374,19 +391,27 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       v-model="item.resourceType"
                       class="w-full"
                       placeholder="Dataset"
-                      :items="FORM_JSON.datasetRelatedIdentifierResourceTypeOptions"
+                      :items="
+                        FORM_JSON.datasetRelatedIdentifierResourceTypeOptions
+                      "
                     />
                   </UFormField>
 
                   <UFormField
                     label="Related Metadata Scheme"
                     :name="`identifiers[${index}].relatedMetadataScheme`"
-                    :required="item.relationType === 'IsMetadataFor' || item.relationType === 'HasMetadata'"
+                    :required="
+                      item.relationType === 'IsMetadataFor' ||
+                      item.relationType === 'HasMetadata'
+                    "
                   >
                     <UInput
                       v-model="item.relatedMetadataScheme"
                       class="w-full"
-                      :disabled="item.relationType !== 'IsMetadataFor' && item.relationType !== 'HasMetadata'"
+                      :disabled="
+                        item.relationType !== 'IsMetadataFor' &&
+                        item.relationType !== 'HasMetadata'
+                      "
                       placeholder="DataCite"
                     />
                   </UFormField>
@@ -394,12 +419,18 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Scheme Type"
                     :name="`identifiers[${index}].schemeType`"
-                    :required="item.relationType === 'IsMetadataFor' || item.relationType === 'HasMetadata'"
+                    :required="
+                      item.relationType === 'IsMetadataFor' ||
+                      item.relationType === 'HasMetadata'
+                    "
                   >
                     <UInput
                       v-model="item.schemeType"
                       class="w-full"
-                      :disabled="item.relationType !== 'IsMetadataFor' && item.relationType !== 'HasMetadata'"
+                      :disabled="
+                        item.relationType !== 'IsMetadataFor' &&
+                        item.relationType !== 'HasMetadata'
+                      "
                       placeholder="DataCite"
                     />
                   </UFormField>
@@ -407,12 +438,18 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Scheme URI"
                     :name="`identifiers[${index}].schemeUri`"
-                    :required="item.relationType === 'IsMetadataFor' || item.relationType === 'HasMetadata'"
+                    :required="
+                      item.relationType === 'IsMetadataFor' ||
+                      item.relationType === 'HasMetadata'
+                    "
                   >
                     <UInput
                       v-model="item.schemeUri"
                       class="w-full"
-                      :disabled="item.relationType !== 'IsMetadataFor' && item.relationType !== 'HasMetadata'"
+                      :disabled="
+                        item.relationType !== 'IsMetadataFor' &&
+                        item.relationType !== 'HasMetadata'
+                      "
                       placeholder="https://datacite.org/schema/datacite-metadata-v4.3.xsd"
                     />
                   </UFormField>
@@ -432,7 +469,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="metadata-identifiers-form"
         type="submit"
@@ -445,7 +482,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -453,11 +490,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

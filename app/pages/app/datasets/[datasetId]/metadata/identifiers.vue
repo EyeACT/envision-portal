@@ -40,7 +40,7 @@ const state = reactive<Schema>({
   secondaryIdentifiers: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/metadata/identifiers`,
   {},
 );
@@ -53,12 +53,11 @@ if (error.value) {
   });
 }
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
-  const formattedIdentifiers = data.value.DatasetAlternateIdentifier.map(
+  state.secondaryIdentifiers = data.value.DatasetAlternateIdentifier.map(
     (item: any) => ({
       id: item.id,
       deleted: false,
@@ -67,10 +66,15 @@ if (data.value) {
       type: item.type,
     }),
   );
+};
 
-  state.secondaryIdentifiers = formattedIdentifiers;
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
 
-  initialRawData.value = JSON.stringify(formattedIdentifiers);
+  loadFormState();
+  initialRawData.value = JSON.stringify(state.secondaryIdentifiers);
 }
 
 const isDirty = computed(() => {
@@ -130,7 +134,9 @@ const validate = (state: any): FormError[] => {
 
   if (activeSecondaryIdentifiers.length > 0) {
     const seenIdentifiers = new Set<string>();
-    activeSecondaryIdentifiers.forEach((item: any, index: number) => {
+    state.secondaryIdentifiers.forEach((item: any, index: number) => {
+      if (item.deleted) return;
+
       const key = `${item.identifier?.trim().toLowerCase()}|${item.type?.trim().toLowerCase()}`;
       if (seenIdentifiers.has(key)) {
         errors.push({
@@ -210,34 +216,37 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     ),
   };
 
-  await $fetch(`/api/datasets/${datasetId}/metadata/identifiers`, {
-    body: b,
-    method: "PUT",
-  })
-    .then((res) => {
-      console.log(res);
-
-      toast.add({
-        title: "Success",
-        color: "success",
-        description: "The form has been submitted.",
-      });
-
-      window.location.reload();
-    })
-    .catch((err) => {
-      console.log(err);
-
-      toast.add({
-        title: "Error",
-        color: "error",
-        description: "The form submission encountered an error.",
-      });
-      isSubmitting.value = false;
-    })
-    .finally(() => {
-      saveLoading.value = false;
+  try {
+    await $fetch(`/api/datasets/${datasetId}/metadata/identifiers`, {
+      body: b,
+      method: "PUT",
     });
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    initialRawData.value = JSON.stringify(state.secondaryIdentifiers);
+
+    // Rows may have shifted, so old touched flags no longer point at the right fields.
+    Object.keys(touchedFields).forEach((key) => delete touchedFields[key]);
+
+    toast.add({
+      title: "Success",
+      color: "success",
+      description: "The form has been submitted.",
+    });
+  } catch (err) {
+    console.log(err);
+
+    toast.add({
+      title: "Error",
+      color: "error",
+      description: "The form submission encountered an error.",
+    });
+  } finally {
+    saveLoading.value = false;
+    isSubmitting.value = false;
+  }
 }
 </script>
 

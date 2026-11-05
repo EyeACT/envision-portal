@@ -4,11 +4,7 @@ import * as z from "zod";
 import { nanoid } from "nanoid";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
-import {
-  isValidORCIDValue,
-  isValidRORValue,
-  isValidUrl,
-} from "~/utils/validations";
+import { isValidRORValue, normalizeROR } from "~/utils/validations";
 
 definePageMeta({
   middleware: ["auth"],
@@ -32,8 +28,6 @@ const schema = z.object({
       deleted: z.boolean(),
       facility: z.string(),
       identifier: z.string(),
-      identifierScheme: z.string(),
-      identifierSchemeUri: z.string(),
       local: z.boolean(),
       state: z.string(),
       status: z.string(),
@@ -48,7 +42,7 @@ const state = reactive<Schema>({
   studyLocations: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/locations`,
   {},
 );
@@ -61,16 +55,18 @@ if (error.value) {
   });
 }
 
+const toFormLocation = (location: any) => ({
+  ...location,
+  deleted: false,
+  local: false,
+});
+
 if (data.value) {
   useSeoMeta({
     title: data.value.title,
   });
 
-  state.studyLocations = data.value.StudyLocation.map((location: any) => ({
-    ...location,
-    deleted: false,
-    local: false,
-  }));
+  state.studyLocations = data.value.StudyLocation.map(toFormLocation);
 
   originalStateString.value = JSON.stringify(state);
 }
@@ -92,8 +88,6 @@ const addLocation = () => {
     deleted: false,
     facility: "",
     identifier: "",
-    identifierScheme: "",
-    identifierSchemeUri: "",
     local: true,
     state: "",
     status: "",
@@ -136,7 +130,11 @@ const validate = (state: any): FormError[] => {
   }
 
   const seen = new Set<string>();
-  activeLocations.forEach((location: any, index: number) => {
+
+  // Field names use the index in state, which is what the template renders from.
+  state.studyLocations.forEach((location: any, index: number) => {
+    if (location.deleted) return;
+
     const key = `${location.facility?.trim().toLowerCase()}|${location.city?.trim().toLowerCase()}|${location.country?.trim().toLowerCase()}`;
     if (seen.has(key)) {
       errors.push({
@@ -145,9 +143,7 @@ const validate = (state: any): FormError[] => {
       });
     }
     seen.add(key);
-  });
 
-  activeLocations.forEach((location: any, index: number) => {
     if (location.facility.trim() === "") {
       errors.push({
         name: `facility-${index}`,
@@ -186,57 +182,29 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (
-      (location.identifier.trim() !== "" &&
-        location.identifierScheme.trim() === "") ||
-      (location.identifier.trim() === "" &&
-        location.identifierScheme.trim() !== "")
-    ) {
-      errors.push(
-        {
-          name: `identifier-${index}`,
-          message: "Identifier and Identifier Scheme must be provided together",
-        },
-        {
-          name: `identifierScheme-${index}`,
-          message: "Identifier and Identifier Scheme must be provided together",
-        },
-      );
-    }
-
-    if (
-      location.identifier &&
-      location.identifierScheme?.toUpperCase() === "ORCID" &&
-      !isValidORCIDValue(location.identifier)
-    ) {
+    const ror = normalizeROR(location.identifier);
+    if (ror && !isValidRORValue(ror)) {
       errors.push({
         name: `identifier-${index}`,
-        message: "Identifier must be a valid ORCID",
-      });
-    }
-    if (
-      location.identifier &&
-      location.identifierScheme?.toUpperCase() === "ROR" &&
-      !isValidRORValue(location.identifier)
-    ) {
-      errors.push({
-        name: `identifier-${index}`,
-        message: "Identifier must be a valid ROR",
-      });
-    }
-
-    if (
-      location.identifierSchemeUri &&
-      !isValidUrl(location.identifierSchemeUri)
-    ) {
-      errors.push({
-        name: `identifierSchemeUri-${index}`,
-        message: "Identifier Scheme URI must be a valid URL",
+        message: "Enter a valid ROR ID or ROR URL",
       });
     }
   });
 
   return errors;
+};
+
+// The form only collects the ROR ID; the API also expects its scheme and scheme URI.
+// Deleted rows are still validated by the API, so their old identifiers are cleared.
+const withIdentifierFields = (location: any) => {
+  const ror = location.deleted ? "" : normalizeROR(location.identifier);
+
+  return {
+    ...location,
+    identifier: ror,
+    identifierScheme: ror ? "ROR" : "",
+    identifierSchemeUri: ror ? "https://ror.org" : "",
+  };
 };
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
@@ -247,7 +215,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
   const b = {
     studyLocations: formData.studyLocations.map((location: any) => {
-      const s = { ...location };
+      const s = withIdentifierFields(location);
 
       if (s.local) {
         delete s.id;
@@ -261,22 +229,23 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(
-      `/api/datasets/${datasetId}/study/metadata/locations`,
-      {
-        body: b,
-        method: "PUT",
-      },
-    );
-    console.log(res);
+    await $fetch(`/api/datasets/${datasetId}/study/metadata/locations`, {
+      body: b,
+      method: "PUT",
+    });
+
+    // Reload so new locations get their real ids and removed ones drop out of the form.
+    await refresh();
+    if (!error.value && data.value) {
+      state.studyLocations = data.value.StudyLocation.map(toFormLocation);
+    }
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
 
@@ -428,43 +397,18 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <UFormField
-                      label="Facility Identifier"
-                      :name="`identifier-${index}`"
+                  <UFormField
+                    label="ROR"
+                    :name="`identifier-${index}`"
+                    help="Enter the ROR ID or paste the full ROR URL."
+                  >
+                    <UInput
+                      v-model="item.identifier"
+                      placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
                       class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifier"
-                        placeholder="ror-id-9999"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Identifier Scheme"
-                      :name="`identifierScheme-${index}`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifierScheme"
-                        placeholder="ROR, Facility ID"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Scheme URI"
-                      :name="`identifierSchemeUri-${index}`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifierSchemeUri"
-                        placeholder="https://ror.org"
-                        class="w-full"
-                      />
-                    </UFormField>
-                  </div>
+                      @blur="item.identifier = normalizeROR(item.identifier)"
+                    />
+                  </UFormField>
                 </div>
               </CardCollapsible>
             </UFormField>

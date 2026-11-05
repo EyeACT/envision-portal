@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
         status: location.status,
         zip: location.zip,
       },
-      where: { id: location.id },
+      where: { id: location.id, datasetId },
     });
   }
 
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
 
   for (const location of studyLocationsToDelete) {
     await prisma.studyLocation.delete({
-      where: { id: location.id },
+      where: { id: location.id, datasetId },
     });
   }
 

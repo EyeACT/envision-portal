@@ -80,7 +80,7 @@ const state = reactive<Schema>({
   secondaryIdentifiers: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/about`,
   {},
 );
@@ -93,10 +93,9 @@ if (error.value) {
   });
 }
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
   state.briefSummary = data.value.StudyDescription?.briefSummary || "";
   state.detailedDescription =
@@ -142,7 +141,14 @@ if (data.value) {
       type: identifier.identifierType || "",
     }),
   );
+};
 
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
+
+  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -553,22 +559,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   console.log(JSON.stringify(b, null, 2));
 
   try {
-    const res = await $fetch(
-      `/api/datasets/${datasetId}/study/metadata/about`,
-      {
-        body: b,
-        method: "PUT",
-      },
-    );
-    console.log(res);
+    await $fetch(`/api/datasets/${datasetId}/study/metadata/about`, {
+      body: b,
+      method: "PUT",
+    });
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
 

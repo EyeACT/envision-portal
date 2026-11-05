@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
         subject: subject.subject,
         valueUri: subject.valueUri,
       },
-      where: { id: subject.id },
+      where: { id: subject.id, datasetId },
     });
   }
 
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
 
   for (const subject of subjectsToDelete) {
     await prisma.datasetSubject.delete({
-      where: { id: subject.id },
+      where: { id: subject.id, datasetId },
     });
   }
 
