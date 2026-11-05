@@ -508,6 +508,8 @@ interface Dataset {
   data: AdditionalData;
   external: boolean;
   externalUrl: string | null;
+  // false when access requests need owner approval (controlled)
+  public: boolean;
   created: Date;
   labelingMethod: string;
   validationInfo: string;

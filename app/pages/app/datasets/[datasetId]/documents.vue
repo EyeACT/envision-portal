@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useDocuments, type StudyDocument } from "@/composables/useDocuments";
-import {DOCUMENT_TYPES} from "#shared/constants/documents"
+import { DOCUMENT_TYPES } from "#shared/constants/documents";
 import type { document } from "~~/shared/types/document";
 import { useConfirmDialog } from "~/composables/useConfirmDialog";
 
-const confirm = useConfirmDialog()
+const confirm = useConfirmDialog();
 
 definePageMeta({
   middleware: ["auth"],
@@ -17,8 +17,50 @@ const { datasetId } = route.params as { datasetId: string };
 
 useSeoMeta({ title: "Documents" });
 
-const { documents, formatBytes, formatDate, docTypeLabel, fileIcon } = useDocuments(datasetId);
+const { documents, loading, formatBytes, formatDate, docTypeLabel, fileIcon } =
+  useDocuments(datasetId);
 
+// Examples of what a study usually shares. Shown as placeholders until a
+// document of that type is uploaded
+const SUGGESTED_DOCUMENTS = [
+  {
+    type: "mop",
+    example: "BRIGHT-Study-MOP-v2.pdf",
+    description: "How the study is run day to day, step by step.",
+    fileExtension: "pdf",
+  },
+  {
+    type: "icf",
+    example: "Informed-Consent-Form-English.pdf",
+    description: "The consent form participants signed.",
+    fileExtension: "pdf",
+  },
+  {
+    type: "irb",
+    example: "IRB-Approval-Letter-2026.pdf",
+    description: "Ethics approval for collecting and sharing the data.",
+    fileExtension: "pdf",
+  },
+  {
+    type: "data_dictionary",
+    example: "Data-Dictionary-v1.3.xlsx",
+    description: "What each variable and file in the dataset means.",
+    fileExtension: "xlsx",
+  },
+  {
+    type: "sap",
+    example: "Statistical-Analysis-Plan.docx",
+    description: "The analyses planned for the study data.",
+    fileExtension: "docx",
+  },
+];
+
+const missingSuggestions = computed(() =>
+  SUGGESTED_DOCUMENTS.filter(
+    (suggestion) =>
+      !documents.value.some((doc) => doc.type === suggestion.type),
+  ),
+);
 
 // Upload modal
 const showUploadModal = ref(false);
@@ -29,10 +71,10 @@ const uploadType = ref<string | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const dragOver = ref(false);
 
-const openUploadModal = () => {
+const openUploadModal = (type: string | null = null) => {
   uploadFile.value = null;
   uploadName.value = "";
-  uploadType.value = null;
+  uploadType.value = type;
   showUploadModal.value = true;
 };
 
@@ -52,41 +94,46 @@ const onDrop = (e: DragEvent) => {
   if (file) handleFileSelect(file);
 };
 
-
 const documentWillBeReplaced = (documentName: string) => {
-  return documents.value.some(document => {
-    return document.name === documentName
-  })
-}
+  return documents.value.some((document) => {
+    return document.name === documentName;
+  });
+};
 
 const getDocumentId = (documentName: string) => {
-  const targetDocument = documents.value.find(document => {
-    return document.name === documentName
-  })
+  const targetDocument = documents.value.find((document) => {
+    return document.name === documentName;
+  });
 
-  return targetDocument!.id
-}
+  return targetDocument!.id;
+};
 
 const createDocument = async () => {
-
   if (!uploadFile.value) {
-      toast.add({ title: "Please select a file", color: "error", icon: "material-symbols:error" });
-      return;
+    toast.add({
+      title: "Please select a file",
+      color: "error",
+      icon: "material-symbols:error",
+    });
+    return;
   }
 
   uploadLoading.value = true;
 
-  const formData = new FormData()
-  formData.append("file", uploadFile.value)
-  formData.append("fileType", uploadType.value ?? "")
-  formData.append("fileExtension", uploadName.value.split(".").pop() ?? "")
+  const formData = new FormData();
+  formData.append("file", uploadFile.value);
+  formData.append("fileType", uploadType.value ?? "");
+  formData.append("fileExtension", uploadName.value.split(".").pop() ?? "");
 
   try {
-    const documentResponse = await $fetch(`/api/datasets/${datasetId}/documents`, {
-      body: formData, 
-      method: "POST"
-    })
-    const newDocument = JSON.parse(documentResponse) as document
+    const documentResponse = await $fetch(
+      `/api/datasets/${datasetId}/documents`,
+      {
+        body: formData,
+        method: "POST",
+      },
+    );
+    const newDocument = JSON.parse(documentResponse) as document;
     const ext = uploadName.value.split(".").pop()?.toLowerCase() ?? "file";
     documents.value.unshift({
       id: newDocument.id,
@@ -96,59 +143,76 @@ const createDocument = async () => {
       uploadedAt: newDocument.created,
       fileExtension: ext,
     });
-    toast.add({ title: "Document uploaded", description: uploadName.value || uploadFile.value.name });
+    toast.add({
+      title: "Document uploaded",
+      description: uploadName.value || uploadFile.value.name,
+    });
   } catch (error) {
-    const e = error as any
-    console.error(e)
-    toast.add({title: "Document upload failed", description: e.data.statusMessage,  color: "error", icon: "material-symbols:error"})
+    const e = error as any;
+    console.error(e);
+    toast.add({
+      title: "Document upload failed",
+      description: e.data.statusMessage,
+      color: "error",
+      icon: "material-symbols:error",
+    });
   } finally {
     uploadLoading.value = false;
     showUploadModal.value = false;
   }
-}
+};
 
 const replaceDocument = async (documentId: string) => {
-
   try {
     await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
       method: "DELETE",
-    })
+    });
     documents.value = documents.value.filter((d) => d.id !== documentId);
-  } catch(e) {
-    console.error(e)
-    toast.add({title: "Could not replace document", color: "error", icon: "material-symbols:error"})
-    return
+  } catch (e) {
+    console.error(e);
+    toast.add({
+      title: "Could not replace document",
+      color: "error",
+      icon: "material-symbols:error",
+    });
+    return;
   }
-  
-  await createDocument()
-}
+
+  await createDocument();
+};
 
 const onUpload = async () => {
   if (!uploadFile.value) {
-      toast.add({ title: "Please select a file", color: "error", icon: "material-symbols:error" });
-      return;
+    toast.add({
+      title: "Please select a file",
+      color: "error",
+      icon: "material-symbols:error",
+    });
+    return;
   }
 
-  if (documentWillBeReplaced(uploadName.value) ) {
+  if (documentWillBeReplaced(uploadName.value)) {
     let confirmed = await confirm({
       title: "Document Already Exists",
-      description: `If you continue your current document will be replaced. Continue with the upload?`
-    })
+      description: `If you continue your current document will be replaced. Continue with the upload?`,
+    });
 
-    if(!confirmed) {
-      toast.add({ title: "Document Will Not Be Uploded", description: uploadName.value || uploadFile.value.name });
+    if (!confirmed) {
+      toast.add({
+        title: "Document Will Not Be Uploded",
+        description: uploadName.value || uploadFile.value.name,
+      });
       uploadLoading.value = false;
       showUploadModal.value = false;
-      return
+      return;
     }
 
-    console.log("Will replace")
+    console.log("Will replace");
 
-    return replaceDocument(getDocumentId(uploadName.value))
-  } 
+    return replaceDocument(getDocumentId(uploadName.value));
+  }
 
-
-  await createDocument()
+  await createDocument();
 };
 
 // Delete
@@ -165,26 +229,34 @@ const onDelete = async () => {
   if (!deleteTarget.value) return;
   deleteLoading.value = true;
 
-  let doc = deleteTarget.value
-  let documentId = doc.id
+  let doc = deleteTarget.value;
+  let documentId = doc.id;
 
   try {
     await $fetch(`/api/datasets/${datasetId}/documents/${documentId}`, {
       method: "DELETE",
-    })
-    documents.value = documents.value.filter((d) => d.id !== deleteTarget.value!.id);
-    toast.add({ title: "Document deleted", description: deleteTarget.value.name });
-  } catch(error) {
-    const e = error as any
-    console.error(e)
-    toast.add({title: "Could not delete document", description: e.data.statusMessage, color: "error", icon: "material-symbols:error"})
+    });
+    documents.value = documents.value.filter(
+      (d) => d.id !== deleteTarget.value!.id,
+    );
+    toast.add({
+      title: "Document deleted",
+      description: deleteTarget.value.name,
+    });
+  } catch (error) {
+    const e = error as any;
+    console.error(e);
+    toast.add({
+      title: "Could not delete document",
+      description: e.data.statusMessage,
+      color: "error",
+      icon: "material-symbols:error",
+    });
   } finally {
-    deleteLoading.value = false
+    deleteLoading.value = false;
     showDeleteModal.value = false;
     deleteTarget.value = null;
   }
-
-
 };
 </script>
 
@@ -201,37 +273,38 @@ const onDelete = async () => {
 
     <div class="flex w-full flex-col gap-6 pb-6">
       <!-- Header -->
-      <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+      <div
+        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
         <div class="flex w-full items-center justify-between gap-3">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Documents</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Documents
+            </h1>
             <p class="mt-1 text-base text-gray-500 dark:text-gray-400">
-              Upload and manage study-related documents such as protocols, consent forms, and regulatory correspondence.
+              Upload and manage study-related documents such as protocols,
+              consent forms, and regulatory correspondence.
             </p>
           </div>
 
           <UButton
             icon="i-lucide-upload"
             label="Upload Document"
-            @click="openUploadModal"
+            @click="openUploadModal()"
           />
         </div>
       </div>
 
-      <!-- Empty state -->
+      <!-- Uploaded documents -->
       <div
-        v-if="documents.length === 0"
-        class="flex flex-col items-center justify-center rounded-lg bg-white p-16 shadow-sm dark:bg-gray-900"
+        v-if="loading && documents.length === 0"
+        class="flex items-center justify-center rounded-lg bg-white p-10 shadow-sm dark:bg-gray-900"
       >
-        <Icon name="material-symbols:folder-open-outline-rounded" size="56" class="text-gray-300 dark:text-gray-600" />
-        <p class="mt-4 text-lg font-medium text-gray-500 dark:text-gray-400">No documents uploaded yet</p>
-        <p class="mt-1 text-sm text-gray-400 dark:text-gray-500">Upload study documents to get started.</p>
-        <UButton class="mt-6" icon="i-lucide-upload" label="Upload Document" @click="openUploadModal" />
+        <Icon name="line-md:loading-loop" size="32" class="text-primary-500" />
       </div>
 
-      <!-- Card grid -->
       <div
-        v-else
+        v-else-if="documents.length > 0"
         class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
         <div
@@ -247,11 +320,15 @@ const onDelete = async () => {
               :class="fileIcon(doc.fileExtension).color"
             />
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-semibold text-gray-900 dark:text-white" :title="doc.name">
+              <p
+                class="truncate text-sm font-semibold text-gray-900 dark:text-white"
+                :title="doc.name"
+              >
                 {{ doc.name }}
               </p>
               <p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
-                {{ formatBytes(doc.size) }} &middot; {{ formatDate(doc.uploadedAt) }}
+                {{ formatBytes(doc.size) }} &middot;
+                {{ formatDate(doc.uploadedAt) }}
               </p>
             </div>
           </div>
@@ -279,18 +356,94 @@ const onDelete = async () => {
           </div>
         </div>
       </div>
+
+      <!-- Placeholders for documents the study usually shares -->
+      <div
+        v-if="!loading && missingSuggestions.length > 0"
+        class="flex flex-col gap-3"
+      >
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{
+              documents.length === 0
+                ? "No documents uploaded yet"
+                : "Suggested documents"
+            }}
+          </h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            These are documents studies commonly share with their data. Click
+            one to upload it, or use Upload Document for anything else.
+          </p>
+        </div>
+
+        <div
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          <button
+            v-for="suggestion in missingSuggestions"
+            :key="suggestion.type"
+            type="button"
+            class="group hover:border-primary-400 dark:hover:border-primary-500 flex cursor-pointer flex-col justify-between rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-5 text-left transition hover:bg-white dark:border-gray-700 dark:hover:bg-gray-900"
+            @click="openUploadModal(suggestion.type)"
+          >
+            <div class="flex items-start gap-3">
+              <Icon
+                :name="fileIcon(suggestion.fileExtension).name"
+                size="36"
+                class="mt-0.5 shrink-0 opacity-40 grayscale transition group-hover:opacity-100 group-hover:grayscale-0"
+              />
+              <div class="min-w-0 flex-1">
+                <p
+                  class="text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >
+                  {{ docTypeLabel(suggestion.type) }}
+                </p>
+                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                  {{ suggestion.description }}
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <span
+                class="truncate text-xs text-gray-400 italic"
+                :title="suggestion.example"
+              >
+                e.g. {{ suggestion.example }}
+              </span>
+
+              <span
+                class="text-primary-500 flex shrink-0 items-center gap-1 text-xs font-medium opacity-0 transition group-hover:opacity-100"
+              >
+                <Icon name="i-lucide-upload" size="14" />
+                Upload
+              </span>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Upload Modal -->
-    <UModal v-model:open="showUploadModal" title="Upload Document" :prevent-close="uploadLoading" :ui="{ content: 'bg-gray-50 dark:bg-gray-900 dark:text-white', title: 'dark:text-white' }">
+    <UModal
+      v-model:open="showUploadModal"
+      title="Upload Document"
+      :prevent-close="uploadLoading"
+      :ui="{
+        content: 'bg-gray-50 dark:bg-gray-900 dark:text-white',
+        title: 'dark:text-white',
+      }"
+    >
       <template #body>
         <div class="space-y-5">
           <!-- Drop zone -->
           <div
             class="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition"
-            :class="dragOver
-              ? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
-              : 'border-gray-300 bg-gray-50 hover:border-gray-400 dark:border-gray-700 dark:bg-gray-800'"
+            :class="
+              dragOver
+                ? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
+                : 'border-gray-300 bg-gray-50 hover:border-gray-400 dark:border-gray-700 dark:bg-gray-800'
+            "
             @dragover.prevent="dragOver = true"
             @dragleave="dragOver = false"
             @drop.prevent="onDrop"
@@ -303,15 +456,23 @@ const onDelete = async () => {
               accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.md"
               @change="onFileInputChange"
             />
-            <Icon name="i-lucide-upload-cloud" size="32" class="text-gray-400" />
-            <p class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Icon
+              name="i-lucide-upload-cloud"
+              size="32"
+              class="text-gray-400"
+            />
+            <p
+              class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               {{ uploadFile ? uploadFile.name : "Click or drag a file here" }}
             </p>
-            <p class="mt-1 text-xs text-gray-400">PDF, Word, Excel, TXT, CSV, MD</p>
+            <p class="mt-1 text-xs text-gray-400">
+              PDF, Word, Excel, TXT, CSV, MD
+            </p>
           </div>
 
           <!-- Document name -->
-          <UFormField label="Document name" :ui="{label: 'dark:text-white'}">
+          <UFormField label="Document name" :ui="{ label: 'dark:text-white' }">
             <UInput
               v-model="uploadName"
               placeholder="e.g. BRIGHT-MOP-v2.pdf"
@@ -321,7 +482,10 @@ const onDelete = async () => {
           </UFormField>
 
           <!-- Document type (optional) -->
-          <UFormField label="Document type (optional)" :ui="{label: 'dark:text-white'}">
+          <UFormField
+            label="Document type (optional)"
+            :ui="{ label: 'dark:text-white' }"
+          >
             <USelect
               v-model="uploadType"
               :items="DOCUMENT_TYPES"
@@ -332,7 +496,7 @@ const onDelete = async () => {
             />
           </UFormField>
 
-          <div class="flex justify-end gap-3 pt-1" >
+          <div class="flex justify-end gap-3 pt-1">
             <UButton
               color="neutral"
               variant="ghost"
@@ -355,13 +519,23 @@ const onDelete = async () => {
     </UModal>
 
     <!-- Delete Confirmation Modal -->
-    <UModal v-model:open="showDeleteModal" title="Delete document" :prevent-close="deleteLoading" :ui="{ content: 'bg-gray-50 dark:bg-gray-900 dark:text-white', title: 'dark:text-white' }">
+    <UModal
+      v-model:open="showDeleteModal"
+      title="Delete document"
+      :prevent-close="deleteLoading"
+      :ui="{
+        content: 'bg-gray-50 dark:bg-gray-900 dark:text-white',
+        title: 'dark:text-white',
+      }"
+    >
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
             Are you sure you want to delete
-            <span class="font-semibold text-gray-900 dark:text-white">{{ deleteTarget?.name }}</span>?
-            This action cannot be undone.
+            <span class="font-semibold text-gray-900 dark:text-white">{{
+              deleteTarget?.name
+            }}</span
+            >? This action cannot be undone.
           </p>
           <div class="flex justify-end gap-3 pt-2">
             <UButton

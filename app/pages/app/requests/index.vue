@@ -84,6 +84,7 @@ const dropdownItems = ref([
           size="lg"
         />
 
+        <!-- Hidden: Filter menu only has template items (Profile/Billing/Settings)
         <UDropdownMenu
           :items="dropdownItems"
           :content="{
@@ -102,6 +103,7 @@ const dropdownItems = ref([
             variant="outline"
           />
         </UDropdownMenu>
+        -->
       </div>
 
       <!-- Requests Grid -->
@@ -126,7 +128,7 @@ const dropdownItems = ref([
               <div class="flex items-center justify-between gap-3">
                 <div class="min-w-0 flex-1">
                   <h2 class="text-primary-500 truncate text-lg font-semibold">
-                    {{ request.Dataset?.title || "Untitled Dataset" }}
+                    {{ request.PublishedDataset.title }}
                   </h2>
 
                   <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -135,26 +137,13 @@ const dropdownItems = ref([
                   </p>
                 </div>
 
-                <UBadge
-                  v-if="request.PublishedDataset.public"
-                  variant="subtle"
-                  size="lg"
-                >
-                  Public Dataset
+                <UBadge variant="subtle" size="lg">
+                  {{ request.PublishedDataset.public ? "Public" : "Controlled" }}
+                  Dataset
                 </UBadge>
 
                 <UBadge
-                  :color="
-                    request.status === 'approved'
-                      ? 'success'
-                      : request.status === 'rejected'
-                        ? 'error'
-                        : request.status === 'pending'
-                          ? 'info'
-                          : request.status === 'expired'
-                            ? 'warning'
-                            : 'neutral'
-                  "
+                  :color="requestStatusColor(request.status)"
                   variant="subtle"
                   size="lg"
                   class="capitalize"
@@ -166,8 +155,8 @@ const dropdownItems = ref([
 
             <div>
               <!-- Dataset Description -->
-              <p v-if="request.Dataset?.description" class="text-default">
-                {{ request.Dataset.description }}
+              <p v-if="request.PublishedDataset.description" class="text-default">
+                {{ request.PublishedDataset.description }}
               </p>
 
               <USeparator class="my-3" />

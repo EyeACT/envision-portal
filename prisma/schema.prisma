@@ -855,7 +855,7 @@ model PublishedDataset {
     versionTitle String
     studyTitle   String
 
-    public Boolean @default(false)
+    public Boolean @default(false) // Access level picked when publishing. false = controlled, so each request needs owner approval
 
     // Keep track of the status of the publishing process (used to show the progress bar or badge on the portal)
     status      String  @default("") // "moving-dataset-to-published-storage" | "ready"

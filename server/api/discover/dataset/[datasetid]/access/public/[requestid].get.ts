@@ -32,6 +32,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // The request ID is the only credential for anonymous public requests, so it
+  // must belong to this dataset and still be approved
+  if (request.publishedDatasetId !== datasetId || request.status !== "approved") {
+    throw createError({
+      message: `Request ${requestid} not found`,
+      statusCode: 404,
+    });
+  }
+
   if (request.isControlledDatasetRequest) {
     throw createError({
       message: `Request ${requestid} is a controlled dataset request`,

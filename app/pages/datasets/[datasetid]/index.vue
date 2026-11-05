@@ -296,13 +296,27 @@ onMounted(() => {
 
               <UButton
                 v-if="!dataset?.external"
-                label="Get access to dataset"
-                icon="line-md:download-loop"
+                :label="
+                  dataset?.public ? 'Get access to dataset' : 'Request access'
+                "
+                :icon="
+                  dataset?.public
+                    ? 'line-md:download-loop'
+                    : 'ri:git-repository-private-fill'
+                "
                 size="xl"
                 color="primary"
-                :to="`/datasets/${datasetid}/access/public`"
+                :to="`/datasets/${datasetid}/access/${dataset?.public ? 'public' : 'controlled'}`"
               />
 
+              <p
+                v-if="!dataset?.external && !dataset?.public"
+                class="text-center text-xs text-gray-500"
+              >
+                Controlled access. The dataset team reviews each request.
+              </p>
+
+              <!-- Hidden: Cite has no action yet
               <UButton
                 v-if="!dataset?.external"
                 label="Cite"
@@ -310,6 +324,7 @@ onMounted(() => {
                 size="xl"
                 color="neutral"
               />
+              -->
 
               <USeparator class="my-1" />
 

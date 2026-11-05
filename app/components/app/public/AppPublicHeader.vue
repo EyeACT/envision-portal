@@ -56,7 +56,7 @@ const logout = async () => {
       <div class="flex items-center justify-center gap-3">
         <AuthState v-slot="{ loggedIn }">
           <!-- <NuxtLink
-            to="https://docs.envision.io"
+            to="https://docs.envisionportal.org/docs/"
             class="mr-3 inline-flex items-center gap-1 text-base font-medium transition-colors hover:text-teal-500"
           >
             Docs

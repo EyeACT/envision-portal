@@ -190,7 +190,7 @@ onBeforeUnmount(() => {
                 <strong>Repository documentation:</strong>
                 The
                 <NuxtLink
-                  to="https://docs.envision.io/"
+                  to="https://docs.envisionportal.org/docs/"
                   target="_blank"
                   class="text-blue-700 underline hover:text-blue-900"
                 >
@@ -435,11 +435,11 @@ onBeforeUnmount(() => {
                 Technical architecture and repository operations are documented
                 at
                 <NuxtLink
-                  to="https://docs.envision.io/"
+                  to="https://docs.envisionportal.org/docs/"
                   target="_blank"
                   class="text-blue-700 underline hover:text-blue-900"
                 >
-                  <span>docs.envision.io</span>
+                  <span>docs.envisionportal.org</span>
                 </NuxtLink>
                 <span
                   >, with further details to be added as additional
@@ -498,8 +498,9 @@ onBeforeUnmount(() => {
                   <td class="border border-gray-300 px-4 py-3">
                     Platform purpose, scope, and current status are documented
                     on the About page; Terms of Use and Privacy Policy are
-                    public; documentation is available at docs.envision.io; and
-                    service status is reported via a public status page.
+                    public; documentation is available at
+                    docs.envisionportal.org; and service status is reported via
+                    a public status page.
                   </td>
                 </tr>
                 <tr class="bg-gray-50">
