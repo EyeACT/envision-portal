@@ -118,14 +118,9 @@ const datasetNavItems = [
         route: "study/metadata/about",
       },
       {
-        name: "Oversight",
-        icon: "material-symbols:admin-panel-settings",
-        route: "study/metadata/oversight",
-      },
-      {
-        name: "Status",
+        name: "Status & Oversight",
         icon: "hugeicons:status",
-        route: "study/metadata/status",
+        route: "study/metadata/status-oversight",
       },
       {
         name: "Team",

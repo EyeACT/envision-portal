@@ -1049,6 +1049,13 @@ export const StatusBase = z.object({
 export const StudyMetadataStatusSchema =
   StatusBase.strict().superRefine(StatusSchemaRefine);
 
+export const StudyMetadataStatusOversightSchema = z
+  .object({
+    oversight: StudyMetadataOversightSchema,
+    status: StudyMetadataStatusSchema,
+  })
+  .strict();
+
 const collaboratorSchemaRefine = (data: any, ctx: z.RefinementCtx) => {
   if (!data.deleted) {
     if (!data.name || data.name.trim() === "") {
