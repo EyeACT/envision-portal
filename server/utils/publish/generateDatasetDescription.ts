@@ -1,4 +1,31 @@
+import {
+  isValidORCIDValue,
+  isValidRORValue,
+  normalizeORCID,
+  normalizeROR,
+} from "~/utils/validations";
+
 const SCHEMA_URL = "https://schema.aireadi.org/v0.1.0/dataset_description.json";
+
+// The schema requires identifier values to include the scheme URI, but ORCID and ROR IDs
+// are stored bare. Identifiers from any other scheme are published as they were entered.
+const toIdentifierUrl = (value: string, scheme: string) => {
+  const normalizedScheme = scheme.toUpperCase();
+
+  if (normalizedScheme === "ORCID") {
+    const orcid = normalizeORCID(value);
+
+    return isValidORCIDValue(orcid) ? `https://orcid.org/${orcid}` : value;
+  }
+
+  if (normalizedScheme === "ROR") {
+    const ror = normalizeROR(value);
+
+    return isValidRORValue(ror) ? `https://ror.org/${ror}` : value;
+  }
+
+  return value;
+};
 
 const generateDatasetDescription = async (
   datasetId: string,
@@ -101,7 +128,10 @@ const generateDatasetDescription = async (
       ...(hasValidNameIdentifier && {
         nameIdentifier: [
           {
-            nameIdentifierValue: creator.nameIdentifier,
+            nameIdentifierValue: toIdentifierUrl(
+              creator.nameIdentifier,
+              creator.nameIdentifierScheme,
+            ),
             nameIdentifierScheme: creator.nameIdentifierScheme,
             ...(creator.nameIdentifierSchemeUri && {
               schemeURI: creator.nameIdentifierSchemeUri,
@@ -114,7 +144,10 @@ const generateDatasetDescription = async (
           affiliationName: affiliation.affiliation,
           ...(affiliation.identifier && {
             affiliationIdentifier: {
-              affiliationIdentifierValue: affiliation.identifier,
+              affiliationIdentifierValue: toIdentifierUrl(
+                affiliation.identifier,
+                affiliation.identifierScheme,
+              ),
               affiliationIdentifierScheme: affiliation.identifierScheme,
               ...(affiliation.identifierSchemeUri && {
                 schemeURI: affiliation.identifierSchemeUri,
@@ -147,7 +180,10 @@ const generateDatasetDescription = async (
         ...(hasValidNameIdentifier && {
           nameIdentifier: [
             {
-              nameIdentifierValue: contributor.nameIdentifier,
+              nameIdentifierValue: toIdentifierUrl(
+                contributor.nameIdentifier,
+                contributor.nameIdentifierScheme,
+              ),
               nameIdentifierScheme: contributor.nameIdentifierScheme,
               ...(contributor.nameIdentifierSchemeUri && {
                 schemeURI: contributor.nameIdentifierSchemeUri,
@@ -160,7 +196,10 @@ const generateDatasetDescription = async (
             affiliationName: affiliation.affiliation,
             ...(affiliation.identifier && {
               affiliationIdentifier: {
-                affiliationIdentifierValue: affiliation.identifier,
+                affiliationIdentifierValue: toIdentifierUrl(
+                  affiliation.identifier,
+                  affiliation.identifierScheme,
+                ),
                 affiliationIdentifierScheme: affiliation.identifierScheme,
                 ...(affiliation.identifierSchemeUri && {
                   schemeURI: affiliation.identifierSchemeUri,
@@ -285,8 +324,10 @@ const generateDatasetDescription = async (
       name: dataset.DatasetManagingOrganization.name,
       ...(dataset.DatasetManagingOrganization.identifier && {
         managingOrganizationIdentifier: {
-          managingOrganizationIdentifierValue:
+          managingOrganizationIdentifierValue: toIdentifierUrl(
             dataset.DatasetManagingOrganization.identifier,
+            dataset.DatasetManagingOrganization.identifierScheme,
+          ),
           managingOrganizationScheme:
             dataset.DatasetManagingOrganization.identifierScheme,
           ...(dataset.DatasetManagingOrganization.identifierSchemeUri && {
@@ -338,8 +379,10 @@ const generateDatasetDescription = async (
       publisherName: dataset.DatasetManagingOrganization.name,
       ...(dataset.DatasetManagingOrganization.identifier && {
         publisherIdentifier: {
-          publisherIdentifierValue:
+          publisherIdentifierValue: toIdentifierUrl(
             dataset.DatasetManagingOrganization.identifier,
+            dataset.DatasetManagingOrganization.identifierScheme,
+          ),
           publisherIdentifierScheme:
             dataset.DatasetManagingOrganization.identifierScheme,
           ...(dataset.DatasetManagingOrganization.identifierSchemeUri && {
@@ -362,7 +405,10 @@ const generateDatasetDescription = async (
         funderName: funder.name,
         ...(funder.identifier && {
           funderIdentifier: {
-            funderIdentifierValue: funder.identifier,
+            funderIdentifierValue: toIdentifierUrl(
+              funder.identifier,
+              funder.identifierType,
+            ),
             funderIdentifierType: funder.identifierType,
             ...(funder.identifierSchemeUri && {
               schemeURI: funder.identifierSchemeUri,

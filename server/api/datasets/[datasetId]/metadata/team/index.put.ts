@@ -2,8 +2,7 @@ import { DatasetMetadataTeamSchema } from "#shared/utils/dataset_schemas";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
-
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as {
     datasetId: string;
@@ -134,6 +133,9 @@ export default defineEventHandler(async (event) => {
     await prisma.datasetFunder.update({
       data: {
         name: funder.name,
+        awardNumber: funder.awardNumber,
+        awardTitle: funder.awardTitle,
+        awardUri: funder.awardUri,
         identifier: funder.identifier,
         identifierSchemeUri: funder.identifierSchemeUri,
         identifierType: funder.identifierType,

@@ -103,7 +103,7 @@ if (error.value) {
 const ORCID_FIELD = {
   label: "ORCID",
   help: "Enter the ORCID iD or paste the full ORCID URL.",
-  placeholder: "0000-0000-0000-0000",
+  placeholder: "0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000",
   invalidMessage: "Enter a valid ORCID iD or ORCID URL",
   scheme: "ORCID",
   schemeUri: "https://orcid.org",
@@ -114,7 +114,7 @@ const ORCID_FIELD = {
 const ROR_FIELD = {
   label: "ROR",
   help: "Enter the ROR ID or paste the full ROR URL.",
-  placeholder: "03yrm5c26",
+  placeholder: "03yrm5c26 or https://ror.org/03yrm5c26",
   invalidMessage: "Enter a valid ROR ID or ROR URL",
   scheme: "ROR",
   schemeUri: "https://ror.org",
@@ -717,48 +717,48 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <div
                       v-for="(affiliation, affIndex) in item.affiliations"
                       :key="affIndex"
-                      class="mb-2 flex gap-2"
+                      class="mb-2 flex items-start gap-2"
                     >
-                      <div class="flex w-full flex-col gap-2">
-                        <UFormField
-                          label="Name"
-                          :name="`creators[${index}].affiliations[${affIndex}].affiliation`"
-                          required
-                        >
-                          <UInput
-                            v-model="affiliation.affiliation"
-                            class="w-full"
-                            placeholder="University of Example"
-                          />
-                        </UFormField>
-
-                        <UFormField
-                          label="ROR"
-                          :name="`creators[${index}].affiliations[${affIndex}].identifier`"
-                          help="Enter the ROR ID or paste the full ROR URL."
-                        >
-                          <UInput
-                            v-model="affiliation.identifier"
-                            class="w-full"
-                            placeholder="03yrm5c26"
-                            @blur="
-                              affiliation.identifier = normalizeROR(
-                                affiliation.identifier,
-                              )
-                            "
-                          />
-                        </UFormField>
-                      </div>
-
-                      <div class="flex items-end pb-1">
-                        <UButton
-                          size="sm"
-                          color="error"
-                          variant="outline"
-                          icon="i-lucide-trash"
-                          @click="item.affiliations.splice(affIndex, 1)"
+                      <UFormField
+                        label="Name"
+                        :name="`creators[${index}].affiliations[${affIndex}].affiliation`"
+                        class="w-full"
+                        required
+                      >
+                        <UInput
+                          v-model="affiliation.affiliation"
+                          class="w-full"
+                          placeholder="University of Example"
                         />
-                      </div>
+                      </UFormField>
+
+                      <UFormField
+                        label="ROR"
+                        :name="`creators[${index}].affiliations[${affIndex}].identifier`"
+                        class="w-full"
+                        hint="ID or URL"
+                      >
+                        <UInput
+                          v-model="affiliation.identifier"
+                          class="w-full"
+                          placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                          @blur="
+                            affiliation.identifier = normalizeROR(
+                              affiliation.identifier,
+                            )
+                          "
+                        />
+                      </UFormField>
+
+                      <UButton
+                        class="mt-6 shrink-0"
+                        size="sm"
+                        color="error"
+                        variant="outline"
+                        icon="i-lucide-trash"
+                        aria-label="Remove affiliation"
+                        @click="item.affiliations.splice(affIndex, 1)"
+                      />
                     </div>
 
                     <UButton
@@ -904,48 +904,48 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <div
                       v-for="(affiliation, affIndex) in item.affiliations"
                       :key="affIndex"
-                      class="mb-2 flex gap-2"
+                      class="mb-2 flex items-start gap-2"
                     >
-                      <div class="flex w-full flex-col gap-2">
-                        <UFormField
-                          label="Name"
-                          :name="`contributors[${index}].affiliations[${affIndex}].affiliation`"
-                          required
-                        >
-                          <UInput
-                            v-model="affiliation.affiliation"
-                            class="w-full"
-                            placeholder="University of Example"
-                          />
-                        </UFormField>
-
-                        <UFormField
-                          label="ROR"
-                          :name="`contributors[${index}].affiliations[${affIndex}].identifier`"
-                          help="Enter the ROR ID or paste the full ROR URL."
-                        >
-                          <UInput
-                            v-model="affiliation.identifier"
-                            class="w-full"
-                            placeholder="03yrm5c26"
-                            @blur="
-                              affiliation.identifier = normalizeROR(
-                                affiliation.identifier,
-                              )
-                            "
-                          />
-                        </UFormField>
-                      </div>
-
-                      <div class="flex items-end pb-1">
-                        <UButton
-                          size="sm"
-                          color="error"
-                          variant="outline"
-                          icon="i-lucide-trash"
-                          @click="item.affiliations.splice(affIndex, 1)"
+                      <UFormField
+                        label="Name"
+                        :name="`contributors[${index}].affiliations[${affIndex}].affiliation`"
+                        class="w-full"
+                        required
+                      >
+                        <UInput
+                          v-model="affiliation.affiliation"
+                          class="w-full"
+                          placeholder="University of Example"
                         />
-                      </div>
+                      </UFormField>
+
+                      <UFormField
+                        label="ROR"
+                        :name="`contributors[${index}].affiliations[${affIndex}].identifier`"
+                        class="w-full"
+                        hint="ID or URL"
+                      >
+                        <UInput
+                          v-model="affiliation.identifier"
+                          class="w-full"
+                          placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                          @blur="
+                            affiliation.identifier = normalizeROR(
+                              affiliation.identifier,
+                            )
+                          "
+                        />
+                      </UFormField>
+
+                      <UButton
+                        class="mt-6 shrink-0"
+                        size="sm"
+                        color="error"
+                        variant="outline"
+                        icon="i-lucide-trash"
+                        aria-label="Remove affiliation"
+                        @click="item.affiliations.splice(affIndex, 1)"
+                      />
                     </div>
 
                     <UButton
@@ -1029,7 +1029,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.identifier"
-                      placeholder="03yrm5c26"
+                      placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
                       class="w-full"
                       @blur="item.identifier = normalizeROR(item.identifier)"
                     />
@@ -1109,7 +1109,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             >
               <UInput
                 v-model="state.managingOrganization.identifier"
-                placeholder="03yrm5c26"
+                placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
                 class="w-full"
                 @blur="
                   state.managingOrganization.identifier = normalizeROR(
