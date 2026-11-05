@@ -28,8 +28,6 @@ const schema = z.object({
         z.object({
           affiliation: z.string(),
           identifier: z.string(),
-          identifierScheme: z.string(),
-          identifierSchemeUri: z.string(),
         }),
       ),
       contributorType: z.string(),
@@ -48,8 +46,6 @@ const schema = z.object({
         z.object({
           affiliation: z.string(),
           identifier: z.string(),
-          identifierScheme: z.string(),
-          identifierSchemeUri: z.string(),
         }),
       ),
       deleted: z.boolean(),
@@ -69,16 +65,12 @@ const schema = z.object({
       awardUri: z.string(),
       deleted: z.boolean(),
       identifier: z.string(),
-      identifierSchemeUri: z.string(),
-      identifierType: z.string(),
       local: z.boolean(),
     }),
   ),
   managingOrganization: z.object({
     name: z.string(),
     identifier: z.string(),
-    identifierScheme: z.string(),
-    identifierSchemeUri: z.string(),
   }),
 });
 
@@ -91,8 +83,6 @@ const state = reactive<Schema>({
   managingOrganization: {
     name: "",
     identifier: "",
-    identifierScheme: "",
-    identifierSchemeUri: "",
   },
 });
 
@@ -109,6 +99,38 @@ if (error.value) {
   });
 }
 
+// People are identified by ORCID and organizations by ROR.
+const ORCID_FIELD = {
+  label: "ORCID",
+  help: "Enter the ORCID iD or paste the full ORCID URL.",
+  placeholder: "0000-0000-0000-0000",
+  invalidMessage: "Enter a valid ORCID iD or ORCID URL",
+  scheme: "ORCID",
+  schemeUri: "https://orcid.org",
+  normalize: normalizeORCID,
+  isValid: isValidORCIDValue,
+};
+
+const ROR_FIELD = {
+  label: "ROR",
+  help: "Enter the ROR ID or paste the full ROR URL.",
+  placeholder: "03yrm5c26",
+  invalidMessage: "Enter a valid ROR ID or ROR URL",
+  scheme: "ROR",
+  schemeUri: "https://ror.org",
+  normalize: normalizeROR,
+  isValid: isValidRORValue,
+};
+
+const nameIdentifierField = (nameType: string) =>
+  nameType === "Organizational" ? ROR_FIELD : ORCID_FIELD;
+
+const toFormAffiliations = (affiliations: any[] | null | undefined) =>
+  (affiliations ?? []).map((item) => ({
+    affiliation: item.affiliation ?? "",
+    identifier: item.identifier ?? "",
+  }));
+
 if (data.value) {
   useSeoMeta({
     title: data.value.title,
@@ -116,7 +138,7 @@ if (data.value) {
 
   state.contributors = data.value.contributors.map((item: any) => ({
     id: item.id,
-    affiliations: item.affiliations ?? [],
+    affiliations: toFormAffiliations(item.affiliations),
     contributorType: item.contributorType ?? "",
     deleted: false,
     familyName: item.familyName ?? "",
@@ -127,7 +149,7 @@ if (data.value) {
   }));
   state.creators = data.value.creators.map((item: any) => ({
     id: item.id,
-    affiliations: item.affiliations ?? [],
+    affiliations: toFormAffiliations(item.affiliations),
     deleted: false,
     familyName: item.familyName ?? "",
     givenName: item.givenName ?? "",
@@ -143,16 +165,11 @@ if (data.value) {
     awardUri: item.awardUri ?? "",
     deleted: false,
     identifier: item.identifier ?? "",
-    identifierSchemeUri: item.identifierSchemeUri ?? "",
-    identifierType: item.identifierType ?? "",
     local: false,
   }));
   state.managingOrganization = {
     name: data.value.managingOrganization?.name ?? "",
     identifier: data.value.managingOrganization?.identifier ?? "",
-    identifierScheme: data.value.managingOrganization?.identifierScheme ?? "",
-    identifierSchemeUri:
-      data.value.managingOrganization?.identifierSchemeUri ?? "",
   };
 
   originalStateString.value = JSON.stringify(state);
@@ -225,8 +242,6 @@ const addFunder = () => {
     awardUri: "",
     deleted: false,
     identifier: "",
-    identifierSchemeUri: "",
-    identifierType: "",
     local: true,
   });
 };
@@ -287,11 +302,12 @@ const validate = (state: any): FormError[] => {
           message: "Name type is required.",
         });
       }
-      const creatorOrcid = normalizeORCID(creator.nameIdentifier);
-      if (creatorOrcid && !isValidORCIDValue(creatorOrcid)) {
+      const creatorIdField = nameIdentifierField(creator.nameType);
+      const creatorId = creatorIdField.normalize(creator.nameIdentifier);
+      if (creatorId && !creatorIdField.isValid(creatorId)) {
         errors.push({
           name: `creators[${index}].nameIdentifier`,
-          message: "Enter a valid ORCID iD or ORCID URL",
+          message: creatorIdField.invalidMessage,
         });
       }
 
@@ -303,50 +319,11 @@ const validate = (state: any): FormError[] => {
           });
         }
 
-        if (
-          (affiliation.identifier?.trim() !== "" &&
-            affiliation.identifierScheme?.trim() === "") ||
-          (affiliation.identifier?.trim() === "" &&
-            affiliation.identifierScheme?.trim() !== "")
-        ) {
+        const ror = normalizeROR(affiliation.identifier);
+        if (ror && !isValidRORValue(ror)) {
           errors.push({
             name: `creators[${index}].affiliations[${affIndex}].identifier`,
-            message:
-              "Identifier scheme is required when identifier scheme is provided",
-          });
-          errors.push({
-            name: `creators[${index}].affiliations[${affIndex}].identifierScheme`,
-            message:
-              "Identifier value is required when identifier value is provided",
-          });
-        }
-        if (
-          affiliation.identifier &&
-          affiliation.identifierScheme.toUpperCase() === "ORCID" &&
-          !isValidORCIDValue(affiliation.identifier)
-        ) {
-          errors.push({
-            name: `creators[${index}].affiliations[${affIndex}].identifier`,
-            message: "Invalid ORCID value",
-          });
-        }
-        if (
-          affiliation.identifier &&
-          affiliation.identifierScheme.toUpperCase() === "ROR" &&
-          !isValidRORValue(affiliation.identifier)
-        ) {
-          errors.push({
-            name: `creators[${index}].affiliations[${affIndex}].identifier`,
-            message: "Invalid ROR value",
-          });
-        }
-        if (
-          affiliation.identifierSchemeUri &&
-          !isValidUrl(affiliation.identifierSchemeUri)
-        ) {
-          errors.push({
-            name: `creators[${index}].affiliations[${affIndex}].identifierSchemeUri`,
-            message: "Invalid URL",
+            message: "Enter a valid ROR ID or ROR URL",
           });
         }
       });
@@ -391,11 +368,14 @@ const validate = (state: any): FormError[] => {
           message: "Name type is required.",
         });
       }
-      const contributorOrcid = normalizeORCID(contributor.nameIdentifier);
-      if (contributorOrcid && !isValidORCIDValue(contributorOrcid)) {
+      const contributorIdField = nameIdentifierField(contributor.nameType);
+      const contributorId = contributorIdField.normalize(
+        contributor.nameIdentifier,
+      );
+      if (contributorId && !contributorIdField.isValid(contributorId)) {
         errors.push({
           name: `contributors[${index}].nameIdentifier`,
-          message: "Enter a valid ORCID iD or ORCID URL",
+          message: contributorIdField.invalidMessage,
         });
       }
 
@@ -407,50 +387,11 @@ const validate = (state: any): FormError[] => {
           });
         }
 
-        if (
-          (affiliation.identifier?.trim() !== "" &&
-            affiliation.identifierScheme?.trim() === "") ||
-          (affiliation.identifier?.trim() === "" &&
-            affiliation.identifierScheme?.trim() !== "")
-        ) {
+        const ror = normalizeROR(affiliation.identifier);
+        if (ror && !isValidRORValue(ror)) {
           errors.push({
             name: `contributors[${index}].affiliations[${affIndex}].identifier`,
-            message:
-              "Identifier scheme is required when identifier scheme is provided",
-          });
-          errors.push({
-            name: `contributors[${index}].affiliations[${affIndex}].identifierScheme`,
-            message:
-              "Identifier value is required when identifier value is provided",
-          });
-        }
-        if (
-          affiliation.identifier &&
-          affiliation.identifierScheme.toUpperCase() === "ORCID" &&
-          !isValidORCIDValue(affiliation.identifier)
-        ) {
-          errors.push({
-            name: `contributors[${index}].affiliations[${affIndex}].identifier`,
-            message: "Invalid ORCID value",
-          });
-        }
-        if (
-          affiliation.identifier &&
-          affiliation.identifierScheme.toUpperCase() === "ROR" &&
-          !isValidRORValue(affiliation.identifier)
-        ) {
-          errors.push({
-            name: `contributors[${index}].affiliations[${affIndex}].identifier`,
-            message: "Invalid ROR value",
-          });
-        }
-        if (
-          affiliation.identifierSchemeUri &&
-          !isValidUrl(affiliation.identifierSchemeUri)
-        ) {
-          errors.push({
-            name: `contributors[${index}].affiliations[${affIndex}].identifierSchemeUri`,
-            message: "Invalid URL",
+            message: "Enter a valid ROR ID or ROR URL",
           });
         }
       });
@@ -488,51 +429,11 @@ const validate = (state: any): FormError[] => {
         });
       }
 
-      if (
-        (funder.identifier?.trim() !== "" &&
-          funder.identifierType?.trim() === "") ||
-        (funder.identifier?.trim() === "" &&
-          funder.identifierType?.trim() !== "")
-      ) {
+      const funderRor = normalizeROR(funder.identifier);
+      if (funderRor && !isValidRORValue(funderRor)) {
         errors.push({
           name: `funders[${index}].identifier`,
-          message: "Identifier type is required when identifier is provided",
-        });
-        errors.push({
-          name: `funders[${index}].identifierType`,
-          message: "Identifier is required when identifier type is provided",
-        });
-      }
-
-      if (
-        funder.identifier &&
-        funder.identifierType?.toUpperCase() === "ROR" &&
-        !isValidRORValue(funder.identifier)
-      ) {
-        errors.push({
-          name: `funders[${index}].identifier`,
-          message: "Invalid ROR value",
-        });
-      }
-
-      if (
-        funder.identifier &&
-        funder.identifierType?.toUpperCase() === "CROSSREF_FUNDER_ID" &&
-        !isValidCrossRefValue(funder.identifier)
-      ) {
-        errors.push({
-          name: `funders[${index}].identifier`,
-          message: "Invalid Crossref Funder ID",
-        });
-      }
-
-      if (
-        funder.identifierSchemeUri &&
-        !isValidUrl(funder.identifierSchemeUri)
-      ) {
-        errors.push({
-          name: `funders[${index}].identifierSchemeUri`,
-          message: "Invalid Identifier Scheme URI",
+          message: "Enter a valid ROR ID or ROR URL",
         });
       }
 
@@ -552,65 +453,46 @@ const validate = (state: any): FormError[] => {
       message: "Name is required",
     });
   }
-  if (
-    (state.managingOrganization.identifier.trim() !== "" &&
-      state.managingOrganization.identifierScheme.trim() === "") ||
-    (state.managingOrganization.identifier.trim() === "" &&
-      state.managingOrganization.identifierScheme.trim() !== "")
-  ) {
+  const managingOrganizationRor = normalizeROR(
+    state.managingOrganization.identifier,
+  );
+  if (managingOrganizationRor && !isValidRORValue(managingOrganizationRor)) {
     errors.push({
       name: "managingOrganization.identifier",
-      message:
-        "Identifier scheme is required when identifier scheme is provided",
-    });
-    errors.push({
-      name: "managingOrganization.identifierScheme",
-      message: "Identifier value is required when identifier value is provided",
-    });
-  }
-  if (
-    state.managingOrganization.identifier &&
-    state.managingOrganization.identifierScheme.toUpperCase() === "ORCID" &&
-    !isValidORCIDValue(state.managingOrganization.identifier)
-  ) {
-    errors.push({
-      name: "managingOrganization.identifier",
-      message: "Invalid ORCID value",
-    });
-  }
-  if (
-    state.managingOrganization.identifier &&
-    state.managingOrganization.identifierScheme.toUpperCase() === "ROR" &&
-    !isValidRORValue(state.managingOrganization.identifier)
-  ) {
-    errors.push({
-      name: "managingOrganization.identifier",
-      message: "Invalid ROR value",
-    });
-  }
-  if (
-    state.managingOrganization.identifierSchemeUri &&
-    !isValidUrl(state.managingOrganization.identifierSchemeUri)
-  ) {
-    errors.push({
-      name: "managingOrganization.identifierSchemeUri",
-      message: "Invalid URL",
+      message: "Enter a valid ROR ID or ROR URL",
     });
   }
 
   return errors;
 };
 
-// The form only collects the ORCID; the API also expects its scheme and scheme URI.
+// The form only collects the ORCID and ROR IDs; the API also expects their schemes and scheme URIs.
+const toRorFields = (value: string) => {
+  const ror = normalizeROR(value);
+
+  return {
+    identifier: ror,
+    identifierScheme: ror ? "ROR" : "",
+    identifierSchemeUri: ror ? "https://ror.org" : "",
+  };
+};
+
 // Deleted rows are still validated by the API, so their old identifiers are cleared.
-const withOrcidFields = (person: any) => {
-  const orcid = person.deleted ? "" : normalizeORCID(person.nameIdentifier);
+const withIdentifierFields = (person: any) => {
+  const idField = nameIdentifierField(person.nameType);
+  const nameIdentifier = person.deleted
+    ? ""
+    : idField.normalize(person.nameIdentifier);
 
   return {
     ...person,
-    nameIdentifier: orcid,
-    nameIdentifierScheme: orcid ? "ORCID" : "",
-    nameIdentifierSchemeUri: orcid ? "https://orcid.org" : "",
+    affiliations: person.affiliations.map((affiliation: any) => ({
+      ...affiliation,
+      ...toRorFields(person.deleted ? "" : affiliation.identifier),
+    })),
+    nameIdentifier,
+    nameIdentifierScheme: nameIdentifier ? idField.scheme : "",
+    nameIdentifierSchemeUri: nameIdentifier ? idField.schemeUri : "",
   };
 };
 
@@ -622,7 +504,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
   const b = {
     contributors: formData.contributors.map((contributor: any) => {
-      const d = withOrcidFields(contributor);
+      const d = withIdentifierFields(contributor);
 
       if (d.local) {
         delete d.id;
@@ -634,7 +516,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       return d;
     }),
     creators: formData.creators.map((creator: any) => {
-      const d = withOrcidFields(creator);
+      const d = withIdentifierFields(creator);
 
       if (d.local) {
         delete d.id;
@@ -646,7 +528,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       return d;
     }),
     funders: formData.funders.map((funder: any) => {
-      const d = { ...funder };
+      const { identifier, identifierScheme, identifierSchemeUri } = toRorFields(
+        funder.deleted ? "" : funder.identifier,
+      );
+      const d = {
+        ...funder,
+        identifier,
+        identifierSchemeUri,
+        identifierType: identifierScheme,
+      };
 
       if (d.local) {
         delete d.id;
@@ -659,9 +549,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
     managingOrganization: {
       name: formData.managingOrganization.name,
-      identifier: formData.managingOrganization.identifier,
-      identifierScheme: formData.managingOrganization.identifierScheme,
-      identifierSchemeUri: formData.managingOrganization.identifierSchemeUri,
+      ...toRorFields(formData.managingOrganization.identifier),
     },
   };
 
@@ -807,18 +695,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </div>
 
                   <UFormField
-                    label="ORCID"
+                    :label="nameIdentifierField(item.nameType).label"
                     :name="`creators[${index}].nameIdentifier`"
-                    help="Enter the ORCID iD or paste the full ORCID URL."
+                    :help="nameIdentifierField(item.nameType).help"
                   >
                     <UInput
                       v-model="item.nameIdentifier"
-                      placeholder="0000-0000-0000-0000"
+                      :placeholder="
+                        nameIdentifierField(item.nameType).placeholder
+                      "
                       class="w-full"
                       @blur="
-                        item.nameIdentifier = normalizeORCID(
-                          item.nameIdentifier,
-                        )
+                        item.nameIdentifier = nameIdentifierField(
+                          item.nameType,
+                        ).normalize(item.nameIdentifier)
                       "
                     />
                   </UFormField>
@@ -842,43 +732,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           />
                         </UFormField>
 
-                        <div class="flex w-full gap-2">
-                          <UFormField
-                            label="Identifier"
-                            :name="`creators[${index}].affiliations[${affIndex}].identifier`"
+                        <UFormField
+                          label="ROR"
+                          :name="`creators[${index}].affiliations[${affIndex}].identifier`"
+                          help="Enter the ROR ID or paste the full ROR URL."
+                        >
+                          <UInput
+                            v-model="affiliation.identifier"
                             class="w-full"
-                          >
-                            <UInput
-                              v-model="affiliation.identifier"
-                              class="w-full"
-                              placeholder="1234567890"
-                            />
-                          </UFormField>
-
-                          <UFormField
-                            label="Identifier Scheme"
-                            :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`"
-                            class="w-full"
-                          >
-                            <UInput
-                              v-model="affiliation.identifierScheme"
-                              class="w-full"
-                              placeholder="ROR"
-                            />
-                          </UFormField>
-
-                          <UFormField
-                            label="Identifier Scheme URI"
-                            :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`"
-                            class="w-full"
-                          >
-                            <UInput
-                              v-model="affiliation.identifierSchemeUri"
-                              class="w-full"
-                              placeholder="https://ror.org"
-                            />
-                          </UFormField>
-                        </div>
+                            placeholder="03yrm5c26"
+                            @blur="
+                              affiliation.identifier = normalizeROR(
+                                affiliation.identifier,
+                              )
+                            "
+                          />
+                        </UFormField>
                       </div>
 
                       <div class="flex items-end pb-1">
@@ -903,8 +772,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         item.affiliations.push({
                           affiliation: '',
                           identifier: '',
-                          identifierScheme: '',
-                          identifierSchemeUri: '',
                         })
                       "
                     />
@@ -1015,18 +882,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   </div>
 
                   <UFormField
-                    label="ORCID"
+                    :label="nameIdentifierField(item.nameType).label"
                     :name="`contributors[${index}].nameIdentifier`"
-                    help="Enter the ORCID iD or paste the full ORCID URL."
+                    :help="nameIdentifierField(item.nameType).help"
                   >
                     <UInput
                       v-model="item.nameIdentifier"
-                      placeholder="0000-0000-0000-0000"
+                      :placeholder="
+                        nameIdentifierField(item.nameType).placeholder
+                      "
                       class="w-full"
                       @blur="
-                        item.nameIdentifier = normalizeORCID(
-                          item.nameIdentifier,
-                        )
+                        item.nameIdentifier = nameIdentifierField(
+                          item.nameType,
+                        ).normalize(item.nameIdentifier)
                       "
                     />
                   </UFormField>
@@ -1040,7 +909,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       <div class="flex w-full flex-col gap-2">
                         <UFormField
                           label="Name"
-                          :name="`creators[${index}].affiliations[${affIndex}].affiliation`"
+                          :name="`contributors[${index}].affiliations[${affIndex}].affiliation`"
                           required
                         >
                           <UInput
@@ -1050,43 +919,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           />
                         </UFormField>
 
-                        <div class="flex w-full gap-2">
-                          <UFormField
-                            label="Identifier"
-                            :name="`creators[${index}].affiliations[${affIndex}].identifier`"
+                        <UFormField
+                          label="ROR"
+                          :name="`contributors[${index}].affiliations[${affIndex}].identifier`"
+                          help="Enter the ROR ID or paste the full ROR URL."
+                        >
+                          <UInput
+                            v-model="affiliation.identifier"
                             class="w-full"
-                          >
-                            <UInput
-                              v-model="affiliation.identifier"
-                              class="w-full"
-                              placeholder="1234567890"
-                            />
-                          </UFormField>
-
-                          <UFormField
-                            label="Identifier Scheme"
-                            :name="`creators[${index}].affiliations[${affIndex}].identifierScheme`"
-                            class="w-full"
-                          >
-                            <UInput
-                              v-model="affiliation.identifierScheme"
-                              class="w-full"
-                              placeholder="ROR"
-                            />
-                          </UFormField>
-
-                          <UFormField
-                            label="Identifier Scheme URI"
-                            :name="`creators[${index}].affiliations[${affIndex}].identifierSchemeUri`"
-                            class="w-full"
-                          >
-                            <UInput
-                              v-model="affiliation.identifierSchemeUri"
-                              class="w-full"
-                              placeholder="https://ror.org"
-                            />
-                          </UFormField>
-                        </div>
+                            placeholder="03yrm5c26"
+                            @blur="
+                              affiliation.identifier = normalizeROR(
+                                affiliation.identifier,
+                              )
+                            "
+                          />
+                        </UFormField>
                       </div>
 
                       <div class="flex items-end pb-1">
@@ -1111,8 +959,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         item.affiliations.push({
                           affiliation: '',
                           identifier: '',
-                          identifierScheme: '',
-                          identifierSchemeUri: '',
                         })
                       "
                     />
@@ -1176,44 +1022,18 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <div class="flex w-full gap-3">
-                    <UFormField
-                      label="Identifier"
-                      :name="`funders[${index}].identifier`"
+                  <UFormField
+                    label="ROR"
+                    :name="`funders[${index}].identifier`"
+                    help="Enter the ROR ID or paste the full ROR URL."
+                  >
+                    <UInput
+                      v-model="item.identifier"
+                      placeholder="03yrm5c26"
                       class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifier"
-                        placeholder="1234567890"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Identifier Type"
-                      :name="`funders[${index}].identifierType`"
-                      class="w-full"
-                    >
-                      <USelect
-                        v-model="item.identifierType"
-                        placeholder="GRID"
-                        class="w-full"
-                        :items="FORM_JSON.datasetFunderIdentifierTypeOptions"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Identifier Scheme URI"
-                      :name="`funders[${index}].identifierSchemeUri`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifierSchemeUri"
-                        placeholder="https://grid.ac"
-                        class="w-full"
-                      />
-                    </UFormField>
-                  </div>
+                      @blur="item.identifier = normalizeROR(item.identifier)"
+                    />
+                  </UFormField>
 
                   <UFormField
                     label="Award Number"
@@ -1282,43 +1102,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
-            <div class="flex w-full gap-3">
-              <UFormField
-                label="Identifier"
-                name="managingOrganization.identifier"
+            <UFormField
+              label="ROR"
+              name="managingOrganization.identifier"
+              help="Enter the ROR ID or paste the full ROR URL."
+            >
+              <UInput
+                v-model="state.managingOrganization.identifier"
+                placeholder="03yrm5c26"
                 class="w-full"
-              >
-                <UInput
-                  v-model="state.managingOrganization.identifier"
-                  placeholder="1234567890"
-                  class="w-full"
-                />
-              </UFormField>
-
-              <UFormField
-                label="Identifier Scheme"
-                name="managingOrganization.identifierScheme"
-                class="w-full"
-              >
-                <UInput
-                  v-model="state.managingOrganization.identifierScheme"
-                  placeholder="ROR"
-                  class="w-full"
-                />
-              </UFormField>
-
-              <UFormField
-                label="Identifier Scheme URI"
-                name="managingOrganization.identifierSchemeUri"
-                class="w-full"
-              >
-                <UInput
-                  v-model="state.managingOrganization.identifierSchemeUri"
-                  placeholder="https://ror.org"
-                  class="w-full"
-                />
-              </UFormField>
-            </div>
+                @blur="
+                  state.managingOrganization.identifier = normalizeROR(
+                    state.managingOrganization.identifier,
+                  )
+                "
+              />
+            </UFormField>
           </div>
         </div>
       </UForm>
