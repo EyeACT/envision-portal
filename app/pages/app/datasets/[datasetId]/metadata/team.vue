@@ -38,8 +38,6 @@ const schema = z.object({
       givenName: z.string(),
       local: z.boolean(),
       nameIdentifier: z.string(),
-      nameIdentifierScheme: z.string(),
-      nameIdentifierSchemeUri: z.string(),
       nameType: z.string(),
     }),
   ),
@@ -59,8 +57,6 @@ const schema = z.object({
       givenName: z.string(),
       local: z.boolean(),
       nameIdentifier: z.string(),
-      nameIdentifierScheme: z.string(),
-      nameIdentifierSchemeUri: z.string(),
       nameType: z.string(),
     }),
   ),
@@ -127,8 +123,6 @@ if (data.value) {
     givenName: item.givenName ?? "",
     local: false,
     nameIdentifier: item.nameIdentifier ?? "",
-    nameIdentifierScheme: item.nameIdentifierScheme ?? "",
-    nameIdentifierSchemeUri: item.nameIdentifierSchemeUri ?? "",
     nameType: item.nameType ?? "",
   }));
   state.creators = data.value.creators.map((item: any) => ({
@@ -139,8 +133,6 @@ if (data.value) {
     givenName: item.givenName ?? "",
     local: false,
     nameIdentifier: item.nameIdentifier ?? "",
-    nameIdentifierScheme: item.nameIdentifierScheme ?? "",
-    nameIdentifierSchemeUri: item.nameIdentifierSchemeUri ?? "",
     nameType: item.nameType ?? "",
   }));
   state.funders = data.value.funders.map((item: any) => ({
@@ -185,8 +177,6 @@ const addContributor = () => {
     givenName: "",
     local: true,
     nameIdentifier: "",
-    nameIdentifierScheme: "",
-    nameIdentifierSchemeUri: "",
     nameType: "",
   });
 };
@@ -211,8 +201,6 @@ const addCreator = () => {
     givenName: "",
     local: true,
     nameIdentifier: "",
-    nameIdentifierScheme: "",
-    nameIdentifierSchemeUri: "",
     nameType: "",
   });
 };
@@ -299,50 +287,11 @@ const validate = (state: any): FormError[] => {
           message: "Name type is required.",
         });
       }
-      if (
-        (creator.nameIdentifier.trim() !== "" &&
-          creator.nameIdentifierScheme.trim() === "") ||
-        (creator.nameIdentifier.trim() === "" &&
-          creator.nameIdentifierScheme.trim() !== "")
-      ) {
+      const creatorOrcid = normalizeORCID(creator.nameIdentifier);
+      if (creatorOrcid && !isValidORCIDValue(creatorOrcid)) {
         errors.push({
           name: `creators[${index}].nameIdentifier`,
-          message:
-            "Identifier scheme is required when identifier scheme is provided",
-        });
-        errors.push({
-          name: `creators[${index}].nameIdentifierScheme`,
-          message:
-            "Identifier value is required when identifier value is provided",
-        });
-      }
-      if (
-        creator.nameIdentifier &&
-        creator.nameIdentifierScheme.toUpperCase() === "ORCID" &&
-        !isValidORCIDValue(creator.nameIdentifier)
-      ) {
-        errors.push({
-          name: `creators[${index}].nameIdentifier`,
-          message: "Invalid ORCID value",
-        });
-      }
-      if (
-        creator.nameIdentifier &&
-        creator.nameIdentifierScheme.toUpperCase() === "ROR" &&
-        !isValidRORValue(creator.nameIdentifier)
-      ) {
-        errors.push({
-          name: `creators[${index}].nameIdentifier`,
-          message: "Invalid ROR value",
-        });
-      }
-      if (
-        creator.nameIdentifierSchemeUri &&
-        !isValidUrl(creator.nameIdentifierSchemeUri)
-      ) {
-        errors.push({
-          name: `creators[${index}].nameIdentifierSchemeUri`,
-          message: "Invalid URL",
+          message: "Enter a valid ORCID iD or ORCID URL",
         });
       }
 
@@ -442,50 +391,11 @@ const validate = (state: any): FormError[] => {
           message: "Name type is required.",
         });
       }
-      if (
-        (contributor.nameIdentifier.trim() !== "" &&
-          contributor.nameIdentifierScheme.trim() === "") ||
-        (contributor.nameIdentifier.trim() === "" &&
-          contributor.nameIdentifierScheme.trim() !== "")
-      ) {
+      const contributorOrcid = normalizeORCID(contributor.nameIdentifier);
+      if (contributorOrcid && !isValidORCIDValue(contributorOrcid)) {
         errors.push({
           name: `contributors[${index}].nameIdentifier`,
-          message:
-            "Identifier scheme is required when identifier scheme is provided",
-        });
-        errors.push({
-          name: `contributors[${index}].nameIdentifierScheme`,
-          message:
-            "Identifier value is required when identifier value is provided",
-        });
-      }
-      if (
-        contributor.nameIdentifier &&
-        contributor.nameIdentifierScheme.toUpperCase() === "ORCID" &&
-        !isValidORCIDValue(contributor.nameIdentifier)
-      ) {
-        errors.push({
-          name: `contributors[${index}].nameIdentifier`,
-          message: "Invalid ORCID value",
-        });
-      }
-      if (
-        contributor.nameIdentifier &&
-        contributor.nameIdentifierScheme.toUpperCase() === "ROR" &&
-        !isValidRORValue(contributor.nameIdentifier)
-      ) {
-        errors.push({
-          name: `contributors[${index}].nameIdentifier`,
-          message: "Invalid ROR value",
-        });
-      }
-      if (
-        contributor.nameIdentifierSchemeUri &&
-        !isValidUrl(contributor.nameIdentifierSchemeUri)
-      ) {
-        errors.push({
-          name: `contributors[${index}].nameIdentifierSchemeUri`,
-          message: "Invalid URL",
+          message: "Enter a valid ORCID iD or ORCID URL",
         });
       }
 
@@ -691,6 +601,19 @@ const validate = (state: any): FormError[] => {
   return errors;
 };
 
+// The form only collects the ORCID; the API also expects its scheme and scheme URI.
+// Deleted rows are still validated by the API, so their old identifiers are cleared.
+const withOrcidFields = (person: any) => {
+  const orcid = person.deleted ? "" : normalizeORCID(person.nameIdentifier);
+
+  return {
+    ...person,
+    nameIdentifier: orcid,
+    nameIdentifierScheme: orcid ? "ORCID" : "",
+    nameIdentifierSchemeUri: orcid ? "https://orcid.org" : "",
+  };
+};
+
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
   isSubmitting.value = true;
@@ -699,7 +622,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
   const b = {
     contributors: formData.contributors.map((contributor: any) => {
-      const d = { ...contributor };
+      const d = withOrcidFields(contributor);
 
       if (d.local) {
         delete d.id;
@@ -711,7 +634,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       return d;
     }),
     creators: formData.creators.map((creator: any) => {
-      const d = { ...creator };
+      const d = withOrcidFields(creator);
 
       if (d.local) {
         delete d.id;
@@ -883,43 +806,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <div class="flex w-full gap-3">
-                    <UFormField
-                      label="Name Identifier"
-                      :name="`creators[${index}].nameIdentifier`"
+                  <UFormField
+                    label="ORCID"
+                    :name="`creators[${index}].nameIdentifier`"
+                    help="Enter the ORCID iD or paste the full ORCID URL."
+                  >
+                    <UInput
+                      v-model="item.nameIdentifier"
+                      placeholder="0000-0000-0000-0000"
                       class="w-full"
-                    >
-                      <UInput
-                        v-model="item.nameIdentifier"
-                        placeholder="0000-0000-0000-0000"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Name Identifier Scheme"
-                      :name="`creators[${index}].nameIdentifierScheme`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.nameIdentifierScheme"
-                        placeholder="ORCID"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Name Identifier Scheme URI"
-                      :name="`creators[${index}].nameIdentifierSchemeUri`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.nameIdentifierSchemeUri"
-                        placeholder="https://orcid.org"
-                        class="w-full"
-                      />
-                    </UFormField>
-                  </div>
+                      @blur="
+                        item.nameIdentifier = normalizeORCID(
+                          item.nameIdentifier,
+                        )
+                      "
+                    />
+                  </UFormField>
 
                   <UFormField label="Affiliations" name="affiliations">
                     <div
@@ -1112,43 +1014,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <div class="flex w-full gap-3">
-                    <UFormField
-                      label="Name Identifier"
-                      :name="`contributors[${index}].nameIdentifier`"
+                  <UFormField
+                    label="ORCID"
+                    :name="`contributors[${index}].nameIdentifier`"
+                    help="Enter the ORCID iD or paste the full ORCID URL."
+                  >
+                    <UInput
+                      v-model="item.nameIdentifier"
+                      placeholder="0000-0000-0000-0000"
                       class="w-full"
-                    >
-                      <UInput
-                        v-model="item.nameIdentifier"
-                        placeholder="0000-0000-0000-0000"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Name Identifier Scheme"
-                      :name="`contributors[${index}].nameIdentifierScheme`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.nameIdentifierScheme"
-                        placeholder="ORCID"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Name Identifier Scheme URI"
-                      :name="`contributors[${index}].nameIdentifierSchemeUri`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.nameIdentifierSchemeUri"
-                        placeholder="https://orcid.org"
-                        class="w-full"
-                      />
-                    </UFormField>
-                  </div>
+                      @blur="
+                        item.nameIdentifier = normalizeORCID(
+                          item.nameIdentifier,
+                        )
+                      "
+                    />
+                  </UFormField>
 
                   <UFormField label="Affiliations" name="affiliations">
                     <div
