@@ -258,9 +258,7 @@ export const altIdentifierSchema = z
 
 export const DatasetMetadataIdentifiersSchema = z
   .object({
-    DatasetAlternateIdentifier: z
-      .array(altIdentifierSchema)
-      .min(1, "At least one alternate identifier is required"),
+    DatasetAlternateIdentifier: z.array(altIdentifierSchema),
   })
   .strict();
 

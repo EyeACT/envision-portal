@@ -129,12 +129,7 @@ const validate = (state: any): FormError[] => {
   const activeSecondaryIdentifiers =
     state.secondaryIdentifiers?.filter((item: any) => !item.deleted) ?? [];
 
-  if (activeSecondaryIdentifiers.length === 0) {
-    errors.push({
-      name: "secondaryIdentifiers",
-      message: "Please add at least one secondary identifier",
-    });
-  } else {
+  if (activeSecondaryIdentifiers.length > 0) {
     const seenIdentifiers = new Set<string>();
     activeSecondaryIdentifiers.forEach((item: any, index: number) => {
       const key = `${item.identifier?.trim().toLowerCase()}|${item.type?.trim().toLowerCase()}`;
@@ -316,7 +311,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </h2>
 
                 <p class="text-gray-500 dark:text-gray-400">
-                  Please add some secondary identifiers that describe the dataset.
+                  Optionally, add any secondary identifiers that describe the dataset.
                 </p>
               </div>
 
