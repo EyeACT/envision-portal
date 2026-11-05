@@ -23,21 +23,14 @@ const schema = z.object({
       name: z.string().optional(),
       deleted: z.boolean(),
       identifier: z.string().optional(),
-      scheme: z.string().optional(),
-      schemeUri: z.string().optional(),
     }),
   ),
   leadSponsorIdentifier: z.string(),
-  leadSponsorIdentifierScheme: z.string(),
-  leadSponsorIdentifierSchemeUri: z.string(),
   leadSponsorName: z.string().min(1, "Lead sponsor name is required"),
   responsiblePartyInvestigatorAffiliationIdentifier: z.string(),
-  responsiblePartyInvestigatorAffiliationIdentifierScheme: z.string(),
-  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: z.string(),
   responsiblePartyInvestigatorAffiliationName: z.string(),
   responsiblePartyInvestigatorFamilyName: z.string(),
   responsiblePartyInvestigatorGivenName: z.string(),
-  responsiblePartyInvestigatorIdentifierScheme: z.string(),
   responsiblePartyInvestigatorIdentifierValue: z.string(),
   responsiblePartyInvestigatorTitle: z.string(),
   responsiblePartyType: z.string().min(1, "Responsible party type is required"),
@@ -52,21 +45,14 @@ const state = reactive<Schema>({
       name: "",
       deleted: false,
       identifier: "",
-      scheme: "",
-      schemeUri: "",
     },
   ],
   leadSponsorIdentifier: "",
-  leadSponsorIdentifierScheme: "",
-  leadSponsorIdentifierSchemeUri: "",
   leadSponsorName: "",
   responsiblePartyInvestigatorAffiliationIdentifier: "",
-  responsiblePartyInvestigatorAffiliationIdentifierScheme: "",
-  responsiblePartyInvestigatorAffiliationIdentifierSchemeUri: "",
   responsiblePartyInvestigatorAffiliationName: "",
   responsiblePartyInvestigatorFamilyName: "",
   responsiblePartyInvestigatorGivenName: "",
-  responsiblePartyInvestigatorIdentifierScheme: "",
   responsiblePartyInvestigatorIdentifierValue: "",
   responsiblePartyInvestigatorTitle: "",
   responsiblePartyType: "",
@@ -82,8 +68,6 @@ function addCollaborator() {
     name: "",
     deleted: false,
     identifier: "",
-    scheme: "",
-    schemeUri: "",
   });
 }
 
@@ -125,28 +109,30 @@ if (data.value) {
       name: c.name || "",
       deleted: false,
       identifier: c.identifier || "",
-      scheme: c.scheme || "",
-      schemeUri: c.schemeUri || "",
     }));
   } else {
     state.collaborators = [];
   }
 
-  state.leadSponsorIdentifier = data.value.StudySponsors?.leadSponsorIdentifier || "";
-  state.leadSponsorIdentifierScheme = data.value.StudySponsors?.leadSponsorIdentifierScheme || "";
-  state.leadSponsorIdentifierSchemeUri = data.value.StudySponsors?.leadSponsorIdentifierSchemeUri || "";
+  state.leadSponsorIdentifier =
+    data.value.StudySponsors?.leadSponsorIdentifier || "";
   state.leadSponsorName = data.value.StudySponsors?.leadSponsorName || "";
-  state.responsiblePartyType = data.value.StudySponsors?.responsiblePartyType || "";
-  state.responsiblePartyInvestigatorGivenName = data.value.StudySponsors?.responsiblePartyInvestigatorGivenName || "";
-  state.responsiblePartyInvestigatorFamilyName = data.value.StudySponsors?.responsiblePartyInvestigatorFamilyName || "";
-  state.responsiblePartyInvestigatorTitle = data.value.StudySponsors?.responsiblePartyInvestigatorTitle || "";
-  state.responsiblePartyInvestigatorAffiliationName = data.value.StudySponsors?.responsiblePartyInvestigatorAffiliationName || "";
-  state.responsiblePartyInvestigatorAffiliationIdentifier = data.value.StudySponsors?.responsiblePartyInvestigatorAffiliationIdentifier || "";
-  state.responsiblePartyInvestigatorAffiliationIdentifierScheme = data.value.StudySponsors?.responsiblePartyInvestigatorAffiliationIdentifierScheme || "";
-  state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri = data.value.StudySponsors?.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri || "";
-  state.responsiblePartyInvestigatorIdentifierScheme = data.value.StudySponsors?.responsiblePartyInvestigatorIdentifierScheme || "";
-  state.responsiblePartyInvestigatorIdentifierValue = data.value.StudySponsors?.responsiblePartyInvestigatorIdentifierValue || "";
-  
+  state.responsiblePartyType =
+    data.value.StudySponsors?.responsiblePartyType || "";
+  state.responsiblePartyInvestigatorGivenName =
+    data.value.StudySponsors?.responsiblePartyInvestigatorGivenName || "";
+  state.responsiblePartyInvestigatorFamilyName =
+    data.value.StudySponsors?.responsiblePartyInvestigatorFamilyName || "";
+  state.responsiblePartyInvestigatorTitle =
+    data.value.StudySponsors?.responsiblePartyInvestigatorTitle || "";
+  state.responsiblePartyInvestigatorAffiliationName =
+    data.value.StudySponsors?.responsiblePartyInvestigatorAffiliationName || "";
+  state.responsiblePartyInvestigatorAffiliationIdentifier =
+    data.value.StudySponsors
+      ?.responsiblePartyInvestigatorAffiliationIdentifier || "";
+  state.responsiblePartyInvestigatorIdentifierValue =
+    data.value.StudySponsors?.responsiblePartyInvestigatorIdentifierValue || "";
+
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -154,14 +140,21 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
+
+  const validateRor = (name: string, value: string) => {
+    const ror = normalizeROR(value);
+
+    if (ror && !isValidRORValue(ror)) {
+      errors.push({ name, message: "Enter a valid ROR ID or ROR URL" });
+    }
+  };
 
   if (!state.responsiblePartyType?.trim()) {
     errors.push({
@@ -177,122 +170,118 @@ const validate = (state: any): FormError[] => {
     });
   }
 
+  validateRor("leadSponsorIdentifier", state.leadSponsorIdentifier);
+
   if (
-    (state.leadSponsorIdentifier.trim() !== "" && state.leadSponsorIdentifierScheme.trim() === "") ||
-    (state.leadSponsorIdentifier.trim() === "" && state.leadSponsorIdentifierScheme.trim() !== "")
+    ["Sponsor-Investigator", "Principal Investigator"].includes(
+      state.responsiblePartyType,
+    )
   ) {
-    errors.push(
-      { name: "leadSponsorIdentifier", message: "Identifier is required when scheme is provided" },
-      { name: "leadSponsorScheme", message: "Identifier scheme is required when identifier is provided" }
-    );
-  }
-
-  if (state.leadSponsorIdentifier && state.leadSponsorIdentifierScheme.toUpperCase() === "ORCID" && !isValidORCIDValue(state.leadSponsorIdentifier)) {
-    errors.push({ name: "leadSponsorIdentifier", message: "Invalid ORCID value" });
-  }
-  if (state.leadSponsorIdentifier && state.leadSponsorIdentifierScheme.toUpperCase() === "ROR" && !isValidRORValue(state.leadSponsorIdentifier)) {
-    errors.push({ name: "leadSponsorIdentifier", message: "Invalid ROR value" });
-  }
-
-  if (state.leadSponsorIdentifierSchemeUri && !isValidUrl(state.leadSponsorIdentifierSchemeUri)) {
-    errors.push({ name: "leadSponsorSchemeUri", message: "Invalid URL" });
-  }
-
-  if (["Sponsor-Investigator", "Principal Investigator"].includes(state.responsiblePartyType)) {
     if (!state.responsiblePartyInvestigatorFamilyName) {
       errors.push({ name: "familyName", message: "Family name is required" });
     }
     if (!state.responsiblePartyInvestigatorAffiliationIdentifier) {
-      errors.push({ name: "affiliationId", message: "Affiliation Identifier is required" });
+      errors.push({
+        name: "affiliationId",
+        message: "Affiliation Identifier is required",
+      });
     }
     if (!state.responsiblePartyInvestigatorAffiliationName) {
-      errors.push({ name: "affiliation", message: "Affiliation Name is required" });
+      errors.push({
+        name: "affiliation",
+        message: "Affiliation Name is required",
+      });
     }
   }
 
-  if (
-    (state.responsiblePartyInvestigatorAffiliationIdentifier !== "" && state.responsiblePartyInvestigatorAffiliationIdentifierScheme === "") ||
-    (state.responsiblePartyInvestigatorAffiliationIdentifier === "" && state.responsiblePartyInvestigatorAffiliationIdentifierScheme !== "")
-  ) {
-    errors.push(
-      { name: "affiliationId", message: "Identifier is required when scheme is provided" },
-      { name: "affiliationScheme", message: "Identifier scheme is required when identifier is provided" }
-    );
+  validateRor(
+    "affiliationId",
+    state.responsiblePartyInvestigatorAffiliationIdentifier,
+  );
+
+  const orcid = normalizeORCID(
+    state.responsiblePartyInvestigatorIdentifierValue,
+  );
+  if (orcid && !isValidORCIDValue(orcid)) {
+    errors.push({
+      name: "idValue",
+      message: "Enter a valid ORCID iD or ORCID URL",
+    });
   }
 
-  if (
-    (state.responsiblePartyInvestigatorIdentifierValue.trim() !== "" && state.responsiblePartyInvestigatorIdentifierScheme.trim() === "") ||
-    (state.responsiblePartyInvestigatorIdentifierValue.trim() === "" && state.responsiblePartyInvestigatorIdentifierScheme.trim() !== "")
-  ) {
-    errors.push(
-      { name: "idValue", message: "Identifier scheme is required when identifier scheme is provided" },
-      { name: "idScheme", message: "Identifier value is required when identifier value is provided" }
-    );
-  }
-
-  if (state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri && !isValidUrl(state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri)) {
-    errors.push({ name: "affiliationSchemeUri", message: "Invalid URL" });
-  }
-
-  if (state.responsiblePartyInvestigatorIdentifierValue && state.responsiblePartyInvestigatorIdentifierScheme.toUpperCase() === "ORCID" && !isValidORCIDValue(state.responsiblePartyInvestigatorIdentifierValue)) {
-    errors.push({ name: "idValue", message: "Invalid ORCID value" });
-  }
-  if (state.responsiblePartyInvestigatorIdentifierValue && state.responsiblePartyInvestigatorIdentifierScheme.toUpperCase() === "ROR" && !isValidRORValue(state.responsiblePartyInvestigatorIdentifierValue)) {
-    errors.push({ name: "idValue", message: "Invalid ROR value" });
-  }
-
-  if (state.responsiblePartyInvestigatorAffiliationIdentifier && state.responsiblePartyInvestigatorAffiliationIdentifierScheme.toUpperCase() === "ORCID" && !isValidORCIDValue(state.responsiblePartyInvestigatorAffiliationIdentifier)) {
-    errors.push({ name: "affiliationId", message: "Invalid ORCID value" });
-  }
-  if (state.responsiblePartyInvestigatorAffiliationIdentifier && state.responsiblePartyInvestigatorAffiliationIdentifierScheme.toUpperCase() === "ROR" && !isValidRORValue(state.responsiblePartyInvestigatorAffiliationIdentifier)) {
-    errors.push({ name: "affiliationId", message: "Invalid ROR value" });
-  }
-
-  const activeCollaborators = state.collaborators.filter((c: any) => !c.deleted);
+  const activeCollaborators = state.collaborators.filter(
+    (c: any) => !c.deleted,
+  );
 
   if (activeCollaborators.length > 0) {
     const seen = new Set<string>();
     activeCollaborators.forEach((c: any, index: number) => {
-      const key = `${c.name?.trim().toLowerCase()}|${c.identifier?.trim().toLowerCase()}`;
+      const key = `${c.name?.trim().toLowerCase()}|${normalizeROR(c.identifier)}`;
       if (seen.has(key)) {
-        errors.push({ name: `name-${index}`, message: "Duplicate collaborator with same name and identifier" });
+        errors.push({
+          name: `name-${index}`,
+          message: "Duplicate collaborator with same name and identifier",
+        });
       }
       seen.add(key);
 
       if (!c.name?.trim()) {
-        errors.push({ name: `name-${index}`, message: `Collaborator name is required` });
+        errors.push({
+          name: `name-${index}`,
+          message: `Collaborator name is required`,
+        });
       }
 
-      if ((c.identifier.trim() !== "" && c.scheme.trim() === "") || (c.identifier.trim() === "" && c.scheme.trim() !== "")) {
-        errors.push(
-          { name: `identifier-${index}`, message: "Identifier and Identifier scheme must be provided together" },
-          { name: `identifierScheme-${index}`, message: "Identifier and Identifier scheme must be provided together" }
-        );
-      }
-
-      if (c.identifier && c.scheme.toUpperCase() === "ORCID" && !isValidORCIDValue(c.identifier)) {
-        errors.push({ name: `identifier-${index}`, message: "Invalid ORCID value" });
-      }
-      if (c.identifier && c.scheme.toUpperCase() === "ROR" && !isValidRORValue(c.identifier)) {
-        errors.push({ name: `identifier-${index}`, message: "Invalid ROR value" });
-      }
-
-      if (c.schemeUri && !isValidUrl(c.schemeUri)) {
-        errors.push({ name: `schemeUri-${index}`, message: "Invalid URL" });
-      }
+      validateRor(`identifier-${index}`, c.identifier);
     });
   }
 
   return errors;
 };
 
+// The form only collects the ORCID and ROR IDs; the API also expects their schemes and scheme URIs.
+const toRorFields = (value: string) => {
+  const ror = normalizeROR(value);
+
+  return {
+    identifier: ror,
+    scheme: ror ? "ROR" : "",
+    schemeUri: ror ? "https://ror.org" : "",
+  };
+};
+
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
   isSubmitting.value = true;
 
+  const leadSponsor = toRorFields(state.leadSponsorIdentifier);
+  const affiliation = toRorFields(
+    state.responsiblePartyInvestigatorAffiliationIdentifier,
+  );
+  const orcid = normalizeORCID(
+    state.responsiblePartyInvestigatorIdentifierValue,
+  );
+
+  const body = {
+    ...state,
+    collaborators: state.collaborators.map((collaborator) => ({
+      ...collaborator,
+      ...toRorFields(collaborator.identifier ?? ""),
+    })),
+    leadSponsorIdentifier: leadSponsor.identifier,
+    leadSponsorIdentifierScheme: leadSponsor.scheme,
+    leadSponsorIdentifierSchemeUri: leadSponsor.schemeUri,
+    responsiblePartyInvestigatorAffiliationIdentifier: affiliation.identifier,
+    responsiblePartyInvestigatorAffiliationIdentifierScheme: affiliation.scheme,
+    responsiblePartyInvestigatorAffiliationIdentifierSchemeUri:
+      affiliation.schemeUri,
+    responsiblePartyInvestigatorIdentifierScheme: orcid ? "ORCID" : "",
+    responsiblePartyInvestigatorIdentifierValue: orcid,
+  };
+
   try {
     await $fetch(`/api/datasets/${datasetId}/study/metadata/team`, {
-      body: JSON.stringify(state),
+      body,
       method: "PUT",
     });
 
@@ -305,10 +294,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.error(err);
-    toast.add({ 
-      title: "Error", 
+    toast.add({
+      title: "Error",
       color: "error",
-      description: "Failed to save sponsor data." 
+      description: "Failed to save sponsor data.",
     });
   } finally {
     saveLoading.value = false;
@@ -318,9 +307,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -343,21 +331,30 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Team</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Team
+            </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
             Some basic information about the study is displayed here.
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Responsible Party</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Responsible Party
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Provide information about the individual or entity responsible for the study.
+                Provide information about the individual or entity responsible
+                for the study.
               </p>
             </div>
 
@@ -371,7 +368,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-model="state.responsiblePartyType"
                 class="w-full"
                 placeholder="Principal Investigator"
-                :items="FORM_JSON.studyMetadataSponsorsResponsiblePartyTypeOptions"
+                :items="
+                  FORM_JSON.studyMetadataSponsorsResponsiblePartyTypeOptions
+                "
               />
             </UFormField>
 
@@ -380,7 +379,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Given Name"
                 name="givenName"
                 class="w-full"
-                :required="['Sponsor-Investigator', 'Principal Investigator'].includes(state.responsiblePartyType)"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
               >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorGivenName"
@@ -393,7 +396,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 label="Family Name"
                 name="familyName"
                 class="w-full"
-                :required="['Sponsor-Investigator', 'Principal Investigator'].includes(state.responsiblePartyType)"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
               >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorFamilyName"
@@ -407,7 +414,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               label="Title"
               name="title"
               class="w-full"
-              :required="['Sponsor-Investigator', 'Principal Investigator'].includes(state.responsiblePartyType)"
+              :required="
+                ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                  state.responsiblePartyType,
+                )
+              "
             >
               <UInput
                 v-model="state.responsiblePartyInvestigatorTitle"
@@ -416,12 +427,35 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
+            <UFormField
+              label="ORCID"
+              name="idValue"
+              help="Enter the ORCID iD or paste the full ORCID URL."
+              class="w-full"
+            >
+              <UInput
+                v-model="state.responsiblePartyInvestigatorIdentifierValue"
+                placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
+                class="w-full"
+                @blur="
+                  state.responsiblePartyInvestigatorIdentifierValue =
+                    normalizeORCID(
+                      state.responsiblePartyInvestigatorIdentifierValue,
+                    )
+                "
+              />
+            </UFormField>
+
             <div class="flex w-full gap-4">
               <UFormField
                 label="Affiliation"
                 name="affiliation"
                 class="w-full"
-                :required="['Sponsor-Investigator', 'Principal Investigator'].includes(state.responsiblePartyType)"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
               >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorAffiliationName"
@@ -431,79 +465,45 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </UFormField>
 
               <UFormField
-                label="Affiliation Identifier"
+                label="ROR"
                 name="affiliationId"
+                hint="ID or URL"
                 class="w-full"
-                :required="['Sponsor-Investigator', 'Principal Investigator'].includes(state.responsiblePartyType)"
+                :required="
+                  ['Sponsor-Investigator', 'Principal Investigator'].includes(
+                    state.responsiblePartyType,
+                  )
+                "
               >
                 <UInput
-                  v-model="state.responsiblePartyInvestigatorAffiliationIdentifier"
-                  placeholder="0156zyn36"
+                  v-model="
+                    state.responsiblePartyInvestigatorAffiliationIdentifier
+                  "
+                  placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
                   class="w-full"
-                />
-              </UFormField>
-            </div>
-
-            <div class="flex w-full gap-4">
-              <UFormField
-                label="Affiliation Identifier Scheme"
-                name="affiliationScheme"
-                class="w-full"
-              >
-                <UInput
-                  v-model="state.responsiblePartyInvestigatorAffiliationIdentifierScheme"
-                  placeholder="ROR"
-                  class="w-full"
-                />
-              </UFormField>
-
-              <UFormField
-                label="Affiliation Identifier Scheme URI"
-                name="affiliationSchemeUri"
-                class="w-full"
-              >
-                <UInput
-                  v-model="state.responsiblePartyInvestigatorAffiliationIdentifierSchemeUri"
-                  placeholder="https://ror.org"
-                  class="w-full"
-                />
-              </UFormField>
-            </div>
-
-            <div class="flex w-full gap-4">
-              <UFormField
-                label="Identifier Scheme"
-                name="idScheme"
-                class="w-full"
-              >
-                <UInput
-                  v-model="state.responsiblePartyInvestigatorIdentifierScheme"
-                  placeholder="ORCID"
-                  class="w-full"
-                />
-              </UFormField>
-
-              <UFormField
-                label="Identifier Value"
-                name="idValue"
-                class="w-full"
-              >
-                <UInput
-                  v-model="state.responsiblePartyInvestigatorIdentifierValue"
-                  placeholder="0000-0003-2829-8032"
-                  class="w-full"
+                  @blur="
+                    state.responsiblePartyInvestigatorAffiliationIdentifier =
+                      normalizeROR(
+                        state.responsiblePartyInvestigatorAffiliationIdentifier,
+                      )
+                  "
                 />
               </UFormField>
             </div>
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Lead Sponsor</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Lead Sponsor
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Provide information about the primary organization overseeing the study.
+                Provide information about the primary organization overseeing
+                the study.
               </p>
             </div>
 
@@ -519,51 +519,35 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </UFormField>
 
             <UFormField
-              label="Identifier"
+              label="ROR"
               name="leadSponsorIdentifier"
+              help="Enter the ROR ID or paste the full ROR URL."
               class="w-full"
             >
               <UInput
                 v-model="state.leadSponsorIdentifier"
-                placeholder="04aj4c18"
+                placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
                 class="w-full"
+                @blur="
+                  state.leadSponsorIdentifier = normalizeROR(
+                    state.leadSponsorIdentifier,
+                  )
+                "
               />
             </UFormField>
-
-            <div class="flex w-full gap-4">
-              <UFormField
-                label="Identifier Scheme"
-                name="leadSponsorScheme"
-                class="w-full"
-              >
-                <UInput
-                  v-model="state.leadSponsorIdentifierScheme"
-                  placeholder="ROR"
-                  class="w-full"
-                />
-              </UFormField>
-
-              <UFormField
-                label="Identifier Scheme URI"
-                name="leadSponsorSchemeUri"
-                class="w-full"
-              >
-                <UInput
-                  v-model="state.leadSponsorIdentifierSchemeUri"
-                  placeholder="https://ror.org"
-                  class="w-full"
-                />
-              </UFormField>
-            </div>
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Collaborators</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Collaborators
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Add collaborators involved in the study with their identifiers and schemes.
+                Add the organizations collaborating on the study.
               </p>
             </div>
 
@@ -591,27 +575,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UInput
                       v-model="item.name"
                       placeholder="Collaborator Name"
-                    />
-                  </UFormField>
-
-                  <UFormField label="Identifier" :name="`identifier-${index}`">
-                    <UInput
-                      v-model="item.identifier"
-                      placeholder="Identifier"
+                      class="w-full"
                     />
                   </UFormField>
 
                   <UFormField
-                    label="Identifier Scheme"
-                    :name="`identifierScheme-${index}`"
+                    label="ROR"
+                    :name="`identifier-${index}`"
+                    help="Enter the ROR ID or paste the full ROR URL."
                   >
-                    <UInput v-model="item.scheme" placeholder="ORCID" />
-                  </UFormField>
-
-                  <UFormField label="Scheme URI" :name="`schemeUri-${index}`">
                     <UInput
-                      v-model="item.schemeUri"
-                      placeholder="https://scheme.uri"
+                      v-model="item.identifier"
+                      placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                      class="w-full"
+                      @blur="
+                        item.identifier = normalizeROR(item.identifier ?? '')
+                      "
                     />
                   </UFormField>
                 </div>
@@ -630,7 +609,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="study-metadata-team-form"
         type="submit"
@@ -643,7 +622,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -651,11 +630,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>
