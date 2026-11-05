@@ -9,7 +9,6 @@ const route = useRoute();
 const toast = useToast();
 const confirm = useConfirmDialog();
 
-const { studyId } = route.params as { studyId: string };
 const { datasetId } = route.params as { datasetId: string };
 
 useSeoMeta({ title: "Permissions" });
@@ -376,9 +375,11 @@ const removeRow = async (row: PermissionRow) => {
 
 const copyInviteLink = async (row: PermissionRow) => {
   if (row.kind !== "invitation") return;
+  const suburl = row.invitation.url;
+  const fullUrl = window.location.origin + suburl;
 
   try {
-    await navigator.clipboard.writeText(row.invitation.url);
+    await navigator.clipboard.writeText(fullUrl);
     toast.add({
       title: "Invite link copied to clipboard",
       icon: "material-symbols:check-circle",
