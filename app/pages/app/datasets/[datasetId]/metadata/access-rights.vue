@@ -170,7 +170,7 @@ const validate = (state: any): FormError[] => {
   if (!state.rights.rights?.trim()) {
     errors.push({
       name: "rights-rights",
-      message: "Rights is required.",
+      message: "License is required.",
     });
   }
 
@@ -226,7 +226,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           { label: 'Dashboard', to: '/app/dashboard' },
           { label: data?.title, to: `/app/datasets/${datasetId}` },
           {
-            label: 'Access and Rights',
+            label: 'Access and License',
             to: `/app/datasets/${datasetId}/metadata/access-rights`,
           },
         ]"
@@ -242,7 +242,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
           <div class="flex w-full items-center justify-between gap-3">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-              Access and Rights
+              Access and License
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
@@ -294,19 +294,19 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Rights
+                License
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide rights information for this dataset.
+                Please provide license information for this dataset.
               </p>
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Rights" name="rights-rights" required>
+              <UFormField label="License" name="rights-rights" required>
                 <USelect
                   v-model="state.rights.rights"
                   class="w-full"
-                  placeholder="Select rights"
+                  placeholder="Select license"
                   :items="licensesJSON.map((option) => ({
                     label: option.name,
                     value: option.name,

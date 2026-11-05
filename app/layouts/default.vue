@@ -49,7 +49,7 @@ const datasetNavItems = [
         route: "metadata/data-management",
       },
       {
-        name: "Access & Rights",
+        name: "Access & License",
         icon: "streamline-logos:open-access-logo-block",
         route: "metadata/access-rights",
       },
