@@ -436,17 +436,6 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-  const activeSecondaryIDs = state.secondaryIdentifiers.filter(
-    (i: any) => !i.deleted,
-  );
-
-  if (activeSecondaryIDs.length === 0) {
-    errors.push({
-      name: "secondaryIdentifiers",
-      message: "At least one secondary identifier is required",
-    });
-  }
-
   const seenSecondaryIDs = new Set<string>();
   state.secondaryIdentifiers.forEach((identifier: any, index: number) => {
     if (identifier.deleted) return;
@@ -922,11 +911,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Alternative Identifiers
-                <span class="text-sm text-red-500">*</span>
               </h2>
 
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some secondary identifiers that describe the study.
+                Optionally, add any secondary identifiers that describe the study.
                 These are usually any other identifiers that are not the primary
                 identifier.
               </p>

@@ -222,9 +222,7 @@ export const StudyMetadataAboutSchema = z
         message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
       }),
     }),
-    secondaryIdentifiers: z
-      .array(secondaryIdentifierSchema)
-      .min(1, "At least one secondary identifier is required"),
+    secondaryIdentifiers: z.array(secondaryIdentifierSchema),
   })
   .strict();
 
