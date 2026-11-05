@@ -150,9 +150,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             type="submit"
             class="flex w-full justify-center"
             :loading="loading"
-            :disabled="
-              environment === 'production' || environment === 'staging'
-            "
           >
             <template #trailing>
               <Icon name="i-heroicons-arrow-right-20-solid" size="20" />

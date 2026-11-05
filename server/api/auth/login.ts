@@ -7,15 +7,6 @@ const loginSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-
-  if (config.public.environment === "production") {
-    throw createError({
-      statusCode: 403,
-      statusMessage: "Login has been disabled",
-    });
-  }
-
   const body = await readValidatedBody(event, (b) => loginSchema.safeParse(b));
 
   if (!body.success) {
@@ -25,10 +16,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Get the user from the database
+  // Signup stores emails in lowercase, so match on the same form
   const user = await prisma.user.findUnique({
     where: {
-      emailAddress: body.data.emailAddress,
+      emailAddress: body.data.emailAddress.toLocaleLowerCase(),
     },
   });
 

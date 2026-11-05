@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { z } from "zod";
 import type { FormSubmitEvent } from "#ui/types";
-import type { DatasetInvitation, DatasetMember } from "~~/shared/generated/client";
+import type {
+  DatasetInvitation,
+  DatasetMember,
+} from "~~/shared/generated/client";
 
 const { loggedIn } = useUserSession();
 const { environment } = useRuntimeConfig().public;
 
-const route = useRoute()
+const route = useRoute();
 
 if (loggedIn.value) {
   await navigateTo("/app/dashboard");
@@ -23,7 +26,10 @@ useSeoMeta({
 const toast = useToast();
 const loading = ref(false);
 
-const invitation = route.query.datasetInvitation
+const invitation = route.query.datasetInvitation;
+
+// Matches the server: only invited people can sign up outside local development
+const signupBlocked = environment !== "development" && !invitation;
 
 const showPassword = ref(false);
 
@@ -49,7 +55,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     familyName: event.data.familyName,
     givenName: event.data.givenName,
     password: event.data.password,
-    invitation: invitation
+    invitation: invitation,
   };
 
   loading.value = true;
@@ -59,8 +65,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     method: "POST",
   })
     .then(async (response) => {
-      let message = response.message
-      if(message == "Email already verified. Please login.") {
+      let message = response.message;
+      if (message == "Email already verified. Please login.") {
         toast.add({
           title: "Account created successfully",
           color: "info",
@@ -72,7 +78,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           path: "/login",
           query: { redirect: "/invitations" },
         });
-        
       } else {
         toast.add({
           title: "Account created successfully",
@@ -102,10 +107,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   <UCard class="w-full max-w-sm bg-white/75 backdrop-blur dark:bg-white/5">
     <div class="w-full max-w-sm px-4 py-5 sm:p-2">
       <UAlert
+        v-if="signupBlocked"
         color="warning"
         variant="subtle"
         title="This platform is currently invite only"
-        description="As we are still in development, we are only allowing invited users to access the platform"
+        description="Signing up needs an invitation to a dataset. Use the link in your invitation email to create an account."
         class="mb-6"
         icon="material-symbols:lock-outline"
       />
@@ -159,7 +165,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           type="submit"
           class="flex w-full justify-center"
           :loading="loading"
-          :disabled="environment === 'production' || environment === 'staging'"
+          :disabled="signupBlocked"
         >
           Create account
         </UButton>
