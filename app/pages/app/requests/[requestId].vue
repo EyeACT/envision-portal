@@ -11,7 +11,7 @@ const { requestId } = route.params as { requestId: string };
 const sasUrl = ref("");
 const expiration = ref("");
 
-const { data, error } = await useFetch(`/api/requests/${requestId}`, {});
+const { data, error, refresh } = await useFetch(`/api/requests/${requestId}`);
 
 if (error.value) {
   toast.add({
@@ -23,7 +23,7 @@ if (error.value) {
 
 if (data.value) {
   useSeoMeta({
-    title: `Request - ${data.value.Dataset?.title || "Unknown Dataset"}`,
+    title: `Request - ${data.value.PublishedDataset.title}`,
   });
 
   sasUrl.value = data.value.sasUrl;
@@ -69,7 +69,7 @@ const getStatusInfo = (status: string) => {
       return {
         color: "warning",
         description:
-          "Your request is currently under review. You will be notified once a decision is made.",
+          "Your request is being reviewed by the dataset team. You will get a notification in your inbox once a decision is made.",
         icon: "i-mdi-clock",
         text: "Pending Review",
       };
@@ -80,6 +80,14 @@ const getStatusInfo = (status: string) => {
           "Your request is being actively reviewed by the dataset team.",
         icon: "i-mdi-eye",
         text: "Under Review",
+      };
+    case "revoked":
+      return {
+        color: "warning",
+        description:
+          "Your access to this dataset was revoked by the dataset team. Contact them for more information.",
+        icon: "i-mdi-cancel",
+        text: "Revoked",
       };
     case "expired":
       return {
@@ -96,6 +104,49 @@ const getStatusInfo = (status: string) => {
         icon: "i-mdi-help-circle",
         text: status || "Unknown",
       };
+  }
+};
+
+// Signed data use agreement upload, only while the team is waiting on it
+const signedFile = ref<File | null>(null);
+const uploadingSigned = ref(false);
+
+const canUploadSigned = computed(
+  () =>
+    data.value?.status === "pending" &&
+    !!data.value.agreements.unsigned &&
+    !data.value.agreements.final,
+);
+
+const uploadSigned = async () => {
+  if (!signedFile.value) return;
+
+  uploadingSigned.value = true;
+
+  try {
+    await uploadAgreementFile(
+      `/api/requests/${requestId}/agreements/signed`,
+      signedFile.value,
+    );
+
+    toast.add({
+      title: "Signed agreement uploaded",
+      description: "The dataset team has been notified.",
+      color: "success",
+      icon: "i-mdi-check",
+    });
+
+    signedFile.value = null;
+    await refresh();
+  } catch (err: any) {
+    toast.add({
+      title: "Upload failed",
+      color: "error",
+      description: err.data?.statusMessage ?? "Please try again later",
+      icon: "i-mdi-alert",
+    });
+  } finally {
+    uploadingSigned.value = false;
   }
 };
 
@@ -120,7 +171,7 @@ const formatDate = (dateString: string | undefined) => {
       :items="[
         { label: 'Dashboard', to: '/app/dashboard' },
         { label: 'My Requests', to: '/app/requests' },
-        { label: data?.Dataset?.title || 'Unknown Dataset' },
+        { label: data?.PublishedDataset.title },
       ]"
     />
 
@@ -131,21 +182,18 @@ const formatDate = (dateString: string | undefined) => {
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                {{ data?.Dataset?.title || "Unknown Dataset" }}
+                {{ data?.PublishedDataset.title }}
               </h1>
 
               <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">
-                {{ data?.Dataset?.description || "No description available" }}
+                {{ data?.PublishedDataset.description || "No description available" }}
               </p>
             </div>
 
             <div class="flex items-center gap-2">
-              <UBadge
-                v-if="data?.PublishedDataset.public"
-                variant="subtle"
-                size="lg"
-              >
-                Public Dataset
+              <UBadge variant="subtle" size="lg">
+                {{ data?.PublishedDataset.public ? "Public" : "Controlled" }}
+                Dataset
               </UBadge>
 
               <!-- Status Badge -->
@@ -280,7 +328,7 @@ const formatDate = (dateString: string | undefined) => {
         <!-- Comments -->
         <div v-if="data?.comment" class="mt-6 space-y-3">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-            Additional Comments
+            Comment from the dataset team
           </h3>
 
           <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
@@ -304,7 +352,7 @@ const formatDate = (dateString: string | undefined) => {
             >
 
             <span class="text-sm text-gray-900 dark:text-white">
-              {{ data?.Dataset?.version || "Latest" }}
+              {{ data?.PublishedDataset.versionTitle || "Latest" }}
             </span>
           </div>
 
@@ -314,15 +362,116 @@ const formatDate = (dateString: string | undefined) => {
             >
 
             <ULink
-              :to="`https://doi.org/${data?.Dataset?.doi}`"
+              v-if="data?.PublishedDataset.doi"
+              :to="`https://doi.org/${data.PublishedDataset.doi}`"
               target="_blank"
               class="text-sm hover:underline"
               color="info"
             >
-              {{ data?.Dataset?.doi || "Not assigned" }}
+              {{ data.PublishedDataset.doi }}
             </ULink>
+
+            <span v-else class="text-sm text-gray-900 dark:text-white">
+              Not assigned
+            </span>
           </div>
         </div>
+      </div>
+
+      <!-- Data use agreement, when the dataset team asked for one -->
+      <div
+        v-if="data?.agreements.unsigned"
+        class="rounded-xl bg-white p-8 shadow-sm dark:bg-gray-900"
+      >
+        <h2 class="mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
+          Data Use Agreement
+        </h2>
+
+        <p class="mb-6 text-gray-600 dark:text-gray-400">
+          The dataset team needs a signed data use agreement before they can
+          approve your request. Download it, sign it, and upload the signed
+          copy below.
+        </p>
+
+        <ol class="flex flex-col gap-5">
+          <li class="flex flex-col gap-2">
+            <h3 class="font-medium text-gray-900 dark:text-white">
+              1. Download the agreement
+            </h3>
+
+            <ULink
+              :to="`/api/requests/${requestId}/agreements/unsigned`"
+              target="_blank"
+              external
+              class="text-primary text-sm hover:underline"
+            >
+              {{ data.agreements.unsigned }}
+            </ULink>
+          </li>
+
+          <li class="flex flex-col gap-2">
+            <h3 class="font-medium text-gray-900 dark:text-white">
+              2. Upload your signed copy
+            </h3>
+
+            <ULink
+              v-if="data.agreements.signed"
+              :to="`/api/requests/${requestId}/agreements/signed`"
+              target="_blank"
+              external
+              class="text-primary text-sm hover:underline"
+            >
+              {{ data.agreements.signed }}
+            </ULink>
+
+            <div v-if="canUploadSigned" class="flex flex-wrap items-end gap-3">
+              <UFileUpload
+                v-model="signedFile"
+                accept=".pdf,.doc,.docx"
+                layout="list"
+                :label="
+                  data.agreements.signed
+                    ? 'Replace your signed copy'
+                    : 'Drop your signed agreement'
+                "
+                description="PDF, DOC or DOCX, up to 15MB"
+                class="w-full max-w-md"
+              />
+
+              <UButton
+                label="Upload signed agreement"
+                icon="i-mdi-upload"
+                :disabled="!signedFile"
+                :loading="uploadingSigned"
+                @click="uploadSigned"
+              />
+            </div>
+          </li>
+
+          <li class="flex flex-col gap-2">
+            <h3 class="font-medium text-gray-900 dark:text-white">
+              3. Countersigned by the dataset team
+            </h3>
+
+            <ULink
+              v-if="data.agreements.final"
+              :to="`/api/requests/${requestId}/agreements/final`"
+              target="_blank"
+              external
+              class="text-primary text-sm hover:underline"
+            >
+              {{ data.agreements.final }}
+            </ULink>
+
+            <p v-else class="text-sm text-gray-500">
+              {{
+                data.agreements.signed
+                  ? "Waiting for the dataset team to countersign."
+                  : "Available after you upload your signed copy."
+              }}
+            </p>
+          </li>
+        </ol>
       </div>
 
       <!-- Access Instructions Section (only show if approved) -->
@@ -417,11 +566,10 @@ const formatDate = (dateString: string | undefined) => {
             </div>
 
             <div class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-              <p>This URL will expire at {{ expiration }}.</p>
+              <p>This URL will expire on {{ formatDate(expiration) }}.</p>
 
               <p>
-                Tip: Save this URL for future reference. You'll need it each
-                time you want to access your study's storage.
+                Reload this page to get a fresh link after it expires.
               </p>
             </div>
           </div>

@@ -4,6 +4,12 @@ import {
   validateStudyMetadata,
 } from "#shared/utils/validations";
 import type { PublishDatasetPayload } from "#shared/types/tasks";
+import { z } from "zod";
+import { DATASET_ACCESS_LEVELS } from "#shared/constants/requests";
+
+const bodySchema = z.object({
+  accessLevel: z.enum(DATASET_ACCESS_LEVELS),
+});
 
 const parseRecords = (section: any): any[] => {
   if (!section) return [];
@@ -27,6 +33,17 @@ export default defineEventHandler(async (event) => {
   const { datasetId } = event.context.params as {
     datasetId: string;
   };
+
+  const body = await readValidatedBody(event, (b) => bodySchema.safeParse(b));
+
+  if (!body.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Choose whether the dataset is public or controlled",
+    });
+  }
+
+  const { accessLevel } = body.data;
 
   // Get the dataset from the database
   const dataset = await prisma.dataset.findUnique({
@@ -231,6 +248,7 @@ export default defineEventHandler(async (event) => {
         },
         studyTitle: primaryStudyIdentification?.identifier ?? "",
         versionTitle: dataset.version ?? "1.0.0",
+        public: accessLevel === "public",
       },
     };
 

@@ -119,6 +119,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </UFormField>
 
           <UFormField label="Password" name="password">
+            <!-- Hidden: no /forgot-password page or reset endpoint yet
             <template #hint>
               <NuxtLink
                 to="/forgot-password"
@@ -127,6 +128,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 Forgot your password?
               </NuxtLink>
             </template>
+            -->
 
             <UInput
               v-model="state.password"

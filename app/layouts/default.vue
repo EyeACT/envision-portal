@@ -192,18 +192,20 @@ const datasetNavItems = [
     icon: "mdi:account-group-outline",
     route: "permissions",
   },
-  { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
+  // Hidden until implemented: placeholder page
+  // { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
   {
     name: "CMDS Validator",
     icon: "mdi:folder-check-outline",
     route: "validator",
   },
   { name: "Data Upload", icon: "heroicons-outline:upload", route: "upload" },
-  {
-    name: "Data Processing",
-    icon: "heroicons-outline:cube",
-    route: "processing",
-  },
+  // Hidden until implemented: placeholder page
+  // {
+  //   name: "Data Processing",
+  //   icon: "heroicons-outline:cube",
+  //   route: "processing",
+  // },
   {
     name: "Data Requests",
     icon: "heroicons-outline:inbox-arrow-down",

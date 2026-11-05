@@ -11,6 +11,9 @@ export interface PublishDatasetPayload {
     publishedMetadata: Record<string, any>;
     studyTitle: string;
     versionTitle: string;
+    // Access level picked when publishing. false = controlled. Missing on tasks
+    // queued before the choice existed, which publish as public
+    public?: boolean;
   };
 }
 

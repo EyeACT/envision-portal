@@ -77,18 +77,18 @@ const logout = async () => {
           />
         </UTooltip>
 
-        <UTooltip text="Inbox">
+        <UTooltip text="Invitations">
           <UButton
             to="/invitations"
             color="neutral"
             variant="ghost"
-            icon="material-symbols:inbox-rounded"
+            icon="material-symbols:mail-outline-rounded"
           />
         </UTooltip>
 
         <UTooltip placement="bottom" text="View Documentation">
           <UButton
-            to="https://docs.envision.io"
+            to="https://docs.envisionportal.org/docs/"
             target="_blank"
             color="neutral"
             variant="ghost"
@@ -96,6 +96,7 @@ const logout = async () => {
           />
         </UTooltip>
 
+        <!-- Hidden: /settings has no page yet
         <UTooltip text="View Settings">
           <UButton
             icon="heroicons-outline:cog"
@@ -104,6 +105,7 @@ const logout = async () => {
             variant="ghost"
           />
         </UTooltip>
+        -->
 
         <UTooltip text="Toggle Color Mode">
           <AppColorModeButton />

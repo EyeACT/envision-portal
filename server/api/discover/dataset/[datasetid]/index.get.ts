@@ -49,6 +49,7 @@ export default defineEventHandler(async (event) => {
     doi: publishedDataset.doi,
     external: publishedDataset.external,
     externalUrl: publishedDataset.externalUrl,
+    public: publishedDataset.public,
     files:
       typeof datasetFiles === "string"
         ? JSON.parse(datasetFiles)

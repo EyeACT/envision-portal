@@ -22,6 +22,24 @@ const { datasetId } = route.params as {
 const data = ref<any>(null);
 const isPublishingStarted = ref(false);
 
+// No default: the owner has to choose before publishing
+const accessLevel = ref<"public" | "controlled" | undefined>(undefined);
+
+const accessLevelItems = [
+  {
+    label: "Public",
+    value: "public",
+    description:
+      "Anyone can download the dataset after filling in a short form. Requests are approved automatically.",
+  },
+  {
+    label: "Controlled",
+    value: "controlled",
+    description:
+      "Requesters need an account and an owner or admin must approve each request. You can also ask them to sign a data use agreement.",
+  },
+];
+
 const fetchData = async () => {
   await $fetch(`/api/datasets/${datasetId}/publish`, {})
     .then((d) => {
@@ -180,6 +198,8 @@ const columns: TableColumn<{
 ];
 
 const publishDataset = async () => {
+  if (!accessLevel.value) return;
+
   isPublishingStarted.value = true;
   publishLoading.value = true;
 
@@ -188,6 +208,7 @@ const publishDataset = async () => {
   }, 500);
 
   await $fetch(`/api/datasets/${datasetId}/publish/finalize`, {
+    body: { accessLevel: accessLevel.value },
     method: "POST",
   })
     .then(() => {
@@ -222,6 +243,8 @@ const publishDataset = async () => {
     });
 };
 
+await fetchData();
+
 // Clean up polling on component unmount
 onUnmounted(() => {
   if (pollingInterval.value) {
@@ -254,6 +277,31 @@ onUnmounted(() => {
         :items="timelineItems"
         class="mx-5 w-full pt-5"
       />
+
+      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+          Who can access this dataset?
+        </h2>
+
+        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          This controls how data requests are handled once the dataset is
+          published. It is saved on the published version.
+        </p>
+
+        <URadioGroup
+          v-model="accessLevel"
+          :items="accessLevelItems"
+          variant="card"
+          :disabled="isPublishingStarted || !!data?.lockedAt"
+        />
+
+        <p
+          v-if="!accessLevel"
+          class="mt-3 text-sm text-amber-600 dark:text-amber-400"
+        >
+          Choose an access level to publish this dataset.
+        </p>
+      </div>
 
       <div 
         v-if="isPublishingStarted"
@@ -305,6 +353,7 @@ onUnmounted(() => {
           class="w-full"
           size="lg"
           :loading="publishLoading"
+          :disabled="!accessLevel"
           label="Start the publishing process"
           icon="i-lucide-arrow-right"
           @click="publishDataset"

@@ -21,6 +21,7 @@ const iframeLoaded = ref(false);
       </p>
     </div>
 
+    <!-- Hidden: FAQ page is still lorem ipsum
     <p
       className="mb-8 w-full rounded-lg bg-yellow-50 p-2 text-center text-base font-normal text-slate-600"
     >
@@ -30,6 +31,7 @@ const iframeLoaded = ref(false);
       >
       first - the answer to your question could be there!
     </p>
+    -->
 
     <UCard class="border border-slate-200 shadow-lg dark:border-slate-800">
       <iframe

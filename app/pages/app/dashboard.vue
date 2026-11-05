@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { z } from "zod";
-import { faker } from "@faker-js/faker";
 
 definePageMeta({
   middleware: ["auth"],
@@ -30,6 +29,17 @@ if (error.value) {
   });
 }
 
+const filteredDatasets = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase();
+  if (!query) return datasets.value ?? [];
+
+  return (datasets.value ?? []).filter(
+    (dataset) =>
+      dataset.title?.toLowerCase().includes(query) ||
+      dataset.description?.toLowerCase().includes(query),
+  );
+});
+
 const newDatasetForm = useTemplateRef("newDatasetForm");
 const newDatasetSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -39,11 +49,11 @@ const newDatasetSchema = z.object({
   version: z.string().optional(),
 });
 const newDatasetState = reactive({
-  title: faker.commerce.productName(),
-  description: faker.lorem.sentences(3),
-  imageUrl: faker.image.url(),
+  title: "",
+  description: "",
+  imageUrl: "",
   type: "Dataset",
-  version: faker.system.semver(),
+  version: "",
 });
 
 const openNewVersionModal = (datasetId: string) => {
@@ -202,6 +212,7 @@ const dropdownItems = ref([
           size="lg"
         />
 
+        <!-- Hidden: Filter menu only has template items (Profile/Billing/Settings)
         <UDropdownMenu
           :items="dropdownItems"
           :content="{
@@ -220,12 +231,13 @@ const dropdownItems = ref([
             variant="outline"
           />
         </UDropdownMenu>
+        -->
       </div>
 
       <!-- Datasets Grid -->
       <div class="mb-5 flex flex-col gap-3">
         <ULink
-          v-for="dataset in datasets"
+          v-for="dataset in filteredDatasets"
           :key="dataset.id"
           :to="`/app/datasets/${dataset.id}/overview`"
         >
