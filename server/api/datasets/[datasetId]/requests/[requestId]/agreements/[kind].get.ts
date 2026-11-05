@@ -1,5 +1,7 @@
+// Agreements are signed legal documents, so only dataset owners and admins can
+// download them here. Requesters use /api/requests/[requestId]/agreements/[kind]
 export default defineEventHandler(async (event) => {
-  await datasetMinViewerPermission(event);
+  await datasetMinAdminPermission(event);
 
   const { datasetId, requestId, kind } = event.context.params as {
     datasetId: string;

@@ -36,6 +36,15 @@ export default defineEventHandler(async (event) => {
 
   const normalizedEmailAddress = body.data.emailAddress.toLocaleLowerCase();
 
+  // Validate the invitation first so an invalid token can't be used to check
+  // whether an email address is registered
+  // TODO: Database transaction for consuming and creating a user
+  // signups with successful invitation consumption skip email verification
+  const validInvitation = await hasValidDatasetInvitation(
+    body.data.invitation,
+    normalizedEmailAddress,
+  );
+
   // Check if the user already exists
   const user = await prisma.user.findUnique({
     where: {
@@ -54,13 +63,6 @@ export default defineEventHandler(async (event) => {
   const hashedPassword = await hash(body.data.password, 10);
   const verificationToken = nanoid();
   const tokenExpiry = dayjs().add(30, "minute").toDate();
-
-  // TODO: Database transaction for consuming and creating a user
-  // signups with successful invitation consumption skip email verification
-  const validInvitation = await hasValidDatasetInvitation(
-    body.data.invitation,
-    normalizedEmailAddress,
-  );
 
   const newUser = await prisma.user.create({
     data: {

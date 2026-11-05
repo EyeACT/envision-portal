@@ -36,9 +36,10 @@ const canEditAgreements = computed(
   () => !!data.value?.canManage && isPending.value,
 );
 
+// The agreement downloads are limited to owners and admins
 const showAgreements = computed(
   () =>
-    !!data.value &&
+    !!data.value?.canManage &&
     (isPending.value ||
       !!data.value.agreements.unsigned ||
       !!data.value.agreements.signed ||
