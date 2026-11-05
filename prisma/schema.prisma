@@ -48,9 +48,9 @@ model platformInvitation {
 
     emailAddress String
 
-    invitationToken String? @unique  
+    invitationToken        String?   @unique
     invitationTokenExpires DateTime?
-    invitationAccepted Boolean?
+    invitationAccepted     Boolean?
 
     updated DateTime @updatedAt
     created DateTime @default(now())
@@ -178,8 +178,8 @@ model DatasetMember {
 }
 
 enum InvitationStatuses {
-    ACCEPTED 
-    REJECTED 
+    ACCEPTED
+    REJECTED
     RESCINDED
     NORESPONSE
 }
@@ -198,7 +198,7 @@ model DatasetInvitation {
     emailAddress String? // for users with no accounts
 
     invitationExpires DateTime @default(now())
-    invitationToken String? @unique 
+    invitationToken   String?  @unique
 
     role String @default("viewer") // owner | admin | editor | viewer
 
@@ -830,6 +830,7 @@ model Task {
     error    String   @default("") // Last failure message
 
     startedAt   DateTime?
+    heartbeatAt DateTime? // Refreshed while running. A stale one means the runner stopped mid-task
     completedAt DateTime?
 
     updated DateTime @updatedAt
@@ -886,6 +887,11 @@ model PublishedDatasetRegistrationDetails {
     datasetSource     String // "zenodo" | "pubmed" | ...
     extractionMethod  String // "manual" | "ep-extraction-script" | ...
     extractionVersion String? // "1.0.0" | 
+
+    requiresAccessRequest Boolean?
+    accessRequestUrl      String?
+    accessConditions      String?
+    embargoUntil          DateTime?
 
     updated DateTime @updatedAt
     created DateTime @default(now())

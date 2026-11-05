@@ -8,17 +8,31 @@ const UNLOCKED_SEGMENTS = new Set([
   "requests",
 ]);
 
+// Exact routes under /api/datasets/{datasetId}/ that stay writable while locked.
+// Retrying a failed publish only requeues the task for the already locked dataset
+const UNLOCKED_ROUTES = new Set(["publish/retry"]);
+
 // Blocks every write to a dataset once publishing has been requested
 export default defineEventHandler(async (event) => {
   if (event.method === "GET" || event.method === "HEAD") return;
 
-  const match = event.path.match(/^\/api\/datasets\/([^/?]+)(?:\/([^/?]+))?/);
+  const match = event.path.match(
+    /^\/api\/datasets\/([^/?]+)(?:\/([^/?]+))?(?:\/([^/?]+))?/,
+  );
 
   if (!match) return;
 
-  const [, datasetId, segment] = match;
+  const [, datasetId, segment, subSegment] = match;
 
   if (segment && UNLOCKED_SEGMENTS.has(segment)) return;
+
+  if (
+    segment &&
+    subSegment &&
+    UNLOCKED_ROUTES.has(`${segment}/${subSegment}`)
+  ) {
+    return;
+  }
 
   await assertDatasetUnlocked(decodeURIComponent(datasetId!));
 });

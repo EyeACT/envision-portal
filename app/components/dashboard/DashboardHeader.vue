@@ -82,7 +82,7 @@ const logout = async () => {
             to="/invitations"
             color="neutral"
             variant="ghost"
-            icon="material-symbols:mail-outline-rounded"
+            icon="material-symbols:person-add-rounded"
           />
         </UTooltip>
 

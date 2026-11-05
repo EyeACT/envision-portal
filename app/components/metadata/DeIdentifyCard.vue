@@ -28,7 +28,7 @@ const formattedDeIdentType = getDeIdentType(_props.metadata.deIdentType);
           Level of de-identification from this dataset
         </p>
 
-        <p>{{ formattedDeIdentType }}</p>
+        <p>{{ formattedDeIdentType || "N/A" }}</p>
       </div>
 
       <!-- Removes Direct Identifiers -->
@@ -120,7 +120,7 @@ const formattedDeIdentType = getDeIdentType(_props.metadata.deIdentType);
       <div>
         <p :class="sectionTitleClass">De-identification Details</p>
 
-        <p>{{ metadata.deIdentDetails }}</p>
+        <p>{{ metadata.deIdentDetails || "N/A"}}</p>
       </div>
     </div>
   </CardCollapsibleContent>

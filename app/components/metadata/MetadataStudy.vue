@@ -163,21 +163,21 @@ const isStudyMetadataEmpty = computed(() => {
           <div>
             <p :class="sectionTitleClass">Study Type</p>
 
-            <p>{{ props.metadata.designModule.studyType }}</p>
+            <p>{{ props.metadata.designModule.studyType || "N/A"}}</p>
           </div>
 
           <!-- Enrollment Count -->
           <div>
             <p :class="sectionTitleClass">
               Enrollment Count ({{
-                props.metadata.designModule.enrollmentInfo.enrollmentType ||
+                props.metadata.designModule?.enrollmentInfo?.enrollmentType ||
                 "Type Unknown"
               }})
             </p>
 
             <p>
               {{
-                props.metadata.designModule.enrollmentInfo.enrollmentCount ||
+                props.metadata.designModule?.enrollmentInfo?.enrollmentCount ||
                 "N/A"
               }}
             </p>
@@ -401,7 +401,7 @@ const isStudyMetadataEmpty = computed(() => {
           <div>
             <p :class="sectionTitleClass">Sex</p>
 
-            <p>{{ props.metadata.eligibilityModule.sex }}</p>
+            <p>{{ props.metadata.eligibilityModule.sex || "N/A"}}</p>
           </div>
 
           <!-- Gender Based -->
@@ -446,13 +446,16 @@ const isStudyMetadataEmpty = computed(() => {
             <p :class="sectionTitleClass">Inclusion Criteria</p>
 
             <div class="space-y-2 space-x-2">
-              <UBadge
-                v-for="(item, index) in props.metadata.eligibilityModule
-                  .eligibilityCriteria.eligibilityCriteriaInclusion"
-                :key="index"
-              >
-                {{ item }}
-              </UBadge>
+              <template v-if="props.metadata.eligibilityModule.eligibilityCriteria.eligibilityCriteriaInclusion?.length">
+                <UBadge
+                  v-for="(item, index) in props.metadata.eligibilityModule
+                    .eligibilityCriteria.eligibilityCriteriaInclusion"
+                  :key="index"
+                >
+                  {{ item }}
+                </UBadge>
+              </template>
+              <span v-else>N/A</span>
             </div>
           </div>
 
@@ -461,13 +464,17 @@ const isStudyMetadataEmpty = computed(() => {
             <p :class="sectionTitleClass">Exclusion Criteria</p>
 
             <div class="space-y-2 space-x-2">
-              <UBadge
-                v-for="(item, index) in props.metadata.eligibilityModule
-                  .eligibilityCriteria.eligibilityCriteriaExclusion"
-                :key="index"
-              >
-                {{ item }}
-              </UBadge>
+              <template v-if="props.metadata.eligibilityModule
+                  .eligibilityCriteria.eligibilityCriteriaExclusion?.length">
+                <UBadge
+                  v-for="(item, index) in props.metadata.eligibilityModule
+                    .eligibilityCriteria.eligibilityCriteriaExclusion"
+                  :key="index"
+                >
+                  {{ item }}
+                </UBadge>
+              </template>
+              <span v-else>N/A</span>
             </div>
           </div>
         </div>
@@ -481,7 +488,7 @@ const isStudyMetadataEmpty = computed(() => {
 
             <p>
               {{
-                props.metadata.identificationModule.orgStudyIdInfo.orgStudyId
+                props.metadata.identificationModule?.orgStudyIdInfo?.orgStudyId || "N/A"
               }}
             </p>
           </div>
@@ -492,18 +499,17 @@ const isStudyMetadataEmpty = computed(() => {
 
             <p>
               {{
-                props.metadata.identificationModule.orgStudyIdInfo
-                  .orgStudyIdType
+                props.metadata.identificationModule?.orgStudyIdInfo?.orgStudyIdType || "N/A"
               }}
             </p>
           </div>
 
           <!-- Secondary Id -->
-          <div v-if="props.metadata.identificationModule.secondaryIdInfoList">
+          <div v-if="props.metadata.identificationModule?.secondaryIdInfoList">
             <p :class="sectionTitleClass">Secondary ID</p>
 
             <UTable
-              :data="props.metadata.identificationModule.secondaryIdInfoList"
+              :data="props.metadata.identificationModule?.secondaryIdInfoList"
               :columns="identInfoColumn"
               class="flex-1"
             />
@@ -520,7 +526,7 @@ const isStudyMetadataEmpty = computed(() => {
               human subjects protection review board?
             </p>
 
-            <p>{{ props.metadata.oversightModule.humanSubjectReviewStatus }}</p>
+            <p>{{ props.metadata.oversightModule?.humanSubjectReviewStatus  || "N/A"}}</p>
           </div>
 
           <!-- FDA Regulated Drug -->
@@ -568,8 +574,7 @@ const isStudyMetadataEmpty = computed(() => {
 
             <p>
               {{
-                props.metadata.sponsorCollaboratorsModule.leadSponsor
-                  .leadSponsorName
+                props.metadata.sponsorCollaboratorsModule?.leadSponsor?.leadSponsorName
               }}
             </p>
           </div>
@@ -579,7 +584,7 @@ const isStudyMetadataEmpty = computed(() => {
             <p :class="sectionTitleClass">Collaborators</p>
 
             <UTable
-              :data="props.metadata.sponsorCollaboratorsModule.collaboratorList"
+              :data="props.metadata.sponsorCollaboratorsModule?.collaboratorList"
               :columns="collaboratorsColumns"
               class="flex-1"
             />
