@@ -2,31 +2,37 @@
   {
     "id": 1,
     "question": "Has the dataset been used for any tasks already?",
+    "placeholder": "Yes, it has been used to train a model that grades diabetic retinopathy severity from retinal images.",
     "response": ""
   },
   {
     "id": 2,
     "question": "Is there a repository that links to any or all papers or systems that use the dataset?",
+    "placeholder": "Yes, related papers are listed at https://example.org/dataset/publications.",
     "response": ""
   },
   {
     "id": 3,
     "question": "What (other) tasks could the dataset be used for?",
+    "placeholder": "Studying links between physical activity and blood glucose, or developing new image analysis methods.",
     "response": ""
   },
   {
     "id": 4,
     "question": "Is there anything about the composition of the dataset or the way it was collected and preprocessed/cleaned/labeled that might impact future uses?",
+    "placeholder": "All participants came from urban clinics, so findings may not apply to rural populations.",
     "response": ""
   },
   {
     "id": 5,
     "question": "Are there tasks for which the dataset should not be used?",
+    "placeholder": "It should not be used to make clinical decisions about individual patients or to try to identify participants.",
     "response": ""
   },
   {
     "id": 6,
     "question": "Any other comments?",
+    "placeholder": "We recommend reporting model performance separately for each demographic subgroup.",
     "response": ""
   }
 ]

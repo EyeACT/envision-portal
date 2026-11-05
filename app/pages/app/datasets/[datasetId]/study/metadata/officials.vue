@@ -83,11 +83,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addOfficial = () => {
   state.studyOverallOfficials.push({
@@ -135,7 +134,8 @@ const validate = (state: any): FormError[] => {
       if (seen.has(key)) {
         errors.push({
           name: `givenName-${index}`,
-          message: "Duplicate official with same given name, family name, and role",
+          message:
+            "Duplicate official with same given name, family name, and role",
         });
       }
       seen.add(key);
@@ -164,18 +164,22 @@ const validate = (state: any): FormError[] => {
       }
 
       if (
-        (official.affiliationIdentifier.trim() !== "" && official.affiliationIdentifierScheme.trim() === "") ||
-        (official.affiliationIdentifier.trim() === "" && official.affiliationIdentifierScheme.trim() !== "")
+        (official.affiliationIdentifier.trim() !== "" &&
+          official.affiliationIdentifierScheme.trim() === "") ||
+        (official.affiliationIdentifier.trim() === "" &&
+          official.affiliationIdentifierScheme.trim() !== "")
       ) {
         errors.push(
           {
             name: `affiliationIdentifier-${index}`,
-            message: "Affiliation identifier and scheme must be provided together",
+            message:
+              "Affiliation identifier and scheme must be provided together",
           },
           {
             name: `affiliationIdentifierScheme-${index}`,
-            message: "Affiliation identifier and scheme must be provided together",
-          }
+            message:
+              "Affiliation identifier and scheme must be provided together",
+          },
         );
       }
 
@@ -211,18 +215,22 @@ const validate = (state: any): FormError[] => {
       }
 
       if (
-        (official.identifier.trim() !== "" && official.identifierScheme.trim() === "") ||
-        (official.identifier.trim() === "" && official.identifierScheme.trim() !== "")
+        (official.identifier.trim() !== "" &&
+          official.identifierScheme.trim() === "") ||
+        (official.identifier.trim() === "" &&
+          official.identifierScheme.trim() !== "")
       ) {
         errors.push(
           {
             name: `identifier-${index}`,
-            message: "Identifier and Identifier scheme must be provided together",
+            message:
+              "Identifier and Identifier scheme must be provided together",
           },
           {
             name: `identifierScheme-${index}`,
-            message: "Identifier and Identifier scheme must be provided together",
-          }
+            message:
+              "Identifier and Identifier scheme must be provided together",
+          },
         );
       }
 
@@ -304,10 +312,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/officials`, {
-      body: b,
-      method: "PUT",
-    });
+    const res = await $fetch(
+      `/api/datasets/${datasetId}/study/metadata/officials`,
+      {
+        body: b,
+        method: "PUT",
+      },
+    );
     console.log(res);
 
     toast.add({
@@ -333,9 +344,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -351,7 +361,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         ]"
       />
 
-      <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+      <div
+        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
         <div class="flex w-full items-center justify-between gap-3">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Overall Officials
@@ -369,14 +381,18 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Study Governance Officials & Directors
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Register oversight personnel, scientific leaders, principal investigators, and authorization leads tied to managing execution milestones.
+                Register oversight personnel, scientific leaders, principal
+                investigators, and authorization leads tied to managing
+                execution milestones.
               </p>
             </div>
 
@@ -386,7 +402,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-show="!item.deleted"
                 :key="item.id"
                 class="my-2 shadow-none"
-                :title="item.givenName ? `${item.givenName} ${item.familyName}` : `Overall Official ${index + 1}`"
+                :title="
+                  item.givenName
+                    ? `${item.givenName} ${item.familyName}`
+                    : `Overall Official ${index + 1}`
+                "
                 bordered
               >
                 <template #header-extra>
@@ -400,28 +420,43 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-4 p-1">
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <UFormField label="Given Name" :name="`givenName-${index}`" required>
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <UFormField
+                      label="Given Name"
+                      :name="`givenName-${index}`"
+                      required
+                    >
                       <UInput v-model="item.givenName" placeholder="James" />
                     </UFormField>
 
-                    <UFormField label="Family Name" :name="`familyName-${index}`" required>
+                    <UFormField
+                      label="Family Name"
+                      :name="`familyName-${index}`"
+                      required
+                    >
                       <UInput v-model="item.familyName" placeholder="Smith" />
                     </UFormField>
 
                     <UFormField label="Degree" :name="`degree-${index}`">
-                      <UInput v-model="item.degree" placeholder="e.g., PhD, MD, ScD" />
+                      <UInput
+                        v-model="item.degree"
+                        placeholder="PhD, MD, ScD"
+                      />
                     </UFormField>
                   </div>
 
-                  <UFormField label="Affiliation" :name="`affiliation-${index}`" required>
+                  <UFormField
+                    label="Affiliation"
+                    :name="`affiliation-${index}`"
+                    required
+                  >
                     <UInput
                       v-model="item.affiliation"
                       placeholder="University of California, San Francisco"
                     />
                   </UFormField>
 
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <UFormField
                       label="Affiliation Identifier"
                       :name="`affiliationIdentifier-${index}`"
@@ -429,7 +464,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.affiliationIdentifier"
-                        placeholder="e.g., ror-id-5678"
+                        placeholder="ror-id-5678"
                         class="w-full"
                       />
                     </UFormField>
@@ -441,7 +476,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.affiliationIdentifierScheme"
-                        placeholder="e.g., ROR"
+                        placeholder="ROR"
                         class="w-full"
                       />
                     </UFormField>
@@ -459,16 +494,22 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     </UFormField>
                   </div>
 
-                  <UFormField label="Official Protocol Role" :name="`role-${index}`" required>
+                  <UFormField
+                    label="Official Protocol Role"
+                    :name="`role-${index}`"
+                    required
+                  >
                     <USelect
                       v-model="item.role"
                       class="w-full"
                       placeholder="Select authority designation"
-                      :items="FORM_JSON.studyMetadataContactsOverallOfficialRole"
+                      :items="
+                        FORM_JSON.studyMetadataContactsOverallOfficialRole
+                      "
                     />
                   </UFormField>
 
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <UFormField
                       label="Personal Identifier"
                       :name="`identifier-${index}`"
@@ -488,7 +529,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.identifierScheme"
-                        placeholder="e.g., ORCID"
+                        placeholder="ORCID"
                         class="w-full"
                       />
                     </UFormField>
@@ -522,7 +563,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="study-metadata-officials-form"
         type="submit"
@@ -535,7 +576,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -543,11 +584,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your registered oversight officials structural mapping lines will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your registered oversight officials structural mapping lines will be
+            permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

@@ -157,7 +157,7 @@ const consentTypeOptions = [
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <UFormField label="Version" name="version" required>
-                <UInput v-model="state.version" placeholder="e.g., 1.0" />
+                <UInput v-model="state.version" placeholder="1.0" />
               </UFormField>
 
               <UFormField
@@ -167,7 +167,7 @@ const consentTypeOptions = [
               >
                 <UInput
                   v-model="state.publicationYear"
-                  placeholder="e.g., 2024"
+                  placeholder="2024"
                   maxlength="4"
                 />
               </UFormField>
@@ -176,7 +176,7 @@ const consentTypeOptions = [
             <UFormField label="Resource Type" name="resourceTypeValue" required>
               <UInput
                 v-model="state.resourceTypeValue"
-                placeholder="e.g., Diabetes, Cancer Research"
+                placeholder="Diabetes, Cancer Research"
               />
             </UFormField>
           </div>
@@ -195,10 +195,7 @@ const consentTypeOptions = [
               required
               help="Format for personal names: Family, Given"
             >
-              <UInput
-                v-model="state.creatorName"
-                placeholder="e.g., Smith, John"
-              />
+              <UInput v-model="state.creatorName" placeholder="Smith, John" />
             </UFormField>
 
             <UFormField label="Name Type" name="creatorNameType" required>
@@ -273,7 +270,7 @@ const consentTypeOptions = [
             label="License Name"
             name="rightsName"
             required
-            help="e.g., Creative Commons Attribution 4.0 International"
+            help="Creative Commons Attribution 4.0 International"
           >
             <UInput
               v-model="state.rightsName"

@@ -2,36 +2,43 @@
   {
     "id": 1,
     "question": "Will the dataset be distributed to third parties outside of the entity (e.g. company, institution, organization) on behalf of which the dataset was created?",
+    "placeholder": "Yes, to approved external researchers who sign a data use agreement.",
     "response": ""
   },
   {
     "id": 2,
     "question": "How will the dataset will be distributed (e.g. tarball on website, API, GitHub)?",
+    "placeholder": "Through a controlled-access data portal, after an application is approved.",
     "response": ""
   },
   {
     "id": 3,
     "question": "When will the dataset be distributed?",
+    "placeholder": "When the main study paper is published, with updates each year after that.",
     "response": ""
   },
   {
     "id": 4,
     "question": "Will the dataset be distributed under a copyright or other intellectual property (IP) license, and/or under applicable terms of use (ToU)?",
+    "placeholder": "Yes, under a data use agreement that limits use to non-commercial research.",
     "response": ""
   },
   {
     "id": 5,
     "question": "Have any third parties imposed IP-based or other restrictions on the data associated with the instances?",
+    "placeholder": "Yes, one partner clinic doesn't allow its data to be used for commercial purposes.",
     "response": ""
   },
   {
     "id": 6,
     "question": "Do any export controls or other regulatory restrictions apply to the dataset or to individual instances?",
+    "placeholder": "Yes, HIPAA applies to the data, and transfers outside the US need additional approval.",
     "response": ""
   },
   {
     "id": 7,
     "question": "Any other comments?",
+    "placeholder": "Access applications are usually reviewed within four weeks.",
     "response": ""
   }
 ]

@@ -2,41 +2,49 @@
   {
     "id": 1,
     "question": "Who is supporting/hosting/maintaining the dataset?",
+    "placeholder": "The study's research group maintains the dataset, and the university's research computing service hosts it.",
     "response": ""
   },
   {
     "id": 2,
     "question": "How can the owner/curator/manager of the dataset be contacted (e.g. email address)?",
+    "placeholder": "By email at data-support@example.org.",
     "response": ""
   },
   {
     "id": 3,
     "question": "Is there an erratum?",
+    "placeholder": "Yes, corrections are listed at https://example.org/dataset/errata.",
     "response": ""
   },
   {
     "id": 4,
     "question": "Will the dataset be updated (e.g. to correct labeling errors, add new instances, delete instances)?",
+    "placeholder": "Yes, the study team will release yearly updates that correct errors and add new study visits.",
     "response": ""
   },
   {
     "id": 5,
     "question": "If the dataset relates to people, are there applicable limits on the retention of the data associated with the instances (e.g. were individuals in question told that their data would be retained for a fixed period of time and then deleted)?",
+    "placeholder": "Yes, participants were told their data would be kept for 15 years and then deleted.",
     "response": ""
   },
   {
     "id": 6,
     "question": "Will older versions of the dataset continue to be supported/hosted/maintained?",
+    "placeholder": "Yes, older versions stay available on the data portal, with a notice pointing to the latest version.",
     "response": ""
   },
   {
     "id": 7,
     "question": "If others want to extend/augment/build on/contribute to the dataset, is there a mechanism for them to do so?",
+    "placeholder": "Yes, proposed additions can be emailed to the data team, who review them before each new release.",
     "response": ""
   },
   {
     "id": 8,
     "question": "Any other comments?",
+    "placeholder": "Please report suspected data issues to the data team so they can be fixed in the next release.",
     "response": ""
   }
 ]

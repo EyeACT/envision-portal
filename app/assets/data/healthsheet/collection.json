@@ -2,66 +2,79 @@
   {
     "id": 1,
     "question": "How was the data associated with each instance acquired?",
+    "placeholder": "Lab results came from medical records, surveys were self-reported, and images were captured at study visits.",
     "response": ""
   },
   {
     "id": 2,
     "question": "What mechanisms or procedures were used to collect the data (e.g. hardware apparatus or sensor, manual human curation, software program, software API)?",
+    "placeholder": "Retinal cameras, wearable activity trackers, online survey software, and manual chart review.",
     "response": ""
   },
   {
     "id": 3,
     "question": "If the dataset is a sample from a larger set, what was the sampling strategy (e.g. deterministic, probabilistic with specific sampling probabilities)?",
+    "placeholder": "Consecutive sampling. Every eligible patient attending a participating clinic was invited to join.",
     "response": ""
   },
   {
     "id": 4,
     "question": "Who was involved in the data collection process (e.g. students, crowdworkers, contractors) and how were they compensated (e.g. how much were crowdworkers paid)?",
+    "placeholder": "Salaried clinical research coordinators collected the data, and participants received $50 per visit.",
     "response": ""
   },
   {
     "id": 5,
     "question": "Over what timeframe was the data collected?",
+    "placeholder": "January 2022 to December 2025.",
     "response": ""
   },
   {
     "id": 6,
     "question": "Were any ethical review processes conducted (e.g. by an institutional review board)?",
+    "placeholder": "Yes, the study was approved by the university's institutional review board (protocol 2021-0123).",
     "response": ""
   },
   {
     "id": 7,
     "question": "Does the dataset relate to people?",
+    "placeholder": "Yes, all data comes from adult study participants.",
     "response": ""
   },
   {
     "id": 8,
     "question": "Did you collect the data from the individuals in question directly, or obtain it via third parties or other sources (e.g. websites)?",
+    "placeholder": "Surveys and images were collected directly from participants, and lab results came from medical records.",
     "response": ""
   },
   {
     "id": 9,
     "question": "Were the individuals in question notified about the data collection?",
+    "placeholder": "Yes, participants received a written information sheet during enrollment.",
     "response": ""
   },
   {
     "id": 10,
     "question": "Did the individuals in question consent to the collection and use of their data?",
+    "placeholder": "Yes, all participants gave written informed consent, including for sharing data for research.",
     "response": ""
   },
   {
     "id": 11,
     "question": "If consent was obtained, were the consenting individuals provided with a mechanism to revoke their consent in the future or for certain uses?",
+    "placeholder": "Yes, participants can withdraw by contacting the study team, and their data is removed from future releases.",
     "response": ""
   },
   {
     "id": 12,
     "question": "Has an analysis of the potential impact of the dataset and its use on data subjects (e.g. a data protection impact analysis) been conducted?",
+    "placeholder": "Yes, a data protection impact assessment was completed before collection began and is available on request.",
     "response": ""
   },
   {
     "id": 13,
     "question": "Any other comments?",
+    "placeholder": "Recruitment paused for three months in 2023 because of a staffing shortage.",
     "response": ""
   }
 ]

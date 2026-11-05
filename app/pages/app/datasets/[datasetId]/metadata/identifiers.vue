@@ -69,7 +69,7 @@ if (data.value) {
   );
 
   state.secondaryIdentifiers = formattedIdentifiers;
-  
+
   initialRawData.value = JSON.stringify(formattedIdentifiers);
 }
 
@@ -77,11 +77,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state.secondaryIdentifiers) !== initialRawData.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addSecondaryIdentifier = () => {
   state.secondaryIdentifiers.push({
@@ -115,7 +114,7 @@ const getFormatError = (identifier: string, type: string): string | null => {
     // Basic DOI regex pattern check (e.g. 10.xxxx/...)
     const doiRegex = /^10.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
     if (!doiRegex.test(identifier.trim())) {
-      return "Invalid DOI format (e.g., 10.1000/182)";
+      return "Invalid DOI format (10.1000/182)";
     }
   }
   // Add other type-specific validations here if needed (e.g. URL, RRID, etc.)
@@ -149,7 +148,8 @@ const validate = (state: any): FormError[] => {
       const typeKey = `secondary-type-${index}`;
 
       // Only evaluate format rules if field has been touched or form is submitting
-      const shouldCheckFormat = touchedFields[identifierKey] || isSubmitting.value;
+      const shouldCheckFormat =
+        touchedFields[identifierKey] || isSubmitting.value;
 
       if (!item.identifier?.trim()) {
         if (shouldCheckFormat) {
@@ -168,7 +168,10 @@ const validate = (state: any): FormError[] => {
         }
       }
 
-      if (!item.type?.trim() && (touchedFields[typeKey] || isSubmitting.value)) {
+      if (
+        !item.type?.trim() &&
+        (touchedFields[typeKey] || isSubmitting.value)
+      ) {
         errors.push({
           name: typeKey,
           message: "Identifier type is required.",
@@ -239,9 +242,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -287,8 +289,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 <p class="text-gray-500 dark:text-gray-400">
                   The primary identifier for your dataset is generated
                   automatically when you publish a version of your dataset. You
-                  can find the identifier for the latest published version of your
-                  dataset on the
+                  can find the identifier for the latest published version of
+                  your dataset on the
                   <NuxtLink
                     :to="`/app/datasets/${datasetId}`"
                     class="text-blue-500"
@@ -311,7 +313,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </h2>
 
                 <p class="text-gray-500 dark:text-gray-400">
-                  Optionally, add any secondary identifiers that describe the dataset.
+                  Optionally, add any secondary identifiers that describe the
+                  dataset.
                 </p>
               </div>
 
@@ -321,7 +324,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   v-show="!item.deleted"
                   :key="item.id"
                   class="my-1 shadow-none"
-                  :title="item.identifier || `Secondary Identifier ${index + 1}`"
+                  :title="
+                    item.identifier || `Secondary Identifier ${index + 1}`
+                  "
                   bordered
                 >
                   <template #header-extra>
@@ -378,7 +383,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="metadata-identifiers-form"
         type="submit"
@@ -391,7 +396,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -399,12 +404,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your secondary identifiers will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your secondary identifiers will be permanently discarded.
           </p>
-          
+
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

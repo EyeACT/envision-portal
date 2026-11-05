@@ -2,86 +2,103 @@
   {
     "id": 1,
     "question": "What do the instances that comprise the dataset represent (e.g. documents, photos, people, countries)?",
+    "placeholder": "Each instance is one study visit by an adult participant with type 2 diabetes.",
     "response": ""
   },
   {
     "id": 2,
     "question": "How many instances are there in total (of each type, if appropriate)?",
+    "placeholder": "3,400 study visits from 1,200 participants, with 6,800 retinal images.",
     "response": ""
   },
   {
     "id": 3,
     "question": "Does the dataset contain all possible instances or is it a sample (not necessarily random) of instances from a larger set?",
+    "placeholder": "A sample. Participants came from 5 clinics and don't represent all people with type 2 diabetes.",
     "response": ""
   },
   {
     "id": 4,
     "question": "What data does each instance consist of?",
+    "placeholder": "Demographics, lab results, survey responses, activity tracker readings, and two retinal images.",
     "response": ""
   },
   {
     "id": 5,
     "question": "Is there a label or target associated with each instance?",
+    "placeholder": "Yes, each visit has a retinopathy severity grade assigned by two clinicians.",
     "response": ""
   },
   {
     "id": 6,
     "question": "Is any information missing from individual instances?",
+    "placeholder": "Yes, about 8% of visits have no HbA1c result because no blood sample was collected.",
     "response": ""
   },
   {
     "id": 7,
     "question": "Are relationships between individual instances made explicit (e.g. users' movie ratings, social network links)?",
+    "placeholder": "Yes, visits link to participants through a participant ID, and images link to visits through a visit ID.",
     "response": ""
   },
   {
     "id": 8,
     "question": "Are there recommended data splits (e.g. training, development/validation, testing)?",
+    "placeholder": "Yes, a 70/15/15 train/validation/test split, with each participant in only one split.",
     "response": ""
   },
   {
     "id": 9,
     "question": "Are there any errors, sources of noise, or redundancies in the dataset?",
+    "placeholder": "About 2% of images are ungradable because of low quality, and some activity readings have gaps.",
     "response": ""
   },
   {
     "id": 10,
     "question": "Is the dataset self-contained, or does it link to or otherwise rely on external resources (e.g. websites, tweets, other datasets)?",
+    "placeholder": "Self-contained. All data files are included, and clinical terms use standard codes such as LOINC.",
     "response": ""
   },
   {
     "id": 11,
     "question": "Does the dataset contain data that might be considered confidential (e.g. data that is protected by legal privilege or by doctor-patient confidentiality, data that includes the content of individuals' non-public communications)?",
+    "placeholder": "Yes, it includes health information from medical records, so access requires a data use agreement.",
     "response": ""
   },
   {
     "id": 12,
     "question": "Does the dataset contain data that, if viewed directly, might be offensive, insulting, threatening, or might otherwise cause anxiety?",
+    "placeholder": "Some retinal images show advanced disease, which some viewers may find distressing.",
     "response": ""
   },
   {
     "id": 13,
     "question": "Does the dataset relate to people?",
+    "placeholder": "Yes, all instances come from adult study participants.",
     "response": ""
   },
   {
     "id": 14,
     "question": "Does the dataset identify any subpopulations (e.g. by age, gender)?",
+    "placeholder": "Yes, by age group, sex, race, and ethnicity.",
     "response": ""
   },
   {
     "id": 15,
     "question": "Is it possible to identify individuals (i.e., one or more natural persons), either directly or indirectly (i.e., in combination with other data) from the dataset?",
+    "placeholder": "Direct identifiers were removed, but individuals could possibly be identified by linking rare conditions with other data.",
     "response": ""
   },
   {
     "id": 16,
     "question": "Does the dataset contain data that might be considered sensitive in any way (e.g. data that reveals racial or ethnic origins, sexual orientations, religious beliefs, political opinions or union memberships, or locations; financial or health data; biometric or genetic data; forms of government identification, such as social security numbers; criminal history)?",
+    "placeholder": "Yes, it contains health data and self-reported race and ethnicity.",
     "response": ""
   },
   {
     "id": 16,
     "question": "Any other comments?",
+    "placeholder": "People with severe disease are underrepresented because they were less able to attend study visits.",
     "response": ""
   }
 ]

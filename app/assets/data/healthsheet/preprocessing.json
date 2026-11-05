@@ -2,21 +2,25 @@
   {
     "id": 1,
     "question": "Was any preprocessing/cleaning/labeling of the data done (e.g. discretization or bucketing, tokenization, part-of-speech tagging, SIFT feature extraction, removal of instances, processing of missing values)?",
+    "placeholder": "Yes, dates were shifted, implausible lab values were removed, and images were resized to a common resolution.",
     "response": ""
   },
   {
     "id": 2,
     "question": "Was the 'raw' data saved in addition to the preprocessed/cleaned/labeled data (e.g. to support unanticipated future uses)?",
+    "placeholder": "Yes, the raw data is stored securely by the study team and is available on request, subject to approval.",
     "response": ""
   },
   {
     "id": 3,
     "question": "Is the software used to preprocess/clean/label the instances available?",
+    "placeholder": "Yes, the processing code is available at https://example.org/preprocessing-code.",
     "response": ""
   },
   {
     "id": 4,
     "question": "Any other comments?",
+    "placeholder": "Missing values were left blank rather than imputed.",
     "response": ""
   }
 ]
