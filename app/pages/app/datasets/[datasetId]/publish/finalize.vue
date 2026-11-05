@@ -294,7 +294,6 @@ const startPolling = () => {
 const publishDataset = async () => {
   if (!accessLevel.value) return;
 
-  isPublishingStarted.value = true;
   publishLoading.value = true;
 
   startPolling();
@@ -439,6 +438,34 @@ onUnmounted(() => {
       />
 
       <div
+        v-if="!data?.lockedAt"
+        class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+          Who can access this dataset?
+        </h2>
+
+        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          This controls how data requests are handled once the dataset is
+          published. It is saved on the published version.
+        </p>
+
+        <URadioGroup
+          v-model="accessLevel"
+          :items="accessLevelItems"
+          variant="card"
+          :disabled="publishLoading"
+        />
+
+        <p
+          v-if="!accessLevel"
+          class="mt-3 text-sm text-amber-600 dark:text-amber-400"
+        >
+          Choose an access level to publish this dataset.
+        </p>
+      </div>
+
+      <div
         v-if="showStatusTable"
         class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
@@ -502,7 +529,9 @@ onUnmounted(() => {
           class="w-full"
           size="lg"
           :loading="publishLoading || isPublishingInProgress"
-          :disabled="isPublishingInProgress || isPublishingFailed"
+          :disabled="
+            !accessLevel || isPublishingInProgress || isPublishingFailed
+          "
           label="Start the publishing process"
           icon="i-lucide-arrow-right"
           @click="publishDataset"
