@@ -7,6 +7,7 @@ definePageMeta({
 
 const route = useRoute();
 const toast = useToast();
+const confirm = useConfirmDialog();
 
 const { studyId } = route.params as { studyId: string };
 const { datasetId } = route.params as { datasetId: string };
@@ -305,6 +306,15 @@ const sendInvitation = async () => {
 };
 
 const removeRow = async (row: PermissionRow) => {
+  if (row.kind == "invitation") {
+    const confirmed = await confirm({
+      title: "Rescind Invitation",
+      description: `${row.emailAddress} will no longer be able to accept this invitation. You can invite them again later.`,
+    });
+
+    if (!confirmed) return;
+  }
+
   removingMember.value = true;
 
   if (row.kind == "member") {
@@ -361,6 +371,25 @@ const removeRow = async (row: PermissionRow) => {
     } finally {
       removingMember.value = false;
     }
+  }
+};
+
+const copyInviteLink = async (row: PermissionRow) => {
+  if (row.kind !== "invitation") return;
+
+  try {
+    await navigator.clipboard.writeText(row.invitation.url);
+    toast.add({
+      title: "Invite link copied to clipboard",
+      icon: "material-symbols:check-circle",
+    });
+  } catch {
+    toast.add({
+      title: "Failed to copy invite link",
+      description: "Please try again",
+      color: "error",
+      icon: "material-symbols:error",
+    });
   }
 };
 </script>
@@ -464,14 +493,21 @@ const removeRow = async (row: PermissionRow) => {
           <li
             v-for="row in filteredRows"
             :key="row.key"
-            :class="[
-              row.kind == 'member'
-                ? 'flex flex-wrap items-center justify-between gap-2 py-4'
-                : 'flex flex-wrap items-center justify-between gap-2 py-4 opacity-60',
-            ]"
+            class="flex flex-wrap items-center gap-2 py-4"
           >
-            <div class="flex min-w-0 items-center gap-3">
-              <UAvatar :alt="row.name" size="md" />
+            <div
+              class="flex min-w-48 flex-1 items-center gap-3"
+              :class="{ 'opacity-60': row.kind == 'invitation' }"
+            >
+              <UAvatar
+                :alt="row.name"
+                :text="
+                  row.kind === 'invitation'
+                    ? row.emailAddress?.slice(0, 2).toUpperCase()
+                    : undefined
+                "
+                size="md"
+              />
 
               <div class="min-w-0">
                 <p
@@ -486,63 +522,56 @@ const removeRow = async (row: PermissionRow) => {
               </div>
             </div>
 
-            <UBadge
-              v-if="row.kind == 'member' && row.owner"
-              color="primary"
-              variant="soft"
-              size="md"
-              class="font-bold uppercase"
+            <UTooltip
+              v-if="row.kind == 'invitation'"
+              text="Copy the link this person needs to accept the invitation"
             >
-              Owner
-            </UBadge>
-
-            <USelect
-              v-else-if="row.kind === 'member' && canManageRoles"
-              :items="roleOptions"
-              :loading="roleUpdating"
-              :disabled="
-                updatingMemberId === row.member.userId ||
-                row.member.userId == user.id
-              "
-              :model-value="row.member.role"
-              class="w-36"
-              @update:model-value="
-                (value) => updateRole(row, value as MemberRole)
-              "
-            />
-
-            <div
-              v-else-if="row.kind == 'member' && !canManageRoles"
-              class="flex gap-2"
-            >
-              <UBadge
-                color="neutral"
-                variant="soft"
-                size="md"
-                class="font-bold uppercase"
-              >
-                {{ row.role }}
-              </UBadge>
-            </div>
-
-            <div v-else class="flex gap-2">
-              <UBadge
-                color="neutral"
-                variant="soft"
-                size="md"
-                class="font-bold uppercase"
-              >
-                {{ row.role }}
-              </UBadge>
-              <ULink
-                as="button"
+              <UButton
+                label="Copy Link"
+                icon="i-lucide-copy"
                 color="primary"
                 variant="soft"
                 size="sm"
-                :to="row.invitation.url"
-                target="_blank"
-                >Follow Invite URL</ULink
+                @click="copyInviteLink(row)"
+              />
+            </UTooltip>
+
+            <!-- fixed width so roles line up across every row -->
+            <div class="w-36">
+              <UBadge
+                v-if="row.kind == 'member' && row.owner"
+                color="primary"
+                variant="soft"
+                size="md"
+                class="font-bold uppercase"
               >
+                Owner
+              </UBadge>
+
+              <USelect
+                v-else-if="row.kind === 'member' && canManageRoles"
+                :items="roleOptions"
+                :loading="roleUpdating"
+                :disabled="
+                  updatingMemberId === row.member.userId ||
+                  row.member.userId == user.id
+                "
+                :model-value="row.member.role"
+                class="w-full"
+                @update:model-value="
+                  (value) => updateRole(row, value as MemberRole)
+                "
+              />
+
+              <UBadge
+                v-else
+                color="neutral"
+                variant="soft"
+                size="md"
+                class="font-bold uppercase"
+              >
+                {{ row.role }}
+              </UBadge>
             </div>
 
             <UButton
