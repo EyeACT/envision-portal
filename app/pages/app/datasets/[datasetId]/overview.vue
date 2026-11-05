@@ -283,7 +283,7 @@ if (dataset.value) {
             color="primary"
             variant="outline"
             icon="i-lucide-upload"
-            label="Upload More Files"
+            :label="`Upload ${storage?.fileCount !== undefined && storage?.fileCount > 0 ? 'More' : ''} Files`"
             class="mt-1 w-fit"
           />
         </div>
