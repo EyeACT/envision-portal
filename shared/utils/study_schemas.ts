@@ -192,19 +192,38 @@ export const keywordsSchema = z
   })
   .strict();
 
+
+// TODO: Import into about.vue
+const domainRequiredTypes = [
+  "Other Grant/Funding Number",
+  "Registry Identifier",
+  "Other Identifier"
+]
+
 export const secondaryIdentifierSchema = z
   .object({
     id: z.string().optional(),
     deleted: z.boolean().optional(),
     domain: z.union([z.literal(""), z.string().trim().url()]),
-    identifier: z.string(),
+    identifier: z.string().min(1),
     link: z.union([z.literal(""), z.string().trim().url()]),
     local: z.boolean().optional(),
     type: z.string().refine((v) => identTypeOptions.includes(v), {
       message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
     }),
   })
-  .strict();
+  .strict()
+  .superRefine(({ type, domain }, ctx) => {
+    if (
+      domainRequiredTypes.includes(type) && !domain
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["domain"],
+        message: "Domain is required for this identifier type."
+      })
+    }
+  })
 
 export const StudyMetadataAboutSchema = z
   .object({
@@ -224,7 +243,8 @@ export const StudyMetadataAboutSchema = z
     }),
     secondaryIdentifiers: z
       .array(secondaryIdentifierSchema)
-      .min(1, "At least one secondary identifier is required"),
+      .min(1, "At least one secondary identifier is required")
+      .optional(),
   })
   .strict();
 
@@ -1381,20 +1401,20 @@ export const PrimaryIdentifierSchema = z.object({
 
 export const uniqueItemsRefine =
   (keyFn: (item: any) => string, message: string, errorPath: string) =>
-  (data: any[], ctx: z.RefinementCtx) => {
-    const seen = new Set<string>();
-    data.forEach((item, index) => {
-      const key = keyFn(item);
-      if (seen.has(key)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message,
-          path: [index, errorPath],
-        });
-      }
-      seen.add(key);
-    });
-  };
+    (data: any[], ctx: z.RefinementCtx) => {
+      const seen = new Set<string>();
+      data.forEach((item, index) => {
+        const key = keyFn(item);
+        if (seen.has(key)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message,
+            path: [index, errorPath],
+          });
+        }
+        seen.add(key);
+      });
+    };
 
 export const StudyMetadataPublishValidation = z.object({
   id: z.string().cuid2("Invalid dataset ID"),

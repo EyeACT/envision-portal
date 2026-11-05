@@ -151,7 +151,6 @@ if (data.value) {
 }
 
 const hasConditionErrors = ref(false)
-const hasSecondaryIdentifierErrors = ref(false)
 
 const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
@@ -332,6 +331,7 @@ const validate = (state: any): FormError[] => {
   state.conditions.forEach((condition: any, index: number) => {
     if (condition.deleted) return;
     const key = condition.name?.trim().toLowerCase();
+    console.log(seenConditions)
     if (seenConditions.has(key)) {
       errors.push({
         name: `conditions[${index}].name`,
@@ -439,13 +439,6 @@ const validate = (state: any): FormError[] => {
     (i: any) => !i.deleted,
   );
 
-  if (activeSecondaryIDs.length === 0) {
-    errors.push({
-      name: "secondaryIdentifiers",
-      message: "At least one secondary identifier is required",
-    });
-  }
-
   const seenSecondaryIDs = new Set<string>();
   state.secondaryIdentifiers.forEach((identifier: any, index: number) => {
     if (identifier.deleted) return;
@@ -476,12 +469,20 @@ const validate = (state: any): FormError[] => {
       });
     }
 
+    if(identifier.type && domainRequiredTypes.includes(identifier.type) && !identifier.domain) {
+      errors.push({
+        name: `secondaryIdentifiers.$index.domain`,
+        message: "URL is required for the alternative identifier type you have selected.",
+      });
+    }
+
     if (identifier.domain && !isValidUrl(identifier.domain)) {
       errors.push({
         name: `secondaryIdentifiers.$index.domain`,
         message: "Invalid URL format",
       });
     }
+
 
     if (identifier.link && !isValidUrl(identifier.link)) {
       errors.push({
@@ -495,6 +496,13 @@ const validate = (state: any): FormError[] => {
   return errors;
 };
 
+// TODO: Use study_schema defintion instead / move both to shared location
+const domainRequiredTypes = [
+  "Other Grant/Funding Number",
+  "Registry Identifier",
+  "Other Identifier"
+]
+
 const onValidationError = (event: FormErrorEvent) => {
   hasConditionErrors.value = event.errors.some(
     ({name}) => 
@@ -502,22 +510,30 @@ const onValidationError = (event: FormErrorEvent) => {
     name?.startsWith("conditions[") || 
     name?.startsWith("conditions."),
   )
-
-  hasSecondaryIdentifierErrors.value = event.errors.some(
-    ({name}) => 
-      name === "secondaryIdentifiers" ||
-      name?.startsWith("secondaryIdentifiers[") ||
-      name?.startsWith("secondaryIdentifiers.")
-  )
 }
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
   isSubmitting.value = true;
   hasConditionErrors.value = false;
-  hasSecondaryIdentifierErrors.value = false;
 
   const formData = event.data;
+
+
+  const secondaryIdentifiers = formData.secondaryIdentifiers.map(
+      (identifier: any) => {
+        const i = { ...identifier };
+
+        if (i.local) {
+          delete i.id;
+        }
+        if (!i.deleted) {
+          delete i.deleted;
+        }
+
+        return i;
+      },
+    );
 
   const b = {
     briefSummary: formData.briefSummary,
@@ -547,21 +563,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       return k;
     }),
     primaryIdentifier: formData.primaryIdentifier,
-    secondaryIdentifiers: formData.secondaryIdentifiers.map(
-      (identifier: any) => {
-        const i = { ...identifier };
-
-        if (i.local) {
-          delete i.id;
-        }
-        if (!i.deleted) {
-          delete i.deleted;
-        }
-
-        return i;
-      },
-    ),
+    ...(secondaryIdentifiers?.length > 0 ? {secondaryIdentifiers} : {})
   };
+
 
   console.log(JSON.stringify(b, null, 2));
 
@@ -822,7 +826,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alternative Identifiers 
-                <span class="text-red-500 text-sm">*</span>
               </h2>
 
               <p class="text-gray-500 dark:text-gray-400">
@@ -884,9 +887,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               class="w-fit"
               @click="addSecondaryIdentifier"
             />
-              <span v-if="hasSecondaryIdentifierErrors" class="text-sm text-red-500" role="alert">
-                  You must add at least one alternative identifier.
-              </span>
               </div>
           </div>
         </div>

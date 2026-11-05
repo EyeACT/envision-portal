@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
   );
 
   if (!body.success) {
+    console.log(body.error)
     throw createError({
       data: z.treeifyError(body.error),
       statusCode: 400,
@@ -70,53 +71,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // update the secondary identifiers
-  // Get the secondary identifiers that already have an id and update them
-  const secondaryIdentifiersToUpdate = secondaryIdentifiers.filter(
-    (identifier) => identifier.id,
-  );
-
-  for (const identifier of secondaryIdentifiersToUpdate) {
-    await prisma.studyIdentification.update({
-      data: {
-        identifier: identifier.identifier,
-        identifierDomain: identifier.domain || "",
-        identifierLink: identifier.link || "",
-        identifierType: identifier.type,
-        isSecondary: true,
-      },
-      where: { id: identifier.id },
-    });
-  }
-
-  // Get the secondary identifiers that don't have an id and create them
-  const secondaryIdentifiersToCreate = secondaryIdentifiers.filter(
-    (identifier) => !identifier.id,
-  );
-
-  for (const identifier of secondaryIdentifiersToCreate) {
-    await prisma.studyIdentification.create({
-      data: {
-        datasetId,
-        identifier: identifier.identifier,
-        identifierDomain: identifier.domain || "",
-        identifierLink: identifier.link || "",
-        identifierType: identifier.type,
-        isSecondary: true,
-      },
-    });
-  }
-
-  // Get the secondary identifiers that are deleted and delete them
-  const secondaryIdentifiersToDelete = secondaryIdentifiers.filter(
-    (identifier) => identifier.deleted,
-  );
-
-  for (const identifier of secondaryIdentifiersToDelete) {
-    await prisma.studyIdentification.delete({
-      where: { id: identifier.id },
-    });
-  }
+  await handleSecondaryIdentifiers(datasetId, secondaryIdentifiers)
 
   // update the keywords
   // Get the keywords that already have an id and update them
@@ -208,3 +163,59 @@ export default defineEventHandler(async (event) => {
     updatedStudyDescription,
   };
 });
+
+
+type SecondaryIdentifiers = z.infer<typeof StudyMetadataAboutSchema>["secondaryIdentifiers"]
+const handleSecondaryIdentifiers = async (datasetId: string, secondaryIdentifiers: SecondaryIdentifiers) => {
+
+  if (!secondaryIdentifiers) return
+
+  // update the secondary identifiers
+  // Get the secondary identifiers that already have an id and update them
+  const secondaryIdentifiersToUpdate = secondaryIdentifiers.filter(
+    (identifier) => identifier.id,
+  );
+
+  for (const identifier of secondaryIdentifiersToUpdate) {
+    await prisma.studyIdentification.update({
+      data: {
+        identifier: identifier.identifier,
+        identifierDomain: identifier.domain || "",
+        identifierLink: identifier.link || "",
+        identifierType: identifier.type,
+        isSecondary: true,
+      },
+      where: { id: identifier.id },
+    });
+  }
+
+  // Get the secondary identifiers that don't have an id and create them
+  const secondaryIdentifiersToCreate = secondaryIdentifiers.filter(
+    (identifier) => !identifier.id,
+  );
+
+  for (const identifier of secondaryIdentifiersToCreate) {
+    await prisma.studyIdentification.create({
+      data: {
+        datasetId,
+        identifier: identifier.identifier,
+        identifierDomain: identifier.domain || "",
+        identifierLink: identifier.link || "",
+        identifierType: identifier.type,
+        isSecondary: true,
+      },
+    });
+  }
+
+  // Get the secondary identifiers that are deleted and delete them
+  const secondaryIdentifiersToDelete = secondaryIdentifiers.filter(
+    (identifier) => identifier.deleted,
+  );
+
+  for (const identifier of secondaryIdentifiersToDelete) {
+    await prisma.studyIdentification.delete({
+      where: { id: identifier.id },
+    });
+  }
+
+}
