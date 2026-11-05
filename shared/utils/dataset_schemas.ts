@@ -237,7 +237,7 @@ export const titleSchema = z.object({
 });
 
 export const DatasetMetadataGeneralInformationSchema = z.object({
-  DatasetDate: z.array(aboutSchema).min(1, "At least one date is required"),
+  DatasetDate: z.array(aboutSchema),
   DatasetDescription: z
     .array(descriptionSchema)
     .min(1, "At least Abstract description is required"),

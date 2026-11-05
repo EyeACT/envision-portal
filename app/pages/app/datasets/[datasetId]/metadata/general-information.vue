@@ -257,13 +257,6 @@ const validate = (state: any): FormError[] => {
 
   const activeDates = state.dates?.filter((item: any) => !item.deleted) ?? [];
 
-  if (activeDates.length === 0) {
-    errors.push({ 
-      name: "dates", 
-      message: "Please add at least one date." 
-    });
-  }
-
   const seenDates = new Set<string>();
   activeDates.forEach((item: any, index: number) => {
     const key = item.type?.trim().toLowerCase();
@@ -501,7 +494,7 @@ const onApplyExtracted = (_values: ExtractedValues) => {
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">Dates</h2>
-              <p class="text-gray-500 dark:text-gray-400">Please add some dates that describe the dataset.</p>
+              <p class="text-gray-500 dark:text-gray-400">Optionally, add any dates that describe the dataset.</p>
             </div>
             <UFormField name="dates">
               <CardCollapsible
