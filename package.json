@@ -43,6 +43,7 @@
     "marked": "18.1.2",
     "md-editor-v3": "7.1.0",
     "motion-v": "2.9.0",
+    "nanoid": "^6.0.2",
     "nodemailer": "10.2.1",
     "pretty-bytes": "7.2.0",
     "sanitize-filename": "1.6.4",
