@@ -1,4 +1,4 @@
-name: Kamal proxy reboot
+name: Kamal proxy reboot (production)
 
 on:
   workflow_dispatch:
