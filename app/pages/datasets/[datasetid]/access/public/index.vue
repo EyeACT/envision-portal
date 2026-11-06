@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { InternalApi } from "nitropack/types";
 import * as z from "zod";
 import { faker } from "@faker-js/faker";
 import type { FormSubmitEvent } from "@nuxt/ui";
@@ -18,9 +19,9 @@ const loading = ref(false);
 
 const { datasetid } = route.params as { datasetid: string };
 
-const { data: dataset, error } = await useFetch(
-  `/api/discover/dataset/${datasetid}`,
-);
+const { data: dataset, error } = await useFetch<
+  InternalApi["/api/discover/dataset/:datasetid"]["get"]
+>(`/api/discover/dataset/${datasetid}`);
 
 if (error.value) {
   toast.add({
@@ -142,20 +143,27 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         >
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <UFormField label="Given Name" name="givenName">
-              <UInput v-model="state.givenName" />
+              <UInput v-model="state.givenName" placeholder="Andrea" />
             </UFormField>
 
             <UFormField label="Family Name" name="familyName">
-              <UInput v-model="state.familyName" />
+              <UInput v-model="state.familyName" placeholder="Ghez" />
             </UFormField>
           </div>
 
           <UFormField label="Affiliation" name="affiliation">
-            <UInput v-model="state.affiliation" />
+            <UInput
+              v-model="state.affiliation"
+              placeholder="University of California, Los Angeles"
+            />
           </UFormField>
 
           <UFormField label="Email" name="email">
-            <UInput v-model="state.email" :disabled="loggedIn" />
+            <UInput
+              v-model="state.email"
+              placeholder="jane.doe@example.com"
+              :disabled="loggedIn"
+            />
           </UFormField>
 
           <UFormField label="Reason for Access" name="reasonForAccess">

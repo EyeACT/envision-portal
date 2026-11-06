@@ -136,20 +136,23 @@ const consentTypeOptions = [
         <UCard>
           <template #header>
             <h2 class="text-xl font-semibold">Basic Information</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Describe the dataset so others can find and understand it.
+            </p>
           </template>
 
           <div class="space-y-4">
             <UFormField label="Dataset Title" name="title" required>
               <UInput
                 v-model="state.title"
-                placeholder="Enter the dataset title"
+                placeholder="Retinal Imaging in Type 2 Diabetes"
               />
             </UFormField>
 
             <UFormField label="Description" name="description" required>
               <UTextarea
                 v-model="state.description"
-                placeholder="Provide a brief description of the dataset"
+                placeholder="Retinal images and clinical measurements from adults with type 2 diabetes"
                 :rows="4"
                 class="w-full"
               />
@@ -157,7 +160,7 @@ const consentTypeOptions = [
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <UFormField label="Version" name="version" required>
-                <UInput v-model="state.version" placeholder="e.g., 1.0" />
+                <UInput v-model="state.version" placeholder="1.0" />
               </UFormField>
 
               <UFormField
@@ -167,7 +170,7 @@ const consentTypeOptions = [
               >
                 <UInput
                   v-model="state.publicationYear"
-                  placeholder="e.g., 2024"
+                  placeholder="2024"
                   maxlength="4"
                 />
               </UFormField>
@@ -176,7 +179,7 @@ const consentTypeOptions = [
             <UFormField label="Resource Type" name="resourceTypeValue" required>
               <UInput
                 v-model="state.resourceTypeValue"
-                placeholder="e.g., Diabetes, Cancer Research"
+                placeholder="Diabetes, Cardiovascular"
               />
             </UFormField>
           </div>
@@ -186,6 +189,9 @@ const consentTypeOptions = [
         <UCard>
           <template #header>
             <h2 class="text-xl font-semibold">Creator Information</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Identify the person or organization that created the dataset.
+            </p>
           </template>
 
           <div class="space-y-4">
@@ -197,13 +203,14 @@ const consentTypeOptions = [
             >
               <UInput
                 v-model="state.creatorName"
-                placeholder="e.g., Smith, John"
+                placeholder="Strickland, Donna"
               />
             </UFormField>
 
             <UFormField label="Name Type" name="creatorNameType" required>
               <USelect
                 v-model="state.creatorNameType"
+                placeholder="Select name type"
                 :items="nameTypeOptions"
                 class="w-full"
               />
@@ -215,12 +222,15 @@ const consentTypeOptions = [
         <UCard>
           <template #header>
             <h2 class="text-xl font-semibold">Managing Organization</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Identify the organization responsible for managing the dataset.
+            </p>
           </template>
 
           <UFormField label="Organization Name" name="managingOrgName" required>
             <UInput
               v-model="state.managingOrgName"
-              placeholder="Enter the managing organization name"
+              placeholder="University of Waterloo"
             />
           </UFormField>
         </UCard>
@@ -229,12 +239,16 @@ const consentTypeOptions = [
         <UCard>
           <template #header>
             <h2 class="text-xl font-semibold">Access Information</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Explain how others can access the dataset.
+            </p>
           </template>
 
           <div class="space-y-4">
             <UFormField label="Access Type" name="accessType" required>
               <USelect
                 v-model="state.accessType"
+                placeholder="Select access type"
                 :items="accessTypeOptions"
                 class="w-full"
               />
@@ -247,7 +261,7 @@ const consentTypeOptions = [
             >
               <UTextarea
                 v-model="state.accessDescription"
-                placeholder="Describe how to access this dataset"
+                placeholder="Submit a request through the repository and sign a data use agreement"
                 :rows="3"
                 class="w-full"
               />
@@ -267,18 +281,18 @@ const consentTypeOptions = [
         <UCard>
           <template #header>
             <h2 class="text-xl font-semibold">License</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Specify the terms under which the dataset can be used.
+            </p>
           </template>
 
           <UFormField
             label="License Name"
             name="rightsName"
             required
-            help="e.g., Creative Commons Attribution 4.0 International"
+            help="Creative Commons Attribution 4.0 International"
           >
-            <UInput
-              v-model="state.rightsName"
-              placeholder="Enter the license name"
-            />
+            <UInput v-model="state.rightsName" placeholder="CC BY 4.0" />
           </UFormField>
         </UCard>
 
@@ -286,13 +300,13 @@ const consentTypeOptions = [
         <UCard>
           <template #header>
             <h2 class="text-xl font-semibold">Publisher</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Identify the organization that publishes the dataset.
+            </p>
           </template>
 
           <UFormField label="Publisher Name" name="publisherName" required>
-            <UInput
-              v-model="state.publisherName"
-              placeholder="Enter the publisher name"
-            />
+            <UInput v-model="state.publisherName" placeholder="Zenodo" />
           </UFormField>
         </UCard>
 
@@ -300,6 +314,9 @@ const consentTypeOptions = [
         <UCard>
           <template #header>
             <h2 class="text-xl font-semibold">De-identification Level</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Describe how identifying information was removed from the dataset.
+            </p>
           </template>
 
           <div class="space-y-4">
@@ -310,6 +327,7 @@ const consentTypeOptions = [
             >
               <USelect
                 v-model="state.deIdentType"
+                placeholder="Select de-identification type"
                 :items="deIdentTypeOptions"
                 class="w-full"
               />
@@ -347,12 +365,16 @@ const consentTypeOptions = [
         <UCard>
           <template #header>
             <h2 class="text-xl font-semibold">Consent Information</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Describe the consent participants gave and any limits on data use.
+            </p>
           </template>
 
           <div class="space-y-4">
             <UFormField label="Consent Type" name="consentType" required>
               <USelect
                 v-model="state.consentType"
+                placeholder="Select consent type"
                 :items="consentTypeOptions"
                 class="w-full"
               />

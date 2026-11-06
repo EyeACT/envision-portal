@@ -2,7 +2,7 @@ import { StudyMetadataLocationsSchema } from "#shared/utils/study_schemas";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as { datasetId: string };
 
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
         status: location.status,
         zip: location.zip,
       },
-      where: { id: location.id },
+      where: { id: location.id, datasetId },
     });
   }
 
@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
         identifier: location.identifier,
         identifierScheme: location.identifierScheme,
         identifierSchemeUri: location.identifierSchemeUri,
-        state: location.state,
+        state: location.state ?? "",
         status: location.status,
         zip: location.zip,
       },
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
 
   for (const location of studyLocationsToDelete) {
     await prisma.studyLocation.delete({
-      where: { id: location.id },
+      where: { id: location.id, datasetId },
     });
   }
 

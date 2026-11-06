@@ -560,7 +560,8 @@ const publishDataset = async (task: Task) => {
         external: false,
         externalUrl: null,
         files: JSON.stringify(fileTree),
-        public: true,
+        // Controlled (non-public) datasets need owner approval for each request
+        public: publishedDataset.public ?? true,
         status: "ready",
       },
     });

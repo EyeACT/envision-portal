@@ -1,6 +1,12 @@
 // Routes under /api/datasets/{datasetId}/ that stay writable while the dataset is locked.
 // These manage access or create a separate dataset, so they don't change what gets published.
-const UNLOCKED_SEGMENTS = new Set(["invitations", "members", "new-version"]);
+// Data requests are handled after publishing, when the dataset is always locked.
+const UNLOCKED_SEGMENTS = new Set([
+  "invitations",
+  "members",
+  "new-version",
+  "requests",
+]);
 
 // Exact routes under /api/datasets/{datasetId}/ that stay writable while locked.
 // Retrying a failed publish only requeues the task for the already locked dataset

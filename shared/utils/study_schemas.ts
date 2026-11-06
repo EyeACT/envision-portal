@@ -241,10 +241,7 @@ export const StudyMetadataAboutSchema = z
         message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
       }),
     }),
-    secondaryIdentifiers: z
-      .array(secondaryIdentifierSchema)
-      .min(1, "At least one secondary identifier is required")
-      .optional(),
+    secondaryIdentifiers: z.array(secondaryIdentifierSchema),
   })
   .strict();
 
@@ -722,8 +719,7 @@ export const StudyMetadataInterventionsSchema = z
               .transform((arr) => arr.filter((s) => s.trim())),
             type: z
               .string({
-                invalid_type_error: "Type is required",
-                required_error: "Type is required",
+                error: "Type is required",
               })
               .refine((v) => validTypes.includes(v), {
                 message: "Type must be a valid option",
@@ -732,8 +728,10 @@ export const StudyMetadataInterventionsSchema = z
           })
           .strict(),
         {
-          invalid_type_error: "`studyInterventions` must be an array",
-          required_error: "`studyInterventions` array is required",
+          error: (issue) =>
+            issue.input === undefined
+              ? "`studyInterventions` array is required"
+              : "`studyInterventions` must be an array",
         },
       )
       .min(1, { message: "At least one study intervention is required" }),
@@ -790,8 +788,7 @@ export const LocationSchema = z
     state: z.string().trim().optional(),
     status: z
       .string({
-        invalid_type_error: "Status is required",
-        required_error: "Status is required",
+        error: "Status is required",
       })
       .trim()
       .refine((v) => validStatus.includes(v), {
@@ -813,8 +810,10 @@ export const LocationContactSchema = z
     identifierScheme: z.string().trim(),
     identifierSchemeUri: z.string().trim(),
     role: z.enum(["Principal Investigator", "Sub-Investigator"], {
-      required_error: "Role is required",
-      invalid_type_error: "Role must be a valid option",
+      error: (issue) =>
+        issue.input === undefined
+          ? "Role is required"
+          : "Role must be a valid option",
     }),
     phone: z.string().trim(),
     phoneExt: z.string().trim(),
@@ -829,8 +828,10 @@ export const LocationContactSchema = z
 export const StudyMetadataLocationsSchema = z.object({
   studyLocations: z
     .array(LocationSchema.superRefine(locationRefine), {
-      invalid_type_error: "`studyLocations` must be an array",
-      required_error: "`studyLocations` array is required",
+      error: (issue) =>
+        issue.input === undefined
+          ? "`studyLocations` array is required"
+          : "`studyLocations` must be an array",
     })
     .min(1, { message: "At least one study location is required" }),
 });
@@ -937,8 +938,7 @@ export const officialSchema = z
     local: z.boolean().optional(),
     role: z
       .string({
-        invalid_type_error: "Role is required",
-        required_error: "Role is required",
+        error: "Role is required",
       })
       .trim()
       .refine((v) => validRoles.includes(v), {
@@ -958,8 +958,7 @@ export const StudyMetadataOversightSchema = z
   .object({
     humanSubjectReviewStatus: z
       .string({
-        invalid_type_error: "Human Subject Review Status is required.",
-        required_error: "Human Subject Review Status is required.",
+        error: "Human Subject Review Status is required.",
       })
       .trim()
       .refine((v) => validHumanStatuses.includes(v), {
@@ -977,8 +976,7 @@ export const StudyMetadataOversightSchema = z
       },
       z
         .string({
-          invalid_type_error: "FDA Regulated Device selection is required.",
-          required_error: "FDA Regulated Device selection is required.",
+          error: "FDA Regulated Device selection is required.",
         })
         .trim()
         .refine((v) => validYesNo.includes(v as (typeof validYesNo)[number]), {
@@ -998,8 +996,7 @@ export const StudyMetadataOversightSchema = z
       },
       z
         .string({
-          invalid_type_error: "FDA Regulated Drug selection is required.",
-          required_error: "FDA Regulated Drug selection is required.",
+          error: "FDA Regulated Drug selection is required.",
         })
         .trim()
         .refine((v) => validYesNo.includes(v), {
@@ -1019,8 +1016,10 @@ export const StudyMetadataOversightSchema = z
       },
       z
         .string({
-          invalid_type_error: "Has DMC selection is required.",
-          required_error: `Has DMC selection is required. Must be one of: ${validYesNo.join(", ")}`,
+          error: (issue) =>
+            issue.input === undefined
+              ? `Has DMC selection is required. Must be one of: ${validYesNo.join(", ")}`
+              : "Has DMC selection is required.",
         })
         .trim()
         .refine((v) => validYesNo.includes(v), {
@@ -1068,6 +1067,13 @@ export const StatusBase = z.object({
 
 export const StudyMetadataStatusSchema =
   StatusBase.strict().superRefine(StatusSchemaRefine);
+
+export const StudyMetadataStatusOversightSchema = z
+  .object({
+    oversight: StudyMetadataOversightSchema,
+    status: StudyMetadataStatusSchema,
+  })
+  .strict();
 
 const collaboratorSchemaRefine = (data: any, ctx: z.RefinementCtx) => {
   if (!data.deleted) {
@@ -1538,7 +1544,7 @@ export const StudyMetadataPublishValidation = z.object({
   StudyOversight: z
     .object({})
     .passthrough()
-    .transform((o: any) => ({
+    .transform((o: any): z.input<typeof StudyMetadataOversightSchema> => ({
       humanSubjectReviewStatus: o.humanSubjectReviewStatus,
       isFDARegulatedDevice: o.isFDARegulatedDevice ?? o.fdaRegulatedDevice,
       isFDARegulatedDrug: o.isFDARegulatedDrug ?? o.fdaRegulatedDrug,

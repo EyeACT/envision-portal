@@ -49,7 +49,7 @@ const datasetNavItems = [
         route: "metadata/data-management",
       },
       {
-        name: "Access & Rights",
+        name: "Access & License",
         icon: "streamline-logos:open-access-logo-block",
         route: "metadata/access-rights",
       },
@@ -118,14 +118,9 @@ const datasetNavItems = [
         route: "study/metadata/about",
       },
       {
-        name: "Oversight",
-        icon: "material-symbols:admin-panel-settings",
-        route: "study/metadata/oversight",
-      },
-      {
-        name: "Status",
+        name: "Status & Oversight",
         icon: "hugeicons:status",
-        route: "study/metadata/status",
+        route: "study/metadata/status-oversight",
       },
       {
         name: "Team",
@@ -192,18 +187,20 @@ const datasetNavItems = [
     icon: "mdi:account-group-outline",
     route: "permissions",
   },
-  { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
+  // Hidden until implemented: placeholder page
+  // { name: "Participants", icon: "mdi:account-multiple", route: "participants" },
   {
     name: "CMDS Validator",
     icon: "mdi:folder-check-outline",
     route: "validator",
   },
   { name: "Data Upload", icon: "heroicons-outline:upload", route: "upload" },
-  {
-    name: "Data Processing",
-    icon: "heroicons-outline:cube",
-    route: "processing",
-  },
+  // Hidden until implemented: placeholder page
+  // {
+  //   name: "Data Processing",
+  //   icon: "heroicons-outline:cube",
+  //   route: "processing",
+  // },
   {
     name: "Data Requests",
     icon: "heroicons-outline:inbox-arrow-down",

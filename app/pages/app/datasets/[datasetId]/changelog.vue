@@ -52,11 +52,10 @@ const isDirty = computed(() => {
 });
 
 // Pass computed states into the custom modal helper
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const onSubmit = async () => {
   submitLoading.value = true;
@@ -89,9 +88,8 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -115,8 +113,7 @@ const onSubmit = async () => {
               </h1>
 
               <p class="text-lg font-normal">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-                quos.
+                Track what has changed across versions of this dataset.
               </p>
             </div>
           </div>
@@ -126,7 +123,7 @@ const onSubmit = async () => {
       </div>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         type="button"
         :disabled="submitLoading"
@@ -139,7 +136,7 @@ const onSubmit = async () => {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -147,11 +144,20 @@ const onSubmit = async () => {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your configured changelog records will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your configured changelog records will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-            <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

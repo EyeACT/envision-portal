@@ -15,48 +15,8 @@ export interface StudyDocument {
 
 
 // Module-level singleton so all composable callers share the same reactive list
-const documents = ref<StudyDocument[]>([
-  {
-    id: "1",
-    name: "BRIGHT-Study-MOP-v2.pdf",
-    type: "mop",
-    size: 2_450_000,
-    uploadedAt: "2026-04-10T14:23:00Z",
-    fileExtension: "pdf",
-  },
-  {
-    id: "2",
-    name: "Informed-Consent-Form-English.pdf",
-    type: "icf",
-    size: 380_000,
-    uploadedAt: "2026-04-12T09:05:00Z",
-    fileExtension: "pdf",
-  },
-  {
-    id: "3",
-    name: "IRB-Approval-Letter-2026.pdf",
-    type: "irb",
-    size: 145_000,
-    uploadedAt: "2026-04-15T11:00:00Z",
-    fileExtension: "pdf",
-  },
-  {
-    id: "4",
-    name: "Data-Dictionary-v1.3.xlsx",
-    type: "data_dictionary",
-    size: 92_000,
-    uploadedAt: "2026-05-02T16:47:00Z",
-    fileExtension: "xlsx",
-  },
-  {
-    id: "5",
-    name: "Statistical-Analysis-Plan.docx",
-    type: "sap",
-    size: 210_000,
-    uploadedAt: "2026-05-20T08:30:00Z",
-    fileExtension: "docx",
-  },
-]);
+const documents = ref<StudyDocument[]>([]);
+const loading = ref(false);
 
 export function useDocuments(datasetId: string) {
 
@@ -80,39 +40,30 @@ export function useDocuments(datasetId: string) {
     return { name: "material-symbols:description", color: "text-gray-400" };
   };
 
-  console.log("Being ran with ", datasetId)
-
-  // reset current documents -- keep test docs for now
-  documents.value = documents.value.filter(doc => {
-    return ["1", "2", "3", "4", "5"].includes(doc.id)
-  })
+  // The list is shared, so clear the previous dataset's documents before loading
+  documents.value = [];
+  loading.value = true;
 
   $fetch(`/api/datasets/${datasetId}/documents`)
     .then(docs => {
-      let currentIds = documents.value.map(currentDoc => {
-        return currentDoc.id
-      })
+      const parsedDocs = JSON.parse(docs) as document[]
 
-      let parsedDocs = JSON.parse(docs) as document[]
-      for (const doc of parsedDocs) {
-        if (!currentIds.includes(doc.id)) {
-          documents.value.push({
-            id: doc.id,
-            name: doc.originalName,
-            type: doc.documentType,
-            size: Number(doc.size),
-            uploadedAt: doc.created.toString(),
-            fileExtension: doc.sanitizedName.split(".").at(-1)!
-          })
-        }
-      }
-
+      documents.value = parsedDocs.map(doc => ({
+        id: doc.id,
+        name: doc.originalName,
+        type: doc.documentType,
+        size: Number(doc.size),
+        uploadedAt: doc.created.toString(),
+        fileExtension: doc.sanitizedName.split(".").at(-1)!
+      }))
     })
     .catch(err => error.value = err)
+    .finally(() => loading.value = false)
 
 
   return {
     documents,
+    loading,
     formatBytes,
     formatDate,
     docTypeLabel,

@@ -92,14 +92,16 @@ if (data.value) {
   state.enrollmentType = data.value.StudyDesign?.enrollmentType ?? "";
   state.allocation = data.value.StudyDesign?.allocation ?? "";
   state.interventionModel = data.value.StudyDesign?.interventionModel ?? "";
-  state.interventionModelDescription = data.value.StudyDesign?.interventionModelDescription ?? "";
+  state.interventionModelDescription =
+    data.value.StudyDesign?.interventionModelDescription ?? "";
   state.primaryPurpose = data.value.StudyDesign?.primaryPurpose ?? "";
   state.masking = data.value.StudyDesign?.masking ?? "";
   state.maskingDescription = data.value.StudyDesign?.maskingDescription ?? "";
   state.whoMaskedList = data.value.StudyDesign?.whoMaskedList ?? [];
   state.numberOfArms = data.value.StudyDesign?.numberOfArms ?? 0;
   state.phaseList = data.value.StudyDesign?.phaseList ?? [];
-  state.oberservationalModelList = data.value.StudyDesign?.oberservationalModelList ?? [];
+  state.oberservationalModelList =
+    data.value.StudyDesign?.oberservationalModelList ?? [];
   state.timePerspectiveList = data.value.StudyDesign?.timePerspectiveList ?? [];
   state.targetDuration = data.value.StudyDesign?.targetDuration ?? 0;
   state.targetDurationUnit = data.value.StudyDesign?.targetDurationUnit ?? "";
@@ -113,11 +115,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const validate = (state: any): FormError[] => {
   const errors = [];
@@ -137,7 +138,10 @@ const validate = (state: any): FormError[] => {
       });
     }
 
-    if (!state.oberservationalModelList || !state.oberservationalModelList.length) {
+    if (
+      !state.oberservationalModelList ||
+      !state.oberservationalModelList.length
+    ) {
       errors.push({
         name: "oberservationalModelList",
         message: "Observational model is required",
@@ -277,10 +281,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/design`, {
-      body: b,
-      method: "PUT",
-    });
+    const res = await $fetch(
+      `/api/datasets/${datasetId}/study/metadata/design`,
+      {
+        body: b,
+        method: "PUT",
+      },
+    );
     console.log(res);
 
     toast.add({
@@ -306,9 +313,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -331,19 +337,27 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Design</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Design
+            </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the study is displayed here.
+            Describe the type of study and how it is structured.
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Study Type</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Study Type
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
                 Specify whether this study is interventional or observational.
               </p>
@@ -379,14 +393,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         </div>
 
         <div
-          v-show="state.studyType === 'Interventional' || state.studyType === 'Observational'"
+          v-show="
+            state.studyType === 'Interventional' ||
+            state.studyType === 'Observational'
+          "
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Design Information</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Design Information
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Provide detailed attributes corresponding to the structural paradigm of the setup.
+                Describe how the study is structured, including how participants
+                are allocated and what the study evaluates.
               </p>
             </div>
 
@@ -426,7 +446,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UInput
                 v-model="state.interventionModelDescription"
                 class="w-full"
-                placeholder="Intervention model description"
+                placeholder="Participants receive the study drug to prevent disease progression."
               />
             </UFormField>
 
@@ -454,7 +474,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-model="state.oberservationalModelList"
                 class="w-full"
                 multiple
-                placeholder="Observational Models"
+                placeholder="Cohort"
                 :items="FORM_JSON.studyMetadataObservationalModelsOptions"
               />
             </UFormField>
@@ -482,9 +502,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Masking</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Masking
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Specify trial parameters concerning the blinding process for participants and investigators.
+                Specify who does not know which group participants are assigned
+                to.
               </p>
             </div>
 
@@ -492,7 +515,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <USelect
                 v-model="state.masking"
                 class="w-full"
-                placeholder="Blind"
+                placeholder="Double"
                 :items="FORM_JSON.studyMetadataMaskingOptions"
               />
             </UFormField>
@@ -501,7 +524,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UTextarea
                 v-model="state.maskingDescription"
                 class="w-full"
-                placeholder="Lorem ipsum dolor sit amet"
+                placeholder="The pharmacy prepares identical capsules so that participants and investigators do not know group assignments."
               />
             </UFormField>
 
@@ -510,7 +533,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-model="state.whoMaskedList"
                 class="w-full"
                 multiple
-                placeholder="Single Group Assignment"
+                placeholder="Participant"
                 :items="FORM_JSON.studyMetadataWhoMaskedOptions"
               />
             </UFormField>
@@ -523,9 +546,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Phase</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Phase
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Indicate the structural phases execution layer.
+                Select the clinical trial phase of this study.
               </p>
             </div>
 
@@ -547,9 +572,12 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Bio Specification</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Bio Specification
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Maintain collection records for physiological and biospecimen information tracking.
+                Describe any biospecimens collected and whether samples are
+                retained.
               </p>
             </div>
 
@@ -566,18 +594,23 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UTextarea
                 v-model="state.bioSpecDescription"
                 class="w-full"
-                placeholder="Lorem ipsum dolor sit amet"
+                placeholder="Whole blood and serum samples are stored for future analysis."
               />
             </UFormField>
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Enrollment Information</h2>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Enrollment Information
+              </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Input expected quantitative parameters regarding the sample sizes.
+                Provide the number of participants, the number of arms, and the
+                target study duration.
               </p>
             </div>
 
@@ -616,7 +649,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UInput
                 v-model="state.numberOfArms"
                 class="w-full"
-                placeholder="1"
+                placeholder="2"
                 type="number"
               />
             </UFormField>
@@ -636,7 +669,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   v-model="state.targetDuration"
                   class="w-full"
                   type="number"
-                  placeholder="1"
+                  placeholder="12"
                 />
               </UFormField>
 
@@ -649,7 +682,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 <USelect
                   v-model="state.targetDurationUnit"
                   class="w-full"
-                  placeholder="Days"
+                  placeholder="Weeks"
                   :items="FORM_JSON.studyMetadataTargetDurationUnitOptions"
                 />
               </UFormField>
@@ -659,7 +692,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="study-metadata-design-form"
         type="submit"
@@ -672,7 +705,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -680,11 +713,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

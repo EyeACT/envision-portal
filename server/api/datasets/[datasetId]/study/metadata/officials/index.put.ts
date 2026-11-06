@@ -2,7 +2,7 @@ import { StudyMetadataOverallOfficialsSchema } from "#shared/utils/study_schemas
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as { datasetId: string };
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { studyOverallOfficials } = body.data;
+  const { studyOverallOfficials = [] } = body.data;
 
   const studyOverallOfficialsToUpdate = studyOverallOfficials.filter(
     (official) => official.id,
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
         identifierSchemeUri: official.identifierSchemeUri,
         role: official.role,
       },
-      where: { id: official.id },
+      where: { id: official.id, datasetId },
     });
   }
 
@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
 
   for (const official of studyOverallOfficialsToDelete) {
     await prisma.studyOverallOfficials.delete({
-      where: { id: official.id },
+      where: { id: official.id, datasetId },
     });
   }
 

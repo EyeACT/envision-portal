@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { InternalApi } from "nitropack/types";
 definePageMeta({
   layout: "public",
 });
@@ -46,9 +47,9 @@ const datasetIndexData = ref<DatasetIndexResponse | null>(null);
 
 const { datasetid } = route.params as { datasetid: string };
 
-const { data: dataset, error } = await useFetch(
-  `/api/discover/dataset/${datasetid}`,
-);
+const { data: dataset, error } = await useFetch<
+  InternalApi["/api/discover/dataset/:datasetid"]["get"]
+>(`/api/discover/dataset/${datasetid}`);
 
 if (error.value) {
   toast.add({
@@ -296,13 +297,27 @@ onMounted(() => {
 
               <UButton
                 v-if="!dataset?.external"
-                label="Get access to dataset"
-                icon="line-md:download-loop"
+                :label="
+                  dataset?.public ? 'Get access to dataset' : 'Request access'
+                "
+                :icon="
+                  dataset?.public
+                    ? 'line-md:download-loop'
+                    : 'ri:git-repository-private-fill'
+                "
                 size="xl"
                 color="primary"
-                :to="`/datasets/${datasetid}/access/public`"
+                :to="`/datasets/${datasetid}/access/${dataset?.public ? 'public' : 'controlled'}`"
               />
 
+              <p
+                v-if="!dataset?.external && !dataset?.public"
+                class="text-center text-xs text-gray-500"
+              >
+                Controlled access. The dataset team reviews each request.
+              </p>
+
+              <!-- Hidden: Cite has no action yet
               <UButton
                 v-if="!dataset?.external"
                 label="Cite"
@@ -310,6 +325,7 @@ onMounted(() => {
                 size="xl"
                 color="neutral"
               />
+              -->
 
               <USeparator class="my-1" />
 

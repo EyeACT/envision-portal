@@ -101,9 +101,12 @@ const copyToClipboard = (text: string) => {
         />
 
         <div class="rounded-xl dark:bg-gray-900">
-          <h2 class="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
             Access Instructions
           </h2>
+          <p class="mb-6 text-gray-500 dark:text-gray-400">
+            Follow these steps to connect to the dataset files.
+          </p>
 
           <ol class="space-y-8">
             <li class="space-y-4">
@@ -187,8 +190,7 @@ const copyToClipboard = (text: string) => {
               >
                 <pre
                   class="flex-1 overflow-x-auto rounded font-mono text-sm break-all text-gray-900 dark:text-white"
-                  >{{ azureUri }}</pre
-                >
+                  >{{ azureUri }}</pre>
 
                 <UButton
                   icon="i-mdi-content-copy"

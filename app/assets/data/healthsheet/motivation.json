@@ -2,21 +2,25 @@
   {
     "id": 1,
     "question": "For what purpose was the dataset created?",
+    "placeholder": "To support research on predicting diabetes complications using linked clinical and imaging data.",
     "response": ""
   },
   {
     "id": 2,
     "question": "Who created this dataset (e.g. which team, research group) and on behalf of which entity (e.g. company, institution, organization)?",
+    "placeholder": "Created by a university clinical informatics research group on behalf of a multi-site research consortium.",
     "response": ""
   },
   {
     "id": 3,
     "question": "What support was needed to make this dataset?",
+    "placeholder": "A federal research grant, cloud storage, and two data engineers for one year.",
     "response": ""
   },
   {
     "id": 4,
     "question": "Any other comments?",
+    "placeholder": "This is the first release from an ongoing longitudinal study.",
     "response": ""
   }
 ]

@@ -31,6 +31,9 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>;
 
+const getPlaceholder = (question: string) =>
+  QUESTIONS_JSON.find((item) => item.question === question)?.placeholder;
+
 const state = reactive<Schema>({
   records: [],
   version: 1,
@@ -76,11 +79,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
@@ -100,10 +102,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/healthsheet/composition`, {
-      body: b,
-      method: "PUT",
-    });
+    const res = await $fetch(
+      `/api/datasets/${datasetId}/healthsheet/composition`,
+      {
+        body: b,
+        method: "PUT",
+      },
+    );
     console.log(res);
 
     toast.add({
@@ -128,9 +133,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -150,23 +154,30 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Composition</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Composition
+            </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Describe what the dataset contains and how it is organized.
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Composition
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide motivation information for this dataset.
+                Describe what the instances represent, how many there are, and
+                what data each one includes.
               </p>
             </div>
 
@@ -179,7 +190,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               >
                 <UTextarea
                   v-model="record.response"
-                  placeholder="Provide details for this question entry..."
+                  :placeholder="getPlaceholder(record.question)"
                   class="w-full"
                 />
               </UFormField>
@@ -189,7 +200,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="healthsheet-composition-form"
         type="submit"
@@ -202,7 +213,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -210,11 +221,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

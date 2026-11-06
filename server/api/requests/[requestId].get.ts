@@ -1,24 +1,32 @@
 export default defineEventHandler(async (event) => {
-  await requireUserSession(event);
-
-  // todo: add permissions check
+  const { user } = await requireUserSession(event);
 
   const { requestId } = event.context.params as {
     requestId: string;
   };
 
-  // Get the request from the database
-  const request = await prisma.datasetRequest.findUnique({
+  // Requesters can only see their own requests
+  const request = await prisma.datasetRequest.findFirst({
     include: {
-      Dataset: true,
-      PublishedDataset: true,
+      Dataset: {
+        select: { id: true, title: true, description: true, version: true },
+      },
+      DatasetRequestDetails: true,
+      PublishedDataset: {
+        select: {
+          id: true,
+          title: true,
+          containerId: true,
+          description: true,
+          doi: true,
+          public: true,
+          versionTitle: true,
+        },
+      },
     },
-    where: {
-      id: requestId,
-    },
+    where: { id: requestId, userId: user.id },
   });
 
-  // Check if the request exists
   if (!request) {
     throw createError({
       statusCode: 404,
@@ -27,18 +35,25 @@ export default defineEventHandler(async (event) => {
   }
 
   let sasUrl = "";
-  let expiresOn = new Date();
+  let expiration = "";
 
-  if (request.PublishedDataset.public && request.PublishedDataset.containerId) {
-    ({ expiresOn, sasUrl } = getPublishedContainerSasUrl(request.PublishedDataset.containerId));
-  } else {
-    // read the predefined sas url
-    // todo: add the predefined sas url
+  // Download access is only handed out for approved requests
+  if (request.status === "approved" && request.PublishedDataset.containerId) {
+    const sas = getPublishedContainerSasUrl(
+      request.PublishedDataset.containerId,
+    );
+
+    sasUrl = sas.sasUrl;
+    expiration = sas.expiresOn.toISOString();
   }
 
+  const { containerId: _containerId, ...publishedDataset } =
+    request.PublishedDataset;
+
   return {
-    ...request,
-    expiration: expiresOn.toISOString(),
+    ...serializeDatasetRequest(request),
+    expiration,
+    PublishedDataset: publishedDataset,
     sasUrl,
   };
 });

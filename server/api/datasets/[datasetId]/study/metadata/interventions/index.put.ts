@@ -2,7 +2,7 @@ import { StudyMetadataInterventionsSchema } from "#shared/utils/study_schemas";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as { datasetId: string };
 
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         otherNameList: intervention.otherNameList,
         type: intervention.type,
       },
-      where: { id: intervention.id },
+      where: { id: intervention.id, datasetId },
     });
   }
 
@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
 
   for (const intervention of studyInterventionsToDelete) {
     await prisma.studyIntervention.delete({
-      where: { id: intervention.id },
+      where: { id: intervention.id, datasetId },
     });
   }
 

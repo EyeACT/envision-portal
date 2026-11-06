@@ -27,6 +27,37 @@ export const isValidORCIDValue = (orcid: string): boolean => {
   return orcidRegex.test(orcid);
 };
 
+/**
+ * Reduces a pasted ORCID to its bare form, e.g. https://orcid.org/0000-0002-1825-0097
+ * and orcid:0000-0002-1825-0097 both become 0000-0002-1825-0097
+ * @param value The ORCID iD or ORCID URL entered by the user
+ * @returns The bare ORCID iD. Unrecognized input is returned trimmed, for validation to reject
+ */
+export const normalizeORCID = (value: string): string => {
+  const match = value
+    .trim()
+    .match(
+      /^(?:(?:https?:\/\/)?(?:www\.)?orcid\.org\/|orcid:)?(\d{4}-\d{4}-\d{4}-\d{3}[\dX])\/?$/i,
+    );
+
+  return match?.[1] ? match[1].toUpperCase() : value.trim();
+};
+
+/**
+ * Reduces a pasted ROR ID to its bare form, e.g. https://ror.org/03yrm5c26 becomes 03yrm5c26
+ * @param value The ROR ID or ROR URL entered by the user
+ * @returns The bare ROR ID. Unrecognized input is returned trimmed, for validation to reject
+ */
+export const normalizeROR = (value: string): string => {
+  const match = value
+    .trim()
+    .match(
+      /^(?:(?:https?:\/\/)?(?:www\.)?ror\.org\/)?(0[a-z0-9]{6}\d{2})\/?$/i,
+    );
+
+  return match?.[1] ? match[1].toLowerCase() : value.trim();
+};
+
 export const isValidRORValue = (ror: string): boolean => {
   const rorRegex = /^0[a-z|0-9]{6}[0-9]{2}$/;
 

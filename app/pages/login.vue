@@ -115,10 +115,15 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           @submit="onSubmit"
         >
           <UFormField label="Email Address" name="emailAddress">
-            <UInput v-model="state.emailAddress" type="email" />
+            <UInput
+              v-model="state.emailAddress"
+              placeholder="jane.doe@example.com"
+              type="email"
+            />
           </UFormField>
 
           <UFormField label="Password" name="password">
+            <!-- Hidden: no /forgot-password page or reset endpoint yet
             <template #hint>
               <NuxtLink
                 to="/forgot-password"
@@ -127,9 +132,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 Forgot your password?
               </NuxtLink>
             </template>
+            -->
 
             <UInput
               v-model="state.password"
+              placeholder="Enter your password"
               :type="showPassword ? 'text' : 'password'"
             >
               <template #trailing>
@@ -148,9 +155,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             type="submit"
             class="flex w-full justify-center"
             :loading="loading"
-            :disabled="
-              environment === 'production' || environment === 'staging'
-            "
           >
             <template #trailing>
               <Icon name="i-heroicons-arrow-right-20-solid" size="20" />

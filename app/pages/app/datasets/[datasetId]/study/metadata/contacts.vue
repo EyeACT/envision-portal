@@ -23,16 +23,12 @@ const schema = z.object({
       id: z.string(),
       affiliation: z.string(),
       affiliationIdentifier: z.string(),
-      affiliationIdentifierScheme: z.string(),
-      affiliationIdentifierSchemeUri: z.string(),
       degree: z.string(),
       deleted: z.boolean(),
       emailAddress: z.string(),
       familyName: z.string(),
       givenName: z.string(),
       identifier: z.string(),
-      identifierScheme: z.string(),
-      identifierSchemeUri: z.string(),
       local: z.boolean(),
       phone: z.string(),
       phoneExt: z.string(),
@@ -46,7 +42,7 @@ const state = reactive<Schema>({
   studyCentralContacts: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/contacts`,
   {},
 );
@@ -59,31 +55,28 @@ if (error.value) {
   });
 }
 
+const toFormContact = (contact: any) => ({
+  id: contact.id,
+  affiliation: contact.affiliation,
+  affiliationIdentifier: contact.affiliationIdentifier,
+  degree: contact.degree,
+  deleted: false,
+  emailAddress: contact.emailAddress,
+  familyName: contact.familyName,
+  givenName: contact.givenName,
+  identifier: contact.identifier,
+  local: false,
+  phone: contact.phone,
+  phoneExt: contact.phoneExt,
+});
+
 if (data.value) {
   useSeoMeta({
     title: data.value.title,
   });
 
-  state.studyCentralContacts = data.value.StudyCentralContact.map(
-    (contact: any) => ({
-      id: contact.id,
-      affiliation: contact.affiliation,
-      affiliationIdentifier: contact.affiliationIdentifier,
-      affiliationIdentifierScheme: contact.affiliationIdentifierScheme,
-      affiliationIdentifierSchemeUri: contact.affiliationIdentifierSchemeUri,
-      degree: contact.degree,
-      deleted: false,
-      emailAddress: contact.emailAddress,
-      familyName: contact.familyName,
-      givenName: contact.givenName,
-      identifier: contact.identifier,
-      identifierScheme: contact.identifierScheme,
-      identifierSchemeUri: contact.identifierSchemeUri,
-      local: false,
-      phone: contact.phone,
-      phoneExt: contact.phoneExt,
-    }),
-  );
+  state.studyCentralContacts =
+    data.value.StudyCentralContact.map(toFormContact);
 
   originalStateString.value = JSON.stringify(state);
 }
@@ -92,27 +85,22 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addContact = () => {
   state.studyCentralContacts.push({
     id: nanoid(),
     affiliation: "",
     affiliationIdentifier: "",
-    affiliationIdentifierScheme: "",
-    affiliationIdentifierSchemeUri: "",
     degree: "",
     deleted: false,
     emailAddress: "",
     familyName: "",
     givenName: "",
     identifier: "",
-    identifierScheme: "",
-    identifierSchemeUri: "",
     local: true,
     phone: "",
     phoneExt: "",
@@ -145,18 +133,21 @@ const validate = (state: any): FormError[] => {
 
   if (activeContacts.length > 0) {
     const seen = new Set<string>();
-    activeContacts.forEach((contact: any, index: number) => {
+
+    // Field names use the index in state, which is what the template renders from.
+    state.studyCentralContacts.forEach((contact: any, index: number) => {
+      if (contact.deleted) return;
+
       const key = `${contact.givenName?.trim().toLowerCase()}|${contact.familyName?.trim().toLowerCase()}|${contact.emailAddress?.trim().toLowerCase()}`;
       if (seen.has(key)) {
         errors.push({
           name: `givenName-${index}`,
-          message: "Duplicate central contact with same given name, family name, and email address",
+          message:
+            "Duplicate central contact with same given name, family name, and email address",
         });
       }
       seen.add(key);
-    });
 
-    activeContacts.forEach((contact: any, index: number) => {
       if (contact.givenName.trim() === "") {
         errors.push({
           name: `givenName-${index}`,
@@ -192,105 +183,44 @@ const validate = (state: any): FormError[] => {
         });
       }
 
-      if (
-        (contact.affiliationIdentifier.trim() !== "" && contact.affiliationIdentifierScheme.trim() === "") ||
-        (contact.affiliationIdentifier.trim() === "" && contact.affiliationIdentifierScheme.trim() !== "")
-      ) {
-        errors.push(
-          {
-            name: `affiliationIdentifier-${index}`,
-            message: "Affiliation identifier and scheme must be provided together",
-          },
-          {
-            name: `affiliationIdentifierScheme-${index}`,
-            message: "Affiliation identifier and scheme must be provided together",
-          }
-        );
-      }
-
-      if (
-        contact.affiliationIdentifier &&
-        contact.affiliationIdentifierScheme.toUpperCase() === "ORCID" &&
-        !isValidORCIDValue(contact.affiliationIdentifier)
-      ) {
+      const ror = normalizeROR(contact.affiliationIdentifier);
+      if (ror && !isValidRORValue(ror)) {
         errors.push({
           name: `affiliationIdentifier-${index}`,
-          message: "Must be a valid ORCID value",
-        });
-      }
-      
-      if (
-        contact.affiliationIdentifier &&
-        contact.affiliationIdentifierScheme.toUpperCase() === "ROR" &&
-        !isValidRORValue(contact.affiliationIdentifier)
-      ) {
-        errors.push({
-          name: `affiliationIdentifier-${index}`,
-          message: "Must be a valid ROR value",
+          message: "Enter a valid ROR ID or ROR URL",
         });
       }
 
-      if (
-        contact.affiliationIdentifierSchemeUri.trim() &&
-        !isValidUrl(contact.affiliationIdentifierSchemeUri)
-      ) {
-        errors.push({
-          name: `affiliationIdentifierSchemeUri-${index}`,
-          message: "Affiliation identifier scheme URI must be a valid URL",
-        });
-      }
-
-      if (
-        (contact.identifier.trim() !== "" && contact.identifierScheme.trim() === "") ||
-        (contact.identifier.trim() === "" && contact.identifierScheme.trim() !== "")
-      ) {
-        errors.push(
-          {
-            name: `identifier-${index}`,
-            message: "Identifier and Identifier scheme must be provided together",
-          },
-          {
-            name: `identifierScheme-${index}`,
-            message: "Identifier and Identifier scheme must be provided together",
-          }
-        );
-      }
-
-      if (
-        contact.identifier &&
-        contact.identifierScheme.toUpperCase() === "ORCID" &&
-        !isValidORCIDValue(contact.identifier)
-      ) {
+      const orcid = normalizeORCID(contact.identifier);
+      if (orcid && !isValidORCIDValue(orcid)) {
         errors.push({
           name: `identifier-${index}`,
-          message: "Must be a valid ORCID value",
-        });
-      }
-
-      if (
-        contact.identifier &&
-        contact.identifierScheme.toUpperCase() === "ROR" &&
-        !isValidRORValue(contact.identifier)
-      ) {
-        errors.push({
-          name: `identifier-${index}`,
-          message: "Must be a valid ROR value",
-        });
-      }
-
-      if (
-        contact.identifierSchemeUri &&
-        !isValidUrl(contact.identifierSchemeUri)
-      ) {
-        errors.push({
-          name: `identifierSchemeUri-${index}`,
-          message: "Identifier scheme URI must be a valid URL",
+          message: "Enter a valid ORCID iD or ORCID URL",
         });
       }
     });
   }
 
   return errors;
+};
+
+// The form only collects the ORCID and ROR IDs; the API also expects their schemes and scheme URIs.
+// Deleted rows are still validated by the API, so their old identifiers are cleared.
+const withIdentifierFields = (contact: any) => {
+  const ror = contact.deleted
+    ? ""
+    : normalizeROR(contact.affiliationIdentifier);
+  const orcid = contact.deleted ? "" : normalizeORCID(contact.identifier);
+
+  return {
+    ...contact,
+    affiliationIdentifier: ror,
+    affiliationIdentifierScheme: ror ? "ROR" : "",
+    affiliationIdentifierSchemeUri: ror ? "https://ror.org" : "",
+    identifier: orcid,
+    identifierScheme: orcid ? "ORCID" : "",
+    identifierSchemeUri: orcid ? "https://orcid.org" : "",
+  };
 };
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
@@ -301,7 +231,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
   const b = {
     studyContacts: formData.studyCentralContacts.map((contact: any) => {
-      const s = { ...contact };
+      const s = withIdentifierFields(contact);
 
       if (s.local) {
         delete s.id;
@@ -315,19 +245,24 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/contacts`, {
+    await $fetch(`/api/datasets/${datasetId}/study/metadata/contacts`, {
       body: b,
       method: "PUT",
     });
-    console.log(res);
+
+    // Reload so new contacts get their real ids and removed ones drop out of the form.
+    await refresh();
+    if (!error.value && data.value) {
+      state.studyCentralContacts =
+        data.value.StudyCentralContact.map(toFormContact);
+    }
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
 
@@ -344,9 +279,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -362,14 +296,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         ]"
       />
 
-      <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+      <div
+        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
         <div class="flex w-full items-center justify-between gap-3">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Central Contacts
           </h1>
         </div>
         <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
+          List the people to contact with questions about this study.
         </p>
       </div>
 
@@ -380,14 +316,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Study Investigators & Contacts
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Register administrative data, organizational alignments, and lookup schemes for primary coordinators responsible for running this setup.
+                Add the people to contact with questions about this study.
               </p>
             </div>
 
@@ -397,7 +335,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-show="!item.deleted"
                 :key="item.id"
                 class="my-2 shadow-none"
-                :title="item.givenName ? `${item.givenName} ${item.familyName}` : `Central Contact ${index + 1}`"
+                :title="
+                  item.givenName
+                    ? `${item.givenName} ${item.familyName}`
+                    : `Central Contact ${index + 1}`
+                "
                 bordered
               >
                 <template #header-extra>
@@ -411,113 +353,96 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-4 p-1">
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <UFormField label="Given Name" :name="`givenName-${index}`" required>
-                      <UInput v-model="item.givenName" placeholder="James" />
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <UFormField
+                      label="Given Name"
+                      :name="`givenName-${index}`"
+                      required
+                    >
+                      <UInput v-model="item.givenName" placeholder="Drew" />
                     </UFormField>
 
-                    <UFormField label="Family Name" :name="`familyName-${index}`" required>
-                      <UInput v-model="item.familyName" placeholder="Smith" />
+                    <UFormField
+                      label="Family Name"
+                      :name="`familyName-${index}`"
+                      required
+                    >
+                      <UInput
+                        v-model="item.familyName"
+                        placeholder="Weissman"
+                      />
                     </UFormField>
 
                     <UFormField label="Degree" :name="`degree-${index}`">
-                      <UInput v-model="item.degree" placeholder="e.g., PhD, MD" />
+                      <UInput v-model="item.degree" placeholder="PhD, MD" />
                     </UFormField>
                   </div>
 
-                  <UFormField label="Affiliation" :name="`affiliation-${index}`" required>
+                  <UFormField
+                    label="ORCID"
+                    :name="`identifier-${index}`"
+                    help="Enter the ORCID iD or paste the full ORCID URL."
+                  >
                     <UInput
-                      v-model="item.affiliation"
-                      placeholder="University of California, San Francisco"
+                      v-model="item.identifier"
+                      placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
+                      class="w-full"
+                      @blur="item.identifier = normalizeORCID(item.identifier)"
                     />
                   </UFormField>
 
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <UFormField
-                      label="Affiliation Identifier"
+                      label="Affiliation"
+                      :name="`affiliation-${index}`"
+                      class="w-full"
+                      required
+                    >
+                      <UInput
+                        v-model="item.affiliation"
+                        placeholder="University of Pennsylvania"
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      label="ROR"
                       :name="`affiliationIdentifier-${index}`"
                       class="w-full"
+                      hint="ID or URL"
                     >
                       <UInput
                         v-model="item.affiliationIdentifier"
-                        placeholder="e.g., ror-id-0123"
+                        placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
                         class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Affiliation Scheme"
-                      class="w-full"
-                      :name="`affiliationIdentifierScheme-${index}`"
-                    >
-                      <UInput
-                        v-model="item.affiliationIdentifierScheme"
-                        placeholder="e.g., ROR, Ringgold"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Affiliation Scheme URI"
-                      class="w-full"
-                      :name="`affiliationIdentifierSchemeUri-${index}`"
-                    >
-                      <UInput
-                        v-model="item.affiliationIdentifierSchemeUri"
-                        placeholder="https://ror.org"
-                        class="w-full"
+                        @blur="
+                          item.affiliationIdentifier = normalizeROR(
+                            item.affiliationIdentifier,
+                          )
+                        "
                       />
                     </UFormField>
                   </div>
 
-                  <UFormField label="Email Address" :name="`emailAddress-${index}`" required>
+                  <UFormField
+                    label="Email Address"
+                    :name="`emailAddress-${index}`"
+                    required
+                  >
                     <UInput
                       v-model="item.emailAddress"
                       type="email"
                       placeholder="james.smith@example.com"
+                      class="w-full"
                     />
                   </UFormField>
 
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <UFormField
-                      label="Personal Identifier"
-                      :name="`identifier-${index}`"
+                      label="Phone Number"
+                      :name="`phone-${index}`"
                       class="w-full"
                     >
-                      <UInput
-                        v-model="item.identifier"
-                        placeholder="0000-0000-0000-0000"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Identifier Scheme"
-                      :name="`identifierScheme-${index}`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifierScheme"
-                        placeholder="e.g., ORCID"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Identifier Scheme URI"
-                      :name="`identifierSchemeUri-${index}`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifierSchemeUri"
-                        placeholder="https://orcid.org"
-                        class="w-full"
-                      />
-                    </UFormField>
-                  </div>
-
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <UFormField label="Phone Number" :name="`phone-${index}`" class="w-full">
                       <UInput
                         v-model="item.phone"
                         placeholder="+1 (555) 000-0000"
@@ -525,7 +450,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       />
                     </UFormField>
 
-                    <UFormField label="Extension" :name="`phoneExt-${index}`" class="w-full">
+                    <UFormField
+                      label="Extension"
+                      :name="`phoneExt-${index}`"
+                      class="w-full"
+                    >
                       <UInput
                         v-model="item.phoneExt"
                         placeholder="123"
@@ -550,7 +479,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="study-metadata-contacts-form"
         type="submit"
@@ -563,7 +492,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -571,11 +500,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your configured study investigator contacts data points will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your configured study investigator contacts data points will be
+            permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

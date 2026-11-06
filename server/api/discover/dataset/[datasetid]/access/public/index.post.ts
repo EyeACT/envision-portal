@@ -52,6 +52,13 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if the dataset exists in the management side
+  if (!publicDataset.datasetId) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Dataset not found",
+    });
+  }
+
   const dataset = await prisma.dataset.findUnique({
     where: {
       id: publicDataset?.datasetId,

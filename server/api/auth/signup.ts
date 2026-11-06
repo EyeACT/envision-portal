@@ -10,7 +10,7 @@ const signupSchema = z.object({
   familyName: z.string(),
   givenName: z.string(),
   password: z.string().min(8),
-  invitation: z.string().optional()
+  invitation: z.string().optional(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -26,14 +26,24 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if ((environment === "production" || environment === "staging") && !body.data.invitation) {
+  // Invite only everywhere except local development. Checking for development
+  if (environment !== "development" && !body.data.invitation) {
     throw createError({
       statusCode: 403,
       statusMessage: "Signup has been disabled",
     });
   }
 
-  const normalizedEmailAddress = body.data.emailAddress.toLocaleLowerCase()
+  const normalizedEmailAddress = body.data.emailAddress.toLocaleLowerCase();
+
+  // Validate the invitation first so an invalid token can't be used to check
+  // whether an email address is registered
+  // TODO: Database transaction for consuming and creating a user
+  // signups with successful invitation consumption skip email verification
+  const validInvitation = await hasValidDatasetInvitation(
+    body.data.invitation,
+    normalizedEmailAddress,
+  );
 
   // Check if the user already exists
   const user = await prisma.user.findUnique({
@@ -53,10 +63,6 @@ export default defineEventHandler(async (event) => {
   const hashedPassword = await hash(body.data.password, 10);
   const verificationToken = nanoid();
   const tokenExpiry = dayjs().add(30, "minute").toDate();
-
-  // TODO: Database transaction for consuming and creating a user
-  // signups with successful invitation consumption skip email verification
-  const validInvitation = await hasValidDatasetInvitation(body.data.invitation, normalizedEmailAddress)
 
   const newUser = await prisma.user.create({
     data: {
@@ -91,21 +97,22 @@ export default defineEventHandler(async (event) => {
     return { message: "Verification email sent. Please check your inbox." };
   }
 
-
-  return { message: "Email already verified. Please login." }
+  return { message: "Email already verified. Please login." };
 });
 
-
-const hasValidDatasetInvitation = async (invitation: string | undefined, emailAddress: string) => {
+const hasValidDatasetInvitation = async (
+  invitation: string | undefined,
+  emailAddress: string,
+) => {
   if (!invitation) {
-    return false
+    return false;
   }
 
   // Check if the user has a platform invitation
   const datasetInvitation = await prisma.datasetInvitation.findUnique({
     where: {
       emailAddress: emailAddress,
-      invitationToken: invitation
+      invitationToken: invitation,
     },
   });
 
@@ -123,8 +130,7 @@ const hasValidDatasetInvitation = async (invitation: string | undefined, emailAd
   ) {
     throw createError({
       statusCode: 410,
-      statusMessage:
-        "Invitation token has expired. Please request a new one.",
+      statusMessage: "Invitation token has expired. Please request a new one.",
     });
   }
 
@@ -139,10 +145,9 @@ const hasValidDatasetInvitation = async (invitation: string | undefined, emailAd
   if (datasetInvitation.status !== InvitationStatuses.NORESPONSE) {
     throw createError({
       statusCode: 410,
-      statusMessage: "This invitation is no longer valid."
-    })
+      statusMessage: "This invitation is no longer valid.",
+    });
   }
 
-
-  return true
-}
+  return true;
+};

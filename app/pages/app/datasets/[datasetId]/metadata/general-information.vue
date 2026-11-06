@@ -4,7 +4,10 @@ import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
 import FORM_JSON from "~/assets/data/form.json";
 import AI_FIELDS from "~/assets/data/ai-extract-fields.json";
-import type { ExtractedValues, ExtractField } from "@/components/ai/ExtractDrawer.vue";
+import type {
+  ExtractedValues,
+  ExtractField,
+} from "@/components/ai/ExtractDrawer.vue";
 
 definePageMeta({
   middleware: ["auth"],
@@ -61,7 +64,7 @@ const state = reactive<Schema>({
   titles: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/metadata/general-information`,
   {},
 );
@@ -74,10 +77,9 @@ if (error.value) {
   });
 }
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
   state.dates = data.value.DatasetDate.map((item: any) => ({
     id: item.id,
@@ -103,7 +105,14 @@ if (data.value) {
     local: false,
     type: title.type,
   }));
+};
 
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
+
+  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -111,11 +120,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addTitle = () => {
   state.titles.push({
@@ -186,107 +194,111 @@ const validate = (state: any): FormError[] => {
   const activeTitles = state.titles?.filter((item: any) => !item.deleted) ?? [];
 
   if (activeTitles.length === 0) {
-    errors.push({ 
-      name: "titles", 
-      message: "Please add at least one title." 
+    errors.push({
+      name: "titles",
+      message: "Please add at least one title.",
     });
   }
 
   const seenTitles = new Set<string>();
-  activeTitles.forEach((item: any, index: number) => {
+  state.titles.forEach((item: any, index: number) => {
+    if (item.deleted) return;
+
     const key = item.title?.trim().toLowerCase();
     if (seenTitles.has(key)) {
-      errors.push({ 
-        name: `title-${index}`, 
-        message: "Duplicate title." 
+      errors.push({
+        name: `title-${index}`,
+        message: "Duplicate title.",
       });
     }
     seenTitles.add(key);
   });
 
-  activeTitles.forEach((item: any, index: number) => {
+  state.titles.forEach((item: any, index: number) => {
+    if (item.deleted) return;
+
     if (!item.title?.trim()) {
-      errors.push({ 
-        name: `title-${index}`, 
-        message: "Title value is required." 
+      errors.push({
+        name: `title-${index}`,
+        message: "Title value is required.",
       });
     }
     if (!item.type?.trim()) {
-      errors.push({ 
-        name: `title-type-${index}`, 
-        message: "Title type is required." 
+      errors.push({
+        name: `title-type-${index}`,
+        message: "Title type is required.",
       });
     }
   });
 
-  const activeDescriptions = state.descriptions?.filter((item: any) => !item.deleted) ?? [];
+  const activeDescriptions =
+    state.descriptions?.filter((item: any) => !item.deleted) ?? [];
 
   if (activeDescriptions.length === 0) {
-    errors.push({ 
-      name: "descriptions", 
-      message: "At least one Abstract description is required." 
+    errors.push({
+      name: "descriptions",
+      message: "At least one Abstract description is required.",
     });
   }
 
   const seenDescriptions = new Set<string>();
-  activeDescriptions.forEach((item: any, index: number) => {
+  state.descriptions.forEach((item: any, index: number) => {
+    if (item.deleted) return;
+
     const key = `${item.description?.trim().toLowerCase()}|${item.type?.trim().toLowerCase()}`;
     if (seenDescriptions.has(key)) {
-      errors.push({ 
-        name: `description-${index}`, 
-        message: "Duplicate description with same type." 
+      errors.push({
+        name: `description-${index}`,
+        message: "Duplicate description with same type.",
       });
     }
     seenDescriptions.add(key);
   });
 
-  activeDescriptions.forEach((item: any, index: number) => {
+  state.descriptions.forEach((item: any, index: number) => {
+    if (item.deleted) return;
+
     if (!item.description?.trim()) {
-      errors.push({ 
-        name: `description-${index}`, 
-        message: "Description value is required." 
+      errors.push({
+        name: `description-${index}`,
+        message: "Description value is required.",
       });
     }
     if (!item.type?.trim()) {
-      errors.push({ 
-        name: `description-type-${index}`, 
-        message: "Description type is required." 
+      errors.push({
+        name: `description-type-${index}`,
+        message: "Description type is required.",
       });
     }
   });
 
-  const activeDates = state.dates?.filter((item: any) => !item.deleted) ?? [];
-
-  if (activeDates.length === 0) {
-    errors.push({ 
-      name: "dates", 
-      message: "Please add at least one date." 
-    });
-  }
-
   const seenDates = new Set<string>();
-  activeDates.forEach((item: any, index: number) => {
+  state.dates.forEach((item: any, index: number) => {
+    if (item.deleted) return;
+
     const key = item.type?.trim().toLowerCase();
     if (seenDates.has(key)) {
-      errors.push({ 
-        name: `date-type-${index}`, 
-        message: "Duplicate date. Dates are unique by type" 
+      errors.push({
+        name: `date-type-${index}`,
+        message: "Duplicate date. Dates are unique by type",
       });
     }
     seenDates.add(key);
   });
 
-  activeDates.forEach((item: any, index: number) => {
+  state.dates.forEach((item: any, index: number) => {
+    if (item.deleted) return;
+
     if (!item.date?.trim()) {
-      errors.push({ 
-        name: `date-${index}`, 
-        message: "Date value is required." 
+      errors.push({
+        name: `date-${index}`,
+        message: "Date value is required.",
       });
     }
     if (!item.type?.trim()) {
-      errors.push({ 
-        name: `date-type-${index}`, 
-        message: "Date type is required." 
+      errors.push({
+        name: `date-type-${index}`,
+        message: "Date type is required.",
       });
     }
   });
@@ -320,19 +332,21 @@ async function executeSave(formData: typeof state) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/metadata/general-information`, {
+    await $fetch(`/api/datasets/${datasetId}/metadata/general-information`, {
       body: b,
       method: "PUT",
     });
-    console.log(res);
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.error(err);
     toast.add({
@@ -352,7 +366,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
 // AI extraction drawer
 const drawerOpen = ref(false);
-const pageFields = AI_FIELDS["metadata/general-information"].fields as ExtractField[];
+const pageFields = AI_FIELDS["metadata/general-information"]
+  .fields as ExtractField[];
 
 const onApplyExtracted = (_values: ExtractedValues) => {
   // TODO: map _values onto state.titles / state.descriptions / state.dates
@@ -365,9 +380,8 @@ const onApplyExtracted = (_values: ExtractedValues) => {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -387,7 +401,9 @@ const onApplyExtracted = (_values: ExtractedValues) => {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
               General Information
@@ -402,61 +418,92 @@ const onApplyExtracted = (_values: ExtractedValues) => {
             />
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Add the titles, descriptions, and dates that identify this dataset.
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
-  <div class="flex w-full flex-col gap-4">
-    <div class="flex w-full flex-col">
-      <h2 class="text-lg font-bold text-gray-900 dark:text-white">Titles</h2>
-      <p class="text-gray-500 dark:text-gray-400">Please add some titles that describe the dataset.</p>
-    </div>
-    <UFormField name="titles">
-      <CardCollapsible
-        v-for="(item, index) in state.titles"
-        v-show="!item.deleted"
-        :key="item.id"
-        class="my-1 shadow-none"
-        :title="item.type === 'MainTitle' ? 'Main Title' : (item.title || `Title ${index + 1}`)"
-        bordered
-      >
-        <template #header-extra>
-          <UButton
-            v-if="item.type !== 'MainTitle'"
-            icon="i-lucide-trash"
-            label="Remove title"
-            variant="soft"
-            color="error"
-            @click="removeTitle(index)"
-          />
-        </template>
-        <div class="flex flex-col gap-3">
-          <UFormField :name="`title-${index}`" label="Name" required>
-            <UInput v-model="item.title" placeholder="Artificial Intelligence" />
-          </UFormField>
-          
-          <!-- Only show Type field if it is NOT a MainTitle -->
-          <UFormField v-if="item.type !== 'MainTitle'" :name="`title-type-${index}`" label="Type">
-            <USelect
-              v-model="item.type"
-              class="w-full"
-              placeholder="Alternative title"
-              :items="FORM_JSON.datasetTitleTypeOptions"
-            />
-          </UFormField>
-        </div>
-      </CardCollapsible>
-    </UFormField>
-    <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Title" @click="addTitle" />
-  </div>
-</div>
-
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Descriptions</h2>
-              <p class="text-gray-500 dark:text-gray-400">Please add some descriptions that describe the dataset.</p>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Titles
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Add the titles of this dataset, including any alternative or
+                translated titles.
+              </p>
+            </div>
+            <UFormField name="titles">
+              <CardCollapsible
+                v-for="(item, index) in state.titles"
+                v-show="!item.deleted"
+                :key="item.id"
+                class="my-1 shadow-none"
+                :title="
+                  item.type === 'MainTitle'
+                    ? 'Main Title'
+                    : item.title || `Title ${index + 1}`
+                "
+                bordered
+              >
+                <template #header-extra>
+                  <UButton
+                    v-if="item.type !== 'MainTitle'"
+                    icon="i-lucide-trash"
+                    label="Remove title"
+                    variant="soft"
+                    color="error"
+                    @click="removeTitle(index)"
+                  />
+                </template>
+                <div class="flex flex-col gap-3">
+                  <UFormField :name="`title-${index}`" label="Name" required>
+                    <UInput
+                      v-model="item.title"
+                      placeholder="Retinal Imaging in Type 2 Diabetes"
+                    />
+                  </UFormField>
+
+                  <!-- Only show Type field if it is NOT a MainTitle -->
+                  <UFormField
+                    v-if="item.type !== 'MainTitle'"
+                    :name="`title-type-${index}`"
+                    label="Type"
+                  >
+                    <USelect
+                      v-model="item.type"
+                      class="w-full"
+                      placeholder="Alternative Title"
+                      :items="FORM_JSON.datasetTitleTypeOptions"
+                    />
+                  </UFormField>
+                </div>
+              </CardCollapsible>
+            </UFormField>
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Title"
+              @click="addTitle"
+            />
+          </div>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Descriptions
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Add descriptions of this dataset, such as an abstract or a
+                summary of methods.
+              </p>
             </div>
             <UFormField name="descriptions">
               <CardCollapsible
@@ -478,10 +525,22 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                   />
                 </template>
                 <div class="flex flex-col gap-3">
-                  <UFormField :name="`description-${index}`" label="Name" required>
-                    <UTextarea v-model="item.description" placeholder="Artifical Intelligence" class="w-full" />
+                  <UFormField
+                    :name="`description-${index}`"
+                    label="Name"
+                    required
+                  >
+                    <UTextarea
+                      v-model="item.description"
+                      placeholder="This dataset contains retinal images and clinical measurements collected from adults with type 2 diabetes."
+                      class="w-full"
+                    />
                   </UFormField>
-                  <UFormField :name="`description-type-${index}`" label="Type" required>
+                  <UFormField
+                    :name="`description-type-${index}`"
+                    label="Type"
+                    required
+                  >
                     <USelect
                       v-model="item.type"
                       class="w-full"
@@ -493,15 +552,27 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                 </div>
               </CardCollapsible>
             </UFormField>
-            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Description" @click="addDescription" />
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Description"
+              @click="addDescription"
+            />
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Dates</h2>
-              <p class="text-gray-500 dark:text-gray-400">Please add some dates that describe the dataset.</p>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Dates
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Optionally, add any dates that describe the dataset.
+              </p>
             </div>
             <UFormField name="dates">
               <CardCollapsible
@@ -513,28 +584,58 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                 bordered
               >
                 <template #header-extra>
-                  <UButton icon="i-lucide-trash" label="Remove date" variant="soft" color="error" @click="removeDate(index)" />
+                  <UButton
+                    icon="i-lucide-trash"
+                    label="Remove date"
+                    variant="soft"
+                    color="error"
+                    @click="removeDate(index)"
+                  />
                 </template>
                 <div class="flex flex-col gap-3">
                   <UFormField :name="`date-${index}`" label="Date" required>
-                    <UInput v-model="item.date" placeholder="2021-01-01" class="w-full" type="date" />
+                    <UInput
+                      v-model="item.date"
+                      placeholder="2021-01-01"
+                      class="w-full"
+                      type="date"
+                    />
                   </UFormField>
-                  <UFormField :name="`date-type-${index}`" label="Type" required>
-                    <USelect v-model="item.type" class="w-full" placeholder="Date" :items="FORM_JSON.datasetDateTypeOptions" />
+                  <UFormField
+                    :name="`date-type-${index}`"
+                    label="Type"
+                    required
+                  >
+                    <USelect
+                      v-model="item.type"
+                      class="w-full"
+                      placeholder="Collected"
+                      :items="FORM_JSON.datasetDateTypeOptions"
+                    />
                   </UFormField>
                   <UFormField label="Information" name="information">
-                    <UTextarea v-model="item.information" placeholder="Details..." class="w-full" />
+                    <UTextarea
+                      v-model="item.information"
+                      placeholder="Date the first participant's data was collected"
+                      class="w-full"
+                    />
                   </UFormField>
                 </div>
               </CardCollapsible>
             </UFormField>
-            <UButton icon="i-lucide-plus" variant="outline" color="primary" label="Add Date" @click="addDate" />
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Date"
+              @click="addDate"
+            />
           </div>
         </div>
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="metadata-general-form"
         type="submit"
@@ -555,11 +656,20 @@ const onApplyExtracted = (_values: ExtractedValues) => {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

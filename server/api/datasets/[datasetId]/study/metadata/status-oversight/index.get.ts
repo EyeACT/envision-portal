@@ -1,13 +1,14 @@
 export default defineEventHandler(async (event) => {
-  const member = await datasetMinViewerPermission(event)
+  const member = await datasetMinViewerPermission(event);
 
-  const userId = member.userId
+  const { userId } = member;
 
   const { datasetId } = event.context.params as { datasetId: string };
 
   // Get the study from the database
   const dataset = await prisma.dataset.findUnique({
     include: {
+      StudyOversight: true,
       StudyStatus: true,
     },
     where: {
@@ -29,6 +30,8 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    ...dataset,
+    title: dataset.title,
+    StudyOversight: dataset.StudyOversight,
+    StudyStatus: dataset.StudyStatus,
   };
 });

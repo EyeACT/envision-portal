@@ -73,7 +73,7 @@
     ]
   },
   "metadata/access-rights": {
-    "pageLabel": "Access & Rights",
+    "pageLabel": "Access & License",
     "fields": [
       {
         "key": "license",
@@ -91,8 +91,8 @@
       },
       {
         "key": "rights_statement",
-        "label": "Rights Statement",
-        "description": "Free-text rights or usage conditions",
+        "label": "License Statement",
+        "description": "Free-text license or usage conditions",
         "type": "textarea",
         "mandatory": false
       }

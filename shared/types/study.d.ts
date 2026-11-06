@@ -499,7 +499,7 @@ interface AdditionalData {
 
 interface Dataset {
   id: string;
-  doi: string;
+  doi: string | null;
   title: string;
   description: string;
   versionTitle: string;
@@ -508,6 +508,8 @@ interface Dataset {
   data: AdditionalData;
   external: boolean;
   externalUrl: string | null;
+  // false when access requests need owner approval (controlled)
+  public: boolean;
   created: Date;
   labelingMethod: string;
   validationInfo: string;
@@ -532,7 +534,7 @@ interface VersionArrayItem {
   id: string;
   createdAt: number;
   title: string;
-  doi: string;
+  doi: string | null;
 }
 
 interface Keyword {

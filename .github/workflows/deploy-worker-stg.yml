@@ -9,7 +9,7 @@ on:
     branches:
       - staging
     paths:
-      - ".github/workflows/deploy-worker-prd.yml"
+      - ".github/workflows/deploy-worker-stg.yml"
       - "config/deploy-worker.yml"
       - "Dockerfile.task-queue"
       - ".kamal/secrets"

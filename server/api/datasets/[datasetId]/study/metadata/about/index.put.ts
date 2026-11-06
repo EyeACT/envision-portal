@@ -2,7 +2,7 @@ import { StudyMetadataAboutSchema } from "#shared/utils/study_schemas";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as { datasetId: string };
 
@@ -71,7 +71,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+
   await handleSecondaryIdentifiers(datasetId, secondaryIdentifiers)
+
 
   // update the keywords
   // Get the keywords that already have an id and update them
@@ -86,7 +88,7 @@ export default defineEventHandler(async (event) => {
         scheme: keyword.scheme,
         schemeUri: keyword.schemeUri,
       },
-      where: { id: keyword.id },
+      where: { id: keyword.id, datasetId },
     });
   }
 
@@ -111,7 +113,7 @@ export default defineEventHandler(async (event) => {
 
   for (const keyword of keywordsToDelete) {
     await prisma.studyKeywords.delete({
-      where: { id: keyword.id },
+      where: { id: keyword.id, datasetId },
     });
   }
 
@@ -128,7 +130,7 @@ export default defineEventHandler(async (event) => {
         scheme: condition.scheme,
         schemeUri: condition.schemeUri,
       },
-      where: { id: condition.id },
+      where: { id: condition.id, datasetId },
     });
   }
 
@@ -155,7 +157,7 @@ export default defineEventHandler(async (event) => {
 
   for (const condition of conditionsToDelete) {
     await prisma.studyConditions.delete({
-      where: { id: condition.id },
+      where: { id: condition.id, datasetId },
     });
   }
 
@@ -185,7 +187,7 @@ const handleSecondaryIdentifiers = async (datasetId: string, secondaryIdentifier
         identifierType: identifier.type,
         isSecondary: true,
       },
-      where: { id: identifier.id },
+      where: { id: identifier.id, datasetId },
     });
   }
 
@@ -214,7 +216,7 @@ const handleSecondaryIdentifiers = async (datasetId: string, secondaryIdentifier
 
   for (const identifier of secondaryIdentifiersToDelete) {
     await prisma.studyIdentification.delete({
-      where: { id: identifier.id },
+      where: { id: identifier.id, datasetId },
     });
   }
 

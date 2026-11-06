@@ -1,4 +1,4 @@
-name: Kamal proxy reboot
+name: Kamal proxy reboot (staging)
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
 jobs:
   reboot-proxy:
     runs-on: ubuntu-latest
-    environment: prd
+    environment: stg
 
     env:
       KAMAL_REGISTRY_LOGIN_SERVER: ${{ secrets.KAMAL_REGISTRY_LOGIN_SERVER }}
@@ -21,7 +21,7 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.3.1
+          ruby-version: 3.3.13
           bundler-cache: true
 
       - run: gem install kamal

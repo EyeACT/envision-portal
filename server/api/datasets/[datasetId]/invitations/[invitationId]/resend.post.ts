@@ -1,12 +1,26 @@
 
 import dayjs from "dayjs";
-import { nanoid } from "nanoid";
+import { z } from "zod";
 import { InvitationStatuses } from "~~/shared/generated/enums";
 
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   await datasetMinAdminPermission(event)
+
+  const body = await readValidatedBody(event, (b) =>
+    resendInvitationSchema.safeParse(b)
+  )
+
+  if (!body.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid invitation"
+    })
+  }
+
+  // Keeps the invitation's existing role when not provided
+  const { role } = body.data
 
   const { datasetId, invitationId } = event.context.params as { datasetId: string, invitationId: string };
 
@@ -32,8 +46,12 @@ export default defineEventHandler(async (event) => {
   }
 
   // TODO: Eventually allow at least one resend if status is REJECTED without waiting.
-  // Inviter must wait for invitation to expire before resending
-  if (invitation.invitationExpires > new Date()) {
+  // Inviter must wait for invitation to expire before resending,
+  // unless they rescinded it and the old invitation is no longer usable
+  if (
+    invitation.status !== InvitationStatuses.RESCINDED &&
+    invitation.invitationExpires > new Date()
+  ) {
     throw createError({
       statusCode: 400,
       statusMessage: "Cannot send another invitation right now."
@@ -71,6 +89,7 @@ export default defineEventHandler(async (event) => {
       },
       data: {
         invitationExpires,
+        role,
         status: InvitationStatuses.NORESPONSE,
         invitationToken: null
       }
@@ -87,7 +106,7 @@ export default defineEventHandler(async (event) => {
     // )
 
   } else {
-    const invitationToken = nanoid();
+    const invitationToken = crypto.randomUUID();
 
     // TODO: Match platform invitation time later
     const invitationExpires = dayjs().add(60, "minute").toDate();
@@ -98,6 +117,7 @@ export default defineEventHandler(async (event) => {
       },
       data: {
         invitationExpires,
+        role,
         status: InvitationStatuses.NORESPONSE,
         invitationToken: invitationToken
       }
@@ -125,4 +145,9 @@ export default defineEventHandler(async (event) => {
       invitationExpires: datasetInvitation.invitationExpires
     }
   }
+})
+
+
+const resendInvitationSchema = z.object({
+  role: z.enum(DATASET_ROLES).optional(),
 })

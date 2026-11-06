@@ -1,12 +1,17 @@
 <script setup lang="ts">
+import type { InternalApi } from "nitropack/types";
 definePageMeta({ middleware: ["auth"] });
 
 const route = useRoute();
 const toast = useToast();
 const { datasetId } = route.params as { datasetId: string };
 
-const { data: dataset, error } = await useFetch(`/api/datasets/${datasetId}`);
-const { data: storage, pending: storageLoading } = await useFetch(`/api/datasets/${datasetId}/storage`);
+const { data: dataset, error } = await useFetch<
+  InternalApi["/api/datasets/:datasetId"]["get"]
+>(`/api/datasets/${datasetId}`);
+const { data: storage, pending: storageLoading } = await useFetch(
+  `/api/datasets/${datasetId}/storage`,
+);
 
 if (error.value) {
   toast.add({ title: "Error fetching study", icon: "material-symbols:error" });
@@ -47,67 +52,131 @@ if (dataset.value) {
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-5">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Dataset
-          </h2>
-
-          <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Title</span>
-            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ dataset?.title || 'Untitled Dataset' }}
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Dataset
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              Key details about this dataset.
             </p>
           </div>
 
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Description</span>
-            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ dataset?.description || 'No description provided.' }}
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Title</span
+            >
+            <p
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{ dataset?.title || "Untitled Dataset" }}
+            </p>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Description</span
+            >
+            <p
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{ dataset?.description || "No description provided." }}
             </p>
           </div>
 
           <!-- Creators -->
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Creators</span>
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Creators</span
+            >
             <div class="flex flex-wrap gap-x-4 gap-y-1">
-              <template v-if="dataset?.DatasetContributor?.filter(c => c.creator).length">
-                <div v-for="person in dataset.DatasetContributor.filter(c => c.creator)" :key="person.id">
-                  <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              <template
+                v-if="
+                  dataset?.DatasetContributor?.filter((c) => c.creator).length
+                "
+              >
+                <div
+                  v-for="person in dataset.DatasetContributor.filter(
+                    (c) => c.creator,
+                  )"
+                  :key="person.id"
+                >
+                  <p
+                    class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+                  >
                     {{ person.givenName }} {{ person.familyName }}
                   </p>
                 </div>
               </template>
-              <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">No creators listed.</p>
+              <p
+                v-else
+                class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+              >
+                No creators listed.
+              </p>
             </div>
           </div>
 
           <!-- Key Contributors -->
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Key Contributors</span>
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Key Contributors</span
+            >
             <div class="flex flex-wrap gap-x-4 gap-y-1">
-              <template v-if="dataset?.DatasetContributor?.filter(c => !c.creator).length">
-                <div v-for="person in dataset.DatasetContributor.filter(c => !c.creator)" :key="person.id">
-                  <p class="textext-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              <template
+                v-if="
+                  dataset?.DatasetContributor?.filter((c) => !c.creator).length
+                "
+              >
+                <div
+                  v-for="person in dataset.DatasetContributor.filter(
+                    (c) => !c.creator,
+                  )"
+                  :key="person.id"
+                >
+                  <p
+                    class="textext-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+                  >
                     {{ person.givenName }} {{ person.familyName }}
                   </p>
                 </div>
               </template>
-              <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">No additional contributors listed.</p>
+              <p
+                v-else
+                class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+              >
+                No additional contributors listed.
+              </p>
             </div>
           </div>
 
           <!-- Contact Information -->
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Contact Information</span>
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Contact Information</span
+            >
             <div v-if="dataset?.StudyCentralContact?.length">
-              <div v-for="contact in dataset.StudyCentralContact" :key="contact.id" class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              <div
+                v-for="contact in dataset.StudyCentralContact"
+                :key="contact.id"
+                class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+              >
                 {{ contact.givenName }} {{ contact.familyName }}
-                <p class="text-gray-500 dark:text-gray-400 text-xs">
-                  <a :href="`mailto:${contact.emailAddress}`" class="text-primary hover:underline">{{ contact.emailAddress }}</a>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  <a
+                    :href="`mailto:${contact.emailAddress}`"
+                    class="text-primary hover:underline"
+                    >{{ contact.emailAddress }}</a
+                  >
                   <span v-if="contact.phone"> | {{ contact.phone }}</span>
                 </p>
               </div>
             </div>
-            <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">No contact information available.</p>
+            <p
+              v-else
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              No contact information available.
+            </p>
           </div>
         </div>
       </div>
@@ -116,42 +185,67 @@ if (dataset.value) {
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-5">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Publishing
-          </h2>
-
-          <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Digital Object Identifier (DOI)</span>
-            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ dataset?.doi || 'Pending Publication' }}
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Publishing
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              Publication status and license information for this dataset.
             </p>
           </div>
 
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Publication Status</span>
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Digital Object Identifier (DOI)</span
+            >
+            <p
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{ dataset?.doi || "Pending Publication" }}
+            </p>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Publication Status</span
+            >
             <div class="pt-0.5">
-              <UBadge 
-                :color="dataset?.status === 'published' ? 'primary' : 'neutral'" 
-                variant="soft" 
+              <UBadge
+                :color="dataset?.status === 'published' ? 'primary' : 'neutral'"
+                variant="soft"
                 size="md"
-                class="uppercase font-bold"
+                class="font-bold uppercase"
               >
-                {{ dataset?.status || 'Draft' }}
+                {{ dataset?.status || "Draft" }}
               </UBadge>
             </div>
           </div>
 
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">License</span>
-            <p v-if="dataset?.DatasetRights" class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ dataset.DatasetRights.rights }}
-              <span v-if="dataset.DatasetRights.uri" class="block text-xs text-gray-400">
-                <a :href="dataset.DatasetRights.uri" target="_blank" class="text-primary hover:underline">
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >License</span
+            >
+            <p
+              v-if="dataset?.DatasetRights"
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{ dataset.DatasetRights.rights || "No license specified" }}
+              <span
+                v-if="dataset.DatasetRights.uri"
+                class="block text-xs text-gray-400"
+              >
+                <a
+                  :href="dataset.DatasetRights.uri"
+                  target="_blank"
+                  class="text-primary hover:underline"
+                >
                   {{ dataset.DatasetRights.uri }}
                 </a>
               </span>
             </p>
-            <p v-else class="text-sm text-gray-400 dark:text-gray-600">No license specified.</p>
+            <p v-else class="text-sm text-gray-400 dark:text-gray-600">
+              No license specified.
+            </p>
           </div>
         </div>
       </div>
@@ -160,33 +254,55 @@ if (dataset.value) {
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-5">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Azure Storage
-          </h2>
-
-          <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Total Dataset Size</span>
-            <div v-if="storageLoading" class="h-5 w-24 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-            <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ storage?.displaySize || '0 Bytes' }}
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Azure Storage
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              Where the files for this dataset are stored.
             </p>
           </div>
 
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Total File Count</span>
-            <div v-if="storageLoading" class="h-5 w-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-            <p v-else class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Total Dataset Size</span
+            >
+            <div
+              v-if="storageLoading"
+              class="h-5 w-24 animate-pulse rounded bg-gray-100 dark:bg-gray-800"
+            />
+            <p
+              v-else
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{ storage?.displaySize || "0 Bytes" }}
+            </p>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Total File Count</span
+            >
+            <div
+              v-if="storageLoading"
+              class="h-5 w-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800"
+            />
+            <p
+              v-else
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
               {{ storage?.fileCount || 0 }}
             </p>
           </div>
 
           <UButton
+            v-if="dataset?.status === 'draft'"
             :to="`/app/datasets/${datasetId}/upload`"
             color="primary"
             variant="outline"
             icon="i-lucide-upload"
-            label="Upload More Files"
-            class="w-fit mt-1"
+            :label="`Upload ${storage?.fileCount !== undefined && storage?.fileCount > 0 ? 'More' : ''} Files`"
+            class="mt-1 w-fit"
           />
         </div>
       </div>
@@ -195,40 +311,71 @@ if (dataset.value) {
         class="mb-6 flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-5">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Study Details
-          </h2>
-
-          <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Brief Summary</span>
-            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ dataset?.StudyDescription?.briefSummary || 'No summary available.' }}
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Study Details
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              A summary of the study behind this dataset.
             </p>
           </div>
 
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Overall Status</span>
-            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ dataset?.StudyStatus?.overallStatus || 'Unknown' }}
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Brief Summary</span
+            >
+            <p
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{
+                dataset?.StudyDescription?.briefSummary ||
+                "No summary available."
+              }}
             </p>
           </div>
 
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Start Date</span>
-            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ dataset?.StudyStatus?.startDate ? new Date(dataset.StudyStatus.startDate).toLocaleDateString() : 'N/A' }}
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Overall Status</span
+            >
+            <p
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{ dataset?.StudyStatus?.overallStatus || "Unknown" }}
             </p>
           </div>
 
           <div class="space-y-1">
-            <span class="text-base text-gray-900 dark:text-gray-500">Number of Participants</span>
-            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {{ dataset?.StudyDesign?.enrollmentCount !== undefined ? dataset.StudyDesign.enrollmentCount : 'N/A' }} 
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Start Date</span
+            >
+            <p
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{
+                dataset?.StudyStatus?.startDate
+                  ? new Date(dataset.StudyStatus.startDate).toLocaleDateString()
+                  : "N/A"
+              }}
+            </p>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-base text-gray-900 dark:text-gray-500"
+              >Number of Participants</span
+            >
+            <p
+              class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
+            >
+              {{
+                dataset?.StudyDesign?.enrollmentCount
+                  ? dataset.StudyDesign.enrollmentCount
+                  : "N/A"
+              }}
             </p>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>

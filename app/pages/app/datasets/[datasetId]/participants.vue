@@ -29,17 +29,16 @@ const { studyId } = route.params as { studyId: string };
               Participants
             </h1>
 
-            <p class="text-lg font-normal">Participants for the study</p>
+            <p class="text-lg font-normal">
+              Review the participants included in this dataset.
+            </p>
           </div>
         </div>
       </div>
 
       <div>
         <AppPlaceholder>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-            quos.
-          </p>
+          <p>Participant details will appear here.</p>
         </AppPlaceholder>
       </div>
     </div>

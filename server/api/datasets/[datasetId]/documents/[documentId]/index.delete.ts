@@ -1,8 +1,8 @@
 import {
   BlobServiceClient,
   BlockBlobClient,
-  BlobDeleteOptions,
-  BlobDeleteResponse,
+  type BlobDeleteOptions,
+  type BlobDeleteResponse,
 } from "@azure/storage-blob";
 
 export default defineEventHandler(async (event) => {
@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
   const deletedDocument = await prisma.datasetSupportingDocument.delete({
     where: {
       id: documentId,
+      datasetId,
     },
   });
 

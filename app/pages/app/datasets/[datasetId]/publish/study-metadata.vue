@@ -54,10 +54,10 @@ const timelineItems = ref<TimelineItem[]>([
     description: "Add a readme to the dataset.",
     icon: "i-lucide-file-text",
   },
-  { 
-    title: "Files", 
-    description: "Review dataset files.", 
-    icon: "i-lucide-folder-open" 
+  {
+    title: "Files",
+    description: "Review dataset files.",
+    icon: "i-lucide-folder-open",
   },
   {
     title: "Publish",
@@ -95,7 +95,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Identifiers" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/about`"
               color="primary"
@@ -106,7 +106,10 @@ const timelineItems = ref<TimelineItem[]>([
             />
           </div>
           <div class="flex flex-col">
-            <h3 class="mb-2 text-lg font-medium">Primary Identifier</h3>
+            <h3 class="text-lg font-medium">Primary Identifier</h3>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              The main identifier registered for this study.
+            </p>
 
             <table class="table-auto">
               <tbody>
@@ -139,6 +142,9 @@ const timelineItems = ref<TimelineItem[]>([
             </table>
 
             <h3 class="mt-8 text-lg font-medium">Secondary Identifiers</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Other identifiers associated with this study.
+            </p>
 
             <UTable
               :data="data?.secondaryIdentifiers"
@@ -168,9 +174,9 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Status" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/study/metadata/status`"
+              :to="`/app/datasets/${datasetId}/study/metadata/status-oversight`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -218,7 +224,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Sponsors" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/team`"
               color="primary"
@@ -229,7 +235,10 @@ const timelineItems = ref<TimelineItem[]>([
             />
           </div>
           <div class="flex flex-col">
-            <h3 class="mb-2 text-lg font-medium">Responsible Party</h3>
+            <h3 class="text-lg font-medium">Responsible Party</h3>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              The person or organization responsible for this study.
+            </p>
 
             <table class="table-auto">
               <tbody>
@@ -277,7 +286,10 @@ const timelineItems = ref<TimelineItem[]>([
               </tbody>
             </table>
 
-            <h3 class="mt-8 mb-2 text-lg font-medium">Lead Sponsor</h3>
+            <h3 class="mt-8 text-lg font-medium">Lead Sponsor</h3>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              The primary organization overseeing this study.
+            </p>
 
             <table class="table-auto">
               <tbody>
@@ -306,7 +318,7 @@ const timelineItems = ref<TimelineItem[]>([
           title="Collaborators"
           bordered
         >
-        <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/team`"
               color="primary"
@@ -341,9 +353,9 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Oversight" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/study/metadata/oversight`"
+              :to="`/app/datasets/${datasetId}/study/metadata/status-oversight`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -387,7 +399,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Description" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/about`"
               color="primary"
@@ -415,7 +427,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Conditions" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/about`"
               color="primary"
@@ -444,7 +456,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Keywords" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/about`"
               color="primary"
@@ -470,7 +482,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Design" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/design`"
               color="primary"
@@ -620,7 +632,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Arms" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/arms`"
               color="primary"
@@ -655,7 +667,7 @@ const timelineItems = ref<TimelineItem[]>([
           title="Interventions"
           bordered
         >
-        <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/interventions`"
               color="primary"
@@ -686,7 +698,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Eligibility" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/eligibility`"
               color="primary"
@@ -740,7 +752,7 @@ const timelineItems = ref<TimelineItem[]>([
           title="Central Contacts"
           bordered
         >
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/contacts`"
               color="primary"
@@ -779,7 +791,7 @@ const timelineItems = ref<TimelineItem[]>([
           title="Overall Officials"
           bordered
         >
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/officials`"
               color="primary"
@@ -822,7 +834,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible class="my-1 shadow-none" title="Locations" bordered>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/study/metadata/locations`"
               color="primary"

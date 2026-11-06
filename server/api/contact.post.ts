@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
   if (!body.success) {
     throw createError({
-      data: body.error.errors,
+      data: body.error.issues,
       statusCode: 400,
       statusMessage: "Invalid contact form data",
     });

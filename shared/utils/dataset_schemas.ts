@@ -196,9 +196,7 @@ export const DatasetMetadataDataManagementSchema = z
   .object({
     consent: consentSchema,
     deidentLevel: deIdentSchema,
-    subjects: z
-      .array(subjectSchema.superRefine(subjectRefine))
-      .min(1, "At least one subject is required"),
+    subjects: z.array(subjectSchema.superRefine(subjectRefine)),
   })
   .strict();
 
@@ -237,7 +235,7 @@ export const titleSchema = z.object({
 });
 
 export const DatasetMetadataGeneralInformationSchema = z.object({
-  DatasetDate: z.array(aboutSchema).min(1, "At least one date is required"),
+  DatasetDate: z.array(aboutSchema),
   DatasetDescription: z
     .array(descriptionSchema)
     .min(1, "At least Abstract description is required"),
@@ -258,9 +256,7 @@ export const altIdentifierSchema = z
 
 export const DatasetMetadataIdentifiersSchema = z
   .object({
-    DatasetAlternateIdentifier: z
-      .array(altIdentifierSchema)
-      .min(1, "At least one alternate identifier is required"),
+    DatasetAlternateIdentifier: z.array(altIdentifierSchema),
   })
   .strict();
 

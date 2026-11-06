@@ -2,8 +2,7 @@ import { DatasetMetadataRelatedIdentifiersSchema } from "#shared/utils/dataset_s
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
-
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as {
     datasetId: string;
@@ -40,7 +39,7 @@ export default defineEventHandler(async (event) => {
         schemeType: relatedIdentifier.schemeType,
         schemeUri: relatedIdentifier.schemeUri,
       },
-      where: { id: relatedIdentifier.id },
+      where: { id: relatedIdentifier.id, datasetId },
     });
   }
 
@@ -71,7 +70,7 @@ export default defineEventHandler(async (event) => {
 
   for (const relatedIdentifier of relatedIdentifiersToDelete) {
     await prisma.datasetRelatedIdentifier.delete({
-      where: { id: relatedIdentifier.id },
+      where: { id: relatedIdentifier.id, datasetId },
     });
   }
 

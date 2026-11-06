@@ -7,7 +7,8 @@ import FORM_JSON from "~/assets/data/form.json";
 import {
   isValidORCIDValue,
   isValidRORValue,
-  isValidUrl,
+  normalizeORCID,
+  normalizeROR,
 } from "~/utils/validations";
 
 definePageMeta({
@@ -29,15 +30,11 @@ const schema = z.object({
       id: z.string(),
       affiliation: z.string(),
       affiliationIdentifier: z.string(),
-      affiliationIdentifierScheme: z.string(),
-      affiliationIdentifierSchemeUri: z.string(),
       degree: z.string(),
       deleted: z.boolean(),
       familyName: z.string(),
       givenName: z.string(),
       identifier: z.string(),
-      identifierScheme: z.string(),
-      identifierSchemeUri: z.string(),
       local: z.boolean(),
       role: z.string(),
     }),
@@ -50,7 +47,7 @@ const state = reactive<Schema>({
   studyOverallOfficials: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/officials`,
   {},
 );
@@ -63,18 +60,19 @@ if (error.value) {
   });
 }
 
+const toFormOfficial = (official: any) => ({
+  ...official,
+  deleted: false,
+  local: false,
+});
+
 if (data.value) {
   useSeoMeta({
     title: data.value.title,
   });
 
-  state.studyOverallOfficials = data.value.StudyOverallOfficials.map(
-    (official: any) => ({
-      ...official,
-      deleted: false,
-      local: false,
-    }),
-  );
+  state.studyOverallOfficials =
+    data.value.StudyOverallOfficials.map(toFormOfficial);
 
   originalStateString.value = JSON.stringify(state);
 }
@@ -83,26 +81,21 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addOfficial = () => {
   state.studyOverallOfficials.push({
     id: nanoid(),
     affiliation: "",
     affiliationIdentifier: "",
-    affiliationIdentifierScheme: "",
-    affiliationIdentifierSchemeUri: "",
     degree: "",
     deleted: false,
     familyName: "",
     givenName: "",
     identifier: "",
-    identifierScheme: "",
-    identifierSchemeUri: "",
     local: true,
     role: "",
   });
@@ -124,160 +117,97 @@ const validate = (state: any): FormError[] => {
     (option) => option.value,
   );
 
-  const activeOfficials = state.studyOverallOfficials.filter(
-    (official: any) => !official.deleted,
-  );
+  const seen = new Set<string>();
 
-  if (activeOfficials.length > 0) {
-    const seen = new Set<string>();
-    activeOfficials.forEach((official: any, index: number) => {
-      const key = `${official.givenName?.trim().toLowerCase()}|${official.familyName?.trim().toLowerCase()}|${official.role?.trim().toLowerCase()}`;
-      if (seen.has(key)) {
-        errors.push({
-          name: `givenName-${index}`,
-          message: "Duplicate official with same given name, family name, and role",
-        });
-      }
-      seen.add(key);
-    });
+  // Field names use the index in state, which is what the template renders from.
+  state.studyOverallOfficials.forEach((official: any, index: number) => {
+    if (official.deleted) return;
 
-    activeOfficials.forEach((official: any, index: number) => {
-      if (official.givenName.trim() === "") {
-        errors.push({
-          name: `givenName-${index}`,
-          message: "Given name is required",
-        });
-      }
+    const key = `${official.givenName?.trim().toLowerCase()}|${official.familyName?.trim().toLowerCase()}|${official.role?.trim().toLowerCase()}`;
+    if (seen.has(key)) {
+      errors.push({
+        name: `givenName-${index}`,
+        message:
+          "Duplicate official with same given name, family name, and role",
+      });
+    }
+    seen.add(key);
 
-      if (official.familyName.trim() === "") {
-        errors.push({
-          name: `familyName-${index}`,
-          message: "Family name is required",
-        });
-      }
+    if (official.givenName.trim() === "") {
+      errors.push({
+        name: `givenName-${index}`,
+        message: "Given name is required",
+      });
+    }
 
-      if (official.affiliation.trim() === "") {
-        errors.push({
-          name: `affiliation-${index}`,
-          message: "Affiliation is required",
-        });
-      }
+    if (official.familyName.trim() === "") {
+      errors.push({
+        name: `familyName-${index}`,
+        message: "Family name is required",
+      });
+    }
 
-      if (
-        (official.affiliationIdentifier.trim() !== "" && official.affiliationIdentifierScheme.trim() === "") ||
-        (official.affiliationIdentifier.trim() === "" && official.affiliationIdentifierScheme.trim() !== "")
-      ) {
-        errors.push(
-          {
-            name: `affiliationIdentifier-${index}`,
-            message: "Affiliation identifier and scheme must be provided together",
-          },
-          {
-            name: `affiliationIdentifierScheme-${index}`,
-            message: "Affiliation identifier and scheme must be provided together",
-          }
-        );
-      }
+    if (official.affiliation.trim() === "") {
+      errors.push({
+        name: `affiliation-${index}`,
+        message: "Affiliation is required",
+      });
+    }
 
-      if (
-        official.affiliationIdentifier &&
-        official.affiliationIdentifierScheme?.toUpperCase() === "ORCID" &&
-        !isValidORCIDValue(official.affiliationIdentifier)
-      ) {
-        errors.push({
-          name: `affiliationIdentifier-${index}`,
-          message: "Affiliation identifier must be a valid ORCID",
-        });
-      }
-      if (
-        official.affiliationIdentifier &&
-        official.affiliationIdentifierScheme?.toUpperCase() === "ROR" &&
-        !isValidRORValue(official.affiliationIdentifier)
-      ) {
-        errors.push({
-          name: `affiliationIdentifier-${index}`,
-          message: "Affiliation identifier must be a valid ROR",
-        });
-      }
+    const ror = normalizeROR(official.affiliationIdentifier);
+    if (ror && !isValidRORValue(ror)) {
+      errors.push({
+        name: `affiliationIdentifier-${index}`,
+        message: "Enter a valid ROR ID or ROR URL",
+      });
+    }
 
-      if (
-        official.affiliationIdentifierSchemeUri.trim() !== "" &&
-        !isValidUrl(official.affiliationIdentifierSchemeUri)
-      ) {
-        errors.push({
-          name: `affiliationIdentifierSchemeUri-${index}`,
-          message: "Affiliation identifier scheme URI must be a valid URI",
-        });
-      }
+    const orcid = normalizeORCID(official.identifier);
+    if (orcid && !isValidORCIDValue(orcid)) {
+      errors.push({
+        name: `identifier-${index}`,
+        message: "Enter a valid ORCID iD or ORCID URL",
+      });
+    }
 
-      if (
-        (official.identifier.trim() !== "" && official.identifierScheme.trim() === "") ||
-        (official.identifier.trim() === "" && official.identifierScheme.trim() !== "")
-      ) {
-        errors.push(
-          {
-            name: `identifier-${index}`,
-            message: "Identifier and Identifier scheme must be provided together",
-          },
-          {
-            name: `identifierScheme-${index}`,
-            message: "Identifier and Identifier scheme must be provided together",
-          }
-        );
-      }
+    if (
+      official.role.trim() !== "" &&
+      !enumValues.includes(official.role.trim())
+    ) {
+      errors.push({
+        name: `role-${index}`,
+        message: `Role must be one of the following: ${enumValues.join(", ")}`,
+      });
+    }
 
-      if (
-        official.identifier &&
-        official.identifierScheme?.toUpperCase() === "ORCID" &&
-        !isValidORCIDValue(official.identifier)
-      ) {
-        errors.push({
-          name: `identifier-${index}`,
-          message: "Identifier must be a valid ORCID",
-        });
-      }
-
-      if (
-        official.identifier &&
-        official.identifierScheme?.toUpperCase() === "ROR" &&
-        !isValidRORValue(official.identifier)
-      ) {
-        errors.push({
-          name: `identifier-${index}`,
-          message: "Identifier must be a valid ROR",
-        });
-      }
-
-      if (
-        official.identifierSchemeUri &&
-        !isValidUrl(official.identifierSchemeUri)
-      ) {
-        errors.push({
-          name: `identifierSchemeUri-${index}`,
-          message: "Identifier scheme URI must be a valid URL",
-        });
-      }
-
-      if (
-        official.role.trim() !== "" &&
-        !enumValues.includes(official.role.trim())
-      ) {
-        errors.push({
-          name: `role-${index}`,
-          message: `Role must be one of the following: ${enumValues.join(", ")}`,
-        });
-      }
-
-      if (official.role.trim() === "") {
-        errors.push({
-          name: `role-${index}`,
-          message: "Role is required",
-        });
-      }
-    });
-  }
+    if (official.role.trim() === "") {
+      errors.push({
+        name: `role-${index}`,
+        message: "Role is required",
+      });
+    }
+  });
 
   return errors;
+};
+
+// The form only collects the ORCID and ROR IDs; the API also expects their schemes and scheme URIs.
+// Deleted rows are still validated by the API, so their old identifiers are cleared.
+const withIdentifierFields = (official: any) => {
+  const ror = official.deleted
+    ? ""
+    : normalizeROR(official.affiliationIdentifier);
+  const orcid = official.deleted ? "" : normalizeORCID(official.identifier);
+
+  return {
+    ...official,
+    affiliationIdentifier: ror,
+    affiliationIdentifierScheme: ror ? "ROR" : "",
+    affiliationIdentifierSchemeUri: ror ? "https://ror.org" : "",
+    identifier: orcid,
+    identifierScheme: orcid ? "ORCID" : "",
+    identifierSchemeUri: orcid ? "https://orcid.org" : "",
+  };
 };
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
@@ -289,7 +219,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   const b = {
     studyOverallOfficials: formData.studyOverallOfficials.map(
       (official: any) => {
-        const s = { ...official };
+        const s = withIdentifierFields(official);
 
         if (s.local) {
           delete s.id;
@@ -304,19 +234,24 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/officials`, {
+    await $fetch(`/api/datasets/${datasetId}/study/metadata/officials`, {
       body: b,
       method: "PUT",
     });
-    console.log(res);
+
+    // Reload so new officials get their real ids and removed ones drop out of the form.
+    await refresh();
+    if (!error.value && data.value) {
+      state.studyOverallOfficials =
+        data.value.StudyOverallOfficials.map(toFormOfficial);
+    }
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
 
@@ -333,9 +268,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -351,14 +285,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         ]"
       />
 
-      <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+      <div
+        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
         <div class="flex w-full items-center justify-between gap-3">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Overall Officials
           </h1>
         </div>
         <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
+          List the people responsible for the scientific leadership of this
+          study.
         </p>
       </div>
 
@@ -369,14 +306,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Study Governance Officials & Directors
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Register oversight personnel, scientific leaders, principal investigators, and authorization leads tied to managing execution milestones.
+                Add the principal investigators and other people who oversee the
+                study.
               </p>
             </div>
 
@@ -386,7 +326,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-show="!item.deleted"
                 :key="item.id"
                 class="my-2 shadow-none"
-                :title="item.givenName ? `${item.givenName} ${item.familyName}` : `Overall Official ${index + 1}`"
+                :title="
+                  item.givenName
+                    ? `${item.givenName} ${item.familyName}`
+                    : `Overall Official ${index + 1}`
+                "
                 bordered
               >
                 <template #header-extra>
@@ -400,111 +344,88 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-4 p-1">
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <UFormField label="Given Name" :name="`givenName-${index}`" required>
-                      <UInput v-model="item.givenName" placeholder="James" />
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <UFormField
+                      label="Given Name"
+                      :name="`givenName-${index}`"
+                      required
+                    >
+                      <UInput v-model="item.givenName" placeholder="Emery" />
                     </UFormField>
 
-                    <UFormField label="Family Name" :name="`familyName-${index}`" required>
-                      <UInput v-model="item.familyName" placeholder="Smith" />
+                    <UFormField
+                      label="Family Name"
+                      :name="`familyName-${index}`"
+                      required
+                    >
+                      <UInput v-model="item.familyName" placeholder="Brown" />
                     </UFormField>
 
                     <UFormField label="Degree" :name="`degree-${index}`">
-                      <UInput v-model="item.degree" placeholder="e.g., PhD, MD, ScD" />
+                      <UInput v-model="item.degree" placeholder="MD, PhD" />
                     </UFormField>
                   </div>
 
-                  <UFormField label="Affiliation" :name="`affiliation-${index}`" required>
+                  <UFormField
+                    label="ORCID"
+                    :name="`identifier-${index}`"
+                    help="Enter the ORCID iD or paste the full ORCID URL."
+                  >
                     <UInput
-                      v-model="item.affiliation"
-                      placeholder="University of California, San Francisco"
+                      v-model="item.identifier"
+                      placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
+                      class="w-full"
+                      @blur="item.identifier = normalizeORCID(item.identifier)"
                     />
                   </UFormField>
 
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <UFormField
-                      label="Affiliation Identifier"
+                      label="Affiliation"
+                      :name="`affiliation-${index}`"
+                      class="w-full"
+                      required
+                    >
+                      <UInput
+                        v-model="item.affiliation"
+                        placeholder="Massachusetts Institute of Technology"
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      label="ROR"
                       :name="`affiliationIdentifier-${index}`"
                       class="w-full"
+                      hint="ID or URL"
                     >
                       <UInput
                         v-model="item.affiliationIdentifier"
-                        placeholder="e.g., ror-id-5678"
+                        placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
                         class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Affiliation Scheme"
-                      class="w-full"
-                      :name="`affiliationIdentifierScheme-${index}`"
-                    >
-                      <UInput
-                        v-model="item.affiliationIdentifierScheme"
-                        placeholder="e.g., ROR"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Affiliation Scheme URI"
-                      class="w-full"
-                      :name="`affiliationIdentifierSchemeUri-${index}`"
-                    >
-                      <UInput
-                        v-model="item.affiliationIdentifierSchemeUri"
-                        placeholder="https://ror.org"
-                        class="w-full"
+                        @blur="
+                          item.affiliationIdentifier = normalizeROR(
+                            item.affiliationIdentifier,
+                          )
+                        "
                       />
                     </UFormField>
                   </div>
 
-                  <UFormField label="Official Protocol Role" :name="`role-${index}`" required>
+                  <UFormField
+                    label="Official Protocol Role"
+                    :name="`role-${index}`"
+                    required
+                  >
                     <USelect
                       v-model="item.role"
                       class="w-full"
-                      placeholder="Select authority designation"
-                      :items="FORM_JSON.studyMetadataContactsOverallOfficialRole"
+                      placeholder="Study Principal Investigator"
+                      :items="
+                        FORM_JSON.studyMetadataContactsOverallOfficialRole
+                      "
                     />
                   </UFormField>
-
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <UFormField
-                      label="Personal Identifier"
-                      :name="`identifier-${index}`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifier"
-                        placeholder="0000-0000-0000-0000"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Identifier Scheme"
-                      :name="`identifierScheme-${index}`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifierScheme"
-                        placeholder="e.g., ORCID"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Identifier Scheme URI"
-                      :name="`identifierSchemeUri-${index}`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.identifierSchemeUri"
-                        placeholder="https://orcid.org"
-                        class="w-full"
-                      />
-                    </UFormField>
-                  </div>
                 </div>
               </CardCollapsible>
             </UFormField>
@@ -522,7 +443,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="study-metadata-officials-form"
         type="submit"
@@ -535,7 +456,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -543,11 +464,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your registered oversight officials structural mapping lines will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your registered oversight officials structural mapping lines will be
+            permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

@@ -1,20 +1,16 @@
 export default defineEventHandler(async (event) => {
-  const member = await datasetMinViewerPermission(event)
+  const member = await datasetMinViewerPermission(event);
 
   const { datasetId } = event.context.params as { datasetId: string };
 
   const dataset = await prisma.dataset.findUnique({
-    include: {
-      DatasetRequest: true,
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      version: true,
     },
-    where: {
-      id: datasetId,
-      DatasetMember: {
-        some: {
-          userId: member.userId,
-        },
-      },
-    },
+    where: { id: datasetId },
   });
 
   if (!dataset) {
@@ -24,5 +20,21 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return dataset;
+  // Requests are checked against the published record's access level
+  const publishedDataset = await prisma.publishedDataset.findFirst({
+    select: { public: true },
+    where: { datasetId },
+  });
+
+  const requests = await prisma.datasetRequest.findMany({
+    include: { DatasetRequestDetails: true },
+    orderBy: { created: "desc" },
+    where: { datasetId },
+  });
+
+  return {
+    canManage: member.owner || ["owner", "admin"].includes(member.role),
+    dataset: { ...dataset, public: publishedDataset?.public ?? null },
+    requests: requests.map(serializeDatasetRequest),
+  };
 });

@@ -153,6 +153,15 @@ const deleteNotification = async (notificationId: string) => {
           <template #footer>
             <div class="flex items-center justify-end gap-2">
               <UButton
+                v-if="notification.url"
+                label="Open"
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-arrow-right"
+                :to="notification.url"
+              />
+
+              <UButton
                 label="Mark as read"
                 color="success"
                 icon="i-lucide-check"
@@ -229,6 +238,15 @@ const deleteNotification = async (notificationId: string) => {
 
           <template #footer>
             <div class="flex items-center justify-end gap-2">
+              <UButton
+                v-if="notification.url"
+                label="Open"
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-arrow-right"
+                :to="notification.url"
+              />
+
               <UButton
                 label="Mark as unread"
                 color="primary"

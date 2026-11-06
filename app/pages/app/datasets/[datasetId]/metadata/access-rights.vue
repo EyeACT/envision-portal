@@ -99,11 +99,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const updateLicense = async (value: string) => {
   const license = licensesJSON.find((item) => item.name === value);
@@ -170,7 +169,7 @@ const validate = (state: any): FormError[] => {
   if (!state.rights.rights?.trim()) {
     errors.push({
       name: "rights-rights",
-      message: "Rights is required.",
+      message: "License is required.",
     });
   }
 
@@ -189,10 +188,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/metadata/access-rights`, {
-      body: b,
-      method: "PUT",
-    });
+    const res = await $fetch(
+      `/api/datasets/${datasetId}/metadata/access-rights`,
+      {
+        body: b,
+        method: "PUT",
+      },
+    );
     console.log(res);
 
     toast.add({
@@ -217,16 +219,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
           { label: 'Dashboard', to: '/app/dashboard' },
           { label: data?.title, to: `/app/datasets/${datasetId}` },
           {
-            label: 'Access and Rights',
+            label: 'Access and License',
             to: `/app/datasets/${datasetId}/metadata/access-rights`,
           },
         ]"
@@ -239,25 +240,30 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-              Access and Rights
+              Access and License
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Define who can access this dataset and the license it is shared
+            under.
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Access
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide access information for this dataset.
+                Specify how people can access this dataset.
               </p>
             </div>
 
@@ -271,10 +277,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 />
               </UFormField>
 
-              <UFormField label="Description" name="access-description" required>
+              <UFormField
+                label="Description"
+                name="access-description"
+                required
+              >
                 <UTextarea
                   v-model="state.access.description"
-                  placeholder="Provide further details about the access details"
+                  placeholder="Data can be downloaded after submitting a request and signing a data use agreement."
                   class="w-full"
                 />
               </UFormField>
@@ -282,7 +292,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UFormField label="URL" name="access-url">
                 <UInput
                   v-model="state.access.url"
-                  placeholder="Enter the URL"
+                  placeholder="https://example.org/request-access"
                   class="w-full"
                 />
               </UFormField>
@@ -290,27 +300,31 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Rights
+                License
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide rights information for this dataset.
+                Specify the terms under which this dataset can be used.
               </p>
             </div>
 
             <div class="flex flex-col gap-3">
-              <UFormField label="Rights" name="rights-rights" required>
+              <UFormField label="License" name="rights-rights" required>
                 <USelect
                   v-model="state.rights.rights"
                   class="w-full"
-                  placeholder="Select rights"
-                  :items="licensesJSON.map((option) => ({
-                    label: option.name,
-                    value: option.name,
-                  }))"
+                  placeholder="Select license"
+                  :items="
+                    licensesJSON.map((option) => ({
+                      label: option.name,
+                      value: option.name,
+                    }))
+                  "
                   :loading="getLicenseLoading"
                   @update:model-value="updateLicense"
                 />
@@ -319,7 +333,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UFormField label="Description" name="rights-description">
                 <UTextarea
                   v-model="state.rights.licenseText"
-                  placeholder="Provide further details about the license text"
+                  placeholder="Paste the license text or describe any additional terms of use."
                   class="w-full"
                 />
               </UFormField>
@@ -329,7 +343,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="metadata-access-rights-form"
         type="submit"
@@ -342,7 +356,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -350,11 +364,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

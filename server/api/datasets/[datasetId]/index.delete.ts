@@ -2,17 +2,22 @@
 // (scripts/restore-draft.ts) if it was deleted by mistake
 const DRAFT_PURGE_GRACE_DAYS = 30;
 
+// Deleting draft versions is turned off for now
+const DRAFT_DELETE_ENABLED: boolean = false;
+
 /**
  * Soft delete a draft version created from a published version. Datasets
  * themselves can't be deleted, so the first version of a dataset can't be either.
  * See "Delete draft version" in dev/storage-rework.md.
  */
 export default defineEventHandler(async (event) => {
-  throw createError({
-    statusCode: 403,
-    statusMessage: "currently disabled",
-  });
-  
+  if (!DRAFT_DELETE_ENABLED) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "currently disabled",
+    });
+  }
+
   await datasetMinAdminPermission(event);
 
   const { datasetId } = event.context.params as {

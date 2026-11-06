@@ -37,6 +37,7 @@ jobs:
       AZURE_DRAFT_CONNECTION_STRING: ${{ secrets.AZURE_DRAFT_CONNECTION_STRING }}
       AZURE_PUBLISHED_ACCOUNT_KEY: ${{ secrets.AZURE_PUBLISHED_ACCOUNT_KEY }}
       AZURE_PUBLISHED_CONNECTION_STRING: ${{ secrets.AZURE_PUBLISHED_CONNECTION_STRING }}
+      NUXT_PUBLIC_ENVIRONMENT: production
 
     steps:
       # Step 1: Checkout the repository code
@@ -45,7 +46,7 @@ jobs:
       # Step 2: Setup Ruby environment for Kamal deployment tool
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.3.1
+          ruby-version: 3.3.13
           bundler-cache: true # Cache Ruby dependencies for faster builds
 
       # Step 3: Install Kamal deployment tool

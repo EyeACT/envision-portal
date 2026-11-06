@@ -551,11 +551,26 @@
     }
   ],
   "datasetFunderIdentifierTypeOptions": [
-    { "value": "Crossref Funder ID", "label": "Crossref Funder ID" },
-    { "value": "GRID", "label": "GRID" },
-    { "value": "ISNI", "label": "ISNI" },
-    { "value": "ROR", "label": "ROR" },
-    { "value": "Other", "label": "Other" }
+    {
+      "value": "Crossref Funder ID",
+      "label": "Crossref Funder ID"
+    },
+    {
+      "value": "GRID",
+      "label": "GRID"
+    },
+    {
+      "value": "ISNI",
+      "label": "ISNI"
+    },
+    {
+      "value": "ROR",
+      "label": "ROR"
+    },
+    {
+      "value": "Other",
+      "label": "Other"
+    }
   ],
   "datasetRelatedIdentifierResourceTypeOptions": [
     {

@@ -29,17 +29,16 @@ const { studyId } = route.params as { studyId: string };
               Data Processing
             </h1>
 
-            <p class="text-lg font-normal">Data processing for the study</p>
+            <p class="text-lg font-normal">
+              Review how the data in this dataset has been processed.
+            </p>
           </div>
         </div>
       </div>
 
       <div>
         <AppPlaceholder>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-            quos.
-          </p>
+          <p>Data processing details will appear here.</p>
         </AppPlaceholder>
       </div>
     </div>

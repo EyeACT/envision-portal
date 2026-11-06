@@ -40,7 +40,7 @@ const state = reactive<Schema>({
   studyType: "",
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/study/metadata/arms`,
   {},
 );
@@ -53,10 +53,9 @@ if (error.value) {
   });
 }
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
   state.studyArms = data.value.StudyArm.map((arm: any) => ({
     id: arm.id,
@@ -68,7 +67,14 @@ if (data.value) {
     type: arm.type || "",
   }));
   state.studyType = data.value.StudyDesign?.studyType ?? "";
+};
 
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
+
+  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -76,11 +82,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addArm = () => {
   state.studyArms.push({
@@ -124,7 +129,9 @@ const validate = (state: any): FormError[] => {
   }
 
   const seen = new Set<string>();
-  activeArms.forEach((arm: any, index: number) => {
+  state.studyArms.forEach((arm: any, index: number) => {
+    if (arm.deleted) return;
+
     const key = arm.label?.trim().toLowerCase();
     if (seen.has(key)) {
       errors.push({
@@ -135,7 +142,9 @@ const validate = (state: any): FormError[] => {
     seen.add(key);
   });
 
-  activeArms.forEach((arm: any, index: number) => {
+  state.studyArms.forEach((arm: any, index: number) => {
+    if (arm.deleted) return;
+
     if (arm.label.trim() === "") {
       errors.push({
         name: `label-${index}`,
@@ -180,19 +189,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/study/metadata/arms`, {
+    await $fetch(`/api/datasets/${datasetId}/study/metadata/arms`, {
       body: b,
       method: "PUT",
     });
-    console.log(res);
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
 
@@ -209,9 +220,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -227,12 +237,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         ]"
       />
 
-      <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+      <div
+        class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+      >
         <div class="flex w-full items-center justify-between gap-3">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Arms</h1>
         </div>
         <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
+          Define the groups of participants in this study.
         </p>
       </div>
 
@@ -260,14 +272,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         :disabled="!state.studyType"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Study Arms Configuration
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Create and manage structural cohort allocations, groups, or comparison vectors participating in this setup.
+                Add each group of participants in the study and the
+                interventions they receive.
               </p>
             </div>
 
@@ -292,7 +307,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                 <div class="flex w-full flex-col gap-4 p-1">
                   <UFormField required label="Label" :name="`label-${index}`">
-                    <UInput v-model="item.label" placeholder="e.g., Control Group, Experimental Arm A" />
+                    <UInput
+                      v-model="item.label"
+                      placeholder="Control Group, Experimental Arm A"
+                    />
                   </UFormField>
 
                   <UFormField
@@ -302,7 +320,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UTextarea
                       v-model="item.description"
-                      placeholder="Enter a descriptive detail outlining what distinguishes this research path alignment group"
+                      placeholder="Participants take one 500 mg tablet of acetaminophen twice daily for 12 weeks."
                       class="w-full"
                     />
                   </UFormField>
@@ -310,7 +328,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField label="Type" :name="`type-${index}`">
                     <USelect
                       v-model="item.type as string"
-                      placeholder="Select arm baseline type"
+                      placeholder="Experimental"
                       :items="FORM_JSON.studyMetadataArmsTypeOptions"
                       class="w-full"
                     />
@@ -319,14 +337,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField label="Intervention List" name="interventionList">
                     <div v-if="item.interventionList.length > 0">
                       <div
-                        v-for="(intervention, innerIndex) in item.interventionList"
+                        v-for="(
+                          intervention, innerIndex
+                        ) in item.interventionList"
                         :key="innerIndex"
                         class="mb-2 flex gap-2"
                       >
                         <UInput
                           v-model="item.interventionList[innerIndex]"
                           class="w-full"
-                          placeholder="Provide descriptive active intervention label"
+                          placeholder="Acetaminophen"
                         />
 
                         <UButton
@@ -342,7 +362,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           color="success"
                           variant="outline"
                           icon="i-lucide-plus"
-                          @click="item.interventionList.splice(innerIndex + 1, 0, '')"
+                          @click="
+                            item.interventionList.splice(innerIndex + 1, 0, '')
+                          "
                         />
                       </div>
                     </div>
@@ -377,7 +399,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="study-metadata-arms-form"
         type="submit"
@@ -390,7 +412,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -398,11 +420,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your configured study arm allocations will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your configured study arm allocations will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>

@@ -77,7 +77,7 @@ const state = reactive<Schema>({
   subjects: [],
 });
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/datasets/${datasetId}/metadata/data-management`,
   {},
 );
@@ -90,10 +90,9 @@ if (error.value) {
   });
 }
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+// Fills the form from the fetched data, on page load and again after each save.
+const loadFormState = () => {
+  if (!data.value) return;
 
   state.subjects = data.value.DatasetSubject.map((subject: any) => ({
     id: subject.id,
@@ -110,7 +109,8 @@ if (data.value) {
   state.consent.geneticOnly = data.value.DatasetConsent?.geneticOnly ?? false;
   state.consent.geogRestrict = data.value.DatasetConsent?.geogRestrict ?? false;
   state.consent.noMethods = data.value.DatasetConsent?.noMethods ?? false;
-  state.consent.noncommercial = data.value.DatasetConsent?.noncommercial ?? false;
+  state.consent.noncommercial =
+    data.value.DatasetConsent?.noncommercial ?? false;
   state.consent.researchType = data.value.DatasetConsent?.researchType ?? false;
   state.consent.type = data.value.DatasetConsent?.type ?? "";
 
@@ -121,7 +121,14 @@ if (data.value) {
   state.deidentLevel.kAnon = data.value.DatasetDeIdentLevel?.kAnon ?? false;
   state.deidentLevel.nonarr = data.value.DatasetDeIdentLevel?.nonarr ?? false;
   state.deidentLevel.type = data.value.DatasetDeIdentLevel?.type ?? "";
+};
 
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
+
+  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -129,11 +136,10 @@ const isDirty = computed(() => {
   return JSON.stringify(state) !== originalStateString.value;
 });
 
-const { 
-  showLeaveModal, 
-  confirmLeave, 
-  cancelLeave 
-} = useUnsavedChangesGuard({ isDirty, isSubmitting });
+const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+  isDirty,
+  isSubmitting,
+});
 
 const addSubject = () => {
   state.subjects.push({
@@ -177,14 +183,11 @@ const validate = (state: any): FormError[] => {
 
   const activeSubjects = state.subjects?.filter((s: any) => !s.deleted) ?? [];
 
-  if (activeSubjects.length === 0) {
-    errors.push({
-      name: "subjects",
-      message: "Please add at least one subject",
-    });
-  } else {
+  if (activeSubjects.length > 0) {
     const seenSubjects = new Set<string>();
-    activeSubjects.forEach((subject: any, index: number) => {
+    state.subjects.forEach((subject: any, index: number) => {
+      if (subject.deleted) return;
+
       const key = subject.subject?.trim().toLowerCase();
       if (seenSubjects.has(key)) {
         errors.push({
@@ -195,7 +198,9 @@ const validate = (state: any): FormError[] => {
       seenSubjects.add(key);
     });
 
-    activeSubjects.forEach((subject: any, index: number) => {
+    state.subjects.forEach((subject: any, index: number) => {
+      if (subject.deleted) return;
+
       if (!subject.subject?.trim()) {
         errors.push({
           name: `subjects[${index}].subject`,
@@ -209,11 +214,13 @@ const validate = (state: any): FormError[] => {
       if ((code && !scheme) || (!code && scheme)) {
         errors.push({
           name: `subjects[${index}].classificationCode`,
-          message: "Classification code and scheme must both be provided together",
+          message:
+            "Classification code and scheme must both be provided together",
         });
         errors.push({
           name: `subjects[${index}].scheme`,
-          message: "Scheme and classification code must both be provided together",
+          message:
+            "Scheme and classification code must both be provided together",
         });
       }
 
@@ -260,19 +267,21 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   };
 
   try {
-    const res = await $fetch(`/api/datasets/${datasetId}/metadata/data-management`, {
+    await $fetch(`/api/datasets/${datasetId}/metadata/data-management`, {
       body: b,
       method: "PUT",
     });
-    console.log(res);
+
+    // Reload so new rows get their real ids and removed rows drop out of the form.
+    await refresh();
+    if (!error.value) loadFormState();
+    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
-
-    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
     toast.add({
@@ -288,9 +297,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-6rem)] relative overflow-hidden">
-    
-    <div class="flex-1 overflow-y-auto p-4 pb-28 space-y-6">
+  <div class="relative flex h-[calc(100vh-6rem)] flex-col overflow-hidden">
+    <div class="flex-1 space-y-6 overflow-y-auto p-4 pb-28">
       <UBreadcrumb
         class="mb-4 ml-2"
         :items="[
@@ -310,25 +318,31 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="space-y-6"
         @submit="onSubmit"
       >
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full items-center justify-between gap-3">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
               Data Management
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Describe the consent terms, de-identification level, and subjects of
+            this dataset.
           </p>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Consent
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide consent information for this dataset.
+                Describe the consent participants gave and any limits it places
+                on data use.
               </p>
             </div>
 
@@ -395,7 +409,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UFormField label="Details" name="consent.details">
                 <UTextarea
                   v-model="state.consent.details"
-                  placeholder="Provide further details about the consent details"
+                  placeholder="Data use is limited to diabetes-related research and excludes commercial use."
                   class="w-full"
                 />
               </UFormField>
@@ -403,14 +417,17 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 De-identification Level
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please specify the de-identification level for this dataset.
+                Describe how identifying information was removed from this
+                dataset.
               </p>
             </div>
 
@@ -468,7 +485,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UFormField label="Details" name="deidentLevel.details">
                 <UTextarea
                   v-model="state.deidentLevel.details"
-                  placeholder="Enter de-identification details"
+                  placeholder="Names and medical record numbers were removed, and dates were shifted by a random offset for each participant."
                   class="w-full"
                 />
               </UFormField>
@@ -476,14 +493,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                 Subjects
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add subjects for this dataset.
+                Optionally, add any subjects for this dataset.
               </p>
             </div>
 
@@ -514,7 +533,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.subject"
-                      placeholder="Enter subject"
+                      placeholder="Diabetes Mellitus, Type 2"
                       class="w-full"
                     />
                   </UFormField>
@@ -522,11 +541,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField
                     label="Classification Code"
                     :name="`subjects[${index}].classificationCode`"
-                    :required="!!item.classificationCode?.trim() || !!item.scheme?.trim()"
+                    :required="
+                      !!item.classificationCode?.trim() || !!item.scheme?.trim()
+                    "
                   >
                     <UInput
                       v-model="item.classificationCode"
-                      placeholder="Enter classification code"
+                      placeholder="D003924"
                       class="w-full"
                     />
                   </UFormField>
@@ -536,11 +557,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       label="Scheme"
                       :name="`subjects[${index}].scheme`"
                       class="w-full"
-                      :required="!!item.classificationCode?.trim() || !!item.scheme?.trim()"
+                      :required="
+                        !!item.classificationCode?.trim() ||
+                        !!item.scheme?.trim()
+                      "
                     >
                       <UInput
                         v-model="item.scheme"
-                        placeholder="Enter scheme"
+                        placeholder="MeSH"
                         class="w-full"
                       />
                     </UFormField>
@@ -552,7 +576,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.schemeUri"
-                        placeholder="Enter scheme URI"
+                        placeholder="https://meshb.nlm.nih.gov/"
                         class="w-full"
                       />
                     </UFormField>
@@ -564,7 +588,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.valueUri"
-                      placeholder="Enter value URI"
+                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D003924"
                       class="w-full"
                     />
                   </UFormField>
@@ -584,7 +608,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       </UForm>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4">
+    <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
         form="metadata-data-management-form"
         type="submit"
@@ -597,7 +621,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       />
     </div>
 
-    <UModal 
+    <UModal
       v-model:open="showLeaveModal"
       title="Unsaved changes"
       :prevent-close="true"
@@ -605,11 +629,20 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Are you sure you want to leave this page? Any modifications made to your fields will be permanently discarded.
+            Are you sure you want to leave this page? Any modifications made to
+            your fields will be permanently discarded.
           </p>
           <div class="flex justify-end gap-3 pt-2">
-            <UButton color="error" label="Discard Changes" @click="confirmLeave" />
-          <UButton color="neutral" label="Stay on Page" @click="cancelLeave" />  
+            <UButton
+              color="error"
+              label="Discard Changes"
+              @click="confirmLeave"
+            />
+            <UButton
+              color="neutral"
+              label="Stay on Page"
+              @click="cancelLeave"
+            />
           </div>
         </div>
       </template>
