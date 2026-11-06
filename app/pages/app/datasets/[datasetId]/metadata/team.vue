@@ -490,18 +490,15 @@ const toRorFields = (value: string) => {
   };
 };
 
-// Deleted rows are still validated by the API, so their old identifiers are cleared.
 const withIdentifierFields = (person: any) => {
   const idField = nameIdentifierField(person.nameType);
-  const nameIdentifier = person.deleted
-    ? ""
-    : idField.normalize(person.nameIdentifier);
+  const nameIdentifier = idField.normalize(person.nameIdentifier);
 
   return {
     ...person,
     affiliations: person.affiliations.map((affiliation: any) => ({
       ...affiliation,
-      ...toRorFields(person.deleted ? "" : affiliation.identifier),
+      ...toRorFields(affiliation.identifier),
     })),
     nameIdentifier,
     nameIdentifierScheme: nameIdentifier ? idField.scheme : "",
@@ -542,7 +539,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     }),
     funders: formData.funders.map((funder: any) => {
       const { identifier, identifierScheme, identifierSchemeUri } = toRorFields(
-        funder.deleted ? "" : funder.identifier,
+        funder.identifier,
       );
       const d = {
         ...funder,

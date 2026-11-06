@@ -85,6 +85,28 @@ const partyTypeOptions =
     (opt) => opt.value,
   );
 
+const removedRowSchema = z.object({
+  id: z.string(),
+  deleted: z.literal(true),
+});
+
+// A list of rows from a form save. A saved row being removed only needs its id,
+// so whatever is left in its other fields isn't validated.
+export const editableRows = <T extends z.ZodType>(
+  row: T,
+  requiredMessage?: string,
+) => {
+  const rows = z.array(z.union([removedRowSchema, row]));
+
+  return requiredMessage
+    ? rows.refine(
+        (items) =>
+          items.some((item) => !(item as { deleted?: boolean }).deleted),
+        { message: requiredMessage },
+      )
+    : rows;
+};
+
 export const conditionsRefine = (data: any, ctx: z.RefinementCtx) => {
   if (
     (data.classificationCode && !data.scheme) ||
@@ -209,11 +231,14 @@ export const secondaryIdentifierSchema = z
 export const StudyMetadataAboutSchema = z
   .object({
     briefSummary: z.string().min(1, "Brief summary is required"),
-    conditions: z
-      .array(conditionsSchema.superRefine(conditionsRefine))
-      .min(1, "At least one condition is required"),
+    conditions: editableRows(
+      conditionsSchema.superRefine(conditionsRefine),
+      "At least one condition is required",
+    ),
     detailedDescription: z.string().optional(),
-    keywords: z.array(keywordsSchema.superRefine(keywordsRefine)).optional(),
+    keywords: editableRows(
+      keywordsSchema.superRefine(keywordsRefine),
+    ).optional(),
     primaryIdentifier: z.object({
       domain: z.union([z.literal(""), z.string().trim().url()]),
       identifier: z.string(),
@@ -222,7 +247,7 @@ export const StudyMetadataAboutSchema = z
         message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
       }),
     }),
-    secondaryIdentifiers: z.array(secondaryIdentifierSchema),
+    secondaryIdentifiers: editableRows(secondaryIdentifierSchema),
   })
   .strict();
 
@@ -256,14 +281,6 @@ export const studyArmSchema = z
         })
         .optional(),
     ),
-  })
-  .strict();
-
-export const StudyMetadataArmsSchema = z
-  .object({
-    studyArms: z
-      .array(studyArmSchema)
-      .min(1, { message: "At least one study arm is required" }),
   })
   .strict();
 
@@ -357,14 +374,6 @@ export const contractSchema = z
     local: z.boolean().optional(),
     phone: z.string(),
     phoneExt: z.string(),
-  })
-  .strict();
-
-export const StudyMetadataContactsSchema = z
-  .object({
-    studyContacts: z
-      .array(contractSchema.superRefine(contractRefine))
-      .optional(),
   })
   .strict();
 
@@ -679,46 +688,6 @@ export const StudyMetadataEligibilitySchema = z
   })
   .strict();
 
-export const StudyMetadataInterventionsSchema = z
-  .object({
-    studyInterventions: z
-      .array(
-        z
-          .object({
-            id: z.string().optional(),
-            name: z.string().trim().min(1, { message: "Name is required" }),
-            created: z.coerce.date().optional(),
-            datasetId: z.string().cuid2().optional(),
-            deleted: z.boolean().optional(),
-            description: z
-              .string()
-              .trim()
-              .min(1, { message: "Description is required" }),
-            local: z.boolean().optional(),
-            otherNameList: z
-              .array(z.string())
-              .transform((arr) => arr.filter((s) => s.trim())),
-            type: z
-              .string({
-                error: "Type is required",
-              })
-              .refine((v) => validTypes.includes(v), {
-                message: "Type must be a valid option",
-              }),
-            updated: z.coerce.date().optional(),
-          })
-          .strict(),
-        {
-          error: (issue) =>
-            issue.input === undefined
-              ? "`studyInterventions` array is required"
-              : "`studyInterventions` must be an array",
-        },
-      )
-      .min(1, { message: "At least one study intervention is required" }),
-  })
-  .strict();
-
 const locationRefine = (data: any, context: z.RefinementCtx) => {
   const hasId = data.identifier !== "";
   const hasScheme = data.identifierScheme !== "";
@@ -807,14 +776,10 @@ export const LocationContactSchema = z
   .superRefine(locationRefine);
 
 export const StudyMetadataLocationsSchema = z.object({
-  studyLocations: z
-    .array(LocationSchema.superRefine(locationRefine), {
-      error: (issue) =>
-        issue.input === undefined
-          ? "`studyLocations` array is required"
-          : "`studyLocations` must be an array",
-    })
-    .min(1, { message: "At least one study location is required" }),
+  studyLocations: editableRows(
+    LocationSchema.superRefine(locationRefine),
+    "At least one study location is required",
+  ),
 });
 
 const officialSchemaRefine = (data: any, context: z.RefinementCtx) => {
@@ -928,12 +893,6 @@ export const officialSchema = z
     updated: z.coerce.date().optional(),
   })
   .strict();
-
-export const StudyMetadataOverallOfficialsSchema = z.object({
-  studyOverallOfficials: z
-    .array(officialSchema.superRefine(officialSchemaRefine))
-    .optional(),
-});
 
 export const StudyMetadataOversightSchema = z
   .object({
@@ -1329,8 +1288,14 @@ export const SponsorsBase = z.object({
     ),
 });
 
-export const StudyMetadataSponsorsSchema =
-  SponsorsBase.strict().superRefine(SponsorRefine);
+export const StudyMetadataTeamContactsSchema = SponsorsBase.extend({
+  studyContacts: editableRows(contractSchema.superRefine(contractRefine)),
+  studyOverallOfficials: editableRows(
+    officialSchema.superRefine(officialSchemaRefine),
+  ),
+})
+  .strict()
+  .superRefine(SponsorRefine);
 
 export const StudyDescriptionOnlySchema = z
   .object({
@@ -1374,6 +1339,19 @@ export const InterventionRowSchema = z
       message: "Type must be a valid option",
     }),
     updated: z.coerce.date().optional(),
+  })
+  .strict();
+
+export const StudyMetadataArmsInterventionsSchema = z
+  .object({
+    studyArms: editableRows(
+      studyArmSchema,
+      "At least one study arm is required",
+    ),
+    studyInterventions: editableRows(
+      InterventionRowSchema,
+      "At least one study intervention is required",
+    ),
   })
   .strict();
 

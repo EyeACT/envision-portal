@@ -72,9 +72,7 @@ export default defineEventHandler(async (event) => {
 
   // update the secondary identifiers
   // Get the secondary identifiers that already have an id and update them
-  const secondaryIdentifiersToUpdate = secondaryIdentifiers.filter(
-    (identifier) => identifier.id,
-  );
+  const secondaryIdentifiersToUpdate = splitRows(secondaryIdentifiers).toUpdate;
 
   for (const identifier of secondaryIdentifiersToUpdate) {
     await prisma.studyIdentification.update({
@@ -90,9 +88,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Get the secondary identifiers that don't have an id and create them
-  const secondaryIdentifiersToCreate = secondaryIdentifiers.filter(
-    (identifier) => !identifier.id,
-  );
+  const secondaryIdentifiersToCreate = splitRows(secondaryIdentifiers).toCreate;
 
   for (const identifier of secondaryIdentifiersToCreate) {
     await prisma.studyIdentification.create({
@@ -108,9 +104,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Get the secondary identifiers that are deleted and delete them
-  const secondaryIdentifiersToDelete = secondaryIdentifiers.filter(
-    (identifier) => identifier.deleted,
-  );
+  const secondaryIdentifiersToDelete = splitRows(secondaryIdentifiers).toDelete;
 
   for (const identifier of secondaryIdentifiersToDelete) {
     await prisma.studyIdentification.delete({
@@ -120,7 +114,7 @@ export default defineEventHandler(async (event) => {
 
   // update the keywords
   // Get the keywords that already have an id and update them
-  const keywordsToUpdate = keywords.filter((keyword) => keyword.id);
+  const keywordsToUpdate = splitRows(keywords).toUpdate;
 
   for (const keyword of keywordsToUpdate) {
     await prisma.studyKeywords.update({
@@ -136,7 +130,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Get the keywords that don't have an id and create them
-  const keywordsToCreate = keywords.filter((keyword) => !keyword.id);
+  const keywordsToCreate = splitRows(keywords).toCreate;
 
   for (const keyword of keywordsToCreate) {
     await prisma.studyKeywords.create({
@@ -152,7 +146,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Get the keywords that are deleted and delete them
-  const keywordsToDelete = keywords.filter((keyword) => keyword.deleted);
+  const keywordsToDelete = splitRows(keywords).toDelete;
 
   for (const keyword of keywordsToDelete) {
     await prisma.studyKeywords.delete({
@@ -162,7 +156,7 @@ export default defineEventHandler(async (event) => {
 
   // update the conditions
   // Get the conditions that already have an id and update them
-  const conditionsToUpdate = conditions.filter((condition) => condition.id);
+  const conditionsToUpdate = splitRows(conditions).toUpdate;
 
   for (const condition of conditionsToUpdate) {
     await prisma.studyConditions.update({
@@ -178,7 +172,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Get the conditions that don't have an id and create them
-  const conditionsToCreate = conditions.filter((condition) => !condition.id);
+  const conditionsToCreate = splitRows(conditions).toCreate;
 
   for (const condition of conditionsToCreate) {
     await prisma.studyConditions.create({
@@ -194,9 +188,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Get the conditions that are deleted and delete them
-  const conditionsToDelete = conditions.filter(
-    (condition) => condition.deleted,
-  );
+  const conditionsToDelete = splitRows(conditions).toDelete;
 
   for (const condition of conditionsToDelete) {
     await prisma.studyConditions.delete({

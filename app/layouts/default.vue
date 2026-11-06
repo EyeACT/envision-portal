@@ -49,7 +49,7 @@ const datasetNavItems = [
         route: "metadata/additional-details",
       },
     ],
-    icon: "ooui:view-details-ltr",
+    icon: "material-symbols:database-outline",
     route: "metadata",
   },
   {
@@ -108,9 +108,9 @@ const datasetNavItems = [
         route: "study/metadata/status-oversight",
       },
       {
-        name: "Team",
+        name: "Team & Contacts",
         icon: "material-symbols:group",
-        route: "study/metadata/team",
+        route: "study/metadata/team-contacts",
       },
       {
         name: "Design",
@@ -123,24 +123,9 @@ const datasetNavItems = [
         route: "study/metadata/eligibility",
       },
       {
-        name: "Arms",
+        name: "Arms & Interventions",
         icon: "material-symbols:science",
-        route: "study/metadata/arms",
-      },
-      {
-        name: "Interventions",
-        icon: "material-symbols:syringe-sharp",
-        route: "study/metadata/interventions",
-      },
-      {
-        name: "Central Contacts",
-        icon: "mdi:contact",
-        route: "study/metadata/contacts",
-      },
-      {
-        name: "Overall Officials",
-        icon: "material-symbols:badge",
-        route: "study/metadata/officials",
+        route: "study/metadata/arms-interventions",
       },
       {
         name: "Locations",
@@ -148,7 +133,7 @@ const datasetNavItems = [
         route: "study/metadata/locations",
       },
     ],
-    icon: "ooui:view-details-ltr",
+    icon: "material-symbols:clinical-notes-outline",
     route: "metadata",
   },
   { name: "Files", icon: "ph:files-fill", route: "files" },

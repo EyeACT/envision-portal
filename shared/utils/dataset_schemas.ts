@@ -1,7 +1,7 @@
 import { z } from "zod";
 import FORM_JSON from "@/assets/data/form.json";
 import { isValidORCIDValue, isValidRORValue } from "~/utils/validations";
-import { uniqueItemsRefine } from "./study_schemas";
+import { editableRows, uniqueItemsRefine } from "./study_schemas";
 
 const accessTypeOptions = FORM_JSON.datasetAccessTypeOptions.map(
   (opt) => opt.value,
@@ -229,14 +229,15 @@ export const titleSchema = z.object({
 });
 
 export const DatasetMetadataGeneralInformationSchema = z.object({
-  DatasetDescription: z
-    .array(descriptionSchema)
-    .min(1, "At least Abstract description is required"),
+  DatasetDescription: editableRows(
+    descriptionSchema,
+    "At least Abstract description is required",
+  ),
   DatasetOther: datasetOtherSchema.pick({
     language: true,
     resourceTypeName: true,
   }),
-  DatasetTitle: z.array(titleSchema).min(1, "At least Main title is required"),
+  DatasetTitle: editableRows(titleSchema, "At least Main title is required"),
 });
 
 export const altIdentifierSchema = z
@@ -290,18 +291,18 @@ export const relatedIdentSchema = z
 
 export const DatasetMetadataAdditionalDetailsSchema = z
   .object({
-    DatasetAlternateIdentifier: z.array(altIdentifierSchema),
-    DatasetDate: z.array(aboutSchema),
+    DatasetAlternateIdentifier: editableRows(altIdentifierSchema),
+    DatasetDate: editableRows(aboutSchema),
     DatasetOther: datasetOtherSchema.pick({
       acknowledgement: true,
       format: true,
       size: true,
       standardsFollowed: true,
     }),
-    DatasetRelatedIdentifier: z.array(
+    DatasetRelatedIdentifier: editableRows(
       relatedIdentSchema.superRefine(relatedIdentRefine),
     ),
-    DatasetSubject: z.array(subjectSchema.superRefine(subjectRefine)),
+    DatasetSubject: editableRows(subjectSchema.superRefine(subjectRefine)),
   })
   .strict();
 
@@ -515,11 +516,11 @@ export const managingOrgSchema = z
 
 export const DatasetMetadataTeamSchema = z
   .object({
-    contributors: z.array(
+    contributors: editableRows(
       contributorSchema.superRefine(validateNameIdentifier),
     ),
-    creators: z.array(creatorSchema),
-    funders: z.array(funderSchema.superRefine(funderRefine)),
+    creators: editableRows(creatorSchema),
+    funders: editableRows(funderSchema.superRefine(funderRefine)),
     managingOrganization: managingOrgSchema.superRefine(managingOrgRefine),
   })
   .strict();

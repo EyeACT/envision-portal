@@ -29,9 +29,14 @@ export default defineEventHandler(async (event) => {
     DatasetSubject,
   } = body.data;
 
+  const alternateIdentifiers = splitRows(DatasetAlternateIdentifier);
+  const dates = splitRows(DatasetDate);
+  const relatedIdentifiers = splitRows(DatasetRelatedIdentifier);
+  const subjects = splitRows(DatasetSubject);
+
   // Save every section together so that a failure doesn't leave only some of them updated
   await prisma.$transaction([
-    ...DatasetAlternateIdentifier.filter((item) => item.id).map((item) =>
+    ...alternateIdentifiers.toUpdate.map((item) =>
       prisma.datasetAlternateIdentifier.update({
         data: {
           identifier: item.identifier,
@@ -40,7 +45,7 @@ export default defineEventHandler(async (event) => {
         where: { id: item.id, datasetId },
       }),
     ),
-    ...DatasetAlternateIdentifier.filter((item) => !item.id).map((item) =>
+    ...alternateIdentifiers.toCreate.map((item) =>
       prisma.datasetAlternateIdentifier.create({
         data: {
           datasetId,
@@ -49,13 +54,13 @@ export default defineEventHandler(async (event) => {
         },
       }),
     ),
-    ...DatasetAlternateIdentifier.filter((item) => item.deleted).map((item) =>
+    ...alternateIdentifiers.toDelete.map((item) =>
       prisma.datasetAlternateIdentifier.delete({
         where: { id: item.id, datasetId },
       }),
     ),
 
-    ...DatasetRelatedIdentifier.filter((item) => item.id).map((item) =>
+    ...relatedIdentifiers.toUpdate.map((item) =>
       prisma.datasetRelatedIdentifier.update({
         data: {
           identifier: item.identifier,
@@ -69,7 +74,7 @@ export default defineEventHandler(async (event) => {
         where: { id: item.id, datasetId },
       }),
     ),
-    ...DatasetRelatedIdentifier.filter((item) => !item.id).map((item) =>
+    ...relatedIdentifiers.toCreate.map((item) =>
       prisma.datasetRelatedIdentifier.create({
         data: {
           datasetId,
@@ -83,13 +88,13 @@ export default defineEventHandler(async (event) => {
         },
       }),
     ),
-    ...DatasetRelatedIdentifier.filter((item) => item.deleted).map((item) =>
+    ...relatedIdentifiers.toDelete.map((item) =>
       prisma.datasetRelatedIdentifier.delete({
         where: { id: item.id, datasetId },
       }),
     ),
 
-    ...DatasetSubject.filter((item) => item.id).map((item) =>
+    ...subjects.toUpdate.map((item) =>
       prisma.datasetSubject.update({
         data: {
           classificationCode: item.classificationCode,
@@ -101,7 +106,7 @@ export default defineEventHandler(async (event) => {
         where: { id: item.id, datasetId },
       }),
     ),
-    ...DatasetSubject.filter((item) => !item.id).map((item) =>
+    ...subjects.toCreate.map((item) =>
       prisma.datasetSubject.create({
         data: {
           classificationCode: item.classificationCode || "",
@@ -113,13 +118,13 @@ export default defineEventHandler(async (event) => {
         },
       }),
     ),
-    ...DatasetSubject.filter((item) => item.deleted).map((item) =>
+    ...subjects.toDelete.map((item) =>
       prisma.datasetSubject.delete({
         where: { id: item.id, datasetId },
       }),
     ),
 
-    ...DatasetDate.filter((item) => item.id).map((item) =>
+    ...dates.toUpdate.map((item) =>
       prisma.datasetDate.update({
         data: {
           date: item.date,
@@ -129,7 +134,7 @@ export default defineEventHandler(async (event) => {
         where: { id: item.id, datasetId },
       }),
     ),
-    ...DatasetDate.filter((item) => !item.id).map((item) =>
+    ...dates.toCreate.map((item) =>
       prisma.datasetDate.create({
         data: {
           datasetId,
@@ -139,7 +144,7 @@ export default defineEventHandler(async (event) => {
         },
       }),
     ),
-    ...DatasetDate.filter((item) => item.deleted).map((item) =>
+    ...dates.toDelete.map((item) =>
       prisma.datasetDate.delete({
         where: { id: item.id, datasetId },
       }),

@@ -195,9 +195,8 @@ const validate = (state: any): FormError[] => {
 };
 
 // The form only collects the ROR ID; the API also expects its scheme and scheme URI.
-// Deleted rows are still validated by the API, so their old identifiers are cleared.
 const withIdentifierFields = (location: any) => {
-  const ror = location.deleted ? "" : normalizeROR(location.identifier);
+  const ror = normalizeROR(location.identifier);
 
   return {
     ...location,
@@ -372,7 +371,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UFormField
                       label="State / Province"
                       :name="`state-${index}`"
-                      required
                     >
                       <UInput v-model="item.state" placeholder="California" />
                     </UFormField>

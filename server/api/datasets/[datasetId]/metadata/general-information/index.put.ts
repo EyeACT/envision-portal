@@ -23,9 +23,12 @@ export default defineEventHandler(async (event) => {
 
   const { DatasetDescription, DatasetOther, DatasetTitle } = body.data;
 
+  const descriptions = splitRows(DatasetDescription);
+  const titles = splitRows(DatasetTitle);
+
   // Save every section together so that a failure doesn't leave only some of them updated
   await prisma.$transaction([
-    ...DatasetTitle.filter((title) => title.id).map((title) =>
+    ...titles.toUpdate.map((title) =>
       prisma.datasetTitle.update({
         data: {
           title: title.title,
@@ -34,7 +37,7 @@ export default defineEventHandler(async (event) => {
         where: { id: title.id, datasetId },
       }),
     ),
-    ...DatasetTitle.filter((title) => !title.id).map((title) =>
+    ...titles.toCreate.map((title) =>
       prisma.datasetTitle.create({
         data: {
           title: title.title,
@@ -43,37 +46,34 @@ export default defineEventHandler(async (event) => {
         },
       }),
     ),
-    ...DatasetTitle.filter((title) => title.deleted).map((title) =>
+    ...titles.toDelete.map((title) =>
       prisma.datasetTitle.delete({
         where: { id: title.id, datasetId },
       }),
     ),
 
-    ...DatasetDescription.filter((description) => description.id).map(
-      (description) =>
-        prisma.datasetDescription.update({
-          data: {
-            description: description.description,
-            type: description.type,
-          },
-          where: { id: description.id, datasetId },
-        }),
+    ...descriptions.toUpdate.map((description) =>
+      prisma.datasetDescription.update({
+        data: {
+          description: description.description,
+          type: description.type,
+        },
+        where: { id: description.id, datasetId },
+      }),
     ),
-    ...DatasetDescription.filter((description) => !description.id).map(
-      (description) =>
-        prisma.datasetDescription.create({
-          data: {
-            datasetId,
-            description: description.description,
-            type: description.type,
-          },
-        }),
+    ...descriptions.toCreate.map((description) =>
+      prisma.datasetDescription.create({
+        data: {
+          datasetId,
+          description: description.description,
+          type: description.type,
+        },
+      }),
     ),
-    ...DatasetDescription.filter((description) => description.deleted).map(
-      (description) =>
-        prisma.datasetDescription.delete({
-          where: { id: description.id, datasetId },
-        }),
+    ...descriptions.toDelete.map((description) =>
+      prisma.datasetDescription.delete({
+        where: { id: description.id, datasetId },
+      }),
     ),
 
     prisma.datasetOther.update({

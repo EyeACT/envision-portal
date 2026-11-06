@@ -23,9 +23,7 @@ export default defineEventHandler(async (event) => {
 
   const { studyLocations } = body.data;
 
-  const studyLocationsToUpdate = studyLocations.filter(
-    (location) => location.id,
-  );
+  const studyLocationsToUpdate = splitRows(studyLocations).toUpdate;
 
   for (const location of studyLocationsToUpdate) {
     await prisma.studyLocation.update({
@@ -44,9 +42,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const studyLocationsToCreate = studyLocations.filter(
-    (location) => !location.id,
-  );
+  const studyLocationsToCreate = splitRows(studyLocations).toCreate;
 
   for (const location of studyLocationsToCreate) {
     await prisma.studyLocation.create({
@@ -65,9 +61,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const studyLocationsToDelete = studyLocations.filter(
-    (location) => location.deleted,
-  );
+  const studyLocationsToDelete = splitRows(studyLocations).toDelete;
 
   for (const location of studyLocationsToDelete) {
     await prisma.studyLocation.delete({

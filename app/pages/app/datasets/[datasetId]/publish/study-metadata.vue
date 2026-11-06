@@ -226,7 +226,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible class="my-1 shadow-none" title="Sponsors" bordered>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/study/metadata/team`"
+              :to="`/app/datasets/${datasetId}/study/metadata/team-contacts`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -320,7 +320,7 @@ const timelineItems = ref<TimelineItem[]>([
         >
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/study/metadata/team`"
+              :to="`/app/datasets/${datasetId}/study/metadata/team-contacts`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -634,7 +634,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible class="my-1 shadow-none" title="Arms" bordered>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/study/metadata/arms`"
+              :to="`/app/datasets/${datasetId}/study/metadata/arms-interventions`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -669,7 +669,7 @@ const timelineItems = ref<TimelineItem[]>([
         >
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/study/metadata/interventions`"
+              :to="`/app/datasets/${datasetId}/study/metadata/arms-interventions`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -754,7 +754,7 @@ const timelineItems = ref<TimelineItem[]>([
         >
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/study/metadata/contacts`"
+              :to="`/app/datasets/${datasetId}/study/metadata/team-contacts`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -793,7 +793,7 @@ const timelineItems = ref<TimelineItem[]>([
         >
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/study/metadata/officials`"
+              :to="`/app/datasets/${datasetId}/study/metadata/team-contacts`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"

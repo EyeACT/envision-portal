@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   const { contributors, creators, funders, managingOrganization } = body.data;
 
   // get the creators that already have an id and update them
-  const creatorsToUpdate = creators.filter((creator) => creator.id);
+  const creatorsToUpdate = splitRows(creators).toUpdate;
 
   for (const creator of creatorsToUpdate) {
     await prisma.datasetContributor.update({
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the creators that don't have an id and create them
-  const creatorsToCreate = creators.filter((creator) => !creator.id);
+  const creatorsToCreate = splitRows(creators).toCreate;
 
   for (const creator of creatorsToCreate) {
     await prisma.datasetContributor.create({
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the creators that are deleted and delete them
-  const creatorsToDelete = creators.filter((creator) => creator.deleted);
+  const creatorsToDelete = splitRows(creators).toDelete;
 
   for (const creator of creatorsToDelete) {
     await prisma.datasetContributor.delete({
@@ -72,9 +72,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the contributors that already have an id and update them
-  const contributorsToUpdate = contributors.filter(
-    (contributor) => contributor.id,
-  );
+  const contributorsToUpdate = splitRows(contributors).toUpdate;
 
   for (const contributor of contributorsToUpdate) {
     await prisma.datasetContributor.update({
@@ -94,9 +92,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the contributors that don't have an id and create them
-  const contributorsToCreate = contributors.filter(
-    (contributor) => !contributor.id,
-  );
+  const contributorsToCreate = splitRows(contributors).toCreate;
 
   for (const contributor of contributorsToCreate) {
     await prisma.datasetContributor.create({
@@ -116,9 +112,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the contributors that are deleted and delete them
-  const contributorsToDelete = contributors.filter(
-    (contributor) => contributor.deleted,
-  );
+  const contributorsToDelete = splitRows(contributors).toDelete;
 
   for (const contributor of contributorsToDelete) {
     await prisma.datasetContributor.delete({
@@ -127,7 +121,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the funders that already have an id and update them
-  const fundersToUpdate = funders.filter((funder) => funder.id);
+  const fundersToUpdate = splitRows(funders).toUpdate;
 
   for (const funder of fundersToUpdate) {
     await prisma.datasetFunder.update({
@@ -145,7 +139,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the funders that don't have an id and create them
-  const fundersToCreate = funders.filter((funder) => !funder.id);
+  const fundersToCreate = splitRows(funders).toCreate;
 
   for (const funder of fundersToCreate) {
     await prisma.datasetFunder.create({
@@ -163,7 +157,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the funders that are deleted and delete them
-  const fundersToDelete = funders.filter((funder) => funder.deleted);
+  const fundersToDelete = splitRows(funders).toDelete;
 
   for (const funder of fundersToDelete) {
     await prisma.datasetFunder.delete({
