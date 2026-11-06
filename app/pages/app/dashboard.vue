@@ -178,14 +178,6 @@ const dropdownItems = ref([
                   />
                 </UFormField>
 
-                <UFormField label="Type" name="type">
-                  <UInput
-                    v-model="newDatasetState.type"
-                    placeholder="Clinical study"
-                    type="text"
-                  />
-                </UFormField>
-
                 <UFormField label="Version" name="version">
                   <UInput
                     v-model="newDatasetState.version"
