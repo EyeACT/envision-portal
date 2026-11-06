@@ -499,7 +499,19 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
       size: formData.size.filter((size) => size !== ""),
       standardsFollowed: formData.standardsFollowed,
     },
-    DatasetRelatedIdentifier: formData.relatedIdentifiers.map(toRequestRow),
+    DatasetRelatedIdentifier: formData.relatedIdentifiers.map((row) =>
+      // Scheme fields are hidden unless the relation type uses them, so drop any left behind.
+      toRequestRow(
+        usesMetadataScheme(row.relationType)
+          ? row
+          : {
+              ...row,
+              relatedMetadataScheme: "",
+              schemeType: "",
+              schemeUri: "",
+            },
+      ),
+    ),
     DatasetSubject: formData.subjects.map(toRequestRow),
   };
 
@@ -736,44 +748,43 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Related Metadata Scheme"
-                    :name="`relatedIdentifiers[${index}].relatedMetadataScheme`"
-                    :required="usesMetadataScheme(item.relationType)"
-                  >
-                    <UInput
-                      v-model="item.relatedMetadataScheme"
-                      class="w-full"
-                      :disabled="!usesMetadataScheme(item.relationType)"
-                      placeholder="DataCite"
-                    />
-                  </UFormField>
+                  <template v-if="usesMetadataScheme(item.relationType)">
+                    <UFormField
+                      label="Related Metadata Scheme"
+                      :name="`relatedIdentifiers[${index}].relatedMetadataScheme`"
+                      required
+                    >
+                      <UInput
+                        v-model="item.relatedMetadataScheme"
+                        class="w-full"
+                        placeholder="DataCite"
+                      />
+                    </UFormField>
 
-                  <UFormField
-                    label="Scheme Type"
-                    :name="`relatedIdentifiers[${index}].schemeType`"
-                    :required="usesMetadataScheme(item.relationType)"
-                  >
-                    <UInput
-                      v-model="item.schemeType"
-                      class="w-full"
-                      :disabled="!usesMetadataScheme(item.relationType)"
-                      placeholder="XSD"
-                    />
-                  </UFormField>
+                    <UFormField
+                      label="Scheme Type"
+                      :name="`relatedIdentifiers[${index}].schemeType`"
+                      required
+                    >
+                      <UInput
+                        v-model="item.schemeType"
+                        class="w-full"
+                        placeholder="XSD"
+                      />
+                    </UFormField>
 
-                  <UFormField
-                    label="Scheme URI"
-                    :name="`relatedIdentifiers[${index}].schemeUri`"
-                    :required="usesMetadataScheme(item.relationType)"
-                  >
-                    <UInput
-                      v-model="item.schemeUri"
-                      class="w-full"
-                      :disabled="!usesMetadataScheme(item.relationType)"
-                      placeholder="https://datacite.org/schema/datacite-metadata-v4.3.xsd"
-                    />
-                  </UFormField>
+                    <UFormField
+                      label="Scheme URI"
+                      :name="`relatedIdentifiers[${index}].schemeUri`"
+                      required
+                    >
+                      <UInput
+                        v-model="item.schemeUri"
+                        class="w-full"
+                        placeholder="https://datacite.org/schema/datacite-metadata-v4.3.xsd"
+                      />
+                    </UFormField>
+                  </template>
                 </div>
               </CardCollapsible>
             </UFormField>
@@ -833,60 +844,70 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Classification Code"
-                    :name="`subjects[${index}].classificationCode`"
-                    :required="
-                      !!item.classificationCode?.trim() || !!item.scheme?.trim()
-                    "
+                  <MetadataOptionalFields
+                    :values="[
+                      item.classificationCode,
+                      item.scheme,
+                      item.schemeUri,
+                      item.valueUri,
+                    ]"
                   >
-                    <UInput
-                      v-model="item.classificationCode"
-                      placeholder="D003924"
-                      class="w-full"
-                    />
-                  </UFormField>
-
-                  <div class="flex w-full gap-3">
                     <UFormField
-                      label="Scheme"
-                      :name="`subjects[${index}].scheme`"
-                      class="w-full"
+                      label="Classification Code"
+                      :name="`subjects[${index}].classificationCode`"
                       :required="
                         !!item.classificationCode?.trim() ||
                         !!item.scheme?.trim()
                       "
                     >
                       <UInput
-                        v-model="item.scheme"
-                        placeholder="MeSH"
+                        v-model="item.classificationCode"
+                        placeholder="D003924"
                         class="w-full"
                       />
                     </UFormField>
+
+                    <div class="flex w-full gap-3">
+                      <UFormField
+                        label="Scheme"
+                        :name="`subjects[${index}].scheme`"
+                        class="w-full"
+                        :required="
+                          !!item.classificationCode?.trim() ||
+                          !!item.scheme?.trim()
+                        "
+                      >
+                        <UInput
+                          v-model="item.scheme"
+                          placeholder="MeSH"
+                          class="w-full"
+                        />
+                      </UFormField>
+
+                      <UFormField
+                        label="Scheme URI"
+                        :name="`subjects[${index}].schemeUri`"
+                        class="w-full"
+                      >
+                        <UInput
+                          v-model="item.schemeUri"
+                          placeholder="https://meshb.nlm.nih.gov/"
+                          class="w-full"
+                        />
+                      </UFormField>
+                    </div>
 
                     <UFormField
-                      label="Scheme URI"
-                      :name="`subjects[${index}].schemeUri`"
-                      class="w-full"
+                      label="Value URI"
+                      :name="`subjects[${index}].valueUri`"
                     >
                       <UInput
-                        v-model="item.schemeUri"
-                        placeholder="https://meshb.nlm.nih.gov/"
+                        v-model="item.valueUri"
+                        placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D003924"
                         class="w-full"
                       />
                     </UFormField>
-                  </div>
-
-                  <UFormField
-                    label="Value URI"
-                    :name="`subjects[${index}].valueUri`"
-                  >
-                    <UInput
-                      v-model="item.valueUri"
-                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D003924"
-                      class="w-full"
-                    />
-                  </UFormField>
+                  </MetadataOptionalFields>
                 </div>
               </CardCollapsible>
             </UFormField>

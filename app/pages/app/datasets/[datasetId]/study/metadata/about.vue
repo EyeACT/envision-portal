@@ -707,42 +707,51 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier"
-                    :name="`keywords[${index}].classificationCode`"
+                  <MetadataOptionalFields
+                    :values="[
+                      item.classificationCode,
+                      item.scheme,
+                      item.schemeUri,
+                      item.keywordUri,
+                    ]"
                   >
-                    <UInput
-                      v-model="item.classificationCode"
-                      placeholder="D001185"
-                    />
-                  </UFormField>
+                    <UFormField
+                      label="Identifier"
+                      :name="`keywords[${index}].classificationCode`"
+                    >
+                      <UInput
+                        v-model="item.classificationCode"
+                        placeholder="D001185"
+                      />
+                    </UFormField>
 
-                  <UFormField
-                    label="Identifier Scheme"
-                    :name="`keywords[${index}].scheme`"
-                  >
-                    <UInput v-model="item.scheme" placeholder="MeSH" />
-                  </UFormField>
+                    <UFormField
+                      label="Identifier Scheme"
+                      :name="`keywords[${index}].scheme`"
+                    >
+                      <UInput v-model="item.scheme" placeholder="MeSH" />
+                    </UFormField>
 
-                  <UFormField
-                    label="Scheme URI"
-                    :name="`keywords[${index}].schemeUri`"
-                  >
-                    <UInput
-                      v-model="item.schemeUri"
-                      placeholder="https://meshb.nlm.nih.gov/"
-                    />
-                  </UFormField>
+                    <UFormField
+                      label="Scheme URI"
+                      :name="`keywords[${index}].schemeUri`"
+                    >
+                      <UInput
+                        v-model="item.schemeUri"
+                        placeholder="https://meshb.nlm.nih.gov/"
+                      />
+                    </UFormField>
 
-                  <UFormField
-                    label="Keyword URI"
-                    :name="`keywords[${index}].keywordUri`"
-                  >
-                    <UInput
-                      v-model="item.keywordUri"
-                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
-                    />
-                  </UFormField>
+                    <UFormField
+                      label="Keyword URI"
+                      :name="`keywords[${index}].keywordUri`"
+                    >
+                      <UInput
+                        v-model="item.keywordUri"
+                        placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                      />
+                    </UFormField>
+                  </MetadataOptionalFields>
                 </div>
               </CardCollapsible>
             </div>
@@ -802,42 +811,51 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UInput v-model="item.name" placeholder="Glaucoma" />
                   </UFormField>
 
-                  <UFormField
-                    label="Identifier"
-                    :name="`conditions[${index}].classificationCode`"
+                  <MetadataOptionalFields
+                    :values="[
+                      item.classificationCode,
+                      item.scheme,
+                      item.schemeUri,
+                      item.conditionUri,
+                    ]"
                   >
-                    <UInput
-                      v-model="item.classificationCode"
-                      placeholder="D005901"
-                    />
-                  </UFormField>
+                    <UFormField
+                      label="Identifier"
+                      :name="`conditions[${index}].classificationCode`"
+                    >
+                      <UInput
+                        v-model="item.classificationCode"
+                        placeholder="D005901"
+                      />
+                    </UFormField>
 
-                  <UFormField
-                    label="Identifier Scheme"
-                    :name="`conditions[${index}].scheme`"
-                  >
-                    <UInput v-model="item.scheme" placeholder="MeSH" />
-                  </UFormField>
+                    <UFormField
+                      label="Identifier Scheme"
+                      :name="`conditions[${index}].scheme`"
+                    >
+                      <UInput v-model="item.scheme" placeholder="MeSH" />
+                    </UFormField>
 
-                  <UFormField
-                    label="Scheme URI"
-                    :name="`conditions[${index}].schemeUri`"
-                  >
-                    <UInput
-                      v-model="item.schemeUri"
-                      placeholder="https://meshb.nlm.nih.gov/"
-                    />
-                  </UFormField>
+                    <UFormField
+                      label="Scheme URI"
+                      :name="`conditions[${index}].schemeUri`"
+                    >
+                      <UInput
+                        v-model="item.schemeUri"
+                        placeholder="https://meshb.nlm.nih.gov/"
+                      />
+                    </UFormField>
 
-                  <UFormField
-                    label="Condition URI"
-                    :name="`conditions[${index}].conditionUri`"
-                  >
-                    <UInput
-                      v-model="item.conditionUri"
-                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D005901"
-                    />
-                  </UFormField>
+                    <UFormField
+                      label="Condition URI"
+                      :name="`conditions[${index}].conditionUri`"
+                    >
+                      <UInput
+                        v-model="item.conditionUri"
+                        placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D005901"
+                      />
+                    </UFormField>
+                  </MetadataOptionalFields>
                 </div>
               </CardCollapsible>
             </div>
