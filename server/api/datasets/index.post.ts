@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const createDatasetSchema = z.object({
   title: z.string().min(1),
-  description: z.string(),
+  description: z.string().trim().min(1),
   imageUrl: z.string(),
   type: z.string(),
   version: z.string(),

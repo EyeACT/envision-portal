@@ -43,7 +43,7 @@ const filteredDatasets = computed(() => {
 const newDatasetForm = useTemplateRef("newDatasetForm");
 const newDatasetSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  description: z.string().trim().min(1, "Description is required"),
   imageUrl: z.string().optional(),
   type: z.string().optional(),
   version: z.string().optional(),
@@ -170,7 +170,7 @@ const dropdownItems = ref([
                   />
                 </UFormField>
 
-                <UFormField label="Description" name="description">
+                <UFormField label="Description" name="description" required>
                   <UInput
                     v-model="newDatasetState.description"
                     placeholder="A brief summary of what this dataset contains"
