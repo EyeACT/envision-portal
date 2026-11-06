@@ -186,6 +186,43 @@ const removeRow = (rows: { deleted: boolean; local: boolean }[], i: number) => {
   }
 };
 
+// Each person here has one affiliation, so only the first current one from ORCID is used.
+const applyOrcidProfile = (
+  person: Pick<
+    Schema["studyOverallOfficials"][number],
+    "affiliation" | "affiliationIdentifier" | "familyName" | "givenName"
+  >,
+  profile: OrcidProfile,
+) => {
+  person.givenName = profile.givenName || person.givenName;
+  person.familyName = profile.familyName || person.familyName;
+
+  const [current] = profile.affiliations;
+
+  if (current) {
+    person.affiliation = current.affiliation;
+    person.affiliationIdentifier = normalizeROR(current.identifier);
+  }
+};
+
+const applyOrcidProfileToResponsibleParty = (profile: OrcidProfile) => {
+  const person = {
+    affiliation: state.responsiblePartyInvestigatorAffiliationName,
+    affiliationIdentifier:
+      state.responsiblePartyInvestigatorAffiliationIdentifier,
+    familyName: state.responsiblePartyInvestigatorFamilyName,
+    givenName: state.responsiblePartyInvestigatorGivenName,
+  };
+
+  applyOrcidProfile(person, profile);
+
+  state.responsiblePartyInvestigatorAffiliationName = person.affiliation;
+  state.responsiblePartyInvestigatorAffiliationIdentifier =
+    person.affiliationIdentifier;
+  state.responsiblePartyInvestigatorFamilyName = person.familyName;
+  state.responsiblePartyInvestigatorGivenName = person.givenName;
+};
+
 const addContact = () => {
   state.studyCentralContacts.push({
     id: nanoid(),
@@ -636,6 +673,32 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               />
             </UFormField>
 
+            <UFormField
+              label="ORCID"
+              name="responsiblePartyOrcid"
+              help="Enter the ORCID iD or paste the full ORCID URL."
+              class="w-full"
+            >
+              <div class="flex items-start gap-2">
+                <UInput
+                  v-model="state.responsiblePartyInvestigatorIdentifierValue"
+                  placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
+                  class="w-full"
+                  @blur="
+                    state.responsiblePartyInvestigatorIdentifierValue =
+                      normalizeORCID(
+                        state.responsiblePartyInvestigatorIdentifierValue,
+                      )
+                  "
+                />
+
+                <MetadataOrcidLookupButton
+                  :orcid="state.responsiblePartyInvestigatorIdentifierValue"
+                  @found="applyOrcidProfileToResponsibleParty"
+                />
+              </div>
+            </UFormField>
+
             <div class="flex w-full gap-4">
               <UFormField
                 label="Given Name"
@@ -674,25 +737,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-model="state.responsiblePartyInvestigatorTitle"
                 placeholder="Professor of Chemistry"
                 class="w-full"
-              />
-            </UFormField>
-
-            <UFormField
-              label="ORCID"
-              name="responsiblePartyOrcid"
-              help="Enter the ORCID iD or paste the full ORCID URL."
-              class="w-full"
-            >
-              <UInput
-                v-model="state.responsiblePartyInvestigatorIdentifierValue"
-                placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
-                class="w-full"
-                @blur="
-                  state.responsiblePartyInvestigatorIdentifierValue =
-                    normalizeORCID(
-                      state.responsiblePartyInvestigatorIdentifierValue,
-                    )
-                "
               />
             </UFormField>
 
@@ -832,6 +876,28 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-4 p-1">
+                  <UFormField
+                    label="ORCID"
+                    :name="`contact-identifier-${index}`"
+                    help="Enter the ORCID iD or paste the full ORCID URL."
+                  >
+                    <div class="flex items-start gap-2">
+                      <UInput
+                        v-model="item.identifier"
+                        placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
+                        class="w-full"
+                        @blur="
+                          item.identifier = normalizeORCID(item.identifier)
+                        "
+                      />
+
+                      <MetadataOrcidLookupButton
+                        :orcid="item.identifier"
+                        @found="applyOrcidProfile(item, $event)"
+                      />
+                    </div>
+                  </UFormField>
+
                   <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <UFormField
                       label="Given Name"
@@ -859,19 +925,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       <UInput v-model="item.degree" placeholder="PhD, MD" />
                     </UFormField>
                   </div>
-
-                  <UFormField
-                    label="ORCID"
-                    :name="`contact-identifier-${index}`"
-                    help="Enter the ORCID iD or paste the full ORCID URL."
-                  >
-                    <UInput
-                      v-model="item.identifier"
-                      placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
-                      class="w-full"
-                      @blur="item.identifier = normalizeORCID(item.identifier)"
-                    />
-                  </UFormField>
 
                   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <UFormField
@@ -997,6 +1050,28 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-4 p-1">
+                  <UFormField
+                    label="ORCID"
+                    :name="`official-identifier-${index}`"
+                    help="Enter the ORCID iD or paste the full ORCID URL."
+                  >
+                    <div class="flex items-start gap-2">
+                      <UInput
+                        v-model="item.identifier"
+                        placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
+                        class="w-full"
+                        @blur="
+                          item.identifier = normalizeORCID(item.identifier)
+                        "
+                      />
+
+                      <MetadataOrcidLookupButton
+                        :orcid="item.identifier"
+                        @found="applyOrcidProfile(item, $event)"
+                      />
+                    </div>
+                  </UFormField>
+
                   <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <UFormField
                       label="Given Name"
@@ -1021,19 +1096,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       <UInput v-model="item.degree" placeholder="MD, PhD" />
                     </UFormField>
                   </div>
-
-                  <UFormField
-                    label="ORCID"
-                    :name="`official-identifier-${index}`"
-                    help="Enter the ORCID iD or paste the full ORCID URL."
-                  >
-                    <UInput
-                      v-model="item.identifier"
-                      placeholder="0000-0000-0000-0000 or https://orcid.org/0000-0000-0000-0000"
-                      class="w-full"
-                      @blur="item.identifier = normalizeORCID(item.identifier)"
-                    />
-                  </UFormField>
 
                   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <UFormField

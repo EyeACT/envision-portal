@@ -162,16 +162,11 @@ const updateLicense = async (value: string) => {
 
   if (license) {
     getLicenseLoading.value = true;
-    await $fetch(
-      `/api/utils/request-json?url=${encodeURIComponent(license.detailsUrl)}`,
-      {
-        method: "GET",
-      },
-    )
-      .then((res: any) => {
-        const responseData = res.data;
-
-        state.rights.licenseText = responseData.licenseText;
+    await $fetch("/api/utils/spdx-license", {
+      query: { id: license.licenseId },
+    })
+      .then((res) => {
+        state.rights.licenseText = res.licenseText;
         state.rights.rights = license.name;
         state.rights.uri = license.reference;
         state.rights.identifier = license.licenseId;

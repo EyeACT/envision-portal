@@ -119,7 +119,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     toast.add({
       title: "Error",
       color: "error",
-      description: "The form has been submitted.",
+      description: "The form could not be saved. Please try again.",
     });
   } finally {
     saveLoading.value = false;

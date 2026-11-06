@@ -228,6 +228,29 @@ const addCreator = () => {
   });
 };
 
+// Names are replaced, since the user asked for this record. Affiliations they already added are kept.
+const applyOrcidProfile = (
+  person: Schema["creators"][number],
+  profile: OrcidProfile,
+) => {
+  person.nameType = "Personal";
+  person.givenName = profile.givenName || person.givenName;
+  person.familyName = profile.familyName || person.familyName;
+
+  const existing = new Set(
+    person.affiliations.map((item) => item.affiliation.trim().toLowerCase()),
+  );
+
+  for (const { affiliation, identifier } of profile.affiliations) {
+    if (!existing.has(affiliation.trim().toLowerCase())) {
+      person.affiliations.push({
+        affiliation,
+        identifier: normalizeROR(identifier),
+      });
+    }
+  }
+};
+
 const removeCreator = (index: number) => {
   const creator = state.creators[index];
   if (!creator) return;
@@ -584,7 +607,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     toast.add({
       title: "Error",
       color: "error",
-      description: "The form has been submitted.",
+      description: "The form could not be saved. Please try again.",
     });
   } finally {
     saveLoading.value = false;
@@ -666,6 +689,33 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                 <div class="flex flex-col gap-3">
                   <UFormField
+                    :label="nameIdentifierField(item.nameType).label"
+                    :name="`creators[${index}].nameIdentifier`"
+                    :help="nameIdentifierField(item.nameType).help"
+                  >
+                    <div class="flex items-start gap-2">
+                      <UInput
+                        v-model="item.nameIdentifier"
+                        :placeholder="
+                          nameIdentifierField(item.nameType).placeholder
+                        "
+                        class="w-full"
+                        @blur="
+                          item.nameIdentifier = nameIdentifierField(
+                            item.nameType,
+                          ).normalize(item.nameIdentifier)
+                        "
+                      />
+
+                      <MetadataOrcidLookupButton
+                        v-if="item.nameType !== 'Organizational'"
+                        :orcid="item.nameIdentifier"
+                        @found="applyOrcidProfile(item, $event)"
+                      />
+                    </div>
+                  </UFormField>
+
+                  <UFormField
                     label="Name Type"
                     :name="`creators[${index}].nameType`"
                     required
@@ -705,25 +755,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       />
                     </UFormField>
                   </div>
-
-                  <UFormField
-                    :label="nameIdentifierField(item.nameType).label"
-                    :name="`creators[${index}].nameIdentifier`"
-                    :help="nameIdentifierField(item.nameType).help"
-                  >
-                    <UInput
-                      v-model="item.nameIdentifier"
-                      :placeholder="
-                        nameIdentifierField(item.nameType).placeholder
-                      "
-                      class="w-full"
-                      @blur="
-                        item.nameIdentifier = nameIdentifierField(
-                          item.nameType,
-                        ).normalize(item.nameIdentifier)
-                      "
-                    />
-                  </UFormField>
 
                   <UFormField label="Affiliations" name="affiliations">
                     <div
@@ -841,6 +872,33 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                 <div class="flex flex-col gap-3">
                   <UFormField
+                    :label="nameIdentifierField(item.nameType).label"
+                    :name="`contributors[${index}].nameIdentifier`"
+                    :help="nameIdentifierField(item.nameType).help"
+                  >
+                    <div class="flex items-start gap-2">
+                      <UInput
+                        v-model="item.nameIdentifier"
+                        :placeholder="
+                          nameIdentifierField(item.nameType).placeholder
+                        "
+                        class="w-full"
+                        @blur="
+                          item.nameIdentifier = nameIdentifierField(
+                            item.nameType,
+                          ).normalize(item.nameIdentifier)
+                        "
+                      />
+
+                      <MetadataOrcidLookupButton
+                        v-if="item.nameType !== 'Organizational'"
+                        :orcid="item.nameIdentifier"
+                        @found="applyOrcidProfile(item, $event)"
+                      />
+                    </div>
+                  </UFormField>
+
+                  <UFormField
                     label="Contributor Type"
                     :name="`contributors[${index}].contributorType`"
                     required
@@ -893,25 +951,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       />
                     </UFormField>
                   </div>
-
-                  <UFormField
-                    :label="nameIdentifierField(item.nameType).label"
-                    :name="`contributors[${index}].nameIdentifier`"
-                    :help="nameIdentifierField(item.nameType).help"
-                  >
-                    <UInput
-                      v-model="item.nameIdentifier"
-                      :placeholder="
-                        nameIdentifierField(item.nameType).placeholder
-                      "
-                      class="w-full"
-                      @blur="
-                        item.nameIdentifier = nameIdentifierField(
-                          item.nameType,
-                        ).normalize(item.nameIdentifier)
-                      "
-                    />
-                  </UFormField>
 
                   <UFormField label="Affiliations" name="affiliations">
                     <div
