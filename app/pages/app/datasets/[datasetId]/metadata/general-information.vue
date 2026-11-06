@@ -520,38 +520,37 @@ const onApplyExtracted = (_values: ExtractedValues) => {
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Resource Type
+                About
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                A single term describing the domain or content of the dataset.
-                For example, a name of `Diabetes` yields `Diabetes dataset`.
+                Additional information about this dataset
               </p>
             </div>
 
-            <UFormField label="Name" name="resourceTypeName" required>
+            <UFormField
+              label="A single term describing the domain or content of the dataset."
+              name="resourceTypeName"
+              required
+            >
               <UInput
                 v-model="state.resourceTypeName"
                 class="w-full"
                 placeholder="Clinical Trial Data"
               />
-            </UFormField>
-          </div>
-        </div>
-
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
-          <div class="flex w-full flex-col gap-4">
-            <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Language
-              </h2>
-              <p class="text-gray-500 dark:text-gray-400">
-                The primary language of the dataset.
+              <p
+                v-if="state.resourceTypeName"
+                class="p-1 text-sm text-slate-500"
+              >
+                Researchers will see this term as `{{ state.resourceTypeName }}
+                dataset` when this dataset is published.
               </p>
-            </div>
+            </UFormField>
 
-            <UFormField label="What is the language?" name="language" required>
+            <UFormField
+              label="What is the primary language of the dataset?"
+              name="language"
+              required
+            >
               <USelect
                 v-model="state.language"
                 class="w-full"
