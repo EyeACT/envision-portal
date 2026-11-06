@@ -163,7 +163,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Explain how the data in this dataset was gathered.
           </p>
         </div>
 
@@ -176,7 +176,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Collection
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide motivation information for this dataset.
+                Describe how the data was acquired, the procedures used, any
+                sampling strategy, and who was involved.
               </p>
             </div>
 

@@ -438,7 +438,7 @@ const copyInviteLink = async (row: PermissionRow) => {
             <label>Email address</label>
             <UInput
               v-model="currentEmail"
-              placeholder="Ex. sue@gmail.com"
+              placeholder="sue@example.com"
               class="w-full sm:w-64"
             />
           </div>

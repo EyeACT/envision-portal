@@ -258,7 +258,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </h1>
         </div>
         <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
+          List the treatments and other interventions evaluated in this study.
         </p>
       </div>
 
@@ -278,9 +278,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Study Interventions Listing
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Register and define precise tracking metrics for procedural
-                methods, therapeutic plans, or medicinal steps executed in this
-                protocol.
+                Add each drug, device, procedure, or other intervention
+                evaluated in the study.
               </p>
             </div>
 
@@ -307,7 +306,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField label="Type" :name="`type-${index}`" required>
                     <USelect
                       v-model="item.type as string"
-                      placeholder="Select intervention format"
+                      placeholder="Drug"
                       :items="FORM_JSON.studyMetadataInterventionsTypeOptions"
                       class="w-full"
                     />
@@ -327,7 +326,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UTextarea
                       v-model="item.description"
-                      placeholder="Specify clear and descriptive structural administration guidelines or details regarding this item layer"
+                      placeholder="One 500 mg tablet taken by mouth twice daily for 12 weeks."
                       class="w-full"
                     />
                   </UFormField>
@@ -345,7 +344,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         <UInput
                           v-model="item.otherNameList[innerIndex]"
                           class="w-full"
-                          placeholder="Provide optional brand reference name or alias"
+                          placeholder="Tylenol, Paracetamol"
                         />
 
                         <UButton

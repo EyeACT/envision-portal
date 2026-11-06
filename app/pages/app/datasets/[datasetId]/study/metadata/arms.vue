@@ -244,7 +244,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Arms</h1>
         </div>
         <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
+          Define the groups of participants in this study.
         </p>
       </div>
 
@@ -281,8 +281,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Study Arms Configuration
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Create and manage structural cohort allocations, groups, or
-                comparison vectors participating in this setup.
+                Add each group of participants in the study and the
+                interventions they receive.
               </p>
             </div>
 
@@ -320,7 +320,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UTextarea
                       v-model="item.description"
-                      placeholder="Enter a descriptive detail outlining what distinguishes this research path alignment group"
+                      placeholder="Participants take one 500 mg tablet of acetaminophen twice daily for 12 weeks."
                       class="w-full"
                     />
                   </UFormField>
@@ -328,7 +328,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField label="Type" :name="`type-${index}`">
                     <USelect
                       v-model="item.type as string"
-                      placeholder="Select arm baseline type"
+                      placeholder="Experimental"
                       :items="FORM_JSON.studyMetadataArmsTypeOptions"
                       class="w-full"
                     />
@@ -346,7 +346,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         <UInput
                           v-model="item.interventionList[innerIndex]"
                           class="w-full"
-                          placeholder="Provide descriptive active intervention label"
+                          placeholder="Acetaminophen"
                         />
 
                         <UButton

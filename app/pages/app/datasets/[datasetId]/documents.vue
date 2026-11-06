@@ -478,7 +478,7 @@ const onDelete = async () => {
           <UFormField label="Document name" :ui="{ label: 'dark:text-white' }">
             <UInput
               v-model="uploadName"
-              placeholder="e.g. BRIGHT-MOP-v2.pdf"
+              placeholder="BRIGHT-MOP-v2.pdf"
               :disabled="!uploadFile"
               class="w-full"
             />

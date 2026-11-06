@@ -340,7 +340,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the study is displayed here.
+            Identify the people and organizations responsible for this study.
           </p>
         </div>
 
@@ -387,7 +387,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorGivenName"
-                  placeholder="Annie"
+                  placeholder="Carolyn"
                   class="w-full"
                 />
               </UFormField>
@@ -404,7 +404,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorFamilyName"
-                  placeholder="Leonhart"
+                  placeholder="Bertozzi"
                   class="w-full"
                 />
               </UFormField>
@@ -422,7 +422,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             >
               <UInput
                 v-model="state.responsiblePartyInvestigatorTitle"
-                placeholder="Warrior Candidate"
+                placeholder="Professor of Chemistry"
                 class="w-full"
               />
             </UFormField>
@@ -459,7 +459,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               >
                 <UInput
                   v-model="state.responsiblePartyInvestigatorAffiliationName"
-                  placeholder="Marleyan Military"
+                  placeholder="Stanford University"
                   class="w-full"
                 />
               </UFormField>
@@ -513,7 +513,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </template>
               <UInput
                 v-model="state.leadSponsorName"
-                placeholder="Willy Tybur"
+                placeholder="National Institutes of Health"
                 class="w-full"
               />
             </UFormField>
@@ -574,7 +574,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   <UFormField :name="`name-${index}`" label="Name" required>
                     <UInput
                       v-model="item.name"
-                      placeholder="Collaborator Name"
+                      placeholder="Stanford University"
                       class="w-full"
                     />
                   </UFormField>

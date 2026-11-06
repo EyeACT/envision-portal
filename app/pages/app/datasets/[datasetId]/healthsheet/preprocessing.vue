@@ -162,7 +162,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Explain how the data was prepared before being shared.
           </p>
         </div>
 
@@ -175,7 +175,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Preprocessing
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide motivation information for this dataset.
+                Describe any cleaning or labeling performed, whether the raw
+                data was kept, and the software used.
               </p>
             </div>
 

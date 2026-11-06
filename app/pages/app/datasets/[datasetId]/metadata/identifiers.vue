@@ -282,7 +282,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <p class="text-gray-500 dark:text-gray-400">
-              Some basic information about the dataset is displayed here.
+              Manage the identifiers used to find and cite this dataset.
             </p>
           </div>
 

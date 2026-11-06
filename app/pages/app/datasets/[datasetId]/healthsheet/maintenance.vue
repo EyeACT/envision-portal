@@ -162,7 +162,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Explain how this dataset is supported over time.
           </p>
         </div>
 
@@ -175,7 +175,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Maintenance
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide motivation information for this dataset.
+                Describe who maintains the dataset, how to contact them, and how
+                it will be updated.
               </p>
             </div>
 

@@ -327,7 +327,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Describe the consent terms, de-identification level, and subjects of
+            this dataset.
           </p>
         </div>
 
@@ -340,7 +341,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Consent
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide consent information for this dataset.
+                Describe the consent participants gave and any limits it places
+                on data use.
               </p>
             </div>
 
@@ -407,7 +409,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UFormField label="Details" name="consent.details">
                 <UTextarea
                   v-model="state.consent.details"
-                  placeholder="Provide further details about the consent details"
+                  placeholder="Data use is limited to diabetes-related research and excludes commercial use."
                   class="w-full"
                 />
               </UFormField>
@@ -424,7 +426,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 De-identification Level
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please specify the de-identification level for this dataset.
+                Describe how identifying information was removed from this
+                dataset.
               </p>
             </div>
 
@@ -482,7 +485,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UFormField label="Details" name="deidentLevel.details">
                 <UTextarea
                   v-model="state.deidentLevel.details"
-                  placeholder="Enter de-identification details"
+                  placeholder="Names and medical record numbers were removed, and dates were shifted by a random offset for each participant."
                   class="w-full"
                 />
               </UFormField>
@@ -530,7 +533,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.subject"
-                      placeholder="Enter subject"
+                      placeholder="Diabetes Mellitus, Type 2"
                       class="w-full"
                     />
                   </UFormField>
@@ -544,7 +547,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.classificationCode"
-                      placeholder="Enter classification code"
+                      placeholder="D003924"
                       class="w-full"
                     />
                   </UFormField>
@@ -561,7 +564,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.scheme"
-                        placeholder="Enter scheme"
+                        placeholder="MeSH"
                         class="w-full"
                       />
                     </UFormField>
@@ -573,7 +576,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.schemeUri"
-                        placeholder="Enter scheme URI"
+                        placeholder="https://meshb.nlm.nih.gov/"
                         class="w-full"
                       />
                     </UFormField>
@@ -585,7 +588,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.valueUri"
-                      placeholder="Enter value URI"
+                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D003924"
                       class="w-full"
                     />
                   </UFormField>

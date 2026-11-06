@@ -143,20 +143,27 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         >
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <UFormField label="Given Name" name="givenName">
-              <UInput v-model="state.givenName" />
+              <UInput v-model="state.givenName" placeholder="Andrea" />
             </UFormField>
 
             <UFormField label="Family Name" name="familyName">
-              <UInput v-model="state.familyName" />
+              <UInput v-model="state.familyName" placeholder="Ghez" />
             </UFormField>
           </div>
 
           <UFormField label="Affiliation" name="affiliation">
-            <UInput v-model="state.affiliation" />
+            <UInput
+              v-model="state.affiliation"
+              placeholder="University of California, Los Angeles"
+            />
           </UFormField>
 
           <UFormField label="Email" name="email">
-            <UInput v-model="state.email" :disabled="loggedIn" />
+            <UInput
+              v-model="state.email"
+              placeholder="jane.doe@example.com"
+              :disabled="loggedIn"
+            />
           </UFormField>
 
           <UFormField label="Reason for Access" name="reasonForAccess">

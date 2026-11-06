@@ -106,7 +106,10 @@ const timelineItems = ref<TimelineItem[]>([
             />
           </div>
           <div class="flex flex-col">
-            <h3 class="mb-2 text-lg font-medium">Primary Identifier</h3>
+            <h3 class="text-lg font-medium">Primary Identifier</h3>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              The main identifier used to cite this dataset.
+            </p>
 
             <UAlert
               title="A primary identifier is generated after your dataset is published."
@@ -115,6 +118,9 @@ const timelineItems = ref<TimelineItem[]>([
             />
 
             <h3 class="mt-8 text-lg font-medium">Alternate Identifiers</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Other identifiers associated with this dataset.
+            </p>
 
             <UTable
               :data="data?.DatasetAlternateIdentifier"

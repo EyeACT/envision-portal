@@ -288,7 +288,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </h1>
         </div>
         <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
+          List the sites where this study takes place.
         </p>
       </div>
 
@@ -308,9 +308,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Facility Study Locations
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Register active medical institutions, clinical trial sites,
-                regional laboratories, or physical facilities executing parts of
-                this testing setup.
+                Add each site where the study is conducted, along with its
+                recruitment status.
               </p>
             </div>
 
@@ -354,7 +353,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       <USelect
                         v-model="item.status"
                         class="w-full"
-                        placeholder="Select operations threshold"
+                        placeholder="Recruiting"
                         :items="FORM_JSON.studyMetadataStatusOptions"
                       />
                     </UFormField>

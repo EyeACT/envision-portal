@@ -159,7 +159,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Explain how this dataset has been used and how it could be used.
           </p>
         </div>
 
@@ -172,7 +172,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Uses
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide motivation information for this dataset.
+                Describe past and potential uses, along with any limitations
+                future users should consider.
               </p>
             </div>
 

@@ -281,9 +281,14 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
       <div
         class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
-        <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-          Request details
-        </h2>
+        <div class="flex w-full flex-col">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+            Request details
+          </h2>
+          <p class="text-gray-500 dark:text-gray-400">
+            Information provided by the person requesting access.
+          </p>
+        </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
           <DataDisplay title="Email" :content="data.emailAddress" />
@@ -484,7 +489,16 @@ const uploadAgreement = async (kind: "unsigned" | "final") => {
             "
             description="Shown to the requester on their request page."
           >
-            <UTextarea v-model="actionComment" class="w-full" :rows="4" />
+            <UTextarea
+              v-model="actionComment"
+              class="w-full"
+              :rows="4"
+              :placeholder="
+                pendingAction === 'approve'
+                  ? 'Add any notes or instructions for the requester'
+                  : 'Explain the reason for this decision'
+              "
+            />
           </UFormField>
 
           <div class="flex justify-end gap-3">

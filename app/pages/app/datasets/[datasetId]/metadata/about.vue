@@ -205,7 +205,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Please provide some basic information about the dataset.
+            Describe the type, language, size, and format of the dataset.
           </p>
         </div>
 
@@ -230,7 +230,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 <UInput
                   v-model="state.resourceTypeName"
                   class="w-full"
-                  placeholder="Enter resource type name"
+                  placeholder="Clinical Trial Data"
                 />
               </UFormField>
 
@@ -401,7 +401,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 <UTextarea
                   v-model="state.standardsFollowed"
                   class="w-full"
-                  placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos."
+                  placeholder="Data files follow the CMDS folder structure, and clinical data use the OMOP Common Data Model v5.4."
                 />
               </UFormField>
             </div>
@@ -428,7 +428,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 <UTextarea
                   v-model="state.acknowledgement"
                   class="w-full"
-                  placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos."
+                  placeholder="Doe, J., &amp; Smith, J. (2026). Retinal imaging in type 2 diabetes [Data set]. University of Example."
                 />
               </UFormField>
             </div>

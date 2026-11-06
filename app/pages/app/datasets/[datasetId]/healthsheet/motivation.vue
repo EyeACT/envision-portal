@@ -162,7 +162,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Explain why this dataset was created and who made it possible.
           </p>
         </div>
 
@@ -175,7 +175,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Motivation
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide motivation information for this dataset.
+                Describe the purpose of the dataset, who created it, and the
+                support it required.
               </p>
             </div>
 

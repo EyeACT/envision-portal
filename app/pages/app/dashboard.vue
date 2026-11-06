@@ -163,25 +163,45 @@ const dropdownItems = ref([
                 @submit="onSubmit"
               >
                 <UFormField label="Title" name="title">
-                  <UInput v-model="newDatasetState.title" type="text" />
+                  <UInput
+                    v-model="newDatasetState.title"
+                    placeholder="Retinal Imaging in Type 2 Diabetes"
+                    type="text"
+                  />
                 </UFormField>
 
                 <UFormField label="Description" name="description">
-                  <UInput v-model="newDatasetState.description" type="text" />
+                  <UInput
+                    v-model="newDatasetState.description"
+                    placeholder="A brief summary of what this dataset contains"
+                    type="text"
+                  />
                 </UFormField>
 
                 <UFormField label="Type" name="type">
-                  <UInput v-model="newDatasetState.type" type="text" />
+                  <UInput
+                    v-model="newDatasetState.type"
+                    placeholder="Clinical study"
+                    type="text"
+                  />
                 </UFormField>
 
                 <UFormField label="Version" name="version">
-                  <UInput v-model="newDatasetState.version" type="text" />
+                  <UInput
+                    v-model="newDatasetState.version"
+                    placeholder="1.0"
+                    type="text"
+                  />
                 </UFormField>
 
                 <!-- New Banner Image Field -->
                 <UFormField label="Banner Image URL" name="imageUrl">
                   <!-- Accepts only JPEG and PNG -->
-                  <UInput v-model="newDatasetState.imageUrl" type="href" />
+                  <UInput
+                    v-model="newDatasetState.imageUrl"
+                    placeholder="https://example.com/banner.png"
+                    type="href"
+                  />
                 </UFormField>
               </UForm>
             </div>
@@ -269,7 +289,11 @@ const dropdownItems = ref([
                         name="version"
                         description="The version number of the new dataset"
                       >
-                        <UInput v-model="newDatasetState.version" type="text" />
+                        <UInput
+                          v-model="newDatasetState.version"
+                          placeholder="1.0"
+                          type="text"
+                        />
                       </UFormField>
 
                       <UButton

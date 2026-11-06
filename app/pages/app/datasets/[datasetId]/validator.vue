@@ -379,9 +379,14 @@ const onFolderSelected = async (event: Event) => {
           <div
             class="flex w-full flex-col gap-5 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
           >
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-              Dataset summary
-            </h2>
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Dataset summary
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                An overview of what was found in the selected folder.
+              </p>
+            </div>
 
             <div>
               <p class="mb-1 text-sm text-gray-500">Datatypes</p>
@@ -444,9 +449,14 @@ const onFolderSelected = async (event: Event) => {
             class="flex w-full flex-col gap-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
           >
             <div class="flex flex-wrap items-center justify-between gap-3">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Issues
-              </h2>
+              <div class="flex w-full flex-col">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                  Issues
+                </h2>
+                <p class="text-gray-500 dark:text-gray-400">
+                  Problems found while validating the selected folder.
+                </p>
+              </div>
 
               <div class="flex gap-2">
                 <UButton

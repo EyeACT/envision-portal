@@ -163,7 +163,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Explain how this dataset is shared with others.
           </p>
         </div>
 
@@ -176,7 +176,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Distribution
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide motivation information for this dataset.
+                Describe who can receive the dataset, how and when it is
+                distributed, and the license it uses.
               </p>
             </div>
 

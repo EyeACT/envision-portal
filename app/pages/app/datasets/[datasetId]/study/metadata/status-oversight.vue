@@ -310,7 +310,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the study is displayed here.
+            Report the current status of this study and its regulatory
+            oversight.
           </p>
         </div>
 
@@ -323,8 +324,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Status
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please review and modify the execution parameters and structural
-                updates of the clinical trial.
+                Provide the current status of the study and its start and
+                completion dates.
               </p>
             </div>
 
@@ -355,6 +356,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               >
                 <USelect
                   v-model="state.startDateType"
+                  placeholder="Select date type"
                   class="w-full"
                   :items="FORM_JSON.studyMetadataEnrollmentTypeOptions"
                 />
@@ -383,6 +385,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               >
                 <USelect
                   v-model="state.completionDateType"
+                  placeholder="Select date type"
                   class="w-full"
                   :items="FORM_JSON.studyMetadataEnrollmentTypeOptions"
                 />
@@ -402,7 +405,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UTextarea
                 v-model="state.whyStopped"
                 class="w-full"
-                placeholder="Enter a reason for stopping the study."
+                placeholder="Enrollment stopped early due to a lack of funding."
               />
             </UFormField>
           </div>
@@ -417,7 +420,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Oversight
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please provide the review and regulatory information for the
+                Provide the ethics review status and regulatory details for the
                 study.
               </p>
             </div>

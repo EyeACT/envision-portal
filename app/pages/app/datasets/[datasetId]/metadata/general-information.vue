@@ -418,7 +418,7 @@ const onApplyExtracted = (_values: ExtractedValues) => {
             />
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Add the titles, descriptions, and dates that identify this dataset.
           </p>
         </div>
 
@@ -431,7 +431,8 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                 Titles
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some titles that describe the dataset.
+                Add the titles of this dataset, including any alternative or
+                translated titles.
               </p>
             </div>
             <UFormField name="titles">
@@ -461,7 +462,7 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                   <UFormField :name="`title-${index}`" label="Name" required>
                     <UInput
                       v-model="item.title"
-                      placeholder="Artificial Intelligence"
+                      placeholder="Retinal Imaging in Type 2 Diabetes"
                     />
                   </UFormField>
 
@@ -474,7 +475,7 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                     <USelect
                       v-model="item.type"
                       class="w-full"
-                      placeholder="Alternative title"
+                      placeholder="Alternative Title"
                       :items="FORM_JSON.datasetTitleTypeOptions"
                     />
                   </UFormField>
@@ -500,7 +501,8 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                 Descriptions
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some descriptions that describe the dataset.
+                Add descriptions of this dataset, such as an abstract or a
+                summary of methods.
               </p>
             </div>
             <UFormField name="descriptions">
@@ -530,7 +532,7 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                   >
                     <UTextarea
                       v-model="item.description"
-                      placeholder="Artifical Intelligence"
+                      placeholder="This dataset contains retinal images and clinical measurements collected from adults with type 2 diabetes."
                       class="w-full"
                     />
                   </UFormField>
@@ -607,14 +609,14 @@ const onApplyExtracted = (_values: ExtractedValues) => {
                     <USelect
                       v-model="item.type"
                       class="w-full"
-                      placeholder="Date"
+                      placeholder="Collected"
                       :items="FORM_JSON.datasetDateTypeOptions"
                     />
                   </UFormField>
                   <UFormField label="Information" name="information">
                     <UTextarea
                       v-model="item.information"
-                      placeholder="Details..."
+                      placeholder="Date the first participant's data was collected"
                       class="w-full"
                     />
                   </UFormField>

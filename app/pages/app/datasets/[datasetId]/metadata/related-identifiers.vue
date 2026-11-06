@@ -307,7 +307,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Link this dataset to related publications, datasets, and other
+            resources.
           </p>
         </div>
 
@@ -320,7 +321,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Related Identifiers
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add some related identifiers that describe the dataset.
+                Add identifiers for publications, datasets, and other resources
+                related to this dataset.
               </p>
             </div>
 
@@ -431,7 +433,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         item.relationType !== 'IsMetadataFor' &&
                         item.relationType !== 'HasMetadata'
                       "
-                      placeholder="DataCite"
+                      placeholder="XSD"
                     />
                   </UFormField>
 

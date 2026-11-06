@@ -186,7 +186,10 @@ const formatDate = (dateString: string | undefined) => {
               </h1>
 
               <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">
-                {{ data?.PublishedDataset.description || "No description available" }}
+                {{
+                  data?.PublishedDataset.description ||
+                  "No description available"
+                }}
               </p>
             </div>
 
@@ -222,9 +225,12 @@ const formatDate = (dateString: string | undefined) => {
 
       <!-- Request Details Section -->
       <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-gray-900">
-        <h2 class="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
           Request Details
         </h2>
+        <p class="mb-6 text-gray-500 dark:text-gray-400">
+          Your information and the current status of this request.
+        </p>
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <!-- Requester Information -->
@@ -341,9 +347,12 @@ const formatDate = (dateString: string | undefined) => {
 
       <!-- Dataset Information Section -->
       <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-gray-900">
-        <h2 class="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
           Dataset Information
         </h2>
+        <p class="mb-6 text-gray-500 dark:text-gray-400">
+          Details about the dataset you requested.
+        </p>
 
         <div class="flex flex-col gap-2">
           <div class="flex justify-between">
@@ -389,8 +398,8 @@ const formatDate = (dateString: string | undefined) => {
 
         <p class="mb-6 text-gray-600 dark:text-gray-400">
           The dataset team needs a signed data use agreement before they can
-          approve your request. Download it, sign it, and upload the signed
-          copy below.
+          approve your request. Download it, sign it, and upload the signed copy
+          below.
         </p>
 
         <ol class="flex flex-col gap-5">
@@ -479,9 +488,12 @@ const formatDate = (dateString: string | undefined) => {
         v-if="data?.status === 'approved'"
         class="rounded-xl bg-white p-8 shadow-sm dark:bg-gray-900"
       >
-        <h2 class="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
           Access Instructions
         </h2>
+        <p class="mb-6 text-gray-500 dark:text-gray-400">
+          Follow these steps to connect to the dataset files.
+        </p>
 
         <div class="space-y-6">
           <!-- Download Storage Explorer -->
@@ -553,8 +565,7 @@ const formatDate = (dateString: string | undefined) => {
             >
               <pre
                 class="flex-1 overflow-x-auto rounded font-mono text-sm break-all text-gray-900 dark:text-white"
-                >{{ sasUrl }}</pre
-              >
+                >{{ sasUrl }}</pre>
 
               <UButton
                 icon="i-mdi-content-copy"
@@ -568,9 +579,7 @@ const formatDate = (dateString: string | undefined) => {
             <div class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
               <p>This URL will expire on {{ formatDate(expiration) }}.</p>
 
-              <p>
-                Reload this page to get a fresh link after it expires.
-              </p>
+              <p>Reload this page to get a fresh link after it expires.</p>
             </div>
           </div>
         </div>

@@ -627,7 +627,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the dataset is displayed here.
+            Credit the people and organizations behind this dataset.
           </p>
         </div>
 
@@ -640,7 +640,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Creators
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add the creators of this dataset.
+                Add the main people or organizations who produced this dataset.
               </p>
             </div>
 
@@ -690,7 +690,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.givenName"
-                        placeholder="John"
+                        placeholder="David"
                         class="w-full"
                       />
                     </UFormField>
@@ -703,7 +703,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.familyName"
-                        placeholder="Doe"
+                        placeholder="Baker"
                         class="w-full"
                       />
                     </UFormField>
@@ -743,7 +743,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         <UInput
                           v-model="affiliation.affiliation"
                           class="w-full"
-                          placeholder="University of Example"
+                          placeholder="University of Washington"
                         />
                       </UFormField>
 
@@ -814,7 +814,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Contributors
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add the contributors to this dataset.
+                Add anyone else who helped collect, manage, or curate this
+                dataset.
               </p>
             </div>
 
@@ -877,7 +878,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.givenName"
-                        placeholder="John"
+                        placeholder="Fei-Fei"
                         class="w-full"
                       />
                     </UFormField>
@@ -890,7 +891,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.familyName"
-                        placeholder="Doe"
+                        placeholder="Li"
                         class="w-full"
                       />
                     </UFormField>
@@ -930,7 +931,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         <UInput
                           v-model="affiliation.affiliation"
                           class="w-full"
-                          placeholder="University of Example"
+                          placeholder="Stanford University"
                         />
                       </UFormField>
 
@@ -1001,7 +1002,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Funders
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add the funders of this dataset.
+                Add the organizations that funded this dataset and any related
+                awards.
               </p>
             </div>
 
@@ -1105,14 +1107,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Managing Organization
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Please add the managing organization of this dataset.
+                Add the organization responsible for managing this dataset.
               </p>
             </div>
 
             <UFormField label="Name" name="managingOrganization.name" required>
               <UInput
                 v-model="state.managingOrganization.name"
-                placeholder="University of Example"
+                placeholder="University of Washington"
                 class="w-full"
               />
             </UFormField>

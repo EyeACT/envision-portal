@@ -133,20 +133,29 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         @submit="onSubmit"
       >
         <UFormField label="Given or First Name" name="givenName">
-          <UInput v-model="state.givenName" type="text" />
+          <UInput
+            v-model="state.givenName"
+            placeholder="Jennifer"
+            type="text"
+          />
         </UFormField>
 
         <UFormField label="Family or Last Name" name="familyName">
-          <UInput v-model="state.familyName" type="text" />
+          <UInput v-model="state.familyName" placeholder="Doudna" type="text" />
         </UFormField>
 
         <UFormField label="Email Address" name="emailAddress">
-          <UInput v-model="state.emailAddress" type="email" />
+          <UInput
+            v-model="state.emailAddress"
+            placeholder="jane.doe@example.com"
+            type="email"
+          />
         </UFormField>
 
         <UFormField label="Password" name="password">
           <UInput
             v-model="state.password"
+            placeholder="At least 8 characters"
             :type="showPassword ? 'text' : 'password'"
           >
             <template #trailing>

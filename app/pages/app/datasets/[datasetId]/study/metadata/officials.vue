@@ -294,7 +294,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </h1>
         </div>
         <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
+          List the people responsible for the scientific leadership of this
+          study.
         </p>
       </div>
 
@@ -314,9 +315,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Study Governance Officials & Directors
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Register oversight personnel, scientific leaders, principal
-                investigators, and authorization leads tied to managing
-                execution milestones.
+                Add the principal investigators and other people who oversee the
+                study.
               </p>
             </div>
 
@@ -350,7 +350,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       :name="`givenName-${index}`"
                       required
                     >
-                      <UInput v-model="item.givenName" placeholder="James" />
+                      <UInput v-model="item.givenName" placeholder="Emery" />
                     </UFormField>
 
                     <UFormField
@@ -358,14 +358,11 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       :name="`familyName-${index}`"
                       required
                     >
-                      <UInput v-model="item.familyName" placeholder="Smith" />
+                      <UInput v-model="item.familyName" placeholder="Brown" />
                     </UFormField>
 
                     <UFormField label="Degree" :name="`degree-${index}`">
-                      <UInput
-                        v-model="item.degree"
-                        placeholder="PhD, MD, ScD"
-                      />
+                      <UInput v-model="item.degree" placeholder="MD, PhD" />
                     </UFormField>
                   </div>
 
@@ -391,7 +388,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.affiliation"
-                        placeholder="University of California, San Francisco"
+                        placeholder="Massachusetts Institute of Technology"
                         class="w-full"
                       />
                     </UFormField>
@@ -423,7 +420,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <USelect
                       v-model="item.role"
                       class="w-full"
-                      placeholder="Select authority designation"
+                      placeholder="Study Principal Investigator"
                       :items="
                         FORM_JSON.studyMetadataContactsOverallOfficialRole
                       "

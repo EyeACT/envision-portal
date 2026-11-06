@@ -178,16 +178,28 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           >
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
               <UFormField label="Given Name" name="givenName" required>
-                <UInput v-model="state.givenName" class="w-full" />
+                <UInput
+                  v-model="state.givenName"
+                  placeholder="Frances"
+                  class="w-full"
+                />
               </UFormField>
 
               <UFormField label="Family Name" name="familyName" required>
-                <UInput v-model="state.familyName" class="w-full" />
+                <UInput
+                  v-model="state.familyName"
+                  placeholder="Arnold"
+                  class="w-full"
+                />
               </UFormField>
             </div>
 
             <UFormField label="Affiliation" name="affiliation" required>
-              <UInput v-model="state.affiliation" class="w-full" />
+              <UInput
+                v-model="state.affiliation"
+                placeholder="California Institute of Technology"
+                class="w-full"
+              />
             </UFormField>
 
             <UFormField
@@ -241,7 +253,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <div v-if="myRequests?.length" class="flex flex-col gap-3">
           <USeparator class="my-3" />
 
-          <h2 class="text-lg font-medium">Your requests for this dataset</h2>
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-medium">Your requests for this dataset</h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              Track the status of requests you have already submitted.
+            </p>
+          </div>
 
           <NuxtLink
             v-for="request in myRequests"

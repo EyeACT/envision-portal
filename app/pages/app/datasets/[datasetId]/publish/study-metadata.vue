@@ -106,7 +106,10 @@ const timelineItems = ref<TimelineItem[]>([
             />
           </div>
           <div class="flex flex-col">
-            <h3 class="mb-2 text-lg font-medium">Primary Identifier</h3>
+            <h3 class="text-lg font-medium">Primary Identifier</h3>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              The main identifier registered for this study.
+            </p>
 
             <table class="table-auto">
               <tbody>
@@ -139,6 +142,9 @@ const timelineItems = ref<TimelineItem[]>([
             </table>
 
             <h3 class="mt-8 text-lg font-medium">Secondary Identifiers</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Other identifiers associated with this study.
+            </p>
 
             <UTable
               :data="data?.secondaryIdentifiers"
@@ -229,7 +235,10 @@ const timelineItems = ref<TimelineItem[]>([
             />
           </div>
           <div class="flex flex-col">
-            <h3 class="mb-2 text-lg font-medium">Responsible Party</h3>
+            <h3 class="text-lg font-medium">Responsible Party</h3>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              The person or organization responsible for this study.
+            </p>
 
             <table class="table-auto">
               <tbody>
@@ -277,7 +286,10 @@ const timelineItems = ref<TimelineItem[]>([
               </tbody>
             </table>
 
-            <h3 class="mt-8 mb-2 text-lg font-medium">Lead Sponsor</h3>
+            <h3 class="mt-8 text-lg font-medium">Lead Sponsor</h3>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              The primary organization overseeing this study.
+            </p>
 
             <table class="table-auto">
               <tbody>

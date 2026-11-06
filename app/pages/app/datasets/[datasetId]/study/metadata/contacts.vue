@@ -305,7 +305,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </h1>
         </div>
         <p class="text-gray-500 dark:text-gray-400">
-          Some basic information about the study is displayed here.
+          List the people to contact with questions about this study.
         </p>
       </div>
 
@@ -359,7 +359,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       :name="`givenName-${index}`"
                       required
                     >
-                      <UInput v-model="item.givenName" placeholder="James" />
+                      <UInput v-model="item.givenName" placeholder="Drew" />
                     </UFormField>
 
                     <UFormField
@@ -367,7 +367,10 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       :name="`familyName-${index}`"
                       required
                     >
-                      <UInput v-model="item.familyName" placeholder="Smith" />
+                      <UInput
+                        v-model="item.familyName"
+                        placeholder="Weissman"
+                      />
                     </UFormField>
 
                     <UFormField label="Degree" :name="`degree-${index}`">
@@ -397,7 +400,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     >
                       <UInput
                         v-model="item.affiliation"
-                        placeholder="University of California, San Francisco"
+                        placeholder="University of Pennsylvania"
                         class="w-full"
                       />
                     </UFormField>

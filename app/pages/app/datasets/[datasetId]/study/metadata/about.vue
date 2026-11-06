@@ -625,7 +625,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Some basic information about the study is displayed here.
+            Summarize the study and add its keywords, conditions, and
+            identifiers.
           </p>
         </div>
 
@@ -633,9 +634,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-              Description
-            </h2>
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Description
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Summarize the purpose of the study for both general and
+                technical readers.
+              </p>
+            </div>
 
             <UFormField label="Brief Summary" name="briefSummary" required>
               <UTextarea
@@ -801,7 +808,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.classificationCode"
-                      placeholder="D001185"
+                      placeholder="D005901"
                     />
                   </UFormField>
 
@@ -828,7 +835,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.conditionUri"
-                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D005901"
                     />
                   </UFormField>
                 </div>
@@ -859,9 +866,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-              Primary Identifier
-            </h2>
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Primary Identifier
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                The main identifier for this study, such as its
+                ClinicalTrials.gov number.
+              </p>
+            </div>
 
             <UFormField
               label="Identifier"
@@ -871,7 +884,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <UInput
                 v-model="state.primaryIdentifier.identifier"
                 class="w-full"
-                placeholder="10.1234/1234567890"
+                placeholder="NCT01234567"
               />
             </UFormField>
 
@@ -883,7 +896,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               <USelect
                 v-model="state.primaryIdentifier.type"
                 class="w-full"
-                placeholder="NIH Grant Number"
+                placeholder="ClinicalTrials.gov"
                 :items="
                   FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions
                 "
@@ -896,14 +909,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             >
               <UInput
                 v-model="state.primaryIdentifier.domain"
-                placeholder="https://doi.org"
+                placeholder="https://clinicaltrials.gov"
               />
             </UFormField>
 
             <UFormField label="Identifier Link" name="primaryIdentifier.link">
               <UInput
                 v-model="state.primaryIdentifier.link"
-                placeholder="https://doi.org/10.1234/1234567890"
+                placeholder="https://clinicaltrials.gov/study/NCT01234567"
               />
             </UFormField>
           </div>
@@ -919,9 +932,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </h2>
 
               <p class="text-gray-500 dark:text-gray-400">
-                Optionally, add any secondary identifiers that describe the study.
-                These are usually any other identifiers that are not the primary
-                identifier.
+                Optionally, add any secondary identifiers that describe the
+                study. These are usually any other identifiers that are not the
+                primary identifier.
               </p>
             </div>
 
@@ -952,7 +965,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.identifier"
-                      placeholder="10.1234/1234567890"
+                      placeholder="R01GM123456"
                     />
                   </UFormField>
 
@@ -964,7 +977,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <USelect
                       v-model="item.type"
                       class="w-full"
-                      placeholder="NIH Grant Number"
+                      placeholder="U.S. NIH Grant/Contract Award Number"
                       :items="
                         FORM_JSON.studyMetadataIdentificationPrimaryIdentifierTypeOptions
                       "
@@ -977,7 +990,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.domain"
-                      placeholder="https://doi.org"
+                      placeholder="https://reporter.nih.gov"
                     />
                   </UFormField>
 
@@ -987,7 +1000,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   >
                     <UInput
                       v-model="item.link"
-                      placeholder="https://doi.org/10.1234/1234567890"
+                      placeholder="https://reporter.nih.gov/project-details/12345678"
                     />
                   </UFormField>
                 </div>

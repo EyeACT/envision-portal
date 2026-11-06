@@ -52,9 +52,14 @@ if (dataset.value) {
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-5">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Dataset
-          </h2>
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Dataset
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              Key details about this dataset.
+            </p>
+          </div>
 
           <div class="space-y-1">
             <span class="text-base text-gray-900 dark:text-gray-500"
@@ -180,9 +185,14 @@ if (dataset.value) {
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-5">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Publishing
-          </h2>
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Publishing
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              Publication status and license information for this dataset.
+            </p>
+          </div>
 
           <div class="space-y-1">
             <span class="text-base text-gray-900 dark:text-gray-500"
@@ -219,7 +229,7 @@ if (dataset.value) {
               v-if="dataset?.DatasetRights"
               class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
             >
-              {{ dataset.DatasetRights.rights }}
+              {{ dataset.DatasetRights.rights || "No license specified" }}
               <span
                 v-if="dataset.DatasetRights.uri"
                 class="block text-xs text-gray-400"
@@ -244,9 +254,14 @@ if (dataset.value) {
         class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-5">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Azure Storage
-          </h2>
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Azure Storage
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              Where the files for this dataset are stored.
+            </p>
+          </div>
 
           <div class="space-y-1">
             <span class="text-base text-gray-900 dark:text-gray-500"
@@ -296,9 +311,14 @@ if (dataset.value) {
         class="mb-6 flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
       >
         <div class="flex w-full flex-col gap-5">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Study Details
-          </h2>
+          <div class="flex w-full flex-col">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              Study Details
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400">
+              A summary of the study behind this dataset.
+            </p>
+          </div>
 
           <div class="space-y-1">
             <span class="text-base text-gray-900 dark:text-gray-500"
@@ -348,7 +368,7 @@ if (dataset.value) {
               class="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-300"
             >
               {{
-                dataset?.StudyDesign?.enrollmentCount !== undefined
+                dataset?.StudyDesign?.enrollmentCount
                   ? dataset.StudyDesign.enrollmentCount
                   : "N/A"
               }}
