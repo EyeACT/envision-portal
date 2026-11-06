@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   // Get the study from the database
   const dataset = await prisma.dataset.findUnique({
     include: {
+      DatasetManagingOrganization: true,
       StudyCentralContact: true,
       StudyCollaborators: true,
       StudyOverallOfficials: true,

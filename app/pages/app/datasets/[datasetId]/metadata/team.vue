@@ -1132,6 +1132,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 "
               />
             </UFormField>
+
+            <MetadataOrganizationPrefill
+              :current="state.managingOrganization"
+              :source="{
+                identifier: data?.StudySponsors?.leadSponsorIdentifier,
+                name: data?.StudySponsors?.leadSponsorName,
+              }"
+              source-label="study lead sponsor"
+              @prefill="state.managingOrganization = $event"
+            />
           </div>
         </div>
       </UForm>

@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
-  const member = await datasetMinViewerPermission(event)
-  const userId = member.userId;
+  const member = await datasetMinViewerPermission(event);
+  const { userId } = member;
 
   const { datasetId } = event.context.params as {
     datasetId: string;
@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
       DatasetContributor: true,
       DatasetFunder: true,
       DatasetManagingOrganization: true,
+      StudySponsors: true,
     },
     where: {
       id: datasetId,
