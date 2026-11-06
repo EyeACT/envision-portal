@@ -34,34 +34,19 @@ const datasetNavItems = [
         route: "metadata/general-information",
       },
       {
-        name: "Identifiers",
-        icon: "mdi:identifier",
-        route: "metadata/identifiers",
-      },
-      {
         name: "Team",
         icon: "ri:team-line",
         route: "metadata/team",
       },
       {
-        name: "Data Management",
-        icon: "tdesign:data-search",
-        route: "metadata/data-management",
-      },
-      {
-        name: "Access & License",
+        name: "Access & Data Use",
         icon: "streamline-logos:open-access-logo-block",
-        route: "metadata/access-rights",
+        route: "metadata/access-data-use",
       },
       {
-        name: "Related Identifiers",
-        icon: "streamline-sharp:share-link",
-        route: "metadata/related-identifiers",
-      },
-      {
-        name: "About",
+        name: "Additional Details",
         icon: "jam:task-list",
-        route: "metadata/about",
+        route: "metadata/additional-details",
       },
     ],
     icon: "ooui:view-details-ltr",

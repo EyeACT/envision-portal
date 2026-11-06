@@ -1,6 +1,7 @@
 export default defineEventHandler(async (event) => {
-  const member = await datasetMinViewerPermission(event)
-  const userId = member.userId;
+  const member = await datasetMinViewerPermission(event);
+  const { userId } = member;
+
   const { datasetId } = event.context.params as {
     datasetId: string;
   };
@@ -9,6 +10,10 @@ export default defineEventHandler(async (event) => {
   const dataset = await prisma.dataset.findUnique({
     include: {
       DatasetAlternateIdentifier: true,
+      DatasetDate: true,
+      DatasetOther: true,
+      DatasetRelatedIdentifier: true,
+      DatasetSubject: true,
     },
     where: {
       id: datasetId,

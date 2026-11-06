@@ -4,6 +4,7 @@ import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
 import FORM_JSON from "~/assets/data/form.json";
 import AI_FIELDS from "~/assets/data/ai-extract-fields.json";
+import LANGUAGES_JSON from "@/assets/data/languages.json";
 import type {
   ExtractedValues,
   ExtractField,
@@ -15,27 +16,21 @@ definePageMeta({
 
 const route = useRoute();
 const toast = useToast();
-const dayjs = useDayjs();
 
 const { datasetId } = route.params as {
   datasetId: string;
 };
+
+const languageOptions = LANGUAGES_JSON.map((language) => ({
+  label: language.name,
+  value: language.alpha2,
+}));
 
 const saveLoading = ref(false);
 const isSubmitting = ref(false);
 const originalStateString = ref("");
 
 const schema = z.object({
-  dates: z.array(
-    z.object({
-      id: z.string(),
-      date: z.string(),
-      deleted: z.boolean(),
-      information: z.string(),
-      local: z.boolean(),
-      type: z.string(),
-    }),
-  ),
   descriptions: z.array(
     z.object({
       id: z.string(),
@@ -45,6 +40,8 @@ const schema = z.object({
       type: z.string(),
     }),
   ),
+  language: z.string(),
+  resourceTypeName: z.string(),
   titles: z.array(
     z.object({
       id: z.string(),
@@ -59,8 +56,9 @@ const schema = z.object({
 type Schema = z.output<typeof schema>;
 
 const state = reactive<Schema>({
-  dates: [],
   descriptions: [],
+  language: "",
+  resourceTypeName: "",
   titles: [],
 });
 
@@ -81,14 +79,6 @@ if (error.value) {
 const loadFormState = () => {
   if (!data.value) return;
 
-  state.dates = data.value.DatasetDate.map((item: any) => ({
-    id: item.id,
-    date: item.date ? dayjs(item.date).format("YYYY-MM-DD") : "",
-    deleted: false,
-    information: item.information,
-    local: false,
-    type: item.type,
-  }));
   state.descriptions = data.value.DatasetDescription.map(
     (description: any) => ({
       id: description.id,
@@ -98,6 +88,8 @@ const loadFormState = () => {
       type: description.type,
     }),
   );
+  state.language = data.value.DatasetOther?.language ?? "";
+  state.resourceTypeName = data.value.DatasetOther?.resourceTypeName ?? "";
   state.titles = data.value.DatasetTitle.map((title: any) => ({
     id: title.id,
     title: title.title,
@@ -164,28 +156,6 @@ const removeDescription = (index: number) => {
     state.descriptions.splice(index, 1);
   } else {
     description.deleted = true;
-  }
-};
-
-const addDate = () => {
-  state.dates.push({
-    id: nanoid(),
-    date: "",
-    deleted: false,
-    information: "",
-    local: true,
-    type: "",
-  });
-};
-
-const removeDate = (index: number) => {
-  const date = state.dates[index];
-  if (!date) return;
-
-  if (date.local) {
-    state.dates.splice(index, 1);
-  } else {
-    date.deleted = true;
   }
 };
 
@@ -272,36 +242,19 @@ const validate = (state: any): FormError[] => {
     }
   });
 
-  const seenDates = new Set<string>();
-  state.dates.forEach((item: any, index: number) => {
-    if (item.deleted) return;
+  if (!state.resourceTypeName?.trim()) {
+    errors.push({
+      name: "resourceTypeName",
+      message: "Resource type name is required.",
+    });
+  }
 
-    const key = item.type?.trim().toLowerCase();
-    if (seenDates.has(key)) {
-      errors.push({
-        name: `date-type-${index}`,
-        message: "Duplicate date. Dates are unique by type",
-      });
-    }
-    seenDates.add(key);
-  });
-
-  state.dates.forEach((item: any, index: number) => {
-    if (item.deleted) return;
-
-    if (!item.date?.trim()) {
-      errors.push({
-        name: `date-${index}`,
-        message: "Date value is required.",
-      });
-    }
-    if (!item.type?.trim()) {
-      errors.push({
-        name: `date-type-${index}`,
-        message: "Date type is required.",
-      });
-    }
-  });
+  if (!state.language) {
+    errors.push({
+      name: "language",
+      message: "Language is required.",
+    });
+  }
 
   return errors;
 };
@@ -311,18 +264,16 @@ async function executeSave(formData: typeof state) {
   isSubmitting.value = true;
 
   const b = {
-    DatasetDate: formData.dates.map((date: any) => {
-      const d = { ...date };
-      if (d.local) delete d.id;
-      if (!d.deleted) delete d.deleted;
-      return d;
-    }),
     DatasetDescription: formData.descriptions.map((description: any) => {
       const d = { ...description };
       if (d.local) delete d.id;
       if (!d.deleted) delete d.deleted;
       return d;
     }),
+    DatasetOther: {
+      language: formData.language,
+      resourceTypeName: formData.resourceTypeName,
+    },
     DatasetTitle: formData.titles.map((title: any) => {
       const d = { ...title };
       if (d.local) delete d.id;
@@ -370,7 +321,7 @@ const pageFields = AI_FIELDS["metadata/general-information"]
   .fields as ExtractField[];
 
 const onApplyExtracted = (_values: ExtractedValues) => {
-  // TODO: map _values onto state.titles / state.descriptions / state.dates
+  // TODO: map _values onto state.titles / state.descriptions
   toast.add({
     title: "Fields updated",
     description: "Extracted metadata has been applied to the form.",
@@ -418,7 +369,8 @@ const onApplyExtracted = (_values: ExtractedValues) => {
             />
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Add the titles, descriptions, and dates that identify this dataset.
+            Add the titles, descriptions, resource type, and language that
+            identify this dataset.
           </p>
         </div>
 
@@ -568,68 +520,45 @@ const onApplyExtracted = (_values: ExtractedValues) => {
           <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col">
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Dates
+                Resource Type
               </h2>
               <p class="text-gray-500 dark:text-gray-400">
-                Optionally, add any dates that describe the dataset.
+                A single term describing the domain or content of the dataset.
+                For example, a name of `Diabetes` yields `Diabetes dataset`.
               </p>
             </div>
-            <UFormField name="dates">
-              <CardCollapsible
-                v-for="(item, index) in state.dates"
-                v-show="!item.deleted"
-                :key="item.id"
-                class="my-1 shadow-none"
-                :title="item.date || `Date ${index + 1}`"
-                bordered
-              >
-                <template #header-extra>
-                  <UButton
-                    icon="i-lucide-trash"
-                    label="Remove date"
-                    variant="soft"
-                    color="error"
-                    @click="removeDate(index)"
-                  />
-                </template>
-                <div class="flex flex-col gap-3">
-                  <UFormField :name="`date-${index}`" label="Date" required>
-                    <UInput
-                      v-model="item.date"
-                      placeholder="2021-01-01"
-                      class="w-full"
-                      type="date"
-                    />
-                  </UFormField>
-                  <UFormField
-                    :name="`date-type-${index}`"
-                    label="Type"
-                    required
-                  >
-                    <USelect
-                      v-model="item.type"
-                      class="w-full"
-                      placeholder="Collected"
-                      :items="FORM_JSON.datasetDateTypeOptions"
-                    />
-                  </UFormField>
-                  <UFormField label="Information" name="information">
-                    <UTextarea
-                      v-model="item.information"
-                      placeholder="Date the first participant's data was collected"
-                      class="w-full"
-                    />
-                  </UFormField>
-                </div>
-              </CardCollapsible>
+
+            <UFormField label="Name" name="resourceTypeName" required>
+              <UInput
+                v-model="state.resourceTypeName"
+                class="w-full"
+                placeholder="Clinical Trial Data"
+              />
             </UFormField>
-            <UButton
-              icon="i-lucide-plus"
-              variant="outline"
-              color="primary"
-              label="Add Date"
-              @click="addDate"
-            />
+          </div>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Language
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                The primary language of the dataset.
+              </p>
+            </div>
+
+            <UFormField label="What is the language?" name="language" required>
+              <USelect
+                v-model="state.language"
+                class="w-full"
+                placeholder="Select language"
+                :items="languageOptions"
+              />
+            </UFormField>
           </div>
         </div>
       </UForm>

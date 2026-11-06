@@ -29,20 +29,6 @@
         "description": "Description of the methods used to collect or generate the dataset",
         "type": "textarea",
         "mandatory": false
-      },
-      {
-        "key": "collection_start_date",
-        "label": "Collection Start Date",
-        "description": "Date when data collection began",
-        "type": "date",
-        "mandatory": true
-      },
-      {
-        "key": "submission_date",
-        "label": "Submission Date",
-        "description": "Date the dataset was submitted for review",
-        "type": "date",
-        "mandatory": false
       }
     ]
   },

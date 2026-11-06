@@ -81,7 +81,7 @@ export const validateNameIdentifier = (data: any, ctx: z.RefinementCtx) => {
   }
 };
 
-export const DatasetMetadataAboutSchema = z
+export const datasetOtherSchema = z
   .object({
     acknowledgement: z.string(),
     format: z.array(z.string()),
@@ -119,25 +119,6 @@ export const rightsSchema = z
     uri: z.string().trim().optional(),
   })
   .strict();
-
-export const DatasetMetadataAccessRightsSchema = z
-  .object({
-    access: accessSchema,
-    rights: rightsSchema,
-  })
-  .strict()
-  .superRefine((data, ctx) => {
-    if (
-      (data.rights.identifier && !data.rights.identifierScheme) ||
-      (!data.rights.identifier && data.rights.identifierScheme)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "Both identifier and identifierScheme must be provided together",
-      });
-    }
-  });
 
 export const deIdentSchema = z
   .object({
@@ -192,13 +173,26 @@ export const subjectSchema = z
   })
   .strict();
 
-export const DatasetMetadataDataManagementSchema = z
+export const DatasetMetadataAccessDataUseSchema = z
   .object({
+    access: accessSchema,
     consent: consentSchema,
     deidentLevel: deIdentSchema,
-    subjects: z.array(subjectSchema.superRefine(subjectRefine)),
+    rights: rightsSchema,
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    if (
+      (data.rights.identifier && !data.rights.identifierScheme) ||
+      (!data.rights.identifier && data.rights.identifierScheme)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Both identifier and identifierScheme must be provided together",
+      });
+    }
+  });
 
 export const aboutSchema = z.object({
   id: z.string().optional(),
@@ -235,10 +229,13 @@ export const titleSchema = z.object({
 });
 
 export const DatasetMetadataGeneralInformationSchema = z.object({
-  DatasetDate: z.array(aboutSchema),
   DatasetDescription: z
     .array(descriptionSchema)
     .min(1, "At least Abstract description is required"),
+  DatasetOther: datasetOtherSchema.pick({
+    language: true,
+    resourceTypeName: true,
+  }),
   DatasetTitle: z.array(titleSchema).min(1, "At least Main title is required"),
 });
 
@@ -251,12 +248,6 @@ export const altIdentifierSchema = z
     type: z.string().refine((v) => identTypeOptions.includes(v), {
       message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
     }),
-  })
-  .strict();
-
-export const DatasetMetadataIdentifiersSchema = z
-  .object({
-    DatasetAlternateIdentifier: z.array(altIdentifierSchema),
   })
   .strict();
 
@@ -297,11 +288,20 @@ export const relatedIdentSchema = z
   })
   .strict();
 
-export const DatasetMetadataRelatedIdentifiersSchema = z
+export const DatasetMetadataAdditionalDetailsSchema = z
   .object({
-    relatedIdentifiers: z
-      .array(relatedIdentSchema.superRefine(relatedIdentRefine))
-      .min(1, "At least one related identifier is required"),
+    DatasetAlternateIdentifier: z.array(altIdentifierSchema),
+    DatasetDate: z.array(aboutSchema),
+    DatasetOther: datasetOtherSchema.pick({
+      acknowledgement: true,
+      format: true,
+      size: true,
+      standardsFollowed: true,
+    }),
+    DatasetRelatedIdentifier: z.array(
+      relatedIdentSchema.superRefine(relatedIdentRefine),
+    ),
+    DatasetSubject: z.array(subjectSchema.superRefine(subjectRefine)),
   })
   .strict();
 
@@ -545,7 +545,12 @@ export const DatasetMetadataPublishSchema = z.object({
     ),
   DatasetConsent: consentSchema.strip(),
   DatasetContributor: z
-    .array(contributorSchema.strip().superRefine(validateNameIdentifier))
+    .array(
+      contributorSchema
+        .extend({ creator: z.boolean() })
+        .strip()
+        .superRefine(validateNameIdentifier),
+    )
     .superRefine(
       uniqueItemsRefine(
         (item) =>
@@ -553,7 +558,10 @@ export const DatasetMetadataPublishSchema = z.object({
         "Duplicate contributor with same given name, family name, and name type.",
         "givenName",
       ),
-    ),
+    )
+    .refine((items) => items.some((item) => item.creator), {
+      message: "At least one creator is required.",
+    }),
   DatasetDate: z
     .array(aboutSchema)
     .superRefine(
@@ -576,6 +584,13 @@ export const DatasetMetadataPublishSchema = z.object({
         "Duplicate description with same type.",
         "type",
       ),
+    )
+    .refine(
+      (items) =>
+        items.some(
+          (item) => item.type === "Abstract" && item.description.trim(),
+        ),
+      { message: "An abstract is required." },
     ),
   DatasetFunder: z
     .array(funderSchema.strip().superRefine(funderRefine))
@@ -591,7 +606,7 @@ export const DatasetMetadataPublishSchema = z.object({
   DatasetManagingOrganization: managingOrgSchema
     .strip()
     .superRefine(managingOrgRefine),
-  DatasetOther: DatasetMetadataAboutSchema.strip(),
+  DatasetOther: datasetOtherSchema.strip(),
   DatasetRelatedIdentifier: z
     .array(relatedIdentSchema.strip().superRefine(relatedIdentRefine))
     .superRefine(
@@ -620,7 +635,10 @@ export const DatasetMetadataPublishSchema = z.object({
         "Duplicate title.",
         "title",
       ),
-    ),
+    )
+    .refine((items) => items.some((item) => item.type === "MainTitle"), {
+      message: "A main title is required.",
+    }),
   description: z.string().min(1, "Description is required"),
   doi: z.string().nullable(),
   imageUrl: z.string().url("Image URL must be a valid URL"),

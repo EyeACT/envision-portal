@@ -97,7 +97,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible title="Identifiers" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/metadata/identifiers`"
+              :to="`/app/datasets/${datasetId}/metadata/additional-details`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -203,6 +203,42 @@ const timelineItems = ref<TimelineItem[]>([
       </div>
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+        <CardCollapsible title="Resource Type & Language" bordered no-shadow>
+          <div class="mb-4 flex justify-end">
+            <UButton
+              :to="`/app/datasets/${datasetId}/metadata/general-information`"
+              color="primary"
+              icon="i-lucide-pencil"
+              label="Edit"
+              size="xs"
+              variant="outline"
+            />
+          </div>
+          <div class="flex flex-col">
+            <table class="table-auto">
+              <tbody>
+                <tr>
+                  <td>Resource Type Name</td>
+
+                  <td>
+                    {{ data?.DatasetOther?.resourceTypeName || "Not provided" }}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Language</td>
+
+                  <td>
+                    {{ data?.DatasetOther?.language || "Not provided" }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </CardCollapsible>
+      </div>
+
+      <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Creators" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
@@ -245,7 +281,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible title="Dates" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/metadata/general-information`"
+              :to="`/app/datasets/${datasetId}/metadata/additional-details`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -296,7 +332,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible title="De-Identification" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/metadata/data-management`"
+              :to="`/app/datasets/${datasetId}/metadata/access-data-use`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -356,7 +392,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible title="Consent" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/metadata/data-management`"
+              :to="`/app/datasets/${datasetId}/metadata/access-data-use`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -443,7 +479,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible title="Subjects" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/metadata/data-management`"
+              :to="`/app/datasets/${datasetId}/metadata/additional-details`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -478,7 +514,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible title="Access & License" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/metadata/access-rights`"
+              :to="`/app/datasets/${datasetId}/metadata/access-data-use`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -547,7 +583,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible title="Related Identifiers" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/metadata/related-identifiers`"
+              :to="`/app/datasets/${datasetId}/metadata/additional-details`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -586,7 +622,7 @@ const timelineItems = ref<TimelineItem[]>([
         <CardCollapsible title="Additional Details" bordered no-shadow>
           <div class="mb-4 flex justify-end">
             <UButton
-              :to="`/app/datasets/${datasetId}/metadata/about`"
+              :to="`/app/datasets/${datasetId}/metadata/additional-details`"
               color="primary"
               icon="i-lucide-pencil"
               label="Edit"
@@ -597,14 +633,6 @@ const timelineItems = ref<TimelineItem[]>([
           <div class="flex flex-col">
             <table class="table-auto">
               <tbody>
-                <tr>
-                  <td>Language</td>
-
-                  <td>
-                    {{ data?.DatasetOther?.language || "Not provided" }}
-                  </td>
-                </tr>
-
                 <tr>
                   <td>Size</td>
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
-import { nanoid } from "nanoid";
 import FORM_JSON from "~/assets/data/form.json";
+import licensesJSON from "~/assets/data/licenses.json";
 
 definePageMeta({
   middleware: ["auth"],
@@ -11,6 +11,8 @@ definePageMeta({
 const route = useRoute();
 const toast = useToast();
 const dayjs = useDayjs();
+
+const getLicenseLoading = ref(false);
 
 const { datasetId } = route.params as {
   datasetId: string;
@@ -21,6 +23,12 @@ const isSubmitting = ref(false);
 const originalStateString = ref("");
 
 const schema = z.object({
+  access: z.object({
+    description: z.string(),
+    type: z.string(),
+    url: z.string(),
+    urlLastChecked: z.string(),
+  }),
   consent: z.object({
     details: z.string(),
     geneticOnly: z.boolean(),
@@ -39,23 +47,25 @@ const schema = z.object({
     nonarr: z.boolean(),
     type: z.string(),
   }),
-  subjects: z.array(
-    z.object({
-      id: z.string(),
-      classificationCode: z.string(),
-      deleted: z.boolean(),
-      local: z.boolean(),
-      scheme: z.string(),
-      schemeUri: z.string(),
-      subject: z.string(),
-      valueUri: z.string(),
-    }),
-  ),
+  rights: z.object({
+    identifier: z.string(),
+    identifierScheme: z.string(),
+    identifierSchemeUri: z.string(),
+    licenseText: z.string(),
+    rights: z.string(),
+    uri: z.string(),
+  }),
 });
 
 type Schema = z.output<typeof schema>;
 
 const state = reactive<Schema>({
+  access: {
+    description: "",
+    type: "",
+    url: "",
+    urlLastChecked: "",
+  },
   consent: {
     details: "",
     geneticOnly: false,
@@ -74,11 +84,18 @@ const state = reactive<Schema>({
     nonarr: false,
     type: "",
   },
-  subjects: [],
+  rights: {
+    identifier: "",
+    identifierScheme: "",
+    identifierSchemeUri: "",
+    licenseText: "",
+    rights: "",
+    uri: "",
+  },
 });
 
-const { data, error, refresh } = await useFetch(
-  `/api/datasets/${datasetId}/metadata/data-management`,
+const { data, error } = await useFetch(
+  `/api/datasets/${datasetId}/metadata/access-data-use`,
   {},
 );
 
@@ -90,20 +107,17 @@ if (error.value) {
   });
 }
 
-// Fills the form from the fetched data, on page load and again after each save.
-const loadFormState = () => {
-  if (!data.value) return;
+if (data.value) {
+  useSeoMeta({
+    title: data.value.title,
+  });
 
-  state.subjects = data.value.DatasetSubject.map((subject: any) => ({
-    id: subject.id,
-    classificationCode: subject.classificationCode,
-    deleted: false,
-    local: false,
-    scheme: subject.scheme,
-    schemeUri: subject.schemeUri,
-    subject: subject.subject,
-    valueUri: subject.valueUri,
-  }));
+  state.access.description = data.value.DatasetAccess?.description ?? "";
+  state.access.type = data.value.DatasetAccess?.type ?? "";
+  state.access.url = data.value.DatasetAccess?.url ?? "";
+  state.access.urlLastChecked = data.value.DatasetAccess?.urlLastChecked
+    ? dayjs(data.value.DatasetAccess.urlLastChecked).format("YYYY-MM-DD")
+    : "";
 
   state.consent.details = data.value.DatasetConsent?.details ?? "";
   state.consent.geneticOnly = data.value.DatasetConsent?.geneticOnly ?? false;
@@ -121,14 +135,16 @@ const loadFormState = () => {
   state.deidentLevel.kAnon = data.value.DatasetDeIdentLevel?.kAnon ?? false;
   state.deidentLevel.nonarr = data.value.DatasetDeIdentLevel?.nonarr ?? false;
   state.deidentLevel.type = data.value.DatasetDeIdentLevel?.type ?? "";
-};
 
-if (data.value) {
-  useSeoMeta({
-    title: data.value.title,
-  });
+  state.rights.identifier = data.value.DatasetRights?.identifier ?? "";
+  state.rights.identifierScheme =
+    data.value.DatasetRights?.identifierScheme ?? "";
+  state.rights.identifierSchemeUri =
+    data.value.DatasetRights?.identifierSchemeUri ?? "";
+  state.rights.licenseText = data.value.DatasetRights?.licenseText ?? "";
+  state.rights.rights = data.value.DatasetRights?.rights ?? "";
+  state.rights.uri = data.value.DatasetRights?.uri ?? "";
 
-  loadFormState();
   originalStateString.value = JSON.stringify(state);
 }
 
@@ -141,102 +157,85 @@ const { showLeaveModal, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
   isSubmitting,
 });
 
-const addSubject = () => {
-  state.subjects.push({
-    id: nanoid(),
-    classificationCode: "",
-    deleted: false,
-    local: true,
-    scheme: "",
-    schemeUri: "",
-    subject: "",
-    valueUri: "",
-  });
+const updateLicense = async (value: string) => {
+  const license = licensesJSON.find((item) => item.name === value);
+
+  if (license) {
+    getLicenseLoading.value = true;
+    await $fetch(
+      `/api/utils/request-json?url=${encodeURIComponent(license.detailsUrl)}`,
+      {
+        method: "GET",
+      },
+    )
+      .then((res: any) => {
+        const responseData = res.data;
+
+        state.rights.licenseText = responseData.licenseText;
+        state.rights.rights = license.name;
+        state.rights.uri = license.reference;
+        state.rights.identifier = license.licenseId;
+        state.rights.identifierScheme = "SPDX";
+        state.rights.identifierSchemeUri = "https://spdx.org/licenses/";
+      })
+      .catch((err) => {
+        console.log(err);
+
+        toast.add({
+          title: "Error",
+          color: "error",
+          description: "Failed to fetch license details",
+        });
+      })
+      .finally(() => {
+        getLicenseLoading.value = false;
+      });
+  }
 };
 
-const removeSubject = (index: number) => {
-  const subject = state.subjects[index];
-  if (!subject) {
-    return;
-  }
-
-  if (subject.local) {
-    state.subjects.splice(index, 1);
-  } else {
-    subject.deleted = true;
-  }
-};
+// New datasets start with placeholder types that aren't valid options, so check against the options.
+const isOption = (options: { value: string }[], value: string) =>
+  options.some((option) => option.value === value);
 
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = [];
 
-  if (state.consent.type === "Consent") {
+  if (!state.access.description?.trim()) {
+    errors.push({
+      name: "access-description",
+      message: "Access description is required.",
+    });
+  }
+
+  if (!isOption(FORM_JSON.datasetAccessTypeOptions, state.access.type)) {
+    errors.push({
+      name: "access-type",
+      message: "Access type is required.",
+    });
+  }
+
+  if (state.access.url && !isValidUrl(state.access.url)) {
+    errors.push({
+      name: "access-url",
+      message: "Access URL is invalid.",
+    });
+  }
+
+  if (!state.rights.rights?.trim()) {
+    errors.push({
+      name: "rights-rights",
+      message: "License is required.",
+    });
+  }
+
+  if (!isOption(FORM_JSON.datasetConsentTypeOptions, state.consent.type)) {
     errors.push({ name: "consent.type", message: "Consent type is required" });
   }
 
-  if (state.deidentLevel.type === "") {
+  if (!isOption(FORM_JSON.datasetDeIdentTypeOptions, state.deidentLevel.type)) {
     errors.push({
       name: "deidentLevel.type",
       message: "De-identification type is required",
-    });
-  }
-
-  const activeSubjects = state.subjects?.filter((s: any) => !s.deleted) ?? [];
-
-  if (activeSubjects.length > 0) {
-    const seenSubjects = new Set<string>();
-    state.subjects.forEach((subject: any, index: number) => {
-      if (subject.deleted) return;
-
-      const key = subject.subject?.trim().toLowerCase();
-      if (seenSubjects.has(key)) {
-        errors.push({
-          name: `subjects[${index}].subject`,
-          message: "Duplicate subject.",
-        });
-      }
-      seenSubjects.add(key);
-    });
-
-    state.subjects.forEach((subject: any, index: number) => {
-      if (subject.deleted) return;
-
-      if (!subject.subject?.trim()) {
-        errors.push({
-          name: `subjects[${index}].subject`,
-          message: "Subject is required",
-        });
-      }
-
-      const code = subject.classificationCode?.trim();
-      const scheme = subject.scheme?.trim();
-
-      if ((code && !scheme) || (!code && scheme)) {
-        errors.push({
-          name: `subjects[${index}].classificationCode`,
-          message:
-            "Classification code and scheme must both be provided together",
-        });
-        errors.push({
-          name: `subjects[${index}].scheme`,
-          message:
-            "Scheme and classification code must both be provided together",
-        });
-      }
-
-      if (subject.schemeUri && !isValidUrl(subject.schemeUri)) {
-        errors.push({
-          name: `subjects[${index}].schemeUri`,
-          message: "Scheme URI must be a valid URL if provided",
-        });
-      }
-
-      if (subject.valueUri && !isValidUrl(subject.valueUri)) {
-        errors.push({
-          name: `subjects[${index}].valueUri`,
-          message: "Value URI must be a valid URL",
-        });
-      }
     });
   }
 
@@ -250,44 +249,34 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
   const formData = event.data;
 
   const b = {
+    access: {
+      ...formData.access,
+      urlLastChecked: formData.access.urlLastChecked || undefined,
+    },
     consent: formData.consent,
     deidentLevel: formData.deidentLevel,
-    subjects: formData.subjects.map((subject: any) => {
-      const d = { ...subject };
-
-      if (d.local) {
-        delete d.id;
-      }
-      if (!d.deleted) {
-        delete d.deleted;
-      }
-
-      return d;
-    }),
+    rights: formData.rights,
   };
 
   try {
-    await $fetch(`/api/datasets/${datasetId}/metadata/data-management`, {
+    await $fetch(`/api/datasets/${datasetId}/metadata/access-data-use`, {
       body: b,
       method: "PUT",
     });
-
-    // Reload so new rows get their real ids and removed rows drop out of the form.
-    await refresh();
-    if (!error.value) loadFormState();
-    originalStateString.value = JSON.stringify(state);
 
     toast.add({
       title: "Success",
       color: "success",
       description: "The form has been submitted.",
     });
+
+    originalStateString.value = JSON.stringify(state);
   } catch (err) {
     console.log(err);
     toast.add({
       title: "Error",
       color: "error",
-      description: "The form was unable to be submitted.",
+      description: "Could not sync your updates to the server.",
     });
   } finally {
     saveLoading.value = false;
@@ -305,14 +294,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           { label: 'Dashboard', to: '/app/dashboard' },
           { label: data?.title, to: `/app/datasets/${datasetId}` },
           {
-            label: 'Data Management',
-            to: `/app/datasets/${datasetId}/metadata/data-management`,
+            label: 'Access & Data Use',
+            to: `/app/datasets/${datasetId}/metadata/access-data-use`,
           },
         ]"
       />
 
       <UForm
-        id="metadata-data-management-form"
+        id="metadata-access-data-use-form"
         :validate="validate"
         :state="state"
         class="space-y-6"
@@ -323,13 +312,100 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         >
           <div class="flex w-full items-center justify-between gap-3">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-              Data Management
+              Access &amp; Data Use
             </h1>
           </div>
           <p class="text-gray-500 dark:text-gray-400">
-            Describe the consent terms, de-identification level, and subjects of
-            this dataset.
+            Define who can access this dataset, the license it is shared under,
+            and the consent and de-identification that apply to it.
           </p>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Access
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Specify how people can access this dataset.
+              </p>
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <UFormField label="Type" name="access-type" required>
+                <USelect
+                  v-model="state.access.type"
+                  class="w-full"
+                  placeholder="Select access type"
+                  :items="FORM_JSON.datasetAccessTypeOptions"
+                />
+              </UFormField>
+
+              <UFormField
+                label="Description"
+                name="access-description"
+                required
+              >
+                <UTextarea
+                  v-model="state.access.description"
+                  placeholder="Data can be downloaded after submitting a request and signing a data use agreement."
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField label="URL" name="access-url">
+                <UInput
+                  v-model="state.access.url"
+                  placeholder="https://example.org/request-access"
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                License
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Specify the terms under which this dataset can be used.
+              </p>
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <UFormField label="License" name="rights-rights" required>
+                <USelect
+                  v-model="state.rights.rights"
+                  class="w-full"
+                  placeholder="Select license"
+                  :items="
+                    licensesJSON.map((option) => ({
+                      label: option.name,
+                      value: option.name,
+                    }))
+                  "
+                  :loading="getLicenseLoading"
+                  @update:model-value="updateLicense"
+                />
+              </UFormField>
+
+              <UFormField label="Description" name="rights-description">
+                <UTextarea
+                  v-model="state.rights.licenseText"
+                  placeholder="Paste the license text or describe any additional terms of use."
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+          </div>
         </div>
 
         <div
@@ -492,127 +568,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
           </div>
         </div>
-
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
-          <div class="flex w-full flex-col gap-4">
-            <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Subjects
-              </h2>
-              <p class="text-gray-500 dark:text-gray-400">
-                Optionally, add any subjects for this dataset.
-              </p>
-            </div>
-
-            <UFormField name="subjects">
-              <CardCollapsible
-                v-for="(item, index) in state.subjects"
-                v-show="!item.deleted"
-                :key="item.id"
-                class="my-1 shadow-none"
-                :title="item.subject || `Subject ${index + 1}`"
-                bordered
-              >
-                <template #header-extra>
-                  <UButton
-                    icon="i-lucide-trash"
-                    label="Remove subject"
-                    variant="soft"
-                    color="error"
-                    @click="removeSubject(index)"
-                  />
-                </template>
-
-                <div class="flex flex-col gap-3">
-                  <UFormField
-                    label="Subject"
-                    :name="`subjects[${index}].subject`"
-                    required
-                  >
-                    <UInput
-                      v-model="item.subject"
-                      placeholder="Diabetes Mellitus, Type 2"
-                      class="w-full"
-                    />
-                  </UFormField>
-
-                  <UFormField
-                    label="Classification Code"
-                    :name="`subjects[${index}].classificationCode`"
-                    :required="
-                      !!item.classificationCode?.trim() || !!item.scheme?.trim()
-                    "
-                  >
-                    <UInput
-                      v-model="item.classificationCode"
-                      placeholder="D003924"
-                      class="w-full"
-                    />
-                  </UFormField>
-
-                  <div class="flex w-full gap-3">
-                    <UFormField
-                      label="Scheme"
-                      :name="`subjects[${index}].scheme`"
-                      class="w-full"
-                      :required="
-                        !!item.classificationCode?.trim() ||
-                        !!item.scheme?.trim()
-                      "
-                    >
-                      <UInput
-                        v-model="item.scheme"
-                        placeholder="MeSH"
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Scheme URI"
-                      :name="`subjects[${index}].schemeUri`"
-                      class="w-full"
-                    >
-                      <UInput
-                        v-model="item.schemeUri"
-                        placeholder="https://meshb.nlm.nih.gov/"
-                        class="w-full"
-                      />
-                    </UFormField>
-                  </div>
-
-                  <UFormField
-                    label="Value URI"
-                    :name="`subjects[${index}].valueUri`"
-                  >
-                    <UInput
-                      v-model="item.valueUri"
-                      placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D003924"
-                      class="w-full"
-                    />
-                  </UFormField>
-                </div>
-              </CardCollapsible>
-            </UFormField>
-
-            <UButton
-              icon="i-lucide-plus"
-              variant="outline"
-              color="primary"
-              label="Add Subject"
-              @click="addSubject"
-            />
-          </div>
-        </div>
       </UForm>
     </div>
 
     <div class="absolute right-0 bottom-0 left-0 z-10 px-6 pt-4 pb-6">
       <UButton
-        form="metadata-data-management-form"
+        form="metadata-access-data-use-form"
         type="submit"
-        :disabled="saveLoading"
+        :disabled="saveLoading || getLicenseLoading"
         :loading="saveLoading"
         class="w-full"
         size="xl"
