@@ -157,7 +157,9 @@ onMounted(() => {
                 >
                   <!-- if on the last index create a different span -->
                   <span class="text-sm font-light">{{
-                    generateCombinedFullName(creator.creatorName)
+                    creator.nameType === "Organizational"
+                      ? creator.creatorName
+                      : generateCombinedFullName(creator.creatorName)
                   }}</span>
 
                   <ButtonIdentifierBadge

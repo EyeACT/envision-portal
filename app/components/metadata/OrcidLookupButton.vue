@@ -65,7 +65,7 @@ const lookUp = async () => {
 
 <template>
   <UTooltip
-    text="Fill in the name and affiliation from this ORCID record. Existing names will be replaced."
+    text="Fill in the name and affiliation from this ORCID record. Existing details may be replaced."
   >
     <UButton
       class="shrink-0"

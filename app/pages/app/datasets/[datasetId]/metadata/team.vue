@@ -125,6 +125,9 @@ const ROR_FIELD = {
 const nameIdentifierField = (nameType: string) =>
   nameType === "Organizational" ? ROR_FIELD : ORCID_FIELD;
 
+const isOrganization = (person: { nameType: string }) =>
+  person.nameType === "Organizational";
+
 const toFormAffiliations = (affiliations: any[] | null | undefined) =>
   (affiliations ?? []).map((item) => ({
     affiliation: item.affiliation ?? "",
@@ -320,10 +323,12 @@ const validate = (state: any): FormError[] => {
       if (!creator.givenName) {
         errors.push({
           name: `creators[${index}].givenName`,
-          message: "Given name is required.",
+          message: isOrganization(creator)
+            ? "Organization name is required."
+            : "Given name is required.",
         });
       }
-      if (!creator.familyName) {
+      if (!isOrganization(creator) && !creator.familyName) {
         errors.push({
           name: `creators[${index}].familyName`,
           message: "Family name is required.",
@@ -390,10 +395,12 @@ const validate = (state: any): FormError[] => {
       if (!contributor.givenName) {
         errors.push({
           name: `contributors[${index}].givenName`,
-          message: "Given name is required.",
+          message: isOrganization(contributor)
+            ? "Organization name is required."
+            : "Given name is required.",
         });
       }
-      if (!contributor.familyName) {
+      if (!isOrganization(contributor) && !contributor.familyName) {
         errors.push({
           name: `contributors[${index}].familyName`,
           message: "Family name is required.",
@@ -523,6 +530,8 @@ const withIdentifierFields = (person: any) => {
       ...affiliation,
       ...toRorFields(affiliation.identifier),
     })),
+    // Switching a person to an organization can leave a family name behind.
+    familyName: isOrganization(person) ? "" : person.familyName,
     nameIdentifier,
     nameIdentifierScheme: nameIdentifier ? idField.scheme : "",
     nameIdentifierSchemeUri: nameIdentifier ? idField.schemeUri : "",
@@ -707,8 +716,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         "
                       />
 
+                      <MetadataRorLookupButton
+                        v-if="isOrganization(item)"
+                        :ror="item.nameIdentifier"
+                        @found="item.givenName = $event.name"
+                      />
+
                       <MetadataOrcidLookupButton
-                        v-if="item.nameType !== 'Organizational'"
+                        v-else
                         :orcid="item.nameIdentifier"
                         @found="applyOrcidProfile(item, $event)"
                       />
@@ -730,19 +745,28 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <div class="flex w-full gap-3">
                     <UFormField
-                      label="Given Name"
+                      :label="
+                        isOrganization(item)
+                          ? 'Organization Name'
+                          : 'Given Name'
+                      "
                       :name="`creators[${index}].givenName`"
                       class="w-full"
                       required
                     >
                       <UInput
                         v-model="item.givenName"
-                        placeholder="David"
+                        :placeholder="
+                          isOrganization(item)
+                            ? 'University of Washington'
+                            : 'David'
+                        "
                         class="w-full"
                       />
                     </UFormField>
 
                     <UFormField
+                      v-if="!isOrganization(item)"
                       label="Family Name"
                       :name="`creators[${index}].familyName`"
                       class="w-full"
@@ -763,6 +787,32 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       class="mb-2 flex items-start gap-2"
                     >
                       <UFormField
+                        label="ROR"
+                        :name="`creators[${index}].affiliations[${affIndex}].identifier`"
+                        class="w-full"
+                        hint="ID or URL"
+                      >
+                        <div class="flex items-start gap-2">
+                          <UInput
+                            v-model="affiliation.identifier"
+                            class="w-full"
+                            placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                            @blur="
+                              affiliation.identifier = normalizeROR(
+                                affiliation.identifier,
+                              )
+                            "
+                          />
+
+                          <MetadataRorLookupButton
+                            compact
+                            :ror="affiliation.identifier"
+                            @found="affiliation.affiliation = $event.name"
+                          />
+                        </div>
+                      </UFormField>
+
+                      <UFormField
                         label="Name"
                         :name="`creators[${index}].affiliations[${affIndex}].affiliation`"
                         class="w-full"
@@ -772,24 +822,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           v-model="affiliation.affiliation"
                           class="w-full"
                           placeholder="University of Washington"
-                        />
-                      </UFormField>
-
-                      <UFormField
-                        label="ROR"
-                        :name="`creators[${index}].affiliations[${affIndex}].identifier`"
-                        class="w-full"
-                        hint="ID or URL"
-                      >
-                        <UInput
-                          v-model="affiliation.identifier"
-                          class="w-full"
-                          placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                          @blur="
-                            affiliation.identifier = normalizeROR(
-                              affiliation.identifier,
-                            )
-                          "
                         />
                       </UFormField>
 
@@ -890,8 +922,14 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         "
                       />
 
+                      <MetadataRorLookupButton
+                        v-if="isOrganization(item)"
+                        :ror="item.nameIdentifier"
+                        @found="item.givenName = $event.name"
+                      />
+
                       <MetadataOrcidLookupButton
-                        v-if="item.nameType !== 'Organizational'"
+                        v-else
                         :orcid="item.nameIdentifier"
                         @found="applyOrcidProfile(item, $event)"
                       />
@@ -926,19 +964,28 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <div class="flex w-full gap-3">
                     <UFormField
-                      label="Given Name"
+                      :label="
+                        isOrganization(item)
+                          ? 'Organization Name'
+                          : 'Given Name'
+                      "
                       :name="`contributors[${index}].givenName`"
                       class="w-full"
                       required
                     >
                       <UInput
                         v-model="item.givenName"
-                        placeholder="Fei-Fei"
+                        :placeholder="
+                          isOrganization(item)
+                            ? 'Stanford University'
+                            : 'Fei-Fei'
+                        "
                         class="w-full"
                       />
                     </UFormField>
 
                     <UFormField
+                      v-if="!isOrganization(item)"
                       label="Family Name"
                       :name="`contributors[${index}].familyName`"
                       class="w-full"
@@ -959,6 +1006,32 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       class="mb-2 flex items-start gap-2"
                     >
                       <UFormField
+                        label="ROR"
+                        :name="`contributors[${index}].affiliations[${affIndex}].identifier`"
+                        class="w-full"
+                        hint="ID or URL"
+                      >
+                        <div class="flex items-start gap-2">
+                          <UInput
+                            v-model="affiliation.identifier"
+                            class="w-full"
+                            placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                            @blur="
+                              affiliation.identifier = normalizeROR(
+                                affiliation.identifier,
+                              )
+                            "
+                          />
+
+                          <MetadataRorLookupButton
+                            compact
+                            :ror="affiliation.identifier"
+                            @found="affiliation.affiliation = $event.name"
+                          />
+                        </div>
+                      </UFormField>
+
+                      <UFormField
                         label="Name"
                         :name="`contributors[${index}].affiliations[${affIndex}].affiliation`"
                         class="w-full"
@@ -968,24 +1041,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                           v-model="affiliation.affiliation"
                           class="w-full"
                           placeholder="Stanford University"
-                        />
-                      </UFormField>
-
-                      <UFormField
-                        label="ROR"
-                        :name="`contributors[${index}].affiliations[${affIndex}].identifier`"
-                        class="w-full"
-                        hint="ID or URL"
-                      >
-                        <UInput
-                          v-model="affiliation.identifier"
-                          class="w-full"
-                          placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                          @blur="
-                            affiliation.identifier = normalizeROR(
-                              affiliation.identifier,
-                            )
-                          "
                         />
                       </UFormField>
 
@@ -1064,6 +1119,26 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                 <div class="flex flex-col gap-3">
                   <UFormField
+                    label="ROR"
+                    :name="`funders[${index}].identifier`"
+                    help="Enter the ROR ID or paste the full ROR URL."
+                  >
+                    <div class="flex items-start gap-2">
+                      <UInput
+                        v-model="item.identifier"
+                        placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                        class="w-full"
+                        @blur="item.identifier = normalizeROR(item.identifier)"
+                      />
+
+                      <MetadataRorLookupButton
+                        :ror="item.identifier"
+                        @found="item.name = $event.name"
+                      />
+                    </div>
+                  </UFormField>
+
+                  <UFormField
                     label="Name"
                     :name="`funders[${index}].name`"
                     required
@@ -1072,19 +1147,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       v-model="item.name"
                       placeholder="National Institutes of Health"
                       class="w-full"
-                    />
-                  </UFormField>
-
-                  <UFormField
-                    label="ROR"
-                    :name="`funders[${index}].identifier`"
-                    help="Enter the ROR ID or paste the full ROR URL."
-                  >
-                    <UInput
-                      v-model="item.identifier"
-                      placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                      class="w-full"
-                      @blur="item.identifier = normalizeROR(item.identifier)"
                     />
                   </UFormField>
 
@@ -1147,28 +1209,35 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
               </p>
             </div>
 
-            <UFormField label="Name" name="managingOrganization.name" required>
-              <UInput
-                v-model="state.managingOrganization.name"
-                placeholder="University of Washington"
-                class="w-full"
-              />
-            </UFormField>
-
             <UFormField
               label="ROR"
               name="managingOrganization.identifier"
               help="Enter the ROR ID or paste the full ROR URL."
             >
+              <div class="flex items-start gap-2">
+                <UInput
+                  v-model="state.managingOrganization.identifier"
+                  placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                  class="w-full"
+                  @blur="
+                    state.managingOrganization.identifier = normalizeROR(
+                      state.managingOrganization.identifier,
+                    )
+                  "
+                />
+
+                <MetadataRorLookupButton
+                  :ror="state.managingOrganization.identifier"
+                  @found="state.managingOrganization.name = $event.name"
+                />
+              </div>
+            </UFormField>
+
+            <UFormField label="Name" name="managingOrganization.name" required>
               <UInput
-                v-model="state.managingOrganization.identifier"
-                placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                v-model="state.managingOrganization.name"
+                placeholder="University of Washington"
                 class="w-full"
-                @blur="
-                  state.managingOrganization.identifier = normalizeROR(
-                    state.managingOrganization.identifier,
-                  )
-                "
               />
             </UFormField>
 

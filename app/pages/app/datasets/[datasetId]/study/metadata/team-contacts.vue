@@ -742,6 +742,41 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
             <div class="flex w-full gap-4">
               <UFormField
+                label="ROR"
+                name="responsiblePartyAffiliationId"
+                hint="ID or URL"
+                class="w-full"
+                :required="isInvestigatorParty(state.responsiblePartyType)"
+              >
+                <div class="flex items-start gap-2">
+                  <UInput
+                    v-model="
+                      state.responsiblePartyInvestigatorAffiliationIdentifier
+                    "
+                    placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                    class="w-full"
+                    @blur="
+                      state.responsiblePartyInvestigatorAffiliationIdentifier =
+                        normalizeROR(
+                          state.responsiblePartyInvestigatorAffiliationIdentifier,
+                        )
+                    "
+                  />
+
+                  <MetadataRorLookupButton
+                    compact
+                    :ror="
+                      state.responsiblePartyInvestigatorAffiliationIdentifier
+                    "
+                    @found="
+                      state.responsiblePartyInvestigatorAffiliationName =
+                        $event.name
+                    "
+                  />
+                </div>
+              </UFormField>
+
+              <UFormField
                 label="Affiliation"
                 name="responsiblePartyAffiliation"
                 class="w-full"
@@ -751,28 +786,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                   v-model="state.responsiblePartyInvestigatorAffiliationName"
                   placeholder="Stanford University"
                   class="w-full"
-                />
-              </UFormField>
-
-              <UFormField
-                label="ROR"
-                name="responsiblePartyAffiliationId"
-                hint="ID or URL"
-                class="w-full"
-                :required="isInvestigatorParty(state.responsiblePartyType)"
-              >
-                <UInput
-                  v-model="
-                    state.responsiblePartyInvestigatorAffiliationIdentifier
-                  "
-                  placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                  class="w-full"
-                  @blur="
-                    state.responsiblePartyInvestigatorAffiliationIdentifier =
-                      normalizeROR(
-                        state.responsiblePartyInvestigatorAffiliationIdentifier,
-                      )
-                  "
                 />
               </UFormField>
             </div>
@@ -794,6 +807,31 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </div>
 
             <UFormField
+              label="ROR"
+              name="leadSponsorIdentifier"
+              help="Enter the ROR ID or paste the full ROR URL."
+              class="w-full"
+            >
+              <div class="flex items-start gap-2">
+                <UInput
+                  v-model="state.leadSponsorIdentifier"
+                  placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                  class="w-full"
+                  @blur="
+                    state.leadSponsorIdentifier = normalizeROR(
+                      state.leadSponsorIdentifier,
+                    )
+                  "
+                />
+
+                <MetadataRorLookupButton
+                  :ror="state.leadSponsorIdentifier"
+                  @found="state.leadSponsorName = $event.name"
+                />
+              </div>
+            </UFormField>
+
+            <UFormField
               label="Name"
               name="leadSponsorName"
               class="w-full"
@@ -803,24 +841,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 v-model="state.leadSponsorName"
                 placeholder="National Institutes of Health"
                 class="w-full"
-              />
-            </UFormField>
-
-            <UFormField
-              label="ROR"
-              name="leadSponsorIdentifier"
-              help="Enter the ROR ID or paste the full ROR URL."
-              class="w-full"
-            >
-              <UInput
-                v-model="state.leadSponsorIdentifier"
-                placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                class="w-full"
-                @blur="
-                  state.leadSponsorIdentifier = normalizeROR(
-                    state.leadSponsorIdentifier,
-                  )
-                "
               />
             </UFormField>
 
@@ -928,6 +948,32 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <UFormField
+                      label="ROR"
+                      :name="`contact-affiliationIdentifier-${index}`"
+                      class="w-full"
+                      hint="ID or URL"
+                    >
+                      <div class="flex items-start gap-2">
+                        <UInput
+                          v-model="item.affiliationIdentifier"
+                          placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                          class="w-full"
+                          @blur="
+                            item.affiliationIdentifier = normalizeROR(
+                              item.affiliationIdentifier,
+                            )
+                          "
+                        />
+
+                        <MetadataRorLookupButton
+                          compact
+                          :ror="item.affiliationIdentifier"
+                          @found="item.affiliation = $event.name"
+                        />
+                      </div>
+                    </UFormField>
+
+                    <UFormField
                       label="Affiliation"
                       :name="`contact-affiliation-${index}`"
                       class="w-full"
@@ -937,24 +983,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         v-model="item.affiliation"
                         placeholder="University of Pennsylvania"
                         class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="ROR"
-                      :name="`contact-affiliationIdentifier-${index}`"
-                      class="w-full"
-                      hint="ID or URL"
-                    >
-                      <UInput
-                        v-model="item.affiliationIdentifier"
-                        placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                        class="w-full"
-                        @blur="
-                          item.affiliationIdentifier = normalizeROR(
-                            item.affiliationIdentifier,
-                          )
-                        "
                       />
                     </UFormField>
                   </div>
@@ -1099,6 +1127,32 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <UFormField
+                      label="ROR"
+                      :name="`official-affiliationIdentifier-${index}`"
+                      class="w-full"
+                      hint="ID or URL"
+                    >
+                      <div class="flex items-start gap-2">
+                        <UInput
+                          v-model="item.affiliationIdentifier"
+                          placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                          class="w-full"
+                          @blur="
+                            item.affiliationIdentifier = normalizeROR(
+                              item.affiliationIdentifier,
+                            )
+                          "
+                        />
+
+                        <MetadataRorLookupButton
+                          compact
+                          :ror="item.affiliationIdentifier"
+                          @found="item.affiliation = $event.name"
+                        />
+                      </div>
+                    </UFormField>
+
+                    <UFormField
                       label="Affiliation"
                       :name="`official-affiliation-${index}`"
                       class="w-full"
@@ -1108,24 +1162,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                         v-model="item.affiliation"
                         placeholder="Massachusetts Institute of Technology"
                         class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="ROR"
-                      :name="`official-affiliationIdentifier-${index}`"
-                      class="w-full"
-                      hint="ID or URL"
-                    >
-                      <UInput
-                        v-model="item.affiliationIdentifier"
-                        placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                        class="w-full"
-                        @blur="
-                          item.affiliationIdentifier = normalizeROR(
-                            item.affiliationIdentifier,
-                          )
-                        "
                       />
                     </UFormField>
                   </div>
@@ -1192,6 +1228,26 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
                 <div class="flex flex-col gap-3">
                   <UFormField
+                    label="ROR"
+                    :name="`collaborator-identifier-${index}`"
+                    help="Enter the ROR ID or paste the full ROR URL."
+                  >
+                    <div class="flex items-start gap-2">
+                      <UInput
+                        v-model="item.identifier"
+                        placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                        class="w-full"
+                        @blur="item.identifier = normalizeROR(item.identifier)"
+                      />
+
+                      <MetadataRorLookupButton
+                        :ror="item.identifier"
+                        @found="item.name = $event.name"
+                      />
+                    </div>
+                  </UFormField>
+
+                  <UFormField
                     :name="`collaborator-name-${index}`"
                     label="Name"
                     required
@@ -1200,19 +1256,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                       v-model="item.name"
                       placeholder="Stanford University"
                       class="w-full"
-                    />
-                  </UFormField>
-
-                  <UFormField
-                    label="ROR"
-                    :name="`collaborator-identifier-${index}`"
-                    help="Enter the ROR ID or paste the full ROR URL."
-                  >
-                    <UInput
-                      v-model="item.identifier"
-                      placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                      class="w-full"
-                      @blur="item.identifier = normalizeROR(item.identifier)"
                     />
                   </UFormField>
                 </div>

@@ -206,6 +206,17 @@ const withIdentifierFields = (location: any) => {
   };
 };
 
+// Keeps what's already entered for anything the ROR record doesn't have.
+const applyRorOrganization = (
+  location: Schema["studyLocations"][number],
+  organization: RorOrganization,
+) => {
+  location.facility = organization.name;
+  location.city = organization.city || location.city;
+  location.state = organization.state || location.state;
+  location.country = organization.country || location.country;
+};
+
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   saveLoading.value = true;
   isSubmitting.value = true;
@@ -332,6 +343,26 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 </template>
 
                 <div class="flex w-full flex-col gap-4 p-1">
+                  <UFormField
+                    label="ROR"
+                    :name="`identifier-${index}`"
+                    help="Enter the ROR ID or paste the full ROR URL."
+                  >
+                    <div class="flex items-start gap-2">
+                      <UInput
+                        v-model="item.identifier"
+                        placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                        class="w-full"
+                        @blur="item.identifier = normalizeROR(item.identifier)"
+                      />
+
+                      <MetadataRorLookupButton
+                        :ror="item.identifier"
+                        @found="applyRorOrganization(item, $event)"
+                      />
+                    </div>
+                  </UFormField>
+
                   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <UFormField
                       label="Facility Name"
@@ -391,19 +422,6 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                     <UInput
                       v-model="item.country"
                       placeholder="United States"
-                    />
-                  </UFormField>
-
-                  <UFormField
-                    label="ROR"
-                    :name="`identifier-${index}`"
-                    help="Enter the ROR ID or paste the full ROR URL."
-                  >
-                    <UInput
-                      v-model="item.identifier"
-                      placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                      class="w-full"
-                      @blur="item.identifier = normalizeROR(item.identifier)"
                     />
                   </UFormField>
                 </div>

@@ -365,7 +365,7 @@ const baseCreatorObjectSchema = z
       ]) // Second union option allows for JSON.stringified input
       .optional(),
     deleted: z.boolean().optional(),
-    familyName: z.string(),
+    familyName: z.string().nullable(),
     givenName: z.string(),
     local: z.boolean().optional(),
     nameIdentifier: z.string().optional(),

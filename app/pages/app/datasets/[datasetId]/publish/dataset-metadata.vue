@@ -257,7 +257,7 @@ const timelineItems = ref<TimelineItem[]>([
               :columns="[
                 {
                   accessorKey: 'givenName',
-                  header: 'Given Name',
+                  header: 'Given or Organization Name',
                 },
                 {
                   accessorKey: 'familyName',

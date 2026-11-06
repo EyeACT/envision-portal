@@ -123,7 +123,7 @@ const generateDatasetDescription = async (
       creator.nameIdentifier && creator.nameIdentifierScheme;
 
     return {
-      creatorName: `${creator.familyName}, ${creator.givenName}`,
+      creatorName: toPublishedName(creator),
       nameType: creator.nameType,
       ...(hasValidNameIdentifier && {
         nameIdentifier: [
@@ -175,7 +175,7 @@ const generateDatasetDescription = async (
 
       return {
         contributorType: contributor.contributorType,
-        contributorName: `${contributor.familyName}, ${contributor.givenName}`,
+        contributorName: toPublishedName(contributor),
         nameType: contributor.nameType,
         ...(hasValidNameIdentifier && {
           nameIdentifier: [
@@ -435,5 +435,14 @@ const generateDatasetDescription = async (
   // console.log(data);
   return data;
 };
+
+// People are published as "Family, Given". Organizations only have a given name, kept as is.
+const toPublishedName = (person: {
+  familyName: string | null;
+  givenName: string;
+}) =>
+  person.familyName
+    ? `${person.familyName}, ${person.givenName}`
+    : person.givenName;
 
 export default generateDatasetDescription;
