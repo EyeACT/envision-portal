@@ -519,44 +519,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
-          <div class="flex w-full flex-col gap-4">
-            <div class="flex flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Sampling Method
-              </h2>
-              <p class="text-gray-500 dark:text-gray-400">
-                Describe the population participants are drawn from and how they
-                are selected.
-              </p>
-            </div>
-
-            <UFormField
-              label="Study Population"
-              name="studyPopulation"
-              description="Required for observational studies."
-            >
-              <UInput
-                v-model="state.studyPopulation"
-                class="w-full"
-                placeholder="Adults with type 2 diabetes receiving care at participating clinics"
-              />
-            </UFormField>
-
-            <UFormField label="Sampling Method" name="samplingMethod">
-              <USelect
-                v-model="state.samplingMethod"
-                class="w-full"
-                placeholder="Probability Sample"
-                :items="FORM_JSON.studyMetadataEligibilitySamplingMethodOptions"
-              />
-            </UFormField>
-          </div>
-        </div>
-
-        <div
+                <div
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">
@@ -649,6 +612,45 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
             </UFormField>
           </div>
         </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Sampling Method
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Describe the population participants are drawn from and how they
+                are selected.
+              </p>
+            </div>
+
+            <UFormField
+              label="Study Population"
+              name="studyPopulation"
+              description="Required for observational studies."
+            >
+              <UInput
+                v-model="state.studyPopulation"
+                class="w-full"
+                placeholder="Adults with type 2 diabetes receiving care at participating clinics"
+              />
+            </UFormField>
+
+            <UFormField label="Sampling Method" name="samplingMethod">
+              <USelect
+                v-model="state.samplingMethod"
+                class="w-full"
+                placeholder="Probability Sample"
+                :items="FORM_JSON.studyMetadataEligibilitySamplingMethodOptions"
+              />
+            </UFormField>
+          </div>
+        </div>
+
+
       </UForm>
     </div>
 

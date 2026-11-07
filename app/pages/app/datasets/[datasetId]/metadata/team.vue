@@ -660,6 +660,63 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </p>
         </div>
 
+                <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Managing Organization
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Add the organization responsible for managing this dataset.
+              </p>
+            </div>
+
+            <UFormField
+              label="ROR"
+              name="managingOrganization.identifier"
+              help="Enter the ROR ID or paste the full ROR URL."
+            >
+              <div class="flex items-start gap-2">
+                <UInput
+                  v-model="state.managingOrganization.identifier"
+                  placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
+                  class="w-full"
+                  @blur="
+                    state.managingOrganization.identifier = normalizeROR(
+                      state.managingOrganization.identifier,
+                    )
+                  "
+                />
+
+                <MetadataRorLookupButton
+                  :ror="state.managingOrganization.identifier"
+                  @found="state.managingOrganization.name = $event.name"
+                />
+              </div>
+            </UFormField>
+
+            <UFormField label="Name" name="managingOrganization.name" required>
+              <UInput
+                v-model="state.managingOrganization.name"
+                placeholder="University of Washington"
+                class="w-full"
+              />
+            </UFormField>
+
+            <MetadataOrganizationPrefill
+              :current="state.managingOrganization"
+              :source="{
+                identifier: data?.StudySponsors?.leadSponsorIdentifier,
+                name: data?.StudySponsors?.leadSponsorName,
+              }"
+              source-label="study lead sponsor"
+              @prefill="state.managingOrganization = $event"
+            />
+          </div>
+        </div>
+
         <div
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
@@ -1196,62 +1253,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
-          <div class="flex w-full flex-col gap-4">
-            <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Managing Organization
-              </h2>
-              <p class="text-gray-500 dark:text-gray-400">
-                Add the organization responsible for managing this dataset.
-              </p>
-            </div>
 
-            <UFormField
-              label="ROR"
-              name="managingOrganization.identifier"
-              help="Enter the ROR ID or paste the full ROR URL."
-            >
-              <div class="flex items-start gap-2">
-                <UInput
-                  v-model="state.managingOrganization.identifier"
-                  placeholder="03yrm5c26 or https://ror.org/03yrm5c26"
-                  class="w-full"
-                  @blur="
-                    state.managingOrganization.identifier = normalizeROR(
-                      state.managingOrganization.identifier,
-                    )
-                  "
-                />
-
-                <MetadataRorLookupButton
-                  :ror="state.managingOrganization.identifier"
-                  @found="state.managingOrganization.name = $event.name"
-                />
-              </div>
-            </UFormField>
-
-            <UFormField label="Name" name="managingOrganization.name" required>
-              <UInput
-                v-model="state.managingOrganization.name"
-                placeholder="University of Washington"
-                class="w-full"
-              />
-            </UFormField>
-
-            <MetadataOrganizationPrefill
-              :current="state.managingOrganization"
-              :source="{
-                identifier: data?.StudySponsors?.leadSponsorIdentifier,
-                name: data?.StudySponsors?.leadSponsorName,
-              }"
-              source-label="study lead sponsor"
-              @prefill="state.managingOrganization = $event"
-            />
-          </div>
-        </div>
       </UForm>
     </div>
 
