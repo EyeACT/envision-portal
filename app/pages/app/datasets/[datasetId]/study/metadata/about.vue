@@ -662,112 +662,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-        <div
-          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
-        >
-          <div class="flex w-full flex-col gap-4">
-            <div class="flex w-full flex-col">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Keywords
-              </h2>
-              <p class="text-gray-500 dark:text-gray-400">
-                Please add at least one keyword that describes the study. These
-                will be used to help find the study when searching for it.
-              </p>
-            </div>
-
-            <div class="space-y-4">
-              <CardCollapsible
-                v-for="(item, index) in state.keywords"
-                v-show="!item.deleted"
-                :key="item.id"
-                class="shadow-none"
-                :title="item.name || `Keyword ${index + 1}`"
-                bordered
-              >
-                <template #header-extra>
-                  <UButton
-                    icon="i-lucide-trash"
-                    label="Remove keyword"
-                    variant="soft"
-                    color="error"
-                    @click="removeKeyword(index)"
-                  />
-                </template>
-
-                <div class="flex flex-col gap-3">
-                  <UFormField
-                    label="Name"
-                    :name="`keywords[${index}].name`"
-                    required
-                  >
-                    <UInput
-                      v-model="item.name"
-                      placeholder="Artificial Intelligence"
-                    />
-                  </UFormField>
-
-                  <MetadataOptionalFields
-                    :values="[
-                      item.classificationCode,
-                      item.scheme,
-                      item.schemeUri,
-                      item.keywordUri,
-                    ]"
-                  >
-                    <UFormField
-                      label="Identifier"
-                      :name="`keywords[${index}].classificationCode`"
-                    >
-                      <UInput
-                        v-model="item.classificationCode"
-                        placeholder="D001185"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Identifier Scheme"
-                      :name="`keywords[${index}].scheme`"
-                    >
-                      <UInput v-model="item.scheme" placeholder="MeSH" />
-                    </UFormField>
-
-                    <UFormField
-                      label="Scheme URI"
-                      :name="`keywords[${index}].schemeUri`"
-                    >
-                      <UInput
-                        v-model="item.schemeUri"
-                        placeholder="https://meshb.nlm.nih.gov/"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Keyword URI"
-                      :name="`keywords[${index}].keywordUri`"
-                    >
-                      <UInput
-                        v-model="item.keywordUri"
-                        placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
-                      />
-                    </UFormField>
-                  </MetadataOptionalFields>
-                </div>
-              </CardCollapsible>
-            </div>
-
-            <UButton
-              icon="i-lucide-plus"
-              variant="outline"
-              color="primary"
-              label="Add Keyword"
-              class="w-fit"
-              @click="addKeyword"
-            />
-          </div>
-        </div>
-
-        <div
+                <div
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">
@@ -877,6 +772,111 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
                 Missing conditions
               </span>
             </div>
+          </div>
+        </div>
+
+        <div
+          class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
+        >
+          <div class="flex w-full flex-col gap-4">
+            <div class="flex w-full flex-col">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                Keywords
+              </h2>
+              <p class="text-gray-500 dark:text-gray-400">
+                Please add at least one keyword that describes the study. These
+                will be used to help find the study when searching for it.
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <CardCollapsible
+                v-for="(item, index) in state.keywords"
+                v-show="!item.deleted"
+                :key="item.id"
+                class="shadow-none"
+                :title="item.name || `Keyword ${index + 1}`"
+                bordered
+              >
+                <template #header-extra>
+                  <UButton
+                    icon="i-lucide-trash"
+                    label="Remove keyword"
+                    variant="soft"
+                    color="error"
+                    @click="removeKeyword(index)"
+                  />
+                </template>
+
+                <div class="flex flex-col gap-3">
+                  <UFormField
+                    label="Name"
+                    :name="`keywords[${index}].name`"
+                    required
+                  >
+                    <UInput
+                      v-model="item.name"
+                      placeholder="Artificial Intelligence"
+                    />
+                  </UFormField>
+
+                  <MetadataOptionalFields
+                    :values="[
+                      item.classificationCode,
+                      item.scheme,
+                      item.schemeUri,
+                      item.keywordUri,
+                    ]"
+                  >
+                    <UFormField
+                      label="Identifier"
+                      :name="`keywords[${index}].classificationCode`"
+                    >
+                      <UInput
+                        v-model="item.classificationCode"
+                        placeholder="D001185"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      label="Identifier Scheme"
+                      :name="`keywords[${index}].scheme`"
+                    >
+                      <UInput v-model="item.scheme" placeholder="MeSH" />
+                    </UFormField>
+
+                    <UFormField
+                      label="Scheme URI"
+                      :name="`keywords[${index}].schemeUri`"
+                    >
+                      <UInput
+                        v-model="item.schemeUri"
+                        placeholder="https://meshb.nlm.nih.gov/"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      label="Keyword URI"
+                      :name="`keywords[${index}].keywordUri`"
+                    >
+                      <UInput
+                        v-model="item.keywordUri"
+                        placeholder="https://meshb.nlm.nih.gov/record/ui?ui=D001185"
+                      />
+                    </UFormField>
+                  </MetadataOptionalFields>
+                </div>
+              </CardCollapsible>
+            </div>
+
+            <UButton
+              icon="i-lucide-plus"
+              variant="outline"
+              color="primary"
+              label="Add Keyword"
+              class="w-fit"
+              @click="addKeyword"
+            />
           </div>
         </div>
 
