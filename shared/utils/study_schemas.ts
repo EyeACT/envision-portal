@@ -1369,7 +1369,15 @@ export const PrimaryIdentifierSchema = z.object({
   type: z.string().refine((v) => identTypeOptions.includes(v), {
     message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
   }),
-});
+}).superRefine(({ type, domain }, ctx) => {
+  if (typeNeedsDomain.includes(type) && !domain.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Domain is required for this identifier type",
+      path: ["domain"]
+    })
+  }
+})
 
 export const uniqueItemsRefine =
   (keyFn: (item: any) => string, message: string, errorPath: string) =>
