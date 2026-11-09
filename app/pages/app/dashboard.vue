@@ -33,12 +33,36 @@ const filteredDatasets = computed(() => {
   const query = searchQuery.value.trim().toLowerCase();
   if (!query) return datasets.value ?? [];
 
-  return (datasets.value ?? []).filter(
+  let ds = (datasets.value ?? []).filter(
     (dataset) =>
       dataset.title?.toLowerCase().includes(query) ||
       dataset.description?.toLowerCase().includes(query),
   );
+  console.log(ds)
+  return ds
 });
+
+const showNewVersionBtn = (dataset: any) => {
+  const isLatestPublishedDataset = !datasets?.value?.some(
+    currentDataset => 
+      currentDataset.status == "published" && 
+      currentDataset.created > dataset.created && 
+      currentDataset.canonicalId == dataset.canonicalId
+  );
+
+  const hasDraftVersion = !datasets?.value?.some(
+    currentDataset => 
+      currentDataset.status == "draft" && 
+      currentDataset.canonicalId == dataset.canonicalId
+  );
+
+  return (
+    isLatestPublishedDataset && 
+    dataset.status == "published" && 
+    hasDraftVersion
+  )
+    
+}
 
 const newDatasetForm = useTemplateRef("newDatasetForm");
 const newDatasetSchema = z.object({
@@ -303,7 +327,7 @@ const dropdownItems = ref([
                   </template>
 
                   <UButton
-                    v-if="dataset.status === 'published'"
+                    v-if="showNewVersionBtn(dataset)"
                     color="primary"
                     variant="outline"
                     label="Create a new version"
