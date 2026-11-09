@@ -74,19 +74,31 @@ export default defineEventHandler(async (event) => {
   // The new version starts from the latest version's frozen `data-{datasetId}/`
   // folder, so only the latest version can be versioned, and only once the
   // publish task is done reading from that folder
-  const latestVersion = await prisma.dataset.findFirst({
+  const publishedDatasets = await prisma.dataset.findMany({
     orderBy: {
       created: "desc",
     },
     select: {
       id: true,
       status: true,
+      version: true
     },
     where: {
       canonicalId: originalDataset.canonicalId,
       deletedAt: null,
     },
   });
+
+  // version number must be unique
+  const versionNotUnique = publishedDatasets.some(dataset => dataset.version == version)
+  if (versionNotUnique) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "This version number has already been used for a previous publication of this dataset. Enter a different version number."
+    })
+  }
+
+  const latestVersion = publishedDatasets[0]
 
   if (latestVersion?.id !== originalDataset.id) {
     throw createError({

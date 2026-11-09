@@ -105,10 +105,12 @@ const createNewVersion = async (datasetId: string) => {
     })
     .catch((error) => {
       console.error("Error creating new version:", error);
+      let userErrorMessage = error.statusMessage ?? "Please try again later"
       toast.add({
         title: "Error creating new version",
-        description: "Please try again later",
+        description: userErrorMessage,
         icon: "material-symbols:error",
+        color: "error"
       });
     })
     .finally(() => {
