@@ -4,6 +4,7 @@ import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
 import FORM_JSON from "@/assets/data/form.json";
 import { isValidUrl } from "~/utils/validations";
+import { typeNeedsDomain } from "~~/shared/utils/study_schemas";
 
 definePageMeta({
   middleware: ["auth"],
@@ -440,6 +441,17 @@ const validate = (state: any): FormError[] => {
       name: "primaryIdentifier.link",
       message: "Primary identifier link must be a valid URL",
     });
+  }
+
+
+
+  if (
+    typeNeedsDomain.includes(state.primaryIdentifier.type) && !state.primaryIdentifier.domain
+  ) {
+    errors.push({
+      name: "primaryIdentifier.domain",
+      message: "A domain is required when using the funding type you provided."
+    })
   }
 
   const seenSecondaryIDs = new Set<string>();
