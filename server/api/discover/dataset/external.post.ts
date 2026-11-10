@@ -14,6 +14,15 @@ const fileSchema: z.ZodType = z.lazy(() =>
   ),
 );
 
+const modalitySchema = z.object({
+  modality: z.string(),
+  label: z.string(),
+  fileCount: z.number().int().nonnegative().nullable(),
+  fileExtensions: z.array(z.string()).default([]),
+  detectionMethod: z.string(),
+  fileCountComplete: z.boolean().default(true),
+});
+
 const datasetSchema = z.object({
   title: z.string(),
   created: z.string(),
@@ -32,8 +41,19 @@ const datasetSchema = z.object({
     datasetSource: z.string(),
     extractionMethod: z.string(),
     extractionVersion: z.string(),
+    requiresAccessRequest: z.boolean().nullish(),
+    accessRequestUrl: z.string().nullish(),
+    accessConditions: z.string().nullish(),
+    embargoUntil: z.string().nullish(),
   }),
+  modalities: z.array(modalitySchema).optional(),
 });
+
+const parseDate = (value?: string | null): Date | null => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
 
 export default defineEventHandler(async (event) => {
   // Verify the authentication key from the headers and return a 401 error if it is invalid
@@ -63,6 +83,30 @@ export default defineEventHandler(async (event) => {
 
   const externalUrl = body.data.externalUrl.toLowerCase();
 
+  const details = body.data.PublishedDatasetRegistrationDetails;
+  const registrationDetails = {
+    datasetSource: details.datasetSource,
+    extractionMethod: details.extractionMethod,
+    extractionVersion: details.extractionVersion,
+    requiresAccessRequest: details.requiresAccessRequest ?? null,
+    accessRequestUrl: details.accessRequestUrl ?? null,
+    accessConditions: details.accessConditions ?? null,
+    embargoUntil: parseDate(details.embargoUntil),
+  };
+
+  const modalities = body.data.modalities
+    ? [
+        ...new Map(body.data.modalities.map((m) => [m.modality, m])).values(),
+      ].map((m) => ({
+        modality: m.modality,
+        label: m.label,
+        fileCount: m.fileCount,
+        fileCountComplete: m.fileCountComplete,
+        fileExtensions: m.fileExtensions,
+        detectionMethod: m.detectionMethod,
+      }))
+    : null;
+
   // check if the dataset with the same externalUrl or DOI already exists in the database
   const existingDataset = await prisma.publishedDataset.findFirst({
     where: {
@@ -83,7 +127,7 @@ export default defineEventHandler(async (event) => {
         created: new Date(parseInt(body.data.created) * 1000),
         data: body.data.data,
         description: body.data.description,
-        doi: body.data.doi,
+        doi: body.data.doi || null,
         external: true,
         externalUrl,
         files: body.data.files as any,
@@ -92,15 +136,19 @@ export default defineEventHandler(async (event) => {
         updated: new Date(parseInt(body.data.updated) * 1000),
         versionTitle: body.data.versionTitle,
         PublishedDatasetRegistrationDetails: {
-          update: {
-            datasetSource:
-              body.data.PublishedDatasetRegistrationDetails.datasetSource,
-            extractionMethod:
-              body.data.PublishedDatasetRegistrationDetails.extractionMethod,
-            extractionVersion:
-              body.data.PublishedDatasetRegistrationDetails.extractionVersion,
+          upsert: {
+            create: registrationDetails,
+            update: registrationDetails,
           },
         },
+        ...(modalities
+          ? {
+              PublishedDatasetModality: {
+                deleteMany: {},
+                create: modalities,
+              },
+            }
+          : {}),
       },
     });
 
@@ -118,7 +166,7 @@ export default defineEventHandler(async (event) => {
       created: new Date(parseInt(body.data.created) * 1000),
       data: body.data.data,
       description: body.data.description,
-      doi: body.data.doi,
+      doi: body.data.doi || null,
       external: true,
       externalUrl,
       files: body.data.files as any,
@@ -127,15 +175,11 @@ export default defineEventHandler(async (event) => {
       updated: new Date(parseInt(body.data.updated) * 1000),
       versionTitle: body.data.versionTitle,
       PublishedDatasetRegistrationDetails: {
-        create: {
-          datasetSource:
-            body.data.PublishedDatasetRegistrationDetails.datasetSource,
-          extractionMethod:
-            body.data.PublishedDatasetRegistrationDetails.extractionMethod,
-          extractionVersion:
-            body.data.PublishedDatasetRegistrationDetails.extractionVersion,
-        },
+        create: registrationDetails,
       },
+      ...(modalities && modalities.length > 0
+        ? { PublishedDatasetModality: { create: modalities } }
+        : {}),
     },
   });
 

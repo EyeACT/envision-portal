@@ -875,6 +875,28 @@ model PublishedDataset {
     DatasetRequest DatasetRequest[]
 
     PublishedDatasetRegistrationDetails PublishedDatasetRegistrationDetails?
+    PublishedDatasetModality            PublishedDatasetModality[]
+}
+
+model PublishedDatasetModality {
+    id String @id @default(cuid(2))
+
+    publishedDatasetId Int
+    publishedDataset   PublishedDataset @relation(fields: [publishedDatasetId], references: [id], onDelete: Cascade)
+
+    modality String // e.g. "oct", "fundus_photography"
+    label    String
+
+    fileCount         Int? // null = unknown
+    fileCountComplete Boolean  @default(true)
+    fileExtensions    String[] @default([])
+    detectionMethod   String
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
+
+    @@unique([publishedDatasetId, modality])
+    @@index([modality])
 }
 
 model PublishedDatasetRegistrationDetails {
