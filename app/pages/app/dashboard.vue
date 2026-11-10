@@ -70,7 +70,7 @@ const newDatasetSchema = z.object({
   description: z.string().trim().min(1, "Description is required"),
   imageUrl: z.string().optional(),
   type: z.string().optional(),
-  version: z.string().optional(),
+  version: z.string().trim().min(1, "Version is required"),
 });
 const newDatasetState = reactive({
   title: "",
