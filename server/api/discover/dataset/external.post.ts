@@ -38,9 +38,11 @@ const datasetSchema = z.object({
 export default defineEventHandler(async (event) => {
   // Verify the authentication key from the headers and return a 401 error if it is invalid
 
+  const expectedKey = process.env.EXTERNAL_API_KEY;
   const AuthenticationKey = getRequestHeader(event, "x-api-key");
 
-  if (AuthenticationKey !== process.env.EXTERNAL_API_KEY) {
+  // Reject when the key is not configured, otherwise a missing header would match `undefined`
+  if (!expectedKey || AuthenticationKey !== expectedKey) {
     throw createError({
       statusCode: 401,
       statusMessage: "Unauthorized",
@@ -122,7 +124,7 @@ export default defineEventHandler(async (event) => {
       files: body.data.files as any,
       publishedMetadata: body.data.publishedMetadata,
       studyTitle: body.data.studyTitle,
-      updated: new Date(parseInt(body.data.created) * 1000),
+      updated: new Date(parseInt(body.data.updated) * 1000),
       versionTitle: body.data.versionTitle,
       PublishedDatasetRegistrationDetails: {
         create: {

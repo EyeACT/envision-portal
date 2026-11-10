@@ -42,7 +42,7 @@ const loading = ref(false);
 async function onSubmit() {
   loading.value = true;
   try {
-    await $fetch("/api/datasets/external", {
+    await $fetch("/api/datasets/submit", {
       method: "POST",
       body: state,
     });
