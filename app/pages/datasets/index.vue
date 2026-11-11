@@ -25,6 +25,26 @@ const df = new DateFormatter("en-US", {
 
 const dateRange = shallowRef();
 
+const KEYWORD_PREVIEW_LIMIT = 10;
+const expandedKeywords = ref(new Set<number>());
+
+const toggleKeywords = (datasetId: number) => {
+  const next = new Set(expandedKeywords.value);
+
+  if (next.has(datasetId)) {
+    next.delete(datasetId);
+  } else {
+    next.add(datasetId);
+  }
+
+  expandedKeywords.value = next;
+};
+
+const visibleKeywords = (datasetId: number, keywords: string[]) =>
+  expandedKeywords.value.has(datasetId)
+    ? keywords
+    : keywords.slice(0, KEYWORD_PREVIEW_LIMIT);
+
 // Applied search term (sent to API when user submits search)
 const appliedSearch = ref<string>("");
 
@@ -373,13 +393,30 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
 
                     <div class="flex flex-wrap gap-2">
                       <UBadge
-                        v-for="keyword in dataset.keywords"
+                        v-for="keyword in visibleKeywords(
+                          dataset.id,
+                          dataset.keywords,
+                        )"
                         :key="keyword"
                         variant="outline"
                         class="text-xs capitalize"
                       >
                         {{ keyword }}
                       </UBadge>
+
+                      <UButton
+                        v-if="dataset.keywords.length > KEYWORD_PREVIEW_LIMIT"
+                        size="xs"
+                        variant="link"
+                        class="px-1"
+                        @click.prevent.stop="toggleKeywords(dataset.id)"
+                      >
+                        {{
+                          expandedKeywords.has(dataset.id)
+                            ? "Show less"
+                            : `Show ${dataset.keywords.length - KEYWORD_PREVIEW_LIMIT} more`
+                        }}
+                      </UButton>
                     </div>
                   </div>
 
