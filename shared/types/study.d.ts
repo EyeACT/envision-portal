@@ -497,8 +497,18 @@ interface AdditionalData {
   validationInfo: string;
 }
 
+interface ExternalDatasetAccess {
+  requiresAccessRequest: boolean | null;
+  accessRequestUrl: string | null;
+  accessConditions: string | null;
+  embargoUntil: Date | null;
+  datasetSource: string | null;
+}
+
 interface Dataset {
   id: string;
+  // Only set for external datasets, from their registration details
+  access: ExternalDatasetAccess | null;
   doi: string | null;
   title: string;
   description: string;

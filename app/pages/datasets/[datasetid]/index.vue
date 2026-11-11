@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dayjs from "dayjs";
 import type { InternalApi } from "nitropack/types";
 definePageMeta({
   layout: "public",
@@ -83,11 +84,17 @@ const tabItems = [
     label: "Dataset Metadata",
     slot: "dataset-metadata",
   },
-  {
-    icon: "solar:history-line-duotone",
-    label: "Healthsheet",
-    slot: "healthsheet",
-  },
+  dataset.value?.external
+    ? {
+        icon: "solar:lock-keyhole-minimalistic-line-duotone",
+        label: "Access Conditions",
+        slot: "access-conditions",
+      }
+    : {
+        icon: "solar:history-line-duotone",
+        label: "Healthsheet",
+        slot: "healthsheet",
+      },
   {
     icon: "solar:folder-with-files-line-duotone",
     label: "Files",
@@ -99,6 +106,41 @@ const tabItems = [
     slot: "versions",
   },
 ];
+
+const accessType = computed(() => {
+  const requiresRequest = dataset.value?.access?.requiresAccessRequest;
+
+  if (requiresRequest === true) {
+    return {
+      color: "warning" as const,
+      description:
+        "You need to request access from the hosting platform before downloading this dataset.",
+      label: "Access request required",
+    };
+  }
+
+  if (requiresRequest === false) {
+    return {
+      color: "success" as const,
+      description:
+        "This dataset can be downloaded from the hosting platform without an access request.",
+      label: "Open access",
+    };
+  }
+
+  return {
+    color: "neutral" as const,
+    description:
+      "We could not find the access requirements for this dataset. Check the hosting platform for details.",
+    label: "Unknown",
+  };
+});
+
+const embargoActive = computed(() => {
+  const embargoUntil = dataset.value?.access?.embargoUntil;
+
+  return embargoUntil ? dayjs(embargoUntil).isAfter(dayjs()) : false;
+});
 
 const getDatasetIndex = async () => {
   await $fetch(`/api/discover/dataset/${datasetid}/datasetIndex`)
@@ -474,6 +516,96 @@ onMounted(() => {
                   (dataset?.metadata?.healthsheet || {}) as HealthsheetRecords
                 "
               />
+            </template>
+
+            <template #access-conditions>
+              <div class="flex flex-col gap-6 pb-5">
+                <div class="flex flex-col gap-2">
+                  <h3 class="font-semibold">Access type</h3>
+
+                  <div>
+                    <UBadge :color="accessType.color" variant="subtle">
+                      {{ accessType.label }}
+                    </UBadge>
+                  </div>
+
+                  <p class="text-sm text-gray-500">
+                    {{ accessType.description }}
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <h3 class="font-semibold">Conditions</h3>
+
+                  <p
+                    v-if="dataset?.access?.accessConditions"
+                    class="text-sm whitespace-pre-line text-gray-600"
+                  >
+                    {{ dataset.access.accessConditions }}
+                  </p>
+
+                  <p v-else class="text-sm text-gray-400 italic">
+                    No access conditions were provided for this dataset.
+                  </p>
+                </div>
+
+                <div
+                  v-if="dataset?.access?.embargoUntil"
+                  class="flex flex-col gap-2"
+                >
+                  <h3 class="font-semibold">Embargo</h3>
+
+                  <p class="text-sm text-gray-600">
+                    {{ embargoActive ? "Embargoed until" : "Embargo ended on" }}
+                    <time
+                      :datetime="
+                        dayjs(dataset.access.embargoUntil).toISOString()
+                      "
+                    >
+                      {{
+                        dayjs(dataset.access.embargoUntil).format(
+                          "MMMM D, YYYY",
+                        )
+                      }}
+                    </time>
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <h3 class="font-semibold">License</h3>
+
+                  <p class="text-sm text-gray-600">
+                    {{
+                      dataset?.metadata.datasetDescription.rights[0]
+                        ?.rightsName || "Unknown"
+                    }}
+                  </p>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                  <UButton
+                    v-if="dataset?.access?.accessRequestUrl"
+                    :to="dataset.access.accessRequestUrl"
+                    target="_blank"
+                    label="Request access"
+                    icon="mingcute:external-link-fill"
+                    color="warning"
+                  />
+
+                  <UButton
+                    v-if="dataset?.externalUrl"
+                    :to="dataset.externalUrl"
+                    target="_blank"
+                    :label="
+                      dataset.access?.datasetSource
+                        ? `View on ${dataset.access.datasetSource}`
+                        : 'View on hosting platform'
+                    "
+                    icon="mingcute:external-link-fill"
+                    variant="outline"
+                  />
+                </div>
+              </div>
             </template>
 
             <template #files>

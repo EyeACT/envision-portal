@@ -7,6 +7,9 @@ export default defineEventHandler(async (event) => {
     where: {
       id: datasetId,
     },
+    include: {
+      PublishedDatasetRegistrationDetails: true,
+    },
   });
 
   if (!publishedDataset) {
@@ -40,8 +43,21 @@ export default defineEventHandler(async (event) => {
     };
   });
 
+  const registrationDetails =
+    publishedDataset.PublishedDatasetRegistrationDetails;
+
   const dataset: Dataset = {
     id: datasetid,
+    access: publishedDataset.external
+      ? {
+          requiresAccessRequest:
+            registrationDetails?.requiresAccessRequest ?? null,
+          accessRequestUrl: registrationDetails?.accessRequestUrl ?? null,
+          accessConditions: registrationDetails?.accessConditions ?? null,
+          embargoUntil: registrationDetails?.embargoUntil ?? null,
+          datasetSource: registrationDetails?.datasetSource ?? null,
+        }
+      : null,
     title: publishedDataset.title,
     created: publishedDataset.created,
     data: datasetAdditionalData,
