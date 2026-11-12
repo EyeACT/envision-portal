@@ -35,11 +35,6 @@ const headerItems = computed<NavigationMenuItem[]>(() => [
     to: "/contact",
     active: route.path.startsWith("/contact"),
   },
-  {
-    label: "Metrics",
-    to: "/metrics",
-    active: route.path.startsWith("/metrics")
-  }
 ]);
 
 const footerItems: NavigationMenuItem[] = [
