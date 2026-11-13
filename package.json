@@ -26,7 +26,8 @@
     "scripts:create:record": "tsx ./scripts/create-record.ts",
     "scripts:process:task-queue": "tsx ./scripts/process-task-queue.ts",
     "scripts:process:task-queue:watch": "tsx ./scripts/process-task-queue.ts --watch",
-    "scripts:restore:draft": "tsx ./scripts/restore-draft.ts"
+    "scripts:restore:draft": "tsx ./scripts/restore-draft.ts",
+    "metrics:snapshot": "npx tsx ./scripts/compute-metrics-snapshot.ts"
   },
   "dependencies": {
     "@azure/storage-blob": "12.34.0",
