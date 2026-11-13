@@ -106,7 +106,7 @@ const tabItems = [
     slot: "versions",
   },
   {
-    icon: "solar:history-line-duotone",
+    icon: "solar:graph-up-line-duotone",
     label: "Metrics",
     slot: "metrics"
   }
