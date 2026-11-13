@@ -105,6 +105,11 @@ const tabItems = [
     label: "Versions",
     slot: "versions",
   },
+  {
+    icon: "solar:history-line-duotone",
+    label: "Metrics",
+    slot: "metrics"
+  }
 ];
 
 const accessType = computed(() => {
@@ -629,6 +634,26 @@ onMounted(() => {
                 :id="dataset?.id || ''"
                 :versions="dataset?.versions || []"
               />
+            </template>
+
+            <template #metrics>
+              <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Modalities</h2>
+
+              <div v-if="dataset?.modalities.length" class="grid grid-cols-2 gap-4">
+                <UCard v-for="modalityRecord in dataset?.modalities">
+                  <div class="flex flex-col items-center gap-1 py-2 text-center">
+                    <div class="text-3xl font-bold text-green-500">
+                      {{ (modalityRecord.fileCount ?? 0).toLocaleString() }}
+                    </div>
+                    <p class="text-sm font-medium">{{ modalityRecord.modality }} files.</p>
+                  </div>
+                </UCard> 
+              </div>
+
+              <div v-else>
+                <p>A modality breakdown for this dataset is not available at this moment.</p>
+              </div>
+
             </template>
           </UTabs>
         </div>

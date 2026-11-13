@@ -144,7 +144,7 @@ const yFormatter = (tick: number) => tick.toString()
       <div 
         class="grid grid-cols-2 gap-4" 
       >
-        <UCard  v-for="(idx, source) in data?.datasetsPerSource">
+        <UCard v-for="(idx, source) in data?.datasetsPerSource">
           <div class="flex flex-col items-center gap-1 py-2 text-center">
             <div class="text-3xl font-bold text-green-500">
               {{ (data?.datasetsPerSource[source] ?? 0).toLocaleString() }}

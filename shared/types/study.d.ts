@@ -505,6 +505,11 @@ interface ExternalDatasetAccess {
   datasetSource: string | null;
 }
 
+interface ModalityRecord {
+  modality: string;
+  fileCount: number;
+}
+
 interface Dataset {
   id: string;
   // Only set for external datasets, from their registration details
@@ -526,6 +531,7 @@ interface Dataset {
   license: string;
   publishedMetadata?: PublishedMetadata;
   versions: VersionArray;
+  modalities: ModalityRecord[];
 }
 
 interface DatasetArray extends Array<Dataset> {}
