@@ -1001,3 +1001,11 @@ model ContactMessage {
     created DateTime @default(now())
     updated DateTime @updatedAt
 }
+
+model MetricsSnapshot {
+    id          Int      @id @default(autoincrement())
+    snaphsot    Json?
+    generatedAt DateTime @default(now())
+
+    @@index([generatedAt])
+}
