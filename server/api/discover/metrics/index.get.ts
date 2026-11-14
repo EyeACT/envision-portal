@@ -1,4 +1,5 @@
 import { computeSnapshot } from "~~/server/utils/computeMetrics"
+import { MetricsSnapshotPayloadSchema } from "~~/shared/types/metrics"
 
 // TODO: Github action that computes in advance with queries as fallback if no results
 export default defineEventHandler(async (event) => {
@@ -8,9 +9,11 @@ export default defineEventHandler(async (event) => {
       generatedAt: "desc"
     }
   })
+    
+  // ensure data in correct format
+  let parsed = MetricsSnapshotPayloadSchema.safeParse(metricsData?.snaphsot ?? {})
 
-  // update snapshot if data is stale or no snapshot exists
-  if(!metricsData || (metricsData && Date.now() - metricsData.generatedAt.getTime() >= 24 * 60 * 60 * 1000)) {
+  if(!parsed.success || (metricsData && Date.now() - metricsData.generatedAt.getTime() >= 24 * 60 * 60 * 1000)) {
     let metricsSnapshot = await computeSnapshot()
     await prisma.metricsSnapshot.create({
       data: {
@@ -18,10 +21,10 @@ export default defineEventHandler(async (event) => {
       }
     })
     return metricsSnapshot
-  } 
-    
-  
-  return metricsData.snaphsot
+  }
+
+
+  return parsed.data
 })
 
 

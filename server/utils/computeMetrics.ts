@@ -1,6 +1,7 @@
 import { PrismaClient } from "~~/shared/generated/client";
+import {MetricsSnapshotPayload} from "#shared/types/metrics"
 
-export const computeSnapshot = async (client: PrismaClient = prisma) => {
+export const computeSnapshot = async (client: PrismaClient = prisma) : Promise<MetricsSnapshotPayload> => {
   // get amount of datasets published via EP vs Auto Indexed
   let publishedDatasets = await client.publishedDataset.findMany({
     include: {
