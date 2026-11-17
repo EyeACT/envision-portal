@@ -1004,7 +1004,7 @@ model ContactMessage {
 
 model MetricsSnapshot {
     id          Int      @id @default(autoincrement())
-    snaphsot    Json?
+    snapshot    Json?
     generatedAt DateTime @default(now())
 
     @@index([generatedAt])
