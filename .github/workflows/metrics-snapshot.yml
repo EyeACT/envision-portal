@@ -9,6 +9,9 @@ concurrency:
 on:
   schedule:
     - cron: "0 8 * * *"
+  push:
+    branches:
+      - metrics
   workflow_dispatch:
 
 jobs:

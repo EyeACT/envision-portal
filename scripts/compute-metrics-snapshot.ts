@@ -1,5 +1,4 @@
 import {computeSnapshot} from "../server/utils/computeMetrics"
-import type { Prisma } from "../shared/generated/client";
 import { PrismaClient } from "../shared/generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
