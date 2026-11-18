@@ -4,6 +4,9 @@ import { nanoid } from "nanoid";
 import dayjs from "dayjs";
 import { sendEmail } from "../../utils/sendEmail";
 import { InvitationStatuses } from "~~/shared/generated/client";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { useRuntimeConfig } from "nitropack/runtime";
 
 const signupSchema = z.object({
   emailAddress: z.string().email(),

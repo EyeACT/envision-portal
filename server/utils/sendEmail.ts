@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { useRuntimeConfig } from "nitropack/runtime";
 
 export const sendEmail = async (to: string, subject: string, text: string) => {
   const config = useRuntimeConfig();

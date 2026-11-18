@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+import MarkdownRenderer from "~/components/markdown/MarkdownRenderer.vue";
+import CardCollapsibleContent from "~/components/card/CollapsibleContent.vue";
+import { computed } from "vue";
+
 // Define props
 const props = defineProps<{
   metadata: HealthsheetRecords;

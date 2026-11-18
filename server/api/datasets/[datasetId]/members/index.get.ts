@@ -1,7 +1,11 @@
-export default defineEventHandler(async (event) => {
-  const member = await datasetMinViewerPermission(event)
+import prisma from "#server/utils/prisma";
+import { defineEventHandler } from "h3";
+import { datasetMinViewerPermission } from "#server/utils/datasetMinViewerPermission";
 
-  const datasetId = member.datasetId
+export default defineEventHandler(async (event) => {
+  const member = await datasetMinViewerPermission(event);
+
+  const datasetId = member.datasetId;
 
   const datasetMembers = await prisma.datasetMember.findMany({
     where: {
@@ -12,11 +16,11 @@ export default defineEventHandler(async (event) => {
         select: {
           emailAddress: true,
           givenName: true,
-          familyName: true
-        }
-      }
+          familyName: true,
+        },
+      },
     },
   });
 
-  return datasetMembers || []
+  return datasetMembers || [];
 });

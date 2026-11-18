@@ -1,5 +1,8 @@
 import { DatasetMetadataAccessDataUseSchema } from "#shared/utils/dataset_schemas";
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { datasetMinEditorPermission } from "#server/utils/datasetMinEditorPermission";
 
 export default defineEventHandler(async (event) => {
   await datasetMinEditorPermission(event);

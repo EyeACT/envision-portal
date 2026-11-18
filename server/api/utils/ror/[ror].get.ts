@@ -1,3 +1,7 @@
+import { defineEventHandler, createError } from "h3";
+import type { RorOrganization } from "#shared/types/ror.d";
+import { requireUserSession } from "#imports";
+
 type RorRecord = {
   locations: {
     geonames_details: {

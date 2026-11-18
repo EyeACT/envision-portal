@@ -1,4 +1,6 @@
 import type { H3Event } from "h3";
+import prisma from "#server/utils/prisma";
+import { createError } from "h3";
 
 // Throws a 404 if the dataset in the route params does not exist or has been deleted
 export const datasetExists = async (event: H3Event) => {

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useSeoMeta } from "#app";
+import { definePageMeta } from "#app/composables/pages";
+import { UContainer } from "#components";
+
 useSeoMeta({
   title: "About",
 });

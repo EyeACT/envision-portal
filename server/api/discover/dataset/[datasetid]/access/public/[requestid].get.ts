@@ -1,3 +1,7 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { getPublishedContainerSasUrl } from "#server/utils/publishedStorage";
+
 export default defineEventHandler(async (event) => {
   const { datasetid, requestid } = event.context.params as {
     datasetid: string;
@@ -34,7 +38,10 @@ export default defineEventHandler(async (event) => {
 
   // The request ID is the only credential for anonymous public requests, so it
   // must belong to this dataset and still be approved
-  if (request.publishedDatasetId !== datasetId || request.status !== "approved") {
+  if (
+    request.publishedDatasetId !== datasetId ||
+    request.status !== "approved"
+  ) {
     throw createError({
       message: `Request ${requestid} not found`,
       statusCode: 404,

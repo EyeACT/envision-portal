@@ -1,4 +1,6 @@
 import type { DiscoveryDatasetList } from "#shared/types/dataset";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, getQuery } from "h3";
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 100;

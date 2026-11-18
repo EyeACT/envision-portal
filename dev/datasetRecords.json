@@ -174,14 +174,9 @@
         "publisher": {
           "publisherName": "Mendeley Data"
         },
-        "size": [
-          "1.44 GB",
-          "1000 images"
-        ],
+        "size": ["1.44 GB", "1000 images"],
         "fundingReference": [],
-        "format": [
-          "image/DICOM"
-        ]
+        "format": ["image/DICOM"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -388,14 +383,9 @@
         "publisher": {
           "publisherName": "Mendeley Data"
         },
-        "size": [
-          "1.44 GB",
-          "1000 images"
-        ],
+        "size": ["1.44 GB", "1000 images"],
         "fundingReference": [],
-        "format": [
-          "image/DICOM"
-        ]
+        "format": ["image/DICOM"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -602,14 +592,9 @@
         "publisher": {
           "publisherName": "Mendeley Data"
         },
-        "size": [
-          "1.44 GB",
-          "1000 images"
-        ],
+        "size": ["1.44 GB", "1000 images"],
         "fundingReference": [],
-        "format": [
-          "image/DICOM"
-        ]
+        "format": ["image/DICOM"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -816,14 +801,9 @@
         "publisher": {
           "publisherName": "Mendeley Data"
         },
-        "size": [
-          "1.44 GB",
-          "1000 images"
-        ],
+        "size": ["1.44 GB", "1000 images"],
         "fundingReference": [],
-        "format": [
-          "image/DICOM"
-        ]
+        "format": ["image/DICOM"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -974,14 +954,9 @@
         "publisher": {
           "publisherName": "Borealis Data"
         },
-        "size": [
-          "5.8MB",
-          "57 images"
-        ],
+        "size": ["5.8MB", "57 images"],
         "fundingReference": [],
-        "format": [
-          "image/jpeg"
-        ]
+        "format": ["image/jpeg"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -1109,14 +1084,9 @@
         "publisher": {
           "publisherName": "Mendeley Data"
         },
-        "size": [
-          "17.8MB",
-          "178 images"
-        ],
+        "size": ["17.8MB", "178 images"],
         "fundingReference": [],
-        "format": [
-          "image/DICOM"
-        ]
+        "format": ["image/DICOM"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -1258,14 +1228,9 @@
         "publisher": {
           "publisherName": "Mendeley Data"
         },
-        "size": [
-          "3.92 GB",
-          "16823 images"
-        ],
+        "size": ["3.92 GB", "16823 images"],
         "fundingReference": [],
-        "format": [
-          "image/DICOM"
-        ]
+        "format": ["image/DICOM"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -1407,14 +1372,9 @@
         "publisher": {
           "publisherName": "Mendeley Data"
         },
-        "size": [
-          "3.92 GB",
-          "16822 images"
-        ],
+        "size": ["3.92 GB", "16822 images"],
         "fundingReference": [],
-        "format": [
-          "image/DICOM"
-        ]
+        "format": ["image/DICOM"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -1565,13 +1525,9 @@
         "publisher": {
           "publisherName": "figshare"
         },
-        "size": [
-          "47.33 MB"
-        ],
+        "size": ["47.33 MB"],
         "fundingReference": [],
-        "format": [
-          "image/png"
-        ]
+        "format": ["image/png"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -1722,13 +1678,9 @@
         "publisher": {
           "publisherName": "figshare"
         },
-        "size": [
-          "48.33 MB"
-        ],
+        "size": ["48.33 MB"],
         "fundingReference": [],
-        "format": [
-          "image/png"
-        ]
+        "format": ["image/png"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -1879,13 +1831,9 @@
         "publisher": {
           "publisherName": "figshare"
         },
-        "size": [
-          "48.43 MB"
-        ],
+        "size": ["48.43 MB"],
         "fundingReference": [],
-        "format": [
-          "image/png"
-        ]
+        "format": ["image/png"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -2125,12 +2073,8 @@
           "studyType": "Observational",
           "isPatientRegistry": "No",
           "designInfo": {
-            "designObservationalModelList": [
-              "Cohort"
-            ],
-            "designTimePerspectiveList": [
-              "Cross-sectional"
-            ]
+            "designObservationalModelList": ["Cohort"],
+            "designTimePerspectiveList": ["Cross-sectional"]
           },
           "bioSpec": {
             "bioSpecRetention": "Samples With DNA",
@@ -2146,30 +2090,22 @@
             {
               "armGroupLabel": "Healthy",
               "armGroupDescription": "Participants who do not have Type 1 or Type 2 Diabetes",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Pre-diabetes/Lifestyle Controlled",
               "armGroupDescription": "Participants with pre-Type 2 Diabetes and those with Type 2 Diabetes whose blood sugar is controlled by lifesyle adjustments",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Oral Medication and/or Non-insulin-injectable Medication Controlled",
               "armGroupDescription": "Participants with Type 2 Diabetes whose blood sugar is controlled by oral or injectable medications other than insulin",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Insulin Dependent",
               "armGroupDescription": "Participants with Type 2 Diabetes whose blood sugar is controlled by insulin",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             }
           ],
           "interventionList": [
@@ -2803,10 +2739,7 @@
         "publisher": {
           "publisherName": "FAIRhub"
         },
-        "size": [
-          "310 GB",
-          "21,669 files"
-        ],
+        "size": ["310 GB", "21,669 files"],
         "fundingReference": [
           {
             "funderName": "National Institutes of Health",
@@ -2822,11 +2755,7 @@
             "awardTitle": "Bridge2AI: Salutogenesis Data Generation Project"
           }
         ],
-        "format": [
-          "image/DICOM",
-          "text/markdown",
-          "table/csv"
-        ]
+        "format": ["image/DICOM", "text/markdown", "table/csv"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.0/dataset_structure_description.json",
@@ -4524,12 +4453,8 @@
           "studyType": "Observational",
           "isPatientRegistry": "No",
           "designInfo": {
-            "designObservationalModelList": [
-              "Cohort"
-            ],
-            "designTimePerspectiveList": [
-              "Cross-sectional"
-            ]
+            "designObservationalModelList": ["Cohort"],
+            "designTimePerspectiveList": ["Cross-sectional"]
           },
           "bioSpec": {
             "bioSpecRetention": "Samples With DNA",
@@ -4545,30 +4470,22 @@
             {
               "armGroupLabel": "Healthy",
               "armGroupDescription": "Participants who do not have Type 1 or Type 2 Diabetes",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Pre-diabetes/Lifestyle Controlled",
               "armGroupDescription": "Participants with pre-Type 2 Diabetes and those with Type 2 Diabetes whose blood sugar is controlled by lifesyle adjustments",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Oral Medication and/or Non-insulin-injectable Medication Controlled",
               "armGroupDescription": "Participants with Type 2 Diabetes whose blood sugar is controlled by oral or injectable medications other than insulin",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Insulin Dependent",
               "armGroupDescription": "Participants with Type 2 Diabetes whose blood sugar is controlled by insulin",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             }
           ],
           "interventionList": [
@@ -5160,10 +5077,7 @@
         "publisher": {
           "publisherName": "FAIRhub"
         },
-        "size": [
-          "3.82 TB",
-          "356343 files"
-        ],
+        "size": ["3.82 TB", "356343 files"],
         "fundingReference": [
           {
             "funderName": "National Institutes of Health",
@@ -7284,12 +7198,8 @@
           "studyType": "Observational",
           "isPatientRegistry": "No",
           "designInfo": {
-            "designObservationalModelList": [
-              "Cohort"
-            ],
-            "designTimePerspectiveList": [
-              "Cross-sectional"
-            ]
+            "designObservationalModelList": ["Cohort"],
+            "designTimePerspectiveList": ["Cross-sectional"]
           },
           "bioSpec": {
             "bioSpecRetention": "Samples With DNA",
@@ -7305,30 +7215,22 @@
             {
               "armGroupLabel": "Healthy",
               "armGroupDescription": "Participants who do not have Type 1 or Type 2 Diabetes",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Pre-diabetes/Lifestyle Controlled",
               "armGroupDescription": "Participants with pre-Type 2 Diabetes and those with Type 2 Diabetes whose blood sugar is controlled by lifesyle adjustments",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Oral Medication and/or Non-insulin-injectable Medication Controlled",
               "armGroupDescription": "Participants with Type 2 Diabetes whose blood sugar is controlled by oral or injectable medications other than insulin",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Insulin Dependent",
               "armGroupDescription": "Participants with Type 2 Diabetes whose blood sugar is controlled by insulin",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             }
           ],
           "interventionList": [
@@ -7878,10 +7780,7 @@
         "publisher": {
           "publisherName": "FAIRhub"
         },
-        "size": [
-          "2.01 TB",
-          "165,051 files"
-        ],
+        "size": ["2.01 TB", "165,051 files"],
         "fundingReference": [
           {
             "funderName": "National Institutes of Health",
@@ -7897,11 +7796,7 @@
             "awardTitle": "Bridge2AI: Salutogenesis Data Generation Project"
           }
         ],
-        "format": [
-          "image/DICOM",
-          "text/markdown",
-          "table/csv"
-        ]
+        "format": ["image/DICOM", "text/markdown", "table/csv"]
       },
       "datasetStructureDescription": {
         "schema": "https://schema.aireadi.org/v0.1.1/dataset_structure_description.json",
@@ -9984,12 +9879,8 @@
           "studyType": "Observational",
           "isPatientRegistry": "No",
           "designInfo": {
-            "designObservationalModelList": [
-              "Cohort"
-            ],
-            "designTimePerspectiveList": [
-              "Cross-sectional"
-            ]
+            "designObservationalModelList": ["Cohort"],
+            "designTimePerspectiveList": ["Cross-sectional"]
           },
           "bioSpec": {
             "bioSpecRetention": "Samples With DNA",
@@ -10005,30 +9896,22 @@
             {
               "armGroupLabel": "Healthy",
               "armGroupDescription": "Participants who do not have Type 1 or Type 2 Diabetes",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Pre-diabetes/Lifestyle Controlled",
               "armGroupDescription": "Participants with pre-Type 2 Diabetes and those with Type 2 Diabetes whose blood sugar is controlled by lifesyle adjustments",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Oral Medication and/or Non-insulin-injectable Medication Controlled",
               "armGroupDescription": "Participants with Type 2 Diabetes whose blood sugar is controlled by oral or injectable medications other than insulin",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             },
             {
               "armGroupLabel": "Insulin Dependent",
               "armGroupDescription": "Participants with Type 2 Diabetes whose blood sugar is controlled by insulin",
-              "armGroupInterventionList": [
-                "AI-READI protocol"
-              ]
+              "armGroupInterventionList": ["AI-READI protocol"]
             }
           ],
           "interventionList": [
@@ -10620,10 +10503,7 @@
         "publisher": {
           "publisherName": "FAIRhub"
         },
-        "size": [
-          "3.81 TB",
-          "356343 files"
-        ],
+        "size": ["3.81 TB", "356343 files"],
         "fundingReference": [
           {
             "funderName": "National Institutes of Health",

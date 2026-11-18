@@ -3,6 +3,11 @@ import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { MdEditor } from "md-editor-v3";
 import { useUnsavedChangesGuard } from "@/composables/useUnsavedChangesGuard";
+import { definePageMeta } from "#app/composables/pages";
+import { useToast } from "#imports";
+import { useFetch, navigateTo, useSeoMeta } from "#app";
+import { $fetch } from "#build/fetch";
+import { UBreadcrumb, UButton, UModal } from "#components";
 
 definePageMeta({
   middleware: ["auth"],

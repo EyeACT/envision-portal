@@ -1,5 +1,21 @@
 <script setup>
 import { externalDatasetSchema } from "#shared/utils/external_dataset";
+import { definePageMeta } from "#app/composables/pages";
+import { useToast } from "#imports";
+import { reactive, ref } from "vue";
+import { $fetch } from "#build/fetch";
+import {
+  UAlert,
+  UInput,
+  UFormField,
+  UTextarea,
+  UCard,
+  USelect,
+  UCheckbox,
+  UButton,
+  UForm,
+  UContainer,
+} from "#components";
 
 definePageMeta({
   layout: "public",

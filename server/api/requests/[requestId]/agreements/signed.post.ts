@@ -1,3 +1,12 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { requireUserSession } from "#imports";
+import {
+  getAgreementPath,
+  uploadRequestAgreement,
+  notifyDatasetManagers,
+} from "#server/utils/datasetRequests";
+
 // Requester uploads their signed copy of the data use agreement
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event);

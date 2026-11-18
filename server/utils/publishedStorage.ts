@@ -4,6 +4,7 @@ import {
   StorageSharedKeyCredential,
   generateBlobSASQueryParameters,
 } from "@azure/storage-blob";
+import { useRuntimeConfig } from "nitropack/runtime";
 
 // Requester download links are valid for 24 hours (see dev/storage-rework.md)
 const PUBLISHED_SAS_LIFETIME_HOURS = 24;

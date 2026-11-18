@@ -1,3 +1,7 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler } from "h3";
+import { requireUserSession } from "#imports";
+
 // import { faker } from "@faker-js/faker";
 
 export default defineEventHandler(async (event) => {

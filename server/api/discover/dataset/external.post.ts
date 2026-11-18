@@ -1,4 +1,11 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import {
+  defineEventHandler,
+  getRequestHeader,
+  createError,
+  readValidatedBody,
+} from "h3";
 
 const fileSchema: z.ZodType = z.lazy(() =>
   z.array(

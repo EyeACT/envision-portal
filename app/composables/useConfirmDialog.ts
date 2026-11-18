@@ -1,20 +1,20 @@
-
-import OverlayConfirmDialog from "~/components/overlay/OverlayConfirmDialog.vue"
+import OverlayConfirmDialog from "~/components/overlay/OverlayConfirmDialog.vue";
+import { useOverlay } from "#imports";
 
 export interface ConfirmDialogOptions {
-  title: string
-  description?: string
+  title: string;
+  description?: string;
 }
 
 export const useConfirmDialog = () => {
-  const overlay = useOverlay()
+  const overlay = useOverlay();
 
   return (options: ConfirmDialogOptions): Promise<boolean> => {
     const modal = overlay.create(OverlayConfirmDialog, {
       destroyOnClose: true,
-      props: options
-    })
+      props: options,
+    });
 
-    return modal.open()
-  }
-}
+    return modal.open();
+  };
+};

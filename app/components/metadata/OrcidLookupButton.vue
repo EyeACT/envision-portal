@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { useToast } from "#imports";
+import { ref, computed } from "vue";
+import { normalizeORCID, isValidORCIDValue } from "~/utils/validations";
+import { $fetch } from "#build/fetch";
+import { UButton, UTooltip } from "#components";
+
 const props = defineProps<{
   // The ORCID field's value as typed, which may still be a full URL
   orcid: string;

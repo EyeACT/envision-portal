@@ -1,7 +1,22 @@
 <script setup lang="ts">
 import type { TimelineItem, TableColumn } from "@nuxt/ui";
-import { UIcon, UButton } from "#components";
+import {
+  UIcon,
+  UButton,
+  UBreadcrumb,
+  UStepper,
+  UAlert,
+  URadioGroup,
+  UTable,
+  UModal,
+} from "#components";
 import DatasetPublishingStatus from "~/assets/data/publishing-status.json";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useSeoMeta, navigateTo } from "#app";
+import { useToast, useDayjs } from "#imports";
+import { ref, computed, h, onMounted, onUnmounted } from "vue";
+import { $fetch } from "#build/fetch";
+import { setInterval } from "#app/compat/interval";
 
 definePageMeta({
   middleware: ["auth"],

@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import type { InternalApi } from "nitropack/types";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, navigateTo, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { UBreadcrumb, UBadge, UButton } from "#components";
 definePageMeta({ middleware: ["auth"] });
 
 const route = useRoute();

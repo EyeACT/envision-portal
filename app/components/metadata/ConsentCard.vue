@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import datasetMetadata from "@/assets/data/dataset-metadata.json";
+import CardCollapsibleContent from "~/components/card/CollapsibleContent.vue";
+import { USwitch } from "#components";
 const _props = defineProps<{
   metadata: DatasetDescription["datasetConsent"];
 }>();
@@ -25,7 +27,7 @@ const sectionTitleClass = "mb-2 w-full border-b border-gray-200 font-semibold";
       <div>
         <p :class="sectionTitleClass">Consent Type</p>
 
-        <p>{{ formattedConsentType || "N/A"}}</p>
+        <p>{{ formattedConsentType || "N/A" }}</p>
       </div>
 
       <!-- Non-commercial use -->

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useSlots, computed } from 'vue'
+import { Icon } from '#components'
+
 interface UiSpinnerProps {
   loading?: boolean;
   size?: "sm" | "md" | "lg";
@@ -57,7 +60,6 @@ const sizeClasses = {
           name="svg-spinners:blocks-wave"
           :class="
             [
-            
               sizeClasses[props.size],
               'text-primary-500 dark:text-primary-400',
               props.spinnerClass,

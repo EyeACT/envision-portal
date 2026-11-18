@@ -50,6 +50,7 @@
 <script lang="ts" setup>
 import { Motion, useScroll, useTransform } from "motion-v";
 import type { HTMLAttributes } from "vue";
+import { ref, onMounted, nextTick, watch } from "vue";
 
 interface Props {
   containerClass?: HTMLAttributes["class"];

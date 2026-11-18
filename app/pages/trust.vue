@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useSeoMeta } from "#app";
+import { definePageMeta } from "#app/composables/pages";
+import type { document } from "#shared/types/document";
+import { NuxtLink, Icon, UButton, UContainer } from "#components";
 
 useSeoMeta({
   title: "TRUST Principles - Envision Portal",

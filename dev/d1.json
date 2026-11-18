@@ -421,12 +421,8 @@
           "studyType": "Observational",
           "designInfo": {
             "designAllocation": "Non-Randomized",
-            "designTimePerspectiveList": [
-              "Prospective"
-            ],
-            "designObservationalModelList": [
-              "Case-Control"
-            ]
+            "designTimePerspectiveList": ["Prospective"],
+            "designObservationalModelList": ["Case-Control"]
           },
           "enrollmentInfo": {
             "enrollmentType": "Actual",
@@ -531,30 +527,22 @@
             {
               "armGroupLabel": "Healthy Controls",
               "armGroupDescription": "Participants with no diagnosed eye diseases or vision impairments.",
-              "armGroupInterventionList": [
-                "OCT Imaging Protocol"
-              ]
+              "armGroupInterventionList": ["OCT Imaging Protocol"]
             },
             {
               "armGroupLabel": "Glaucoma",
               "armGroupDescription": "Participants diagnosed with early, moderate, or advanced glaucoma.",
-              "armGroupInterventionList": [
-                "OCT Imaging Protocol"
-              ]
+              "armGroupInterventionList": ["OCT Imaging Protocol"]
             },
             {
               "armGroupLabel": "Age-Related Macular Degeneration (AMD)",
               "armGroupDescription": "Participants diagnosed with early, intermediate, or advanced AMD.",
-              "armGroupInterventionList": [
-                "OCT Imaging Protocol"
-              ]
+              "armGroupInterventionList": ["OCT Imaging Protocol"]
             },
             {
               "armGroupLabel": "Other Retinal Disorders",
               "armGroupDescription": "Participants with other retinal conditions such as retinal vein occlusion, central serous retinopathy, or inherited retinal diseases.",
-              "armGroupInterventionList": [
-                "OCT Imaging Protocol"
-              ]
+              "armGroupInterventionList": ["OCT Imaging Protocol"]
             }
           ],
           "interventionList": [
@@ -759,10 +747,7 @@
             "dateInformation": "Period when the data was collected"
           }
         ],
-        "size": [
-          "2.01 TB",
-          "165,051 files"
-        ],
+        "size": ["2.01 TB", "165,051 files"],
         "title": [
           {
             "titleValue": "Flagship Dataset of Type 2 Diabetes from the AI-READI Project"
@@ -772,11 +757,7 @@
             "titleValue": "AI-READI dataset"
           }
         ],
-        "format": [
-          "image/DICOM",
-          "text/markdown",
-          "table/csv"
-        ],
+        "format": ["image/DICOM", "text/markdown", "table/csv"],
         "rights": [
           {
             "rightsURI": "https://doi.org/10.5281/zenodo.10642459",

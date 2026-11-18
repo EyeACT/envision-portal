@@ -1,4 +1,7 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { requireUserSession } from "#imports";
 
 const notificationSchema = z.object({
   action: z.union([z.literal("mark-as-read"), z.literal("mark-as-unread")]),

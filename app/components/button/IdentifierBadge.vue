@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { PropType } from "vue";
+import { Icon, NuxtLink } from "#components";
+
 interface Identifier {
   affiliationIdentifier?: string;
   affiliationIdentifierScheme?: string;

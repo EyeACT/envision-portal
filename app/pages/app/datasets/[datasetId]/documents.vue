@@ -3,6 +3,21 @@ import { useDocuments, type StudyDocument } from "@/composables/useDocuments";
 import { DOCUMENT_TYPES } from "#shared/constants/documents";
 import type { document } from "~~/shared/types/document";
 import { useConfirmDialog } from "~/composables/useConfirmDialog";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { computed, ref } from "vue";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  UButton,
+  Icon,
+  UBadge,
+  UInput,
+  UFormField,
+  USelect,
+  UModal,
+} from "#components";
 
 const confirm = useConfirmDialog();
 

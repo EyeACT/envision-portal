@@ -27,13 +27,13 @@ registry:
   password:
     - KAMAL_REGISTRY_PASSWORD
 
-builder: 
+builder:
   arch: amd64
   context: .
   dockerfile: Dockerfile.task-queue
 
-env: 
-  clear: 
+env:
+  clear:
     NODE_ENV: test
   secret:
     - DATABASE_URL

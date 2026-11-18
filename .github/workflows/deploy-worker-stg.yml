@@ -42,7 +42,6 @@ jobs:
       SSH_PRIVATE_KEY_WORKER: ${{secrets.SSH_PRIVATE_KEY_WORKER}}
       AZURE_PUBLISHED_ACCOUNT_KEY: ${{secrets.AZURE_PUBLISHED_ACCOUNT_KEY}}
 
-
     steps:
       - uses: actions/checkout@v4
 

@@ -9,6 +9,24 @@ import type {
   ExtractedValues,
   ExtractField,
 } from "@/components/ai/ExtractDrawer.vue";
+import CardCollapsible from "~/components/card/CardCollapsible.vue";
+import AiExtractDrawer from "~/components/ai/ExtractDrawer.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref, reactive, computed } from "vue";
+import { useUnsavedChangesGuard } from "~/composables/useUnsavedChangesGuard";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  UButton,
+  UInput,
+  UFormField,
+  USelect,
+  UTextarea,
+  UForm,
+  UModal,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth"],

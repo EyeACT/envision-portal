@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { UButton, UCollapsible } from "#components";
+
 const props = defineProps<{
   title: string;
   collapse: boolean;

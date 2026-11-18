@@ -1,4 +1,7 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { datasetMinEditorPermission } from "#server/utils/datasetMinEditorPermission";
 
 const DatasetReadmeSchema = z.object({
   readme: z.string(),

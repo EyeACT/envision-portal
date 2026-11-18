@@ -1,3 +1,9 @@
+import prisma from "#server/utils/prisma";
+import { getFileIcon } from "#server/utils/getFileIcon";
+import { defineEventHandler, createError } from "h3";
+import { datasetMinViewerPermission } from "#server/utils/datasetMinViewerPermission";
+import { listDatasetDataFiles } from "#server/utils/studyStorage";
+
 // Function to convert blob paths into a tree structure for UTree
 function convertBlobsToTree(blobs: any[]) {
   const tree: any[] = [];
@@ -51,7 +57,7 @@ function convertBlobsToTree(blobs: any[]) {
 }
 
 export default defineEventHandler(async (event) => {
-  await datasetMinViewerPermission(event)
+  await datasetMinViewerPermission(event);
 
   const { datasetId } = event.context.params as {
     datasetId: string;

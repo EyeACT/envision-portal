@@ -1,3 +1,5 @@
+import { defineNuxtRouteMiddleware, useRequestFetch, navigateTo } from "#app";
+
 // Sends the publish wizard steps to the finalize page once publishing has been
 // requested. A locked dataset can't be edited, and finalize shows the progress
 export default defineNuxtRouteMiddleware(async (to) => {

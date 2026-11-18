@@ -1,5 +1,18 @@
 <script setup lang="ts">
 import type { TimelineItem } from "@nuxt/ui";
+import CardCollapsible from "~/components/card/CardCollapsible.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref } from "vue";
+import {
+  UBreadcrumb,
+  UStepper,
+  UButton,
+  UAlert,
+  UTable,
+  UBadge,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth", "publish-started"],

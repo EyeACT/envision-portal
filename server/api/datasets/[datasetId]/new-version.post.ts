@@ -1,4 +1,8 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { datasetMinAdminPermission } from "#server/utils/datasetMinAdminPermission";
+import { unfreezeData } from "#server/utils/studyStorage";
 
 const createDatasetSchema = z.object({
   id: z.string(),
@@ -6,7 +10,7 @@ const createDatasetSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  await datasetMinAdminPermission(event)
+  await datasetMinAdminPermission(event);
 
   // todo: add permissions check
 
@@ -81,7 +85,7 @@ export default defineEventHandler(async (event) => {
     select: {
       id: true,
       status: true,
-      version: true
+      version: true,
     },
     where: {
       canonicalId: originalDataset.canonicalId,
@@ -90,15 +94,18 @@ export default defineEventHandler(async (event) => {
   });
 
   // version number must be unique
-  const versionNotUnique = publishedDatasets.some(dataset => dataset.version == version)
+  const versionNotUnique = publishedDatasets.some(
+    (dataset) => dataset.version == version,
+  );
   if (versionNotUnique) {
     throw createError({
       statusCode: 400,
-      statusMessage: "This version number has already been used for a previous publication of this dataset. Enter a different version number."
-    })
+      statusMessage:
+        "This version number has already been used for a previous publication of this dataset. Enter a different version number.",
+    });
   }
 
-  const latestVersion = publishedDatasets[0]
+  const latestVersion = publishedDatasets[0];
 
   if (latestVersion?.id !== originalDataset.id) {
     throw createError({

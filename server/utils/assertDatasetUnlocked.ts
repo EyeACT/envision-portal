@@ -1,3 +1,6 @@
+import prisma from "#server/utils/prisma";
+import { createError } from "h3";
+
 // Throws a 423 if the dataset has been locked for publishing.
 // A missing dataset passes so the route can return its own 404.
 export const assertDatasetUnlocked = async (datasetId: string) => {

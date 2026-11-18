@@ -3,8 +3,30 @@ import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
 import FORM_JSON from "@/assets/data/form.json";
-import { isValidUrl } from "~/utils/validations";
+import {
+  isValidUrl,
+  isValidORCIDValue,
+  isValidRORValue,
+} from "~/utils/validations";
 import { typeNeedsDomain } from "~~/shared/utils/study_schemas";
+import MetadataOptionalFields from "~/components/metadata/OptionalFields.vue";
+import CardCollapsible from "~/components/card/CardCollapsible.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref, reactive, computed } from "vue";
+import { useUnsavedChangesGuard } from "~/composables/useUnsavedChangesGuard";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  UTextarea,
+  UFormField,
+  UButton,
+  UInput,
+  USelect,
+  UForm,
+  UModal,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth"],
@@ -443,15 +465,14 @@ const validate = (state: any): FormError[] => {
     });
   }
 
-
-
   if (
-    typeNeedsDomain.includes(state.primaryIdentifier.type) && !state.primaryIdentifier.domain
+    typeNeedsDomain.includes(state.primaryIdentifier.type) &&
+    !state.primaryIdentifier.domain
   ) {
     errors.push({
       name: "primaryIdentifier.domain",
-      message: "A domain is required when using the funding type you provided."
-    })
+      message: "A domain is required when using the funding type you provided.",
+    });
   }
 
   const seenSecondaryIDs = new Set<string>();
@@ -674,7 +695,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
           </div>
         </div>
 
-                <div
+        <div
           class="flex w-full flex-wrap items-center justify-between rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900"
         >
           <div class="flex w-full flex-col gap-4">

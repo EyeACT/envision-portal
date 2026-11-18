@@ -1,4 +1,8 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { requireUserSession } from "#imports";
+import { notifyDatasetManagers } from "#server/utils/datasetRequests";
 
 const requestSchema = z.object({
   affiliation: z.string().trim().min(1, "Must be at least 1 character"),
@@ -43,7 +47,8 @@ export default defineEventHandler(async (event) => {
   if (publishedDataset.public) {
     throw createError({
       statusCode: 400,
-      statusMessage: "This dataset is public. Use the public access form instead.",
+      statusMessage:
+        "This dataset is public. Use the public access form instead.",
     });
   }
 

@@ -13,6 +13,12 @@
 </template>
 
 <script setup lang="ts">
+import { useUserSession, useToast } from "#imports";
+import { navigateTo, useSeoMeta, useRoute } from "#app";
+import { definePageMeta } from "#app/composables/pages";
+import { ref, onMounted } from "vue";
+import { $fetch } from "#build/fetch";
+
 const { loggedIn } = useUserSession();
 
 if (loggedIn.value) {

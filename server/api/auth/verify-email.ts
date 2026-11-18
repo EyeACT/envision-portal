@@ -1,4 +1,6 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
 
 const verifySchema = z.object({
   token: z.string(),

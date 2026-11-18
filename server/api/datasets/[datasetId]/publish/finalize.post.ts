@@ -6,6 +6,17 @@ import {
 import type { PublishDatasetPayload } from "#shared/types/tasks";
 import { z } from "zod";
 import { DATASET_ACCESS_LEVELS } from "#shared/constants/requests";
+import prisma from "#server/utils/prisma";
+import generateDatasetDescription from "#server/utils/publish/generateDatasetDescription";
+import generateStudyDescription from "#server/utils/publish/generateStudyDescription";
+import generateHealthsheet from "#server/utils/publish/generateHealthsheet";
+import generateLicense from "#server/utils/publish/generateLicense";
+import generateReadme from "#server/utils/publish/generateReadme";
+import generateChangelog from "#server/utils/publish/generateChangelog";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { useRuntimeConfig } from "nitropack/runtime";
+import { datasetMinAdminPermission } from "#server/utils/datasetMinAdminPermission";
+import { freezeDraftData, unfreezeData } from "#server/utils/studyStorage";
 
 const bodySchema = z.object({
   accessLevel: z.enum(DATASET_ACCESS_LEVELS),

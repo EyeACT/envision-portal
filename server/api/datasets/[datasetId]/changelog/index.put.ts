@@ -1,11 +1,14 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { datasetMinEditorPermission } from "#server/utils/datasetMinEditorPermission";
 
 const DatasetChangelogSchema = z.object({
   changelog: z.string(),
 });
 
 export default defineEventHandler(async (event) => {
-  const member = await datasetMinEditorPermission(event)
+  const member = await datasetMinEditorPermission(event);
 
   const userId = member.userId;
 

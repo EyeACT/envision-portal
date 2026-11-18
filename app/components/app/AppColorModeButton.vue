@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useColorMode } from "#imports";
+import { computed } from "vue";
+import { UButton, ClientOnly } from "#components";
+
 const colorMode = useColorMode();
 const isDark = computed({
   get() {

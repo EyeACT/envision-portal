@@ -1,4 +1,12 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { datasetMinAdminPermission } from "#server/utils/datasetMinAdminPermission";
+import {
+  getOrCreateRequestDetails,
+  getApprovalBlocker,
+  notifyRequester,
+} from "#server/utils/datasetRequests";
 
 const bodySchema = z.object({
   action: z.enum(["approve", "reject", "revoke"]),
@@ -91,7 +99,8 @@ export default defineEventHandler(async (event) => {
   if (count === 0) {
     throw createError({
       statusCode: 409,
-      statusMessage: "This request was updated by someone else. Refresh and try again.",
+      statusMessage:
+        "This request was updated by someone else. Refresh and try again.",
     });
   }
 
@@ -106,7 +115,10 @@ export default defineEventHandler(async (event) => {
   const message = REQUESTER_MESSAGES[action];
 
   await notifyRequester(datasetRequest.userId, {
-    body: message.body.replace("{title}", datasetRequest.PublishedDataset.title),
+    body: message.body.replace(
+      "{title}",
+      datasetRequest.PublishedDataset.title,
+    ),
     title: message.title,
     type: message.type,
     url: `/app/requests/${requestId}`,

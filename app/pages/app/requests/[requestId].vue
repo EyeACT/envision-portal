@@ -1,4 +1,18 @@
 <script setup lang="ts">
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref, computed } from "vue";
+import { uploadAgreementFile } from "~/utils/dataRequests";
+import {
+  UBreadcrumb,
+  UBadge,
+  USeparator,
+  ULink,
+  UFileUpload,
+  UButton,
+} from "#components";
+
 definePageMeta({
   middleware: ["auth"],
 });

@@ -1,5 +1,13 @@
 import { z } from "zod";
 import { compare } from "bcrypt";
+import prisma from "#server/utils/prisma";
+import {
+  defineEventHandler,
+  readValidatedBody,
+  createError,
+  sendRedirect,
+} from "h3";
+import { setUserSession } from "#imports";
 
 const loginSchema = z.object({
   emailAddress: z.string().email(),

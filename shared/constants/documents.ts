@@ -23,8 +23,8 @@ export const ACCEPTED_DOCUMENT_EXTENSIONS = [
   "xlsx",
   "xls",
   "csv",
-  "doc"
-]
+  "doc",
+];
 
 export const ACCEPTED_DOCUMENT_MIMETYPES = [
   "application/pdf",
@@ -34,6 +34,5 @@ export const ACCEPTED_DOCUMENT_MIMETYPES = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "text/csv",
   "application/msword",
-  "application/vnd.ms-excel"
-]
-
+  "application/vnd.ms-excel",
+];

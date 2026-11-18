@@ -1,4 +1,9 @@
 <script setup>
+import { useUserSession } from "#imports";
+import { definePageMeta } from "#app/composables/pages";
+import { useSeoMeta } from "#app";
+import { UContainer } from "#components";
+
 const { user } = useUserSession();
 
 definePageMeta({

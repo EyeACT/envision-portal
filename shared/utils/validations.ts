@@ -1,5 +1,6 @@
 import { StudyMetadataPublishValidation } from "#shared/utils/study_schemas";
 import { DatasetMetadataPublishSchema } from "#shared/utils/dataset_schemas";
+import { createError } from "#app";
 
 /**
  * Validate a dataset's metadata before publishing.

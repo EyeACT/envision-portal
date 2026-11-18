@@ -1,24 +1,22 @@
-import sanitize from "sanitize-filename"
-
+import sanitize from "sanitize-filename";
+import { createError } from "h3";
 
 export const sanitizeFileName = (fileName: string) => {
-  let sanitizedName = sanitize(fileName)
+  let sanitizedName = sanitize(fileName);
 
   if (!sanitizedName) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Cannot upload file"
-    })
+      statusMessage: "Cannot upload file",
+    });
   }
 
   // replace symbols and spaces with dashes
-  sanitizedName = sanitizedName.replace(/[^a-zA-Z0-9\(\)\.]/g, "-")
+  sanitizedName = sanitizedName.replace(/[^a-zA-Z0-9\(\)\.]/g, "-");
 
-
-  return sanitizedName
-
-}
+  return sanitizedName;
+};
 
 export const shouldRename = (documentName: string) => {
-  return sanitizeFileName(documentName) !== documentName
-}
+  return sanitizeFileName(documentName) !== documentName;
+};

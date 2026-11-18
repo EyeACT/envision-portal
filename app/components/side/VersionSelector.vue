@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { PropType } from "vue";
+import { NuxtLink } from "#components";
+
 defineProps({
   id: {
     required: true,

@@ -1,5 +1,10 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { datasetMinViewerPermission } from "#server/utils/datasetMinViewerPermission";
+import { listDatasetDataFiles } from "#server/utils/studyStorage";
+
 export default defineEventHandler(async (event) => {
-  await datasetMinViewerPermission(event)
+  await datasetMinViewerPermission(event);
   const { datasetId } = event.context.params as { datasetId: string };
 
   const dataset = await prisma.dataset.findUnique({
@@ -23,17 +28,17 @@ export default defineEventHandler(async (event) => {
     return {
       fileCount,
       totalSizeBytes,
-      displaySize: formatBytes(totalSizeBytes)
+      displaySize: formatBytes(totalSizeBytes),
     };
   } catch (e) {
     console.error("Azure Error:", e);
-    return { fileCount: 0, totalSizeBytes: 0, displaySize: '0 Bytes' };
+    return { fileCount: 0, totalSizeBytes: 0, displaySize: "0 Bytes" };
   }
 });
 
 function formatBytes(bytes: number) {
-  if (bytes === 0) return '0 Bytes';
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  if (bytes === 0) return "0 Bytes";
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${sizes[i]}`;
 }

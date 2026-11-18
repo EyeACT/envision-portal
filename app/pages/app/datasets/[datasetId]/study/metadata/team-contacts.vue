@@ -3,6 +3,32 @@ import * as z from "zod";
 import { nanoid } from "nanoid";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
+import MetadataOrcidLookupButton from "~/components/metadata/OrcidLookupButton.vue";
+import MetadataRorLookupButton from "~/components/metadata/RorLookupButton.vue";
+import MetadataOrganizationPrefill from "~/components/metadata/OrganizationPrefill.vue";
+import CardCollapsible from "~/components/card/CardCollapsible.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref, reactive, computed } from "vue";
+import { useUnsavedChangesGuard } from "~/composables/useUnsavedChangesGuard";
+import {
+  normalizeROR,
+  isValidRORValue,
+  normalizeORCID,
+  isValidORCIDValue,
+  isValidEmail,
+} from "~/utils/validations";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  USelect,
+  UFormField,
+  UInput,
+  UButton,
+  UForm,
+  UModal,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth"],

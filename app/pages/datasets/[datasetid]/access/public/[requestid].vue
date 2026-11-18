@@ -2,6 +2,18 @@
 import * as z from "zod";
 import { faker } from "@faker-js/faker";
 import type { FormSubmitEvent } from "@nuxt/ui";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref } from "vue";
+import {
+  UBreadcrumb,
+  UBadge,
+  USeparator,
+  UAlert,
+  UButton,
+  UContainer,
+} from "#components";
 
 definePageMeta({
   layout: "public",

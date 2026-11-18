@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, navigateTo, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { UBreadcrumb, UTree, NuxtLink } from "#components";
+
 definePageMeta({
   middleware: ["auth"],
 });
