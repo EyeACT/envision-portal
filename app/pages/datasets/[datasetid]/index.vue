@@ -69,21 +69,53 @@ if (dataset.value) {
 }
 
 const dummyModalityData = [
-  {"modality": "flio", "fileCount": 200},
-  {"modality": "oct", "fileCount": 1000},
-  {"modality": "cfp", "fileCount": 1000},
-  {"modality": "uwf", "fileCount": 1000},
-  {"modality": "OCTA", "fileCount": 1000},
-  {"modality": "SLO", "fileCount": 1000},
-  {"modality": "FFA", "fileCount": 1000},
+  200,
+  250,
+  340,
+  440,
+  500,
+  200,
+  400
 ]
 
 const dummyModaltiyCategories = computed(() => ({
-  fileCount: {
-    name: "files",
-    color: "#22c55e"
+  "flio": {
+    name: "flio",
+    color: "var(--ui-primary)",
+  },
+  "oct": {
+    name: "oct",
+    color: "var(--ui-primary)",
+  },
+  "octa": {
+    name: "octa",
+    color: "var(--ui-primary)",
+  },
+  "cfp": {
+    name: "cfp",
+    color: "var(--ui-primary)",
+  },
+  "uwf": {
+    name: "uwf",
+    color: "var(--ui-primary)",
+  },
+  "slo": {
+    name: "slo",
+    color: "var(--ui-primary)",
+  },
+  "ffa": {
+    name: "ffa",
+    color: "var(--ui-primary)",
   },
 }))
+
+const totalModalityFileCount = dummyModalityData.reduce((acc, num) => acc + num, 0);
+
+// TODO: Failure fallback tooltip if segment struct changes
+const formatModalityTooltip = (segment: unknown) => {
+  let percent = Math.floor((segment.value / totalModalityFileCount) * 100)
+  return `${segment.value} files (${percent}%)`
+}
 
 const dummyGenderData = {
   "male": 12,
@@ -663,21 +695,18 @@ onMounted(() => {
               <UCard>
                   <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Files Per Modality</h2>
                   <div v-if="dummyModalityData.length">    
-                    <BarChart
+                    <DonutChart
                       :data="dummyModalityData"
-                      :height="400"
+                      :tooltip-title-formatter="formatModalityTooltip"
                       :categories="dummyModaltiyCategories"
-                      :y-axis="['fileCount']"
-                      :x-num-ticks="dummyModalityData.length"
-                      :radius="3"
-                      :y-grid-line="true"
-                      x-axis="modality"
-                      :x-axis-config="{tickTextAlign: 'right'}"
-                      :legend-position="LegendPosition.TopRight"
-                      :hide-legend="true"
-                      :bar-padding="1"
-                      orientation="horizontal"
-                    />
+                      variant="gradient"
+                      glow
+                      :height="200"
+                      :radius="80"
+                      :pad-angle="0.1"
+                      :arc-width="20"
+                    >
+                    </DonutChart>
                 </div>
 
                 <p v-else>
