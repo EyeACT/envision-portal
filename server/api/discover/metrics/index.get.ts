@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
     
   // ensure data in correct format
   let parsed = MetricsSnapshotPayloadSchema.safeParse(metricsData?.snapshot ?? {})
+  parsed.success = false
 
   if(!parsed.success || (metricsData && Date.now() - metricsData.generatedAt.getTime() >= 24 * 60 * 60 * 1000)) {
     let metricsSnapshot = await computeSnapshot()

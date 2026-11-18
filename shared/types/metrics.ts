@@ -8,6 +8,17 @@ export const MetricsSnapshotPayloadSchema = z.object({
   datasetsPublicationYearData: z.array(
   z.object({ year: z.string(), datasets: z.number() }),
   ),
+  reach: z.object({
+    dois: z.number(),
+    licenseData: z.number().array(),
+    publishers: 
+      z.array(
+        z.object({
+          publisher: z.string(),
+          datasets: z.number()
+        })
+      )
+  })
 })
 
 export type MetricsSnapshotPayload = z.infer<typeof MetricsSnapshotPayloadSchema>

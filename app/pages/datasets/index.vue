@@ -104,6 +104,8 @@ const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
 
+console.log(datasets)
+
 const getDaysAgo = (date: string | Date): string => {
   const daysAgo = dayjs(date).diff(dayjs(), "day");
 

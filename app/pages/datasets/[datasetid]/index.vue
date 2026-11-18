@@ -68,6 +68,28 @@ if (dataset.value) {
   });
 }
 
+const dummyModalityData = [
+  {"modality": "flio", "fileCount": 200},
+  {"modality": "oct", "fileCount": 1000},
+  {"modality": "cfp", "fileCount": 1000},
+  {"modality": "uwf", "fileCount": 1000},
+  {"modality": "OCTA", "fileCount": 1000},
+  {"modality": "SLO", "fileCount": 1000},
+  {"modality": "FFA", "fileCount": 1000},
+]
+
+const dummyModaltiyCategories = computed(() => ({
+  fileCount: {
+    name: "files",
+    color: "#22c55e"
+  },
+}))
+
+const dummyGenderData = {
+  "male": 12,
+  "femal": 13
+}
+
 const tabItems = [
   {
     icon: "ri:information-line",
@@ -637,22 +659,34 @@ onMounted(() => {
             </template>
 
             <template #metrics>
-              <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Modalities</h2>
+              <h3 class="text-lg font-semibold">Dataset at a Glance</h3>
+              <UCard>
+                  <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Files Per Modality</h2>
+                  <div v-if="dummyModalityData.length">    
+                    <BarChart
+                      :data="dummyModalityData"
+                      :height="400"
+                      :categories="dummyModaltiyCategories"
+                      :y-axis="['fileCount']"
+                      :x-num-ticks="dummyModalityData.length"
+                      :radius="3"
+                      :y-grid-line="true"
+                      x-axis="modality"
+                      :x-axis-config="{tickTextAlign: 'right'}"
+                      :legend-position="LegendPosition.TopRight"
+                      :hide-legend="true"
+                      :bar-padding="1"
+                      orientation="horizontal"
+                    />
+                </div>
 
-              <div v-if="dataset?.modalities.length" class="grid grid-cols-2 gap-4">
-                <UCard v-for="modalityRecord in dataset?.modalities">
-                  <div class="flex flex-col items-center gap-1 py-2 text-center">
-                    <div class="text-3xl font-bold text-green-500">
-                      {{ (modalityRecord.fileCount ?? 0).toLocaleString() }}
-                    </div>
-                    <p class="text-sm font-medium">{{ modalityRecord.modality }} files.</p>
-                  </div>
-                </UCard> 
-              </div>
+                <p v-else>
+                  No data available.
+                </p>
 
-              <div v-else>
-                <p>A modality breakdown for this dataset is not available at this moment.</p>
-              </div>
+              </UCard>
+
+              
 
             </template>
           </UTabs>
