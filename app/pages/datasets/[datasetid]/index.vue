@@ -690,7 +690,11 @@ onMounted(() => {
                 </div>
 
                 <p v-else>
-                  No data available.
+                  <UAlert
+                    color="info"
+                    variant="subtle"
+                    title="No confirmed modality data"
+                  />
                 </p>
 
               </UCard>
