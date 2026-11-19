@@ -206,6 +206,7 @@ export const computeSnapshot = async (client: PrismaClient = prisma) : Promise<M
 
 
     return {
+    totalDatasets: manual + autoIndex,
     manual,
     autoIndex,
     modalityData, 

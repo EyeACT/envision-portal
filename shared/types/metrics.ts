@@ -1,6 +1,7 @@
 import z from "zod"
 
 export const MetricsSnapshotPayloadSchema = z.object({
+  totalDatasets: z.number(),
   manual: z.number(),
   autoIndex: z.number(),
   modalityData: z.array(

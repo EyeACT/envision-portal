@@ -69,9 +69,7 @@ if (dataset.value) {
 }
 
 const modalityCategories: Record<string, any> = {}
-
 const dummyModalityData : number []  = []
-
 dataset?.value?.modalities.forEach(element => {
   dummyModalityData.push(element.fileCount)
   modalityCategories[element.modality] = {

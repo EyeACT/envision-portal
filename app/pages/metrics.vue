@@ -17,7 +17,11 @@ definePageMeta({
 const { data } = await useFetch("/api/discover/metrics");
 
 
+const totalDatasets = data.value?.totalDatasets || 0
+const datasetsWithDois = data.value?.reach.dois || 0
 
+const manualDatasets = data.value?.manual || 0
+const autoIndexedDatasets = data.value?.autoIndex || 0
 
 const publishedDatasetsPerYearData = data.value?.datasetsPublicationYearData ?? []
 const publishedDatasetsPerYearCategories = computed(() => ({
@@ -69,13 +73,14 @@ const publishersCategories = computed(() => ({
 }))
 
 const modalityData = data.value?.modalityData || []
-
 const dummyModaltiyCategories = computed(() => ({
   datasets: {
     name: "datasets",
     color: "var(--ui-primary)"
   },
 }))
+
+const totalConditions = 0
 
 const totalLicenseFiles: number = donutData.value?.reduce((acc, num) => acc + num, 0)
 // TODO: Failure fallback tooltip if segment struct changes
@@ -102,9 +107,9 @@ const formatLicenseTooltip = (segment: unknown) => {
           <figure class="flex flex-col items-center gap-1 py-2 text-center">
               <data 
                 class="text-3xl font-bold text-[var(--ui-primary)]"
-                :value="data?.manual ?? 0"
+                :value="manualDatasets"
                 >
-                {{ (data?.manual ?? 0).toLocaleString() }}
+                {{ (manualDatasets).toLocaleString() }}
               </data>
 
               <figcaption> 
@@ -121,9 +126,9 @@ const formatLicenseTooltip = (segment: unknown) => {
           <figure class="flex flex-col items-center gap-1 py-2 text-center">
             <data 
               class="text-3xl font-bold text-[var(--ui-primary)]"
-              :value="data?.autoIndex ?? 0"
+              :value="autoIndexedDatasets"
             >
-              {{ (data?.autoIndex ?? 0).toLocaleString() }}
+              {{ (autoIndexedDatasets).toLocaleString() }}
             </data>
 
 
@@ -195,10 +200,10 @@ const formatLicenseTooltip = (segment: unknown) => {
       </UCard>
 
 
-      <UCard>
+      <UCard v-if="totalConditions">
         <figure class="flex flex-col items-center gap-1 py-2 text-center">
           <div class="text-3xl font-bold text-[var(--ui-primary)]">
-            {{ 1311 }}
+            {{ totalConditions }}
           </div>
 
           <figcaption>
@@ -209,6 +214,17 @@ const formatLicenseTooltip = (segment: unknown) => {
         </figure>
       </UCard>
 
+      <UCard v-else>
+        <h3 class="text-sm font-medium">Total Conditions</h3>
+        <UAlert
+          role="status"
+          color="info"
+          variant="subtle"
+          title="No conditions data available at this time."
+        ></UAlert>
+      </UCard>
+
+
     </section>
 
     <section>
@@ -216,20 +232,31 @@ const formatLicenseTooltip = (segment: unknown) => {
       <div 
         class="grid grid-cols-2 gap-4" 
       >
-        <UCard>
+        <UCard v-if="totalDatasets">
           <figure class="flex flex-col items-center gap-1 py-2 text-center">
-            <data 
+            <data
               class="text-3xl font-bold text-[var(--ui-primary)]"
-              :data="data?.reach.dois ?? 0"
+              :data="Math.floor((datasetsWithDois / totalDatasets) * 100)"
               >
-              {{ Math.floor(data?.reach.dois / ( data?.manual + data?.autoIndex) * 100)}} %
+              {{ Math.floor((datasetsWithDois / totalDatasets) * 100)}} %
             </data>
 
+
             <figcaption>
-              <h3 class="text-sm font-medium">With a DOI</h3>
-              <p class="text-xs font-medium">{{ data?.reach?.dois }} of {{ data?.manual + data?.autoIndex }} datasets</p>
+              <h3 class="text-sm font-medium">Datasets with a DOI</h3>
+              <p class="text-xs font-medium">{{ datasetsWithDois }} of {{ totalDatasets}} datasets</p>
             </figcaption>
           </figure>
+        </UCard>
+
+        <UCard v-else>
+        <h3 class="text-sm font-medium">Datasets with a DOI</h3>
+          <UAlert
+            role="status"
+            color="info"
+            variant="subtle"
+            title="No DOI data available at this time."
+          ></UAlert>
         </UCard>
 
 
