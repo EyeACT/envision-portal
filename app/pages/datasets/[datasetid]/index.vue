@@ -68,6 +68,8 @@ if (dataset.value) {
   });
 }
 
+const modalities = dataset.value?.modalities
+
 const dummyModalityData = [
   200,
   250,
