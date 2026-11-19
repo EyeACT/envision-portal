@@ -82,7 +82,7 @@ const dummyModaltiyCategories = computed(() => ({
 
 const totalConditions = 0
 
-const totalLicenseFiles: number = donutData.value?.reduce((acc, num) => acc + num, 0)
+const totalLicenseFiles: number = donutData.value?.reduce((acc, num) => acc + num, 0) || 0
 // TODO: Failure fallback tooltip if segment struct changes
 const formatLicenseTooltip = (segment: unknown) => {
   let percent = Math.floor((segment.value / totalLicenseFiles) * 100)
@@ -274,8 +274,17 @@ const formatLicenseTooltip = (segment: unknown) => {
               :tooltip-title-formatter="formatLicenseTooltip"
               aria-label="Datasets by license"
               aria-description="Number of datasets grouped by the license they use."
+              v-if="totalLicenseFiles"
             >
           </DonutChart>
+          <UAlert 
+            v-else
+            role="status"
+            color="info"
+            variant="subtle"
+            title="No license data available at this time."
+          >
+          </UAlert>
         </UCard>
 
         <UCard>
