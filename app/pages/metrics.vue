@@ -85,6 +85,12 @@ const dummyModaltiyCategories = computed(() => ({
   },
 }))
 
+const totalLicenseFiles: number = donutData.value?.reduce((acc, num) => acc + num, 0)
+// TODO: Failure fallback tooltip if segment struct changes
+const formatLicenseTooltip = (segment: unknown) => {
+  let percent = Math.floor((segment.value / totalLicenseFiles) * 100)
+  return `${segment.value} datasets (${percent}%)`
+}
 
 
 </script>
@@ -222,6 +228,7 @@ const dummyModaltiyCategories = computed(() => ({
               :radius="80"
               :pad-angle="0.1"
               :arc-width="20"
+              :tooltip-title-formatter="formatLicenseTooltip"
             >
           </DonutChart>
         </UCard>
