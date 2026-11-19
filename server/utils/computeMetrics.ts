@@ -169,6 +169,14 @@ export const computeSnapshot = async (client: PrismaClient = prisma) : Promise<M
     }
   )
 
+  const modalityData = Object.entries(datasetsPerModality).map(
+    ([modality, datasets]) => {
+      return {
+        modality: modality.replaceAll("_", " "),
+        datasets
+      }
+    })
+
   
   // merge same licenses that use different key names
   const groupedLicenses: Record<string, number> = {}
@@ -200,7 +208,7 @@ export const computeSnapshot = async (client: PrismaClient = prisma) : Promise<M
     return {
     manual,
     autoIndex,
-    datasetsPerModality, 
+    modalityData, 
     datasetsPerSource,
     datasetsPublicationYearData,
     reach: {

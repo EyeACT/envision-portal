@@ -18,6 +18,7 @@ const { data } = await useFetch("/api/discover/metrics");
 
 
 
+
 const publishedDatasetsPerYearData = data.value?.datasetsPublicationYearData ?? []
 const publishedDatasetsPerYearCategories = computed(() => ({
   datasets: {
@@ -67,16 +68,7 @@ const publishersCategories = computed(() => ({
   }
 }))
 
-
-const dummyModalityData = [
-  {"modality": "flio", "datasets": 200},
-  {"modality": "oct", "datasets": 1000},
-  {"modality": "cfp", "datasets": 1000},
-  {"modality": "uwf", "datasets": 1000},
-  {"modality": "OCTA", "datasets": 1000},
-  {"modality": "SLO", "datasets": 1000},
-  {"modality": "FFA", "datasets": 1000},
-]
+const modalityData = data.value?.modalityData || []
 
 const dummyModaltiyCategories = computed(() => ({
   datasets: {
@@ -175,13 +167,14 @@ const formatLicenseTooltip = (segment: unknown) => {
 
       <UCard>
         <h3 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Datasets by Modality</h3>
-        <div v-if="dummyModalityData.length">    
+        <div v-if="modalityData.length">    
           <BarChart
-            :data="dummyModalityData"
+            :data="modalityData"
             :height="400"
             :categories="dummyModaltiyCategories"
             :y-axis="['datasets']"
-            :x-num-ticks="dummyModalityData.length"
+            :y-axis-config="{ tickTextFontSize: '8px', tickTextAlign: 'right' }"
+            :x-num-ticks="modalityData.length"
             :radius="3"
             :y-grid-line="true"
             x-axis="modality"

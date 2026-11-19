@@ -68,20 +68,6 @@ if (dataset.value) {
   });
 }
 
-// const testModality = [{
-//   modality: "flio",
-//   fileCount: 200
-// },
-// {
-//     modality: "oct",
-//     fileCount: 100
-// },
-// {
-//   modality: "octa",
-//   fileCount: 15
-// }
-// ]
-
 const modalityCategories: Record<string, any> = {}
 
 const dummyModalityData : number []  = []
