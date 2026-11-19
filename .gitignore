@@ -34,3 +34,6 @@ shared/generated/
 
 # Generated CMDS validator test tree
 mock_cmds_mini/
+
+# Local dev files
+.dev.local
