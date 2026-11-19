@@ -671,20 +671,16 @@ onMounted(() => {
                       :arc-width="20"
                     >
                     </DonutChart>
-                </div>
+                  </div>
 
-                <p v-else>
-                  <UAlert
+                  <UAlert v-else
                     color="info"
                     variant="subtle"
                     title="No confirmed modality data"
+                    role="status"
                   />
-                </p>
 
               </UCard>
-
-              
-
             </template>
           </UTabs>
         </div>
