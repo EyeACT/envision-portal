@@ -68,48 +68,31 @@ if (dataset.value) {
   });
 }
 
-const modalities = dataset.value?.modalities
+// const testModality = [{
+//   modality: "flio",
+//   fileCount: 200
+// },
+// {
+//     modality: "oct",
+//     fileCount: 100
+// },
+// {
+//   modality: "octa",
+//   fileCount: 15
+// }
+// ]
 
-const dummyModalityData = [
-  200,
-  250,
-  340,
-  440,
-  500,
-  200,
-  400
-]
+const modalityCategories: Record<string, any> = {}
 
-const dummyModaltiyCategories = computed(() => ({
-  "flio": {
-    name: "flio",
-    color: "var(--ui-primary)",
-  },
-  "oct": {
-    name: "oct",
-    color: "var(--ui-primary)",
-  },
-  "octa": {
-    name: "octa",
-    color: "var(--ui-primary)",
-  },
-  "cfp": {
-    name: "cfp",
-    color: "var(--ui-primary)",
-  },
-  "uwf": {
-    name: "uwf",
-    color: "var(--ui-primary)",
-  },
-  "slo": {
-    name: "slo",
-    color: "var(--ui-primary)",
-  },
-  "ffa": {
-    name: "ffa",
-    color: "var(--ui-primary)",
-  },
-}))
+const dummyModalityData : number []  = []
+
+dataset?.value?.modalities.forEach(element => {
+  dummyModalityData.push(element.fileCount)
+  modalityCategories[element.modality] = {
+    name: element.modality
+  }
+});
+
 
 const totalModalityFileCount = dummyModalityData.reduce((acc, num) => acc + num, 0);
 
@@ -117,11 +100,6 @@ const totalModalityFileCount = dummyModalityData.reduce((acc, num) => acc + num,
 const formatModalityTooltip = (segment: unknown) => {
   let percent = Math.floor((segment.value / totalModalityFileCount) * 100)
   return `${segment.value} files (${percent}%)`
-}
-
-const dummyGenderData = {
-  "male": 12,
-  "femal": 13
 }
 
 const tabItems = [
@@ -700,7 +678,7 @@ onMounted(() => {
                     <DonutChart
                       :data="dummyModalityData"
                       :tooltip-title-formatter="formatModalityTooltip"
-                      :categories="dummyModaltiyCategories"
+                      :categories="modalityCategories"
                       variant="gradient"
                       glow
                       :height="200"
