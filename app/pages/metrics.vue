@@ -104,38 +104,50 @@ const formatLicenseTooltip = (segment: unknown) => {
     />
 
     <section class="flex flex-col gap-4 lg:-mt-16">
-      <h3 class="text-lg font-semibold">How Datasets Have Been Added to the Repository</h3>
+      <h2 class="text-lg font-semibold">How Datasets Have Been Added to the Repository</h2>
       <div class="grid grid-cols-2 gap-4">
         <UCard>
-          <div class="flex flex-col items-center gap-1 py-2 text-center">
-            <div class="text-3xl font-bold text-[var(--ui-primary)]">
-              {{ (data?.manual ?? 0).toLocaleString() }}
-            </div>
+          <figure class="flex flex-col items-center gap-1 py-2 text-center">
+              <data 
+                class="text-3xl font-bold text-[var(--ui-primary)]"
+                :value="data?.manual ?? 0"
+                >
+                {{ (data?.manual ?? 0).toLocaleString() }}
+              </data>
 
-            <p class="text-sm font-medium">Manually Shared</p>
-
-            <p class="text-muted text-xs">Uploaded directly by researchers</p>
-          </div>
+              <figcaption> 
+                <h3 class="text-sm font-medium">Manually Shared</h3>
+                <p class="text-muted text-xs">Uploaded directly by researchers</p>
+              </figcaption>
+          </figure>
         </UCard>
 
-        <UCard>
-          <div class="flex flex-col items-center gap-1 py-2 text-center">
-            <div class="text-3xl font-bold text-[var(--ui-primary)]">
+        <UCard
+          aria-label="Automatically indexed datasets"
+          aria-description="Datasets added to the Envision Portal platform via automatic indexing third party sources."
+        >
+          <figure class="flex flex-col items-center gap-1 py-2 text-center">
+            <data 
+              class="text-3xl font-bold text-[var(--ui-primary)]"
+              :value="data?.autoIndex ?? 0"
+            >
               {{ (data?.autoIndex ?? 0).toLocaleString() }}
-            </div>
+            </data>
 
-            <p class="text-sm font-medium">Auto-Indexed</p>
 
-            <p class="text-muted text-xs">
-              Discovered and indexed from repositories
-            </p>
-          </div>
+            <figcaption> 
+              <h3 class="text-sm font-medium">Auto-Indexed</h3>
+              <p class="text-muted text-xs">
+                Discovered and indexed from repositories
+              </p>
+            </figcaption>
+          </figure>
         </UCard>
       </div>
     </section>
 
     <section class="flex flex-col gap-4">
-      <h3 class="text-lg font-semibold">Research at a Glance</h3>
+      <h2 class="text-lg font-semibold">Research at a Glance</h2>
       <UCard>
         <h3 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Datasets by Publication Year</h3>
         <div v-if="publishedDatasetsPerYearData.length">    
@@ -151,6 +163,8 @@ const formatLicenseTooltip = (segment: unknown) => {
             :y-formatter="yFormatter"
             :legend-position="LegendPosition.TopRight"
             :hide-legend="true"
+            aria-label="Datasets by publication year"
+            aria-description="Number of datasets grouped by publication year."
           />
         </div>
 
@@ -160,23 +174,25 @@ const formatLicenseTooltip = (segment: unknown) => {
       </UCard>
 
       <UCard>
-          <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Datasets by Modality</h2>
-          <div v-if="dummyModalityData.length">    
-            <BarChart
-              :data="dummyModalityData"
-              :height="400"
-              :categories="dummyModaltiyCategories"
-              :y-axis="['datasets']"
-              :x-num-ticks="dummyModalityData.length"
-              :radius="3"
-              :y-grid-line="true"
-              x-axis="modality"
-              :x-axis-config="{tickTextAlign: 'right'}"
-              :legend-position="LegendPosition.TopRight"
-              :hide-legend="true"
-              :bar-padding="1"
-              orientation="horizontal"
-            />
+        <h3 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Datasets by Modality</h3>
+        <div v-if="dummyModalityData.length">    
+          <BarChart
+            :data="dummyModalityData"
+            :height="400"
+            :categories="dummyModaltiyCategories"
+            :y-axis="['datasets']"
+            :x-num-ticks="dummyModalityData.length"
+            :radius="3"
+            :y-grid-line="true"
+            x-axis="modality"
+            :x-axis-config="{tickTextAlign: 'right'}"
+            :legend-position="LegendPosition.TopRight"
+            :hide-legend="true"
+            :bar-padding="1"
+            orientation="horizontal"
+            aria-label="Datasets by modality"
+            aria-description="Number of datasets grouped by modality."
+          />
         </div>
 
         <p v-else>
@@ -187,15 +203,17 @@ const formatLicenseTooltip = (segment: unknown) => {
 
 
       <UCard>
-        <div class="flex flex-col items-center gap-1 py-2 text-center">
+        <figure class="flex flex-col items-center gap-1 py-2 text-center">
           <div class="text-3xl font-bold text-[var(--ui-primary)]">
             {{ 1311 }}
           </div>
 
-          <p class="text-sm font-medium">Total Conditions</p>
+          <figcaption>
+            <h3 class="text-sm font-medium">Total Conditions</h3>
+            <p class="text-muted text-xs">Focused on across all datasets</p>
+          </figcaption>
 
-          <p class="text-muted text-xs">Focused on across all datasets</p>
-        </div>
+        </figure>
       </UCard>
 
     </section>
@@ -206,19 +224,24 @@ const formatLicenseTooltip = (segment: unknown) => {
         class="grid grid-cols-2 gap-4" 
       >
         <UCard>
-          <div class="flex flex-col items-center gap-1 py-2 text-center">
-            <div class="text-3xl font-bold text-[var(--ui-primary)]">
+          <figure class="flex flex-col items-center gap-1 py-2 text-center">
+            <data 
+              class="text-3xl font-bold text-[var(--ui-primary)]"
+              :data="data?.reach.dois ?? 0"
+              >
               {{ Math.floor(data?.reach.dois / ( data?.manual + data?.autoIndex) * 100)}} %
-            </div>
+            </data>
 
-            <p class="text-sm font-medium">With a DOI</p>
-            <p class="text-xs font-medium">{{ data?.reach?.dois }} of {{ data?.manual + data?.autoIndex }} datasets</p>
-          </div>
+            <figcaption>
+              <h3 class="text-sm font-medium">With a DOI</h3>
+              <p class="text-xs font-medium">{{ data?.reach?.dois }} of {{ data?.manual + data?.autoIndex }} datasets</p>
+            </figcaption>
+          </figure>
         </UCard>
 
 
         <UCard>
-          <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">License Distribution</h2>
+          <h3 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">License Distribution</h3>
           <DonutChart
               :data="donutData"
               :categories="licenseLabels"
@@ -229,12 +252,14 @@ const formatLicenseTooltip = (segment: unknown) => {
               :pad-angle="0.1"
               :arc-width="20"
               :tooltip-title-formatter="formatLicenseTooltip"
+              aria-label="Datasets by license"
+              aria-description="Number of datasets grouped by the license they use."
             >
           </DonutChart>
         </UCard>
 
         <UCard>
-          <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Top Publishers and Repositories</h2>
+          <h3 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Top Publishers and Repositories</h3>
           <div v-if="publishersData.length">    
             <BarChart
               :data="publishersData"
@@ -250,6 +275,8 @@ const formatLicenseTooltip = (segment: unknown) => {
               :hide-legend="true"
               :bar-padding="1"
               orientation="horizontal"
+              aria-label="Datasets by publisher"
+              aria-description="Number of datasets grouped by their publisher"
             />
         </div>
 
