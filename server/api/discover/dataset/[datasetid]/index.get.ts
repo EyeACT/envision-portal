@@ -9,7 +9,8 @@ export default defineEventHandler(async (event) => {
     },
     include: {
       PublishedDatasetRegistrationDetails: true,
-      PublishedDatasetModality: true
+      PublishedDatasetModality: true,
+      PublishedDatasetFileSummary: true
     },
   });
 
@@ -90,7 +91,8 @@ export default defineEventHandler(async (event) => {
         modality: modalityRecord.modality,
         fileCount: modalityRecord.fileCount ?? 0
       }
-    })
+    }),
+    imageFileCount: publishedDataset.PublishedDatasetFileSummary?.imageFileCount || 0
   };
 
   return dataset;
