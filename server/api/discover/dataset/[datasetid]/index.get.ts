@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     },
     include: {
       PublishedDatasetRegistrationDetails: true,
+      PublishedDatasetModality: true
     },
   });
 
@@ -84,6 +85,12 @@ export default defineEventHandler(async (event) => {
     validationInfo: additionalData?.validationInfo,
     versions,
     versionTitle: publishedDataset.versionTitle,
+    modalities: publishedDataset.PublishedDatasetModality.map(modalityRecord => {
+      return  {
+        modality: modalityRecord.modality,
+        fileCount: modalityRecord.fileCount ?? 0
+      }
+    })
   };
 
   return dataset;

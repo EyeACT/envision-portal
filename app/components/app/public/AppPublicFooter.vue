@@ -24,6 +24,9 @@
               <li>
                 <a href="/contact" class="hover:underline"> Contact us </a>
               </li>
+              <li>
+                <a href="/metrics" class="hover:underline">Metrics</a>
+              </li>
             </ul>
           </div>
 

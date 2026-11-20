@@ -68,6 +68,24 @@ if (dataset.value) {
   });
 }
 
+const modalityCategories: Record<string, any> = {}
+const modalityData : number []  = []
+dataset?.value?.modalities.forEach(element => {
+  modalityData.push(element.fileCount)
+  modalityCategories[element.modality] = {
+    name: element.modality
+  }
+});
+
+
+const totalModalityFileCount = modalityData.reduce((acc, num) => acc + num, 0);
+
+// TODO: Failure fallback tooltip if segment struct changes
+const formatModalityTooltip = (segment: unknown) => {
+  let percent = Math.floor((segment.value / totalModalityFileCount) * 100)
+  return `${segment.value} files (${percent}%)`
+}
+
 const tabItems = [
   {
     icon: "ri:information-line",
@@ -105,6 +123,11 @@ const tabItems = [
     label: "Versions",
     slot: "versions",
   },
+  {
+    icon: "solar:graph-up-line-duotone",
+    label: "Metrics",
+    slot: "metrics"
+  }
 ];
 
 const accessType = computed(() => {
@@ -629,6 +652,35 @@ onMounted(() => {
                 :id="dataset?.id || ''"
                 :versions="dataset?.versions || []"
               />
+            </template>
+
+            <template #metrics>
+              <h3 class="text-lg font-semibold">Dataset at a Glance</h3>
+              <UCard>
+                  <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Files Per Modality</h2>
+                  <div v-if="modalityData.length">    
+                    <DonutChart
+                      :data="modalityData"
+                      :tooltip-title-formatter="formatModalityTooltip"
+                      :categories="modalityCategories"
+                      variant="gradient"
+                      glow
+                      :height="200"
+                      :radius="80"
+                      :pad-angle="0.1"
+                      :arc-width="20"
+                    >
+                    </DonutChart>
+                  </div>
+
+                  <UAlert v-else
+                    color="info"
+                    variant="subtle"
+                    title="No confirmed modality data"
+                    role="status"
+                  />
+
+              </UCard>
             </template>
           </UTabs>
         </div>

@@ -27,6 +27,7 @@
     "scripts:process:task-queue": "tsx ./scripts/process-task-queue.ts",
     "scripts:process:task-queue:watch": "tsx ./scripts/process-task-queue.ts --watch",
     "scripts:restore:draft": "tsx ./scripts/restore-draft.ts",
+    "metrics:snapshot": "npx tsx ./scripts/compute-metrics-snapshot.ts",
     "scripts:import:image-analysis": "tsx ./scripts/import-image-analysis.ts"
   },
   "dependencies": {
@@ -47,6 +48,7 @@
     "motion-v": "2.9.0",
     "nanoid": "^6.0.2",
     "nodemailer": "10.2.1",
+    "nuxt-charts": "^3.1.0",
     "pretty-bytes": "7.2.0",
     "sanitize-filename": "1.6.4",
     "sanitize-html": "2.18.1",
