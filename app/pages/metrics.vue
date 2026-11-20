@@ -232,8 +232,13 @@ const formatLicenseTooltip = (segment: unknown) => {
       <div 
         class="grid grid-cols-2 gap-4" 
       >
-        <UCard v-if="totalDatasets">
-          <figure class="flex flex-col items-center gap-1 py-2 text-center">
+        <UCard 
+          v-if="totalDatasets"
+          class="flex flex-col"
+          :ui="{body: 'flex flex-1 flex-col justify-center'}"
+          >
+          <figure 
+            class="flex flex-1 flex-col justify-center items-center">
             <data
               class="text-3xl font-bold text-[var(--ui-primary)]"
               :data="Math.floor((datasetsWithDois / totalDatasets) * 100)"
