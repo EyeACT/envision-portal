@@ -23,7 +23,7 @@ const headerItems = computed<NavigationMenuItem[]>(() => [
   {
     label: "About",
     to: "/about",
-    active: route.path.startsWith("/metrics"),
+    active: route.path.startsWith("/about"),
   },
   {
     label: "Trust & Safety",
