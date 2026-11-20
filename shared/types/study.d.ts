@@ -532,6 +532,7 @@ interface Dataset {
   publishedMetadata?: PublishedMetadata;
   versions: VersionArray;
   modalities: ModalityRecord[];
+  imageFileCount: number;
 }
 
 interface DatasetArray extends Array<Dataset> {}
