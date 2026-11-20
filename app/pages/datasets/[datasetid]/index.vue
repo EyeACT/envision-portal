@@ -69,16 +69,16 @@ if (dataset.value) {
 }
 
 const modalityCategories: Record<string, any> = {}
-const dummyModalityData : number []  = []
+const modalityData : number []  = []
 dataset?.value?.modalities.forEach(element => {
-  dummyModalityData.push(element.fileCount)
+  modalityData.push(element.fileCount)
   modalityCategories[element.modality] = {
     name: element.modality
   }
 });
 
 
-const totalModalityFileCount = dummyModalityData.reduce((acc, num) => acc + num, 0);
+const totalModalityFileCount = modalityData.reduce((acc, num) => acc + num, 0);
 
 // TODO: Failure fallback tooltip if segment struct changes
 const formatModalityTooltip = (segment: unknown) => {
@@ -658,9 +658,9 @@ onMounted(() => {
               <h3 class="text-lg font-semibold">Dataset at a Glance</h3>
               <UCard>
                   <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Files Per Modality</h2>
-                  <div v-if="dummyModalityData.length">    
+                  <div v-if="modalityData.length">    
                     <DonutChart
-                      :data="dummyModalityData"
+                      :data="modalityData"
                       :tooltip-title-formatter="formatModalityTooltip"
                       :categories="modalityCategories"
                       variant="gradient"
