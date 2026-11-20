@@ -2,6 +2,20 @@
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import QUESTIONS_JSON from "~/assets/data/healthsheet/distribution.json";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref, reactive, computed } from "vue";
+import { useUnsavedChangesGuard } from "~/composables/useUnsavedChangesGuard";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  UTextarea,
+  UFormField,
+  UForm,
+  UButton,
+  UModal,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth"],

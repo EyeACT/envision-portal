@@ -1,4 +1,7 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { datasetMinEditorPermission } from "#server/utils/datasetMinEditorPermission";
 
 const DatasetHealthsheetDistributionSchema = z.object({
   records: z.array(
@@ -12,7 +15,7 @@ const DatasetHealthsheetDistributionSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
+  await datasetMinEditorPermission(event);
 
   const { datasetId } = event.context.params as {
     datasetId: string;

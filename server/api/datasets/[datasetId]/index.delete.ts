@@ -1,3 +1,8 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { datasetMinAdminPermission } from "#server/utils/datasetMinAdminPermission";
+import { freezeDraftData } from "#server/utils/studyStorage";
+
 // A deleted draft's data is kept for this long so it can be restored by an admin
 // (scripts/restore-draft.ts) if it was deleted by mistake
 const DRAFT_PURGE_GRACE_DAYS = 30;

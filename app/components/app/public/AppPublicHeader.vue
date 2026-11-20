@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useUserSession } from "#imports";
+import { navigateTo } from "#app";
+import { NuxtLink, UButton, Icon, AuthState } from "#components";
+
 const { clear } = useUserSession();
 
 const logout = async () => {

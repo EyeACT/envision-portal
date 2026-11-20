@@ -1,4 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import AppColorModeButton from "~/components/app/AppColorModeButton.vue";
+import { USeparator, UButton } from "#components";
+</script>
 
 <template>
   <footer class="border-t border-gray-200 pt-6 dark:border-gray-800">

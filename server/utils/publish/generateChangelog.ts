@@ -1,3 +1,6 @@
+import prisma from "#server/utils/prisma";
+import { createError } from "h3";
+
 const generateChangelog = async (datasetId: string, userId: string) => {
   const dataset = await prisma.dataset.findUnique({
     where: {

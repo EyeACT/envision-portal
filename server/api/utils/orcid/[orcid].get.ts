@@ -1,3 +1,7 @@
+import { defineEventHandler, createError } from "h3";
+import type { OrcidProfile } from "#shared/types/orcid.d";
+import { requireUserSession } from "#imports";
+
 type OrcidEmployment = {
   "end-date": unknown;
   organization: {

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import datasetMetadata from "@/assets/data/dataset-metadata.json";
+import CardCollapsibleContent from "~/components/card/CollapsibleContent.vue";
+import { USwitch } from "#components";
 const _props = defineProps<{
   metadata: DatasetDescription["datasetDeIdentLevel"];
 }>();
@@ -120,7 +122,7 @@ const formattedDeIdentType = getDeIdentType(_props.metadata.deIdentType);
       <div>
         <p :class="sectionTitleClass">De-identification Details</p>
 
-        <p>{{ metadata.deIdentDetails || "N/A"}}</p>
+        <p>{{ metadata.deIdentDetails || "N/A" }}</p>
       </div>
     </div>
   </CardCollapsibleContent>

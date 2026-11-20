@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import "md-editor-v3/lib/style.css";
+import { useColorMode } from "#imports";
+import { computed } from "vue";
+import { useHead, useSeoMeta } from "#app";
+import { NuxtLoadingIndicator, NuxtPage, NuxtLayout, UApp } from "#components";
 
 const colorMode = useColorMode();
 

@@ -1,4 +1,6 @@
 import { externalDatasetSchema } from "#shared/utils/external_dataset";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
 
 export default defineEventHandler(async (event) => {
   // Validate the request body

@@ -1,3 +1,5 @@
+import { $fetch } from "#build/fetch";
+
 type BadgeColor = "success" | "error" | "warning" | "info" | "neutral";
 
 export const requestStatusColor = (status: string): BadgeColor => {

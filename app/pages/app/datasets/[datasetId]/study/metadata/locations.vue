@@ -5,6 +5,22 @@ import { nanoid } from "nanoid";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
 import { isValidRORValue, normalizeROR } from "~/utils/validations";
+import MetadataRorLookupButton from "~/components/metadata/RorLookupButton.vue";
+import CardCollapsible from "~/components/card/CardCollapsible.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { useUnsavedChangesGuard } from "~/composables/useUnsavedChangesGuard";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  UButton,
+  UInput,
+  UFormField,
+  USelect,
+  UForm,
+  UModal,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth"],

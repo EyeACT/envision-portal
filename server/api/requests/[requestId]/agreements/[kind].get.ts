@@ -1,3 +1,12 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { requireUserSession } from "#imports";
+import {
+  parseAgreementKind,
+  sendRequestAgreement,
+  getAgreementPath,
+} from "#server/utils/datasetRequests";
+
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event);
 

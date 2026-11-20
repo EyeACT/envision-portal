@@ -1,10 +1,12 @@
 import { InvitationStatuses } from "~~/shared/generated/client";
-
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { requireUserSession } from "#imports";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
 
-  const userEmail = session.user.emailAddress
+  const userEmail = session.user.emailAddress;
 
   const { invitationId } = event.context.params as {
     invitationId: string;
@@ -13,9 +15,9 @@ export default defineEventHandler(async (event) => {
   const invitation = await prisma.datasetInvitation.findUnique({
     where: {
       id: invitationId,
-      emailAddress: userEmail
-    }
-  })
+      emailAddress: userEmail,
+    },
+  });
 
   if (!invitation) {
     throw createError({
@@ -31,8 +33,7 @@ export default defineEventHandler(async (event) => {
   ) {
     throw createError({
       statusCode: 410,
-      statusMessage:
-        "Invitation has expired. No reason to reject.",
+      statusMessage: "Invitation has expired. No reason to reject.",
     });
   }
 
@@ -51,19 +52,17 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-
   // consume invitation and create new dataset membership
   const invite = await prisma.datasetInvitation.update({
     where: {
       id: invitationId,
-      emailAddress: userEmail
+      emailAddress: userEmail,
     },
     data: {
       status: InvitationStatuses.REJECTED,
-      userId: session.user.id
-    }
-  })
+      userId: session.user.id,
+    },
+  });
 
-
-  return invite
-})
+  return invite;
+});

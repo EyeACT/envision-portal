@@ -3,6 +3,21 @@ import { ref, reactive, computed } from "vue";
 import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import FORM_JSON from "~/assets/data/form.json";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { useUnsavedChangesGuard } from "~/composables/useUnsavedChangesGuard";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  USelect,
+  UFormField,
+  UInput,
+  UTextarea,
+  UForm,
+  UButton,
+  UModal,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth"],

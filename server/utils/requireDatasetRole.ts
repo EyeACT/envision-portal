@@ -1,4 +1,8 @@
 import type { H3Event } from "h3";
+import prisma from "#server/utils/prisma";
+import { requireUserSession } from "#imports";
+import { datasetExists } from "#server/utils/datasetExists";
+import { createError } from "h3";
 
 export const DATASET_ROLES = ["viewer", "editor", "admin", "owner"] as const;
 

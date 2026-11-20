@@ -1,5 +1,9 @@
 <script lang="ts" setup>
 import type { TableColumn } from "@nuxt/ui";
+import CardCollapsibleContent from "~/components/card/CollapsibleContent.vue";
+import MetadataDeIdentifyCard from "~/components/metadata/DeIdentifyCard.vue";
+import MetadataConsentCard from "~/components/metadata/ConsentCard.vue";
+import { UAlert, UTable } from "#components";
 // Define props
 const props = defineProps<{
   metadata: DatasetDescription;
@@ -127,9 +131,7 @@ const funderColumns: TableColumn<
   <div class="h-auto space-y-6">
     <CardCollapsibleContent title="Creators">
       <UAlert
-        v-if="
-          !props.metadata.creator || props.metadata.creator.length === 0
-        "
+        v-if="!props.metadata.creator || props.metadata.creator.length === 0"
         color="info"
         variant="subtle"
         title="No creators"
@@ -165,7 +167,8 @@ const funderColumns: TableColumn<
     <CardCollapsibleContent title="Funders">
       <UAlert
         v-if="
-          !props.metadata.fundingReference || props.metadata.fundingReference.length === 0
+          !props.metadata.fundingReference ||
+          props.metadata.fundingReference.length === 0
         "
         color="info"
         variant="subtle"

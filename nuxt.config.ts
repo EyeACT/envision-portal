@@ -36,6 +36,9 @@ export default defineNuxtConfig({
     plugins: ["relativeTime", "utc", "timezone"],
   },
   devtools: { enabled: true },
+  explicitImports: {
+    mode: { imports: "strict", components: "strict", server: "strict" },
+  },
   modules: [
     "@nuxt/ui",
     "nuxt-auth-utils",
@@ -43,6 +46,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/content",
     // "@scalar/nuxt",
+    "nuxt-explicit-imports",
   ],
   nitro: {
     experimental: {

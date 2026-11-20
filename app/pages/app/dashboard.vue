@@ -1,5 +1,24 @@
 <script setup lang="ts">
 import { z } from "zod";
+import { definePageMeta } from "#app/composables/pages";
+import { useSeoMeta, useFetch, navigateTo } from "#app";
+import { useToast } from "#imports";
+import { ref, computed, useTemplateRef, reactive } from "vue";
+import { $fetch } from "#build/fetch";
+import { displayDateDifference } from "~/utils/displayDates";
+import {
+  UButton,
+  UInput,
+  UFormField,
+  UForm,
+  USlideover,
+  UAlert,
+  UModal,
+  USeparator,
+  UBadge,
+  UCard,
+  ULink,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth"],
@@ -38,31 +57,28 @@ const filteredDatasets = computed(() => {
       dataset.title?.toLowerCase().includes(query) ||
       dataset.description?.toLowerCase().includes(query),
   );
-  console.log(ds)
-  return ds
+  console.log(ds);
+  return ds;
 });
 
 const showNewVersionBtn = (dataset: any) => {
   const isLatestPublishedDataset = !datasets?.value?.some(
-    currentDataset => 
-      currentDataset.status == "published" && 
-      currentDataset.created > dataset.created && 
-      currentDataset.canonicalId == dataset.canonicalId
+    (currentDataset) =>
+      currentDataset.status == "published" &&
+      currentDataset.created > dataset.created &&
+      currentDataset.canonicalId == dataset.canonicalId,
   );
 
   const hasDraftVersion = !datasets?.value?.some(
-    currentDataset => 
-      currentDataset.status == "draft" && 
-      currentDataset.canonicalId == dataset.canonicalId
+    (currentDataset) =>
+      currentDataset.status == "draft" &&
+      currentDataset.canonicalId == dataset.canonicalId,
   );
 
   return (
-    isLatestPublishedDataset && 
-    dataset.status == "published" && 
-    hasDraftVersion
-  )
-    
-}
+    isLatestPublishedDataset && dataset.status == "published" && hasDraftVersion
+  );
+};
 
 const newDatasetForm = useTemplateRef("newDatasetForm");
 const newDatasetSchema = z.object({
@@ -129,12 +145,12 @@ const createNewVersion = async (datasetId: string) => {
     })
     .catch((error) => {
       console.error("Error creating new version:", error);
-      let userErrorMessage = error.statusMessage ?? "Please try again later"
+      let userErrorMessage = error.statusMessage ?? "Please try again later";
       toast.add({
         title: "Error creating new version",
         description: userErrorMessage,
         icon: "material-symbols:error",
-        color: "error"
+        color: "error",
       });
     })
     .finally(() => {

@@ -3,6 +3,26 @@ import dayjs from "dayjs";
 import { DateFormatter, getLocalTimeZone } from "@internationalized/date";
 import type { AccordionItem } from "@nuxt/ui";
 import type { DiscoveryDatasetList } from "#shared/types/dataset";
+import OverlayLoader from "~/components/overlay/OverlayLoader.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useSeoMeta, useFetch } from "#app";
+import { useToast } from "#imports";
+import { ref, shallowRef, computed, watch } from "vue";
+import {
+  UBreadcrumb,
+  UInput,
+  UButton,
+  UCalendar,
+  UPopover,
+  UBadge,
+  UAccordion,
+  Icon,
+  UTooltip,
+  UCard,
+  NuxtLink,
+  UPagination,
+  UContainer,
+} from "#components";
 
 definePageMeta({ layout: "public" });
 

@@ -1,61 +1,63 @@
-
 import dayjs from "dayjs";
-import { z } from "zod"
+import { z } from "zod";
 import { nanoid } from "nanoid";
 import { sendInvitationEmail } from "~~/server/utils/sendInvitationEmail";
-
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { useRuntimeConfig } from "nitropack/runtime";
+import { datasetMinAdminPermission } from "#server/utils/datasetMinAdminPermission";
+import { DATASET_ROLES } from "#server/utils/requireDatasetRole";
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  await datasetMinAdminPermission(event)
+  const config = useRuntimeConfig();
+  await datasetMinAdminPermission(event);
 
   const body = await readValidatedBody(event, (b) =>
-    datasetInviteSchema.safeParse(b)
-  )
-
+    datasetInviteSchema.safeParse(b),
+  );
 
   if (!body.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid invitation"
-    })
+      statusMessage: "Invalid invitation",
+    });
   }
 
-  const datasetInvite = body.data
+  const datasetInvite = body.data;
 
   const { datasetId } = event.context.params as { datasetId: string };
   if (datasetId !== datasetInvite.datasetId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Invalid request"
-    })
+      statusMessage: "Invalid request",
+    });
   }
 
-  const normalizedEmailAddress = datasetInvite.emailAddress.toLocaleLowerCase()
+  const normalizedEmailAddress = datasetInvite.emailAddress.toLocaleLowerCase();
 
   const user = await prisma.user.findUnique({
     where: {
-      emailAddress: normalizedEmailAddress
-    }
-  })
+      emailAddress: normalizedEmailAddress,
+    },
+  });
 
   const dataset = await prisma.dataset.findUnique({
     where: {
-      id: datasetId
-    }
-  })
+      id: datasetId,
+    },
+  });
 
   if (!dataset) {
     throw createError({
       statusCode: 404,
-      statusMessage: "Dataset not found."
-    })
+      statusMessage: "Dataset not found.",
+    });
   }
 
-  const datasetTitle = dataset.title
+  const datasetTitle = dataset.title;
 
-  let invitationLink = ""
-  let datasetInvitation = null
+  let invitationLink = "";
+  let datasetInvitation = null;
   if (user) {
     // await sendInvitationEmail(
     //   normalizedEmailAddress,
@@ -72,19 +74,18 @@ export default defineEventHandler(async (event) => {
         role: datasetInvite.role,
         emailAddress: normalizedEmailAddress,
         invitationExpires,
-        userId: user.id
-      }
-    })
+        userId: user.id,
+      },
+    });
     // Send invitation email
     // OPTIONALLY SEND TO INVITATIONS PAGE
-    invitationLink = `${config.emailVerificationDomain}/invitations`
+    invitationLink = `${config.emailVerificationDomain}/invitations`;
   } else {
     const invitationToken = nanoid();
     // TODO: Up time to days later
 
     // TODO: Match platform invitation time later
     const invitationExpires = dayjs().add(60, "minute").toDate();
-
 
     datasetInvitation = await prisma.datasetInvitation.create({
       data: {
@@ -93,10 +94,10 @@ export default defineEventHandler(async (event) => {
         emailAddress: normalizedEmailAddress,
         invitationToken,
         invitationExpires,
-        userId: null
-      }
-    })
-    invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`
+        userId: null,
+      },
+    });
+    invitationLink = `${config.emailVerificationDomain}/signup?datasetInvitation=${invitationToken}`;
 
     // await sendInvitationEmail(
     //   normalizedEmailAddress,
@@ -107,7 +108,6 @@ export default defineEventHandler(async (event) => {
     // )
   }
 
-
   return {
     url: invitationLink,
     invitation: {
@@ -115,14 +115,13 @@ export default defineEventHandler(async (event) => {
       emailAddress: normalizedEmailAddress,
       role: datasetInvitation.role,
       status: datasetInvitation.status,
-      invitationExpires: datasetInvitation.invitationExpires
-    }
-  }
-})
-
+      invitationExpires: datasetInvitation.invitationExpires,
+    },
+  };
+});
 
 let datasetInviteSchema = z.object({
   datasetId: z.string(),
   emailAddress: z.email(),
   role: z.enum(DATASET_ROLES),
-})
+});

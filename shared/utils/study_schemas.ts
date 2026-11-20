@@ -100,10 +100,10 @@ export const editableRows = <T extends z.ZodType>(
 
   return requiredMessage
     ? rows.refine(
-      (items) =>
-        items.some((item) => !(item as { deleted?: boolean }).deleted),
-      { message: requiredMessage },
-    )
+        (items) =>
+          items.some((item) => !(item as { deleted?: boolean }).deleted),
+        { message: requiredMessage },
+      )
     : rows;
 };
 
@@ -1355,46 +1355,47 @@ export const StudyMetadataArmsInterventionsSchema = z
   })
   .strict();
 
-export const typeNeedsDomain =
-  [
-    "Other Grant/Funding Number",
-    "Registry Identifier",
-    "Other Identifier"
-  ]
+export const typeNeedsDomain = [
+  "Other Grant/Funding Number",
+  "Registry Identifier",
+  "Other Identifier",
+];
 
-export const PrimaryIdentifierSchema = z.object({
-  domain: z.union([z.literal(""), z.string().trim().url()]),
-  identifier: z.string(),
-  link: z.union([z.literal(""), z.string().trim().url()]),
-  type: z.string().refine((v) => identTypeOptions.includes(v), {
-    message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
-  }),
-}).superRefine(({ type, domain }, ctx) => {
-  if (typeNeedsDomain.includes(type) && !domain.trim()) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Domain is required for this identifier type",
-      path: ["domain"]
-    })
-  }
-})
+export const PrimaryIdentifierSchema = z
+  .object({
+    domain: z.union([z.literal(""), z.string().trim().url()]),
+    identifier: z.string(),
+    link: z.union([z.literal(""), z.string().trim().url()]),
+    type: z.string().refine((v) => identTypeOptions.includes(v), {
+      message: `Identifier type must be one of: ${identTypeOptions.join(", ")}`,
+    }),
+  })
+  .superRefine(({ type, domain }, ctx) => {
+    if (typeNeedsDomain.includes(type) && !domain.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Domain is required for this identifier type",
+        path: ["domain"],
+      });
+    }
+  });
 
 export const uniqueItemsRefine =
   (keyFn: (item: any) => string, message: string, errorPath: string) =>
-    (data: any[], ctx: z.RefinementCtx) => {
-      const seen = new Set<string>();
-      data.forEach((item, index) => {
-        const key = keyFn(item);
-        if (seen.has(key)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message,
-            path: [index, errorPath],
-          });
-        }
-        seen.add(key);
-      });
-    };
+  (data: any[], ctx: z.RefinementCtx) => {
+    const seen = new Set<string>();
+    data.forEach((item, index) => {
+      const key = keyFn(item);
+      if (seen.has(key)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message,
+          path: [index, errorPath],
+        });
+      }
+      seen.add(key);
+    });
+  };
 
 export const StudyMetadataPublishValidation = z.object({
   id: z.string().cuid2("Invalid dataset ID"),

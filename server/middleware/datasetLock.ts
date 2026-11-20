@@ -1,3 +1,6 @@
+import { defineEventHandler } from "h3";
+import { assertDatasetUnlocked } from "#server/utils/assertDatasetUnlocked";
+
 // Routes under /api/datasets/{datasetId}/ that stay writable while the dataset is locked.
 // These manage access or create a separate dataset, so they don't change what gets published.
 // Data requests are handled after publishing, when the dataset is always locked.

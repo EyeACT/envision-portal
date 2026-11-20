@@ -6,6 +6,9 @@ import {
   ACCEPTED_DOCUMENT_MIMETYPES,
 } from "#shared/constants/documents";
 import type { H3Event, MultiPartData } from "h3";
+import { studyPaths, STUDY_FILE_SYSTEM } from "#server/utils/studyStorage";
+import { useRuntimeConfig } from "nitropack/runtime";
+import { createError } from "h3";
 
 // Documents are stored under `{canonicalId}/documents/` inside the `datasets`
 // container, shared by every version of the dataset

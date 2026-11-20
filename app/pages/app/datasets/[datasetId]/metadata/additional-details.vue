@@ -3,6 +3,30 @@ import * as z from "zod";
 import type { FormSubmitEvent, FormError } from "@nuxt/ui";
 import { nanoid } from "nanoid";
 import FORM_JSON from "~/assets/data/form.json";
+import CardCollapsible from "~/components/card/CardCollapsible.vue";
+import MetadataOptionalFields from "~/components/metadata/OptionalFields.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast, useDayjs } from "#imports";
+import { ref, reactive, computed } from "vue";
+import { useUnsavedChangesGuard } from "~/composables/useUnsavedChangesGuard";
+import {
+  isValidORCIDValue,
+  isValidRORValue,
+  isValidUrl,
+} from "~/utils/validations";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  NuxtLink,
+  UButton,
+  UInput,
+  UFormField,
+  USelect,
+  UTextarea,
+  UForm,
+  UModal,
+} from "#components";
 
 definePageMeta({
   middleware: ["auth"],

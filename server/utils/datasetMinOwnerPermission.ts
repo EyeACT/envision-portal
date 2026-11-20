@@ -1,4 +1,5 @@
 import type { H3Event } from "h3";
+import { requireDatasetRole } from "#server/utils/requireDatasetRole";
 
 // Throws unless the user is the owner of the dataset in the route params
 export const datasetMinOwnerPermission = (event: H3Event) =>

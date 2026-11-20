@@ -1,6 +1,6 @@
 allowBuilds:
-  '@parcel/watcher': true
-  '@prisma/engines': true
+  "@parcel/watcher": true
+  "@prisma/engines": true
   bcrypt: true
   better-sqlite3: true
   esbuild: true
@@ -11,4 +11,4 @@ allowBuilds:
 
 minimumReleaseAge: 10080
 blockExoticSubdeps: true
-minimumReleaseAgeStrict: false # tenmporary until https://github.com/pnpm/pnpm/issues/11238 is fixed
+minimumReleaseAgeStrict: true 

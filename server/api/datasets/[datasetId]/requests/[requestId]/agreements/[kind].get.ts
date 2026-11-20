@@ -1,3 +1,12 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { datasetMinAdminPermission } from "#server/utils/datasetMinAdminPermission";
+import {
+  parseAgreementKind,
+  sendRequestAgreement,
+  getAgreementPath,
+} from "#server/utils/datasetRequests";
+
 // Agreements are signed legal documents, so only dataset owners and admins can
 // download them here. Requesters use /api/requests/[requestId]/agreements/[kind]
 export default defineEventHandler(async (event) => {

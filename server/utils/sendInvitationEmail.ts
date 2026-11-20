@@ -1,6 +1,13 @@
 import nodemailer from "nodemailer";
+import { useRuntimeConfig } from "nitropack/runtime";
 
-export const sendInvitationEmail = async (to: string, subject: string, kind: string, datasetName: string, url: string) => {
+export const sendInvitationEmail = async (
+  to: string,
+  subject: string,
+  kind: string,
+  datasetName: string,
+  url: string,
+) => {
   const config = useRuntimeConfig();
 
   const transporter = nodemailer.createTransport({
@@ -12,8 +19,7 @@ export const sendInvitationEmail = async (to: string, subject: string, kind: str
     port: Number(config.mailPort),
   });
 
-
-  let htmlContent = ``
+  let htmlContent = ``;
   if (kind === "external") {
     htmlContent = `
   <!DOCTYPE html>
@@ -137,7 +143,7 @@ export const sendInvitationEmail = async (to: string, subject: string, kind: str
       </html>
   `;
   } else {
-    throw new Error("No email sent")
+    throw new Error("No email sent");
   }
 
   await transporter.sendMail({

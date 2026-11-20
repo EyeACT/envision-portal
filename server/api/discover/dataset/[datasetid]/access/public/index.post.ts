@@ -1,4 +1,7 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, readValidatedBody, createError } from "h3";
+import { getUserSession } from "#imports";
 
 const requestSchema = z.object({
   affiliation: z.string().min(1, "Must be at least 1 character"),

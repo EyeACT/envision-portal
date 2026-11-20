@@ -1,6 +1,30 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
 import type { InternalApi } from "nitropack/types";
+import ButtonIdentifierBadge from "~/components/button/IdentifierBadge.vue";
+import MarkdownRenderer from "~/components/markdown/MarkdownRenderer.vue";
+import MetadataStudy from "~/components/metadata/MetadataStudy.vue";
+import MetadataDataset from "~/components/metadata/MetadataDataset.vue";
+import MetadataHealthSheet from "~/components/metadata/HealthSheet.vue";
+import SideVersionSelector from "~/components/side/VersionSelector.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, navigateTo, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref, computed, onMounted } from "vue";
+import { $fetch } from "#build/fetch";
+import {
+  UBreadcrumb,
+  UBadge,
+  UButton,
+  UPopover,
+  NuxtLink,
+  USeparator,
+  UIcon,
+  Icon,
+  UTree,
+  UTabs,
+  UContainer,
+} from "#components";
 definePageMeta({
   layout: "public",
 });

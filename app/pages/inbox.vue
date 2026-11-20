@@ -1,4 +1,11 @@
 <script setup lang="ts">
+import { definePageMeta } from "#app/composables/pages";
+import { useSeoMeta, useFetch } from "#app";
+import { useToast } from "#imports";
+import { $fetch } from "#build/fetch";
+import { displayDateDifference } from "~/utils/displayDates";
+import { Icon, UButton, UCard, UTabs } from "#components";
+
 definePageMeta({
   middleware: ["auth"],
 });

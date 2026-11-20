@@ -1,3 +1,11 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { datasetMinViewerPermission } from "#server/utils/datasetMinViewerPermission";
+import {
+  serializeDatasetRequest,
+  getApprovalBlocker,
+} from "#server/utils/datasetRequests";
+
 export default defineEventHandler(async (event) => {
   const member = await datasetMinViewerPermission(event);
 
@@ -33,7 +41,9 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...serializeDatasetRequest(datasetRequest),
-    approvalBlocker: getApprovalBlocker(datasetRequest.DatasetRequestDetails[0]),
+    approvalBlocker: getApprovalBlocker(
+      datasetRequest.DatasetRequestDetails[0],
+    ),
     canManage: member.owner || ["owner", "admin"].includes(member.role),
   };
 });

@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import type { TimelineItem } from "@nuxt/ui";
+import MarkdownRenderer from "~/components/markdown/MarkdownRenderer.vue";
+import CardCollapsible from "~/components/card/CardCollapsible.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref } from "vue";
+import { UBreadcrumb, UStepper, UButton } from "#components";
 
 definePageMeta({
   middleware: ["auth", "publish-started"],
@@ -54,10 +61,10 @@ const timelineItems = ref<TimelineItem[]>([
     description: "Add a readme to the dataset.",
     icon: "i-lucide-file-text",
   },
-  { 
-    title: "Files", 
-    description: "Review dataset files.", 
-    icon: "i-lucide-folder-open" 
+  {
+    title: "Files",
+    description: "Review dataset files.",
+    icon: "i-lucide-folder-open",
   },
   {
     title: "Publish",
@@ -95,7 +102,7 @@ const timelineItems = ref<TimelineItem[]>([
 
       <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
         <CardCollapsible title="Readme" bordered no-shadow>
-          <div class="flex justify-end mb-4">
+          <div class="mb-4 flex justify-end">
             <UButton
               :to="`/app/datasets/${datasetId}/readme`"
               color="primary"

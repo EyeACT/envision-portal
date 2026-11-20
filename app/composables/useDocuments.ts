@@ -1,7 +1,9 @@
 import prettyBytes from "pretty-bytes";
 import dayjs from "dayjs";
-import { DOCUMENT_TYPES } from "#shared/constants/documents"
+import { DOCUMENT_TYPES } from "#shared/constants/documents";
 import type { document } from "~~/shared/types/document";
+import { ref } from "vue";
+import { $fetch } from "#build/fetch";
 
 export interface StudyDocument {
   id: string;
@@ -12,15 +14,12 @@ export interface StudyDocument {
   fileExtension: string;
 }
 
-
-
 // Module-level singleton so all composable callers share the same reactive list
 const documents = ref<StudyDocument[]>([]);
 const loading = ref(false);
 
 export function useDocuments(datasetId: string) {
-
-  const error = ref(null)
+  const error = ref(null);
 
   const formatBytes = (bytes: number) => prettyBytes(bytes);
 
@@ -45,21 +44,20 @@ export function useDocuments(datasetId: string) {
   loading.value = true;
 
   $fetch(`/api/datasets/${datasetId}/documents`)
-    .then(docs => {
-      const parsedDocs = JSON.parse(docs) as document[]
+    .then((docs) => {
+      const parsedDocs = JSON.parse(docs) as document[];
 
-      documents.value = parsedDocs.map(doc => ({
+      documents.value = parsedDocs.map((doc) => ({
         id: doc.id,
         name: doc.originalName,
         type: doc.documentType,
         size: Number(doc.size),
         uploadedAt: doc.created.toString(),
-        fileExtension: doc.sanitizedName.split(".").at(-1)!
-      }))
+        fileExtension: doc.sanitizedName.split(".").at(-1)!,
+      }));
     })
-    .catch(err => error.value = err)
-    .finally(() => loading.value = false)
-
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 
   return {
     documents,

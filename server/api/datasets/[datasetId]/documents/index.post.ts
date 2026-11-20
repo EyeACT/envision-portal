@@ -8,9 +8,12 @@ import {
 } from "./upload/utils";
 // import { DocumentUploadForm } from "./upload/schema"
 import { sanitizeFileName } from "#shared/utils/documents";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError, readMultipartFormData } from "h3";
+import { datasetMinEditorPermission } from "#server/utils/datasetMinEditorPermission";
 
 export default defineEventHandler(async (event) => {
-  await datasetMinEditorPermission(event)
+  await datasetMinEditorPermission(event);
   const { datasetId } = event.context.params as { datasetId: string };
 
   const dataset = await prisma.dataset.findUnique({
@@ -62,7 +65,10 @@ export default defineEventHandler(async (event) => {
     file.data.byteLength,
   );
 
-  const storagePath = getDocumentStoragePath(dataset.canonicalId, sanitizedName);
+  const storagePath = getDocumentStoragePath(
+    dataset.canonicalId,
+    sanitizedName,
+  );
 
   await uploadDocument(file.data, storagePath, mimeType);
 

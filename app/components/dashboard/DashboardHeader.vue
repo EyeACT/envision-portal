@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import AppColorModeButton from "~/components/app/AppColorModeButton.vue";
+import { useUserSession } from "#imports";
+import { useRoute, navigateTo } from "#app";
+import { computed, ref } from "vue";
+import { Icon, UButton, NuxtLink, UTooltip, AuthState } from "#components";
+
 const { clear, loggedIn, user } = useUserSession();
 
 const route = useRoute();

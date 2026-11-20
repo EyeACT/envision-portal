@@ -1,3 +1,6 @@
+import prisma from "#server/utils/prisma";
+import { createError } from "h3";
+
 const SCHEMA_URL = "https://schema.aireadi.org/v0.1.0/study_description.json";
 
 const generateStudyDescription = async (datasetId: string, userId: string) => {

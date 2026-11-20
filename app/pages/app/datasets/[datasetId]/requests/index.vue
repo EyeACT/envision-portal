@@ -1,4 +1,19 @@
 <script setup lang="ts">
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref, computed } from "vue";
+import { requestStatusColor } from "~/utils/dataRequests";
+import { displayDateDifference } from "~/utils/displayDates";
+import {
+  UBreadcrumb,
+  UBadge,
+  UTabs,
+  USeparator,
+  UCard,
+  NuxtLink,
+} from "#components";
+
 definePageMeta({
   middleware: ["auth"],
 });
@@ -19,7 +34,9 @@ if (error.value) {
 }
 
 useSeoMeta({
-  title: data.value ? `${data.value.dataset.title} | Data Requests` : "Data Requests",
+  title: data.value
+    ? `${data.value.dataset.title} | Data Requests`
+    : "Data Requests",
 });
 
 const statusFilter = ref("pending");
@@ -47,7 +64,11 @@ const filteredRequests = computed(() => {
 });
 
 const agreementStage = (request: {
-  agreements: { unsigned: string | null; signed: string | null; final: string | null };
+  agreements: {
+    unsigned: string | null;
+    signed: string | null;
+    final: string | null;
+  };
 }) => {
   if (request.agreements.final) return "DUA countersigned";
   if (request.agreements.signed) return "DUA signed by requester";
@@ -101,8 +122,8 @@ const agreementStage = (request: {
           </template>
 
           <template v-else>
-            This version is public, so requests are approved automatically.
-            You can still revoke access for any request.
+            This version is public, so requests are approved automatically. You
+            can still revoke access for any request.
           </template>
         </p>
       </div>

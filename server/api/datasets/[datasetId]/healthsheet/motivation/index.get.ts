@@ -1,4 +1,7 @@
 import type { DatasetHealthsheetRecords } from "#shared/types/dataset";
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { datasetMinViewerPermission } from "#server/utils/datasetMinViewerPermission";
 
 export default defineEventHandler(async (event) => {
   const member = await datasetMinViewerPermission(event);

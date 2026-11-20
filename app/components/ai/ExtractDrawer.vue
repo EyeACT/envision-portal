@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { useDocuments } from "@/composables/useDocuments";
+import { useRoute } from "#app";
+import { ref } from "vue";
+import { Icon, UButton, UCheckbox, UBadge, UDrawer } from "#components";
 
 export interface ExtractField {
   key: string;

@@ -1,5 +1,9 @@
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { datasetMinViewerPermission } from "#server/utils/datasetMinViewerPermission";
+
 export default defineEventHandler(async (event) => {
-  const member = await datasetMinViewerPermission(event)
+  const member = await datasetMinViewerPermission(event);
   const userId = member.userId;
 
   const { datasetId } = event.context.params as {

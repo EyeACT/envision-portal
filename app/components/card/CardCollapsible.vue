@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useSlots, ref, computed, onBeforeMount } from "vue";
+import { USeparator, UButton } from "#components";
+
 const props = defineProps({
   title: {
     default: "Card Title",

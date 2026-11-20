@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import type { TimelineItem } from "@nuxt/ui";
+import CardCollapsible from "~/components/card/CardCollapsible.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, useFetch, useSeoMeta } from "#app";
+import { useToast } from "#imports";
+import { ref } from "vue";
+import { UBreadcrumb, UStepper, UTree, UButton } from "#components";
 
 definePageMeta({
   middleware: ["auth", "publish-started"],
@@ -13,10 +19,7 @@ const { datasetId } = route.params as {
 };
 
 // Fetch files from the Azure blob backend route
-const { data, error } = await useFetch(
-  `/api/datasets/${datasetId}/files`,
-  {},
-);
+const { data, error } = await useFetch(`/api/datasets/${datasetId}/files`, {});
 
 if (error.value) {
   toast.add({
@@ -99,7 +102,7 @@ const timelineItems = ref<TimelineItem[]>([
               v-if="data?.files && data?.files.length > 0"
               :items="data?.files || []"
             />
-            <p v-else class="text-gray-500 py-4 text-center">
+            <p v-else class="py-4 text-center text-gray-500">
               No files found in this dataset.
             </p>
           </div>

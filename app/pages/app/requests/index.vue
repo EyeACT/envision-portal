@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import { definePageMeta } from "#app/composables/pages";
+import { useSeoMeta, useFetch } from "#app";
+import { useToast } from "#imports";
+import { ref, computed } from "vue";
+import { requestStatusColor } from "~/utils/dataRequests";
+import { displayDateDifference } from "~/utils/displayDates";
+import { UInput, UBadge, USeparator, UCard, ULink } from "#components";
+
 definePageMeta({
   middleware: ["auth"],
 });
@@ -138,7 +146,9 @@ const dropdownItems = ref([
                 </div>
 
                 <UBadge variant="subtle" size="lg">
-                  {{ request.PublishedDataset.public ? "Public" : "Controlled" }}
+                  {{
+                    request.PublishedDataset.public ? "Public" : "Controlled"
+                  }}
                   Dataset
                 </UBadge>
 
@@ -155,7 +165,10 @@ const dropdownItems = ref([
 
             <div>
               <!-- Dataset Description -->
-              <p v-if="request.PublishedDataset.description" class="text-default">
+              <p
+                v-if="request.PublishedDataset.description"
+                class="text-default"
+              >
                 {{ request.PublishedDataset.description }}
               </p>
 

@@ -1,10 +1,12 @@
 import { InvitationStatuses } from "~~/shared/generated/client";
-
+import prisma from "#server/utils/prisma";
+import { defineEventHandler, createError } from "h3";
+import { requireUserSession } from "#imports";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
 
-  const userEmail = session.user.emailAddress
+  const userEmail = session.user.emailAddress;
 
   const { invitationId } = event.context.params as {
     invitationId: string;
@@ -13,9 +15,9 @@ export default defineEventHandler(async (event) => {
   const invitation = await prisma.datasetInvitation.findUnique({
     where: {
       id: invitationId,
-      emailAddress: userEmail
-    }
-  })
+      emailAddress: userEmail,
+    },
+  });
 
   if (!invitation) {
     throw createError({
@@ -31,8 +33,7 @@ export default defineEventHandler(async (event) => {
   ) {
     throw createError({
       statusCode: 410,
-      statusMessage:
-        "Invitation token has expired. Please request a new one.",
+      statusMessage: "Invitation token has expired. Please request a new one.",
     });
   }
 
@@ -51,29 +52,27 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-
   // consume invitation and create new dataset membership
   const [consumedInvitation, addedMember] = await prisma.$transaction([
     prisma.datasetInvitation.update({
       where: {
         id: invitationId,
-        emailAddress: userEmail
+        emailAddress: userEmail,
       },
       data: {
         status: InvitationStatuses.ACCEPTED,
-        userId: session.user.id
-      }
+        userId: session.user.id,
+      },
     }),
 
     prisma.datasetMember.create({
       data: {
         userId: session.user.id,
         role: invitation.role,
-        datasetId: invitation.datasetId
-      }
-    })
-  ])
+        datasetId: invitation.datasetId,
+      },
+    }),
+  ]);
 
-
-  return addedMember
-})
+  return addedMember;
+});

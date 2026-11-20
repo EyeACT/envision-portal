@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useSeoMeta, useAsyncData } from "#app";
+import { definePageMeta } from "#app/composables/pages";
+import { queryCollection } from "#imports";
+import { ContentRenderer, UContainer } from "#components";
+
 useSeoMeta({
   title: "Terms of Use - Envision Portal",
   description:

@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import UiTimeline from "~/components/ui/Timeline.vue";
+import { useSeoMeta } from "#app";
+import { definePageMeta } from "#app/composables/pages";
+import { UButton, Icon, NuxtLink, UContainer, USeparator } from "#components";
+
 useSeoMeta({
   title: "Home",
 });

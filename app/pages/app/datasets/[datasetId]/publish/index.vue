@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute, navigateTo } from "#app";
+
 definePageMeta({
   middleware: ["auth", "publish-started"],
 });

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
+import DashboardHeader from "~/components/dashboard/DashboardHeader.vue";
+import { Icon, ULink, UButton, UCollapsible } from "#components";
 
 const route = useRoute();
 

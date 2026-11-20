@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { compareOrganizations } from "~/utils/organizations";
+import { UAlert, UButton } from "#components";
+
 type Organization = {
   identifier?: string | null;
   name?: string | null;

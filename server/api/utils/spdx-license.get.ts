@@ -1,3 +1,6 @@
+import { defineEventHandler, getQuery, createError } from "h3";
+import { requireUserSession } from "#imports";
+
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);
 

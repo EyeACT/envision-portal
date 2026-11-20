@@ -1,3 +1,6 @@
+import prisma from "#server/utils/prisma";
+import { createError } from "h3";
+
 const sections = [
   { key: "motivation", title: "Motivation" },
   { key: "composition", title: "Data Composition" },
@@ -49,7 +52,9 @@ const generateHealthsheet = async (datasetId: string, userId: string) => {
 
   for (const { key, title } of sections) {
     const records = parseRecords(
-      dataset.DatasetHealthsheet[key as keyof typeof dataset.DatasetHealthsheet],
+      dataset.DatasetHealthsheet[
+        key as keyof typeof dataset.DatasetHealthsheet
+      ],
     );
 
     if (records.length === 0) {

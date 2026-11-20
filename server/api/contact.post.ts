@@ -1,4 +1,12 @@
 import { z } from "zod";
+import prisma from "#server/utils/prisma";
+import {
+  defineEventHandler,
+  readValidatedBody,
+  createError,
+  getRequestIP,
+  getHeader,
+} from "h3";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),

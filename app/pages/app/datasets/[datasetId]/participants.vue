@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import AppPlaceholder from "~/components/app/AppPlaceholder.vue";
+import { definePageMeta } from "#app/composables/pages";
+import { useRoute } from "#app";
+import { useToast } from "#imports";
+import { UBreadcrumb } from "#components";
+
 definePageMeta({
   middleware: ["auth"],
 });

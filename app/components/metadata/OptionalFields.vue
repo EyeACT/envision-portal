@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ref, computed } from "vue";
+import { UButton } from "#components";
+
 const props = defineProps<{
   // The values of the fields inside. Fields stay visible while any of them is filled in,
   // so a value can't be hidden while it needs fixing.
