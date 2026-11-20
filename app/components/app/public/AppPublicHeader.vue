@@ -51,12 +51,6 @@ const logout = async () => {
         >
           Contact us
         </NuxtLink>
-        <NuxtLink 
-          to="/metrics"
-          class="text-base font-medium transition-colors hover:text-teal-500"
-        >
-          Metrics
-        </NuxtLink>
       </div>
 
       <div class="flex items-center justify-center gap-3">

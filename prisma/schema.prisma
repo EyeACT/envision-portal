@@ -876,6 +876,23 @@ model PublishedDataset {
 
     PublishedDatasetRegistrationDetails PublishedDatasetRegistrationDetails?
     PublishedDatasetModality            PublishedDatasetModality[]
+    PublishedDatasetFileSummary         PublishedDatasetFileSummary?
+}
+
+model PublishedDatasetFileSummary {
+    id String @id @default(cuid(2))
+
+    publishedDatasetId Int              @unique
+    publishedDataset   PublishedDataset @relation(fields: [publishedDatasetId], references: [id], onDelete: Cascade)
+
+    itemType String? // Item type in the source repository, e.g. "dataset" | "figure" | "media"
+
+    imageFileCount Int // Includes images inside archives
+    fileTypeCounts Json // { [extension]: count }
+    maskFileCount  Int  @default(0) // Segmentation masks / annotations found among the images
+
+    updated DateTime @updatedAt
+    created DateTime @default(now())
 }
 
 model PublishedDatasetModality {
