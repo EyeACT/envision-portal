@@ -151,10 +151,15 @@ const hasActiveFilters = computed(() => {
     selectedKeyword.value !== "" ||
     dateRange.value !== undefined ||
     externalFilter.value !== "all" ||
-    appliedSearch.value !== ""
+    appliedSearch.value !== "" 
   );
 });
 
+const sourceItems = [
+  {label: "All sources", value: "all"},
+  {label: "Deposited on Envision Portal", value: "non-external"},
+  {label: "Registered from external repository", value: "external"},
+]
 
 
 const modalities = [
@@ -257,12 +262,7 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
               </div>
 
               <div v-else-if="item.label === 'Source'" class="p-2">
-                <UInput
-                  v-model="selectedModality"
-                  type="text"
-                  placeholder="Filter by modality..."
-                  size="sm"
-                />
+                <URadioGroup v-model="externalFilter" :items="sourceItems" />
               </div>
 
               <div v-else-if="item.label === 'Number of Images'" class="p-2">
