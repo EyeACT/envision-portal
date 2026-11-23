@@ -201,7 +201,59 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
 
 <template>
   <div>
+
+
+
     <UContainer>
+    <div class="border-b border-gray-200 pb-4 space-y-4">
+      <h1 class="text-sm font-medium text-green-500">Find datasets</h1>
+      <h2 class="text-xl font-semibold">Discover ophthalmic imaging datasets</h2>
+      <p>Search datasets deposited on the Envision Portal and registered from Zenodo and Figshare.
+        Imaging modalities are detected automatically by analyzing the image files in each dataset.
+      </p>
+      
+      <!-- search bar -->
+      <div class="flex items-center gap-2">
+        <UInput
+          v-model="searchQuery"
+          type="text"
+          icon="i-lucide-search"
+          placeholder="Search titles, descriptions, and keywords"
+          @keyup.enter="searchDatasets"
+        />
+
+        <UButton
+          color="primary"
+          variant="soft"
+          label="Search"
+          @click="searchDatasets"
+        />
+      </div>
+
+
+      <div class="flex w-full flex-row gap-20 items-center ">
+        <div class="flex flex-col">
+          <span class="text-sm font-medium">Datasets</span>
+          <span class="text-xl font-semibold">{{ totalDatasets }}</span>
+        </div>
+
+        <div class="flex flex-col">
+          <span class="text-sm font-medium">Eye Images Classified</span>
+          <span class="text-xl font-semibold">488.6k</span>
+        </div>
+
+        <div class="flex flex-col">
+          <span class="text-sm font-medium">Imaging Modalities</span>
+          <span class="text-xl font-semibold">6</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-medium">Sources</span>
+          <span class="text-xl font-semibold">6</span>
+        </div>
+      </div>
+    </div>
+
+
       <h2 class="text-md ">Filters</h2>
       <UBreadcrumb
         class="mb-4"
@@ -336,22 +388,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
         </div>
 
         <div class="flex w-full flex-col gap-4 md:w-4/5">
-          <!-- search bar -->
-          <div class="flex items-center gap-2">
-            <UInput
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search datasets..."
-              @keyup.enter="searchDatasets"
-            />
 
-            <UButton
-              color="primary"
-              variant="soft"
-              icon="material-symbols:search"
-              @click="searchDatasets"
-            />
-          </div>
 
           <!-- Dataset counts and reset button -->
           <div class="flex items-center justify-between gap-4">
@@ -460,102 +497,119 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
                   </p>
                 </template>
 
-                <div class="space-y-4">
+                <div class="space-y-4 border-b border-gray-200 pb-4 mb-3">
                   <p class="line-clamp-3 text-sm text-gray-500">
                     {{ dataset.description || "No description available." }}
                   </p>
 
-                  <div v-if="dataset.keywords && dataset.keywords.length > 0">
-                    <h3 class="text-md mb-1 font-semibold text-gray-500">
-                      Keywords:
-                    </h3>
+                  <div 
+                    class="flex h-3 w-full overflow-hidden rounded-full bg-gray-100"
+                    role="img"
+                    aria-label="Modality breakdown"
 
-                    <div class="flex flex-wrap gap-2">
-                      <UBadge
-                        v-for="keyword in visibleKeywords(
-                          dataset.id,
-                          dataset.keywords,
-                        )"
-                        :key="keyword"
-                        variant="outline"
-                        class="text-xs capitalize"
-                      >
-                        {{ keyword }}
-                      </UBadge>
+                  >
+                    <div 
+                      :class="['h-full shrink-0 bg-red-500']"
+                      :style="{width: '25%'}"
+                    ></div>
 
-                      <UButton
-                        v-if="dataset.keywords.length > KEYWORD_PREVIEW_LIMIT"
-                        size="xs"
-                        variant="link"
-                        class="px-1"
-                        @click.prevent.stop="toggleKeywords(dataset.id)"
-                      >
-                        {{
-                          expandedKeywords.has(dataset.id)
-                            ? "Show less"
-                            : `Show ${dataset.keywords.length - KEYWORD_PREVIEW_LIMIT} more`
-                        }}
-                      </UButton>
-                    </div>
+                    <div 
+                      :class="['h-full shrink-0 bg-blue-500']"
+                      :style="{width: '25%'}"
+                    ></div>
+
+                    <div 
+                      :class="['h-full shrink-0 bg-green-500']"
+                      :style="{width: '50%'}"
+                    ></div>
+                
                   </div>
 
-                  <div class="space-y-2">
-                    <div class="flex items-start gap-3 text-sm">
-                      <div class="flex gap-2">
-                        <Icon
-                          name="charm:person"
-                          size="12"
-                          class="mt-1 text-blue-500"
-                        />
+                  <div class="flex flex-wrap gap-2 ">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                      <span 
+                        aria-hidden="true"
+                        :class="['size-2 shrink-0 rounded-full bg-red-500']"
+                      ></span>
+                      <span class="text-sm font-medium">OCT</span>
+                      <span class="tabular-nums text-xs text-gray-500">25,000</span>
+                    </div>
 
-                        <span class="min-w-[80px] font-medium text-gray-600">
-                          Creators:
-                        </span>
-                      </div>
-                      <div class="flex-wraptext-gray-700 flex">
-                        <span
-                          v-if="dataset.creators && dataset.creators.length > 0"
+                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                      <span 
+                        aria-hidden="true"
+                        :class="['size-2 shrink-0 rounded-full bg-blue-500']"
+                      ></span>
+                      <span class="text-sm font-medium">OCTA</span>
+                      <span class="tabular-nums text-xs text-gray-500">25,000</span>
+                    </div>
+
+                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                      <span 
+                        aria-hidden="true"
+                        :class="['size-2 shrink-0 rounded-full bg-blue-500']"
+                      ></span>
+                      <span class="text-sm font-medium">FP</span>
+                      <span class="tabular-nums text-xs text-gray-500">50,000</span>
+                    </div>
+                  </div>
+                </div>
+
+
+                <div class="flex flex-wrap gap-2">
+                  <div class="flex flex-row gap-4">
+
+                    <div class="flex min-w-0 items-center gap-2">
+                      <Icon 
+                        name="i-lucide-image"
+                        size="16"
+                        class="shrink-0 text-gray-500"
+                        aria-hidden="true"
+                      />
+                      <span class="text-sm font-semibold">23,000 images</span>
+                    </div>
+
+
+                      <div 
+                        v-if="dataset.keywords && dataset.keywords.length > 0"
+                        class="flex min-w-0 items-center gap-2"
                         >
-                          <span
-                            v-for="(creator, index) in dataset.creators"
-                            :key="index"
-                            class="capitalize"
-                          >
-                            {{ creator.creatorName
-                            }}<span v-if="index < dataset.creators.length - 1"
-                              >,
-                            </span>
-                          </span>
-                        </span>
-
-                        <span v-else class="text-gray-400 italic">
-                          No creators available
-                        </span>
-                      </div>
-                    </div>
-
-                    <div
-                      class="flex items-start gap-3 text-sm"
-                      v-if="dataset.versionCount > 0"
-                    >
-                      <div class="flex gap-2">
-                        <Icon
-                          name="mdi:file-document-multiple"
-                          size="12"
-                          class="mt-1 text-blue-500"
+                        <Icon 
+                          name="i-lucide-tag"
+                          size="16"
+                          class="shrink-0 text-gray-500"
+                          aria-hidden="true"
                         />
 
-                        <span class="min-w-[80px] font-medium text-gray-600">
-                          Versions:
-                        </span>
+                        <div class="flex flex-wrap gap-2 min-w-0 items-center">
+                          <UBadge
+                            v-for="keyword in visibleKeywords(
+                              dataset.id,
+                              dataset.keywords,
+                            )"
+                            :key="keyword"
+                            variant="subtle"
+                            color="neutral"
+                            class="text-xs capitalize"
+                          >
+                            {{ keyword }}
+                          </UBadge>
+
+                          <UButton
+                            v-if="dataset.keywords.length > KEYWORD_PREVIEW_LIMIT"
+                            size="xs"
+                            variant="link"
+                            class="px-1"
+                            @click.prevent.stop="toggleKeywords(dataset.id)"
+                          >
+                            {{
+                              expandedKeywords.has(dataset.id)
+                                ? "Show less"
+                                : `Show ${dataset.keywords.length - KEYWORD_PREVIEW_LIMIT} more`
+                            }}
+                          </UButton>
+                        </div>
                       </div>
-                      <div class="flex-wraptext-gray-700 flex">
-                        <span class="text-gray-700">
-                          This dataset has {{ dataset.versionCount }} other
-                          version{{ dataset.versionCount > 1 ? "s" : "" }}.
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </UCard>
