@@ -58,7 +58,6 @@ export default defineEventHandler(async (event) => {
   );
   const keyword = typeof query.keyword === "string" ? query.keyword.trim() : "";
   const modalities = parseModalities(query.modality)
-  console.log(modalities)
   const dateFrom = typeof query.dateFrom === "string" ? query.dateFrom : null;
   const dateTo = typeof query.dateTo === "string" ? query.dateTo : null;
   const search = typeof query.search === "string" ? query.search.trim() : "";
@@ -69,6 +68,8 @@ export default defineEventHandler(async (event) => {
       : externalParam === "false" || externalParam === false
         ? false
         : null;
+  const imageCountMin = typeof query.imageCountMin === "string" ? parseInt(query.imageCountMin) : null
+  const imageCountMax = typeof query.imageCountMax === "string" ? parseInt(query.imageCountMax) : null
 
   const offset = (page - 1) * limit;
 
@@ -79,7 +80,7 @@ export default defineEventHandler(async (event) => {
   const hasSearch = search.length > 0;
   const hasExternalFilter = externalOnly !== null;
   const searchLower = hasSearch ? search.toLowerCase() : "";
-
+  const hasImageCountFilter = imageCountMin !== null || imageCountMax !== null
 
   // 1. Get latest id per canonicalId (Prisma groupBy)
   const latestPerCanonical = await prisma.publishedDataset.groupBy({
@@ -102,6 +103,7 @@ export default defineEventHandler(async (event) => {
     include: {
       PublishedDatasetRegistrationDetails: true,
       PublishedDatasetModality: true,
+      PublishedDatasetFileSummary: true
     },
   });
 
@@ -137,6 +139,16 @@ export default defineEventHandler(async (event) => {
       return currentDatasetModalities.some((m) => {
         return modalities.includes(m.toLocaleLowerCase())
       })
+    })
+  }
+
+  if(hasImageCountFilter) {
+    filtered = filtered.filter((row) => {
+      const count = row.PublishedDatasetFileSummary?.imageFileCount
+      return count !== null 
+        && count !== undefined
+        && (imageCountMin == undefined || count >= imageCountMin)
+        && (imageCountMax == undefined || count <= imageCountMax)
     })
   }
 

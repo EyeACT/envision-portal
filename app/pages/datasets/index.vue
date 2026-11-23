@@ -12,6 +12,7 @@ useSeoMeta({
 
 const toast = useToast();
 
+type ImageRange = "any" | "under100" | "100to999" | "1000to9999" | "10000plus"
 const ITEMS_PER_PAGE = 5;
 const page = ref(1);
 const selectedKeyword = ref<string>("");
@@ -19,7 +20,7 @@ const searchQuery = ref<string>("");
 type ExternalFilter = "all" | "external" | "non-external";
 const externalFilter = ref<ExternalFilter>("all");
 const selectedModalities = ref<string[]>([])
-
+const selectedImageRange = ref<ImageRange>("any")
 
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
@@ -84,6 +85,15 @@ const queryParams = computed(() => {
   } else if (externalFilter.value === "non-external") {
     params.external = "false";
   }
+
+  if(selectedImageRange.value !== "any") {
+    const bounds = imageRangeBounds[selectedImageRange.value]
+    if(bounds.min !== undefined) params.imageCountMin = bounds.min 
+    if(bounds.max !== undefined) params.imageCountMax = bounds.max
+  }
+
+  console.log(params)
+
   return params;
 });
 
@@ -144,6 +154,7 @@ const resetFilters = () => {
   searchQuery.value = "";
   page.value = 1;
   selectedModalities.value = []
+  selectedImageRange.value = "any"
 };
 
 const hasActiveFilters = computed(() => {
@@ -161,12 +172,26 @@ const sourceItems = [
   {label: "Registered from external repository", value: "external"},
 ]
 
-
 const modalities = [
   {label: "OCT", value: "oct"},
   {label: "OCT Angiography", value: "octa"},
   {label: "Fundus Photography", value: "fundus_photography"}
 ]
+
+const numberOfImages = [
+  {label: "Any number", value: "any"}, // no filter
+  {label: "Fewer Than 100", value: "under100"}, 
+  {label: "100 - 999", value: "100to999"},
+  {label: "1000 - 9,999", value: "1000to9999"},
+  {label: "10,000 or more", value: "10000plus"},
+]
+
+const imageRangeBounds = {
+  under100: {min: 0, max: 99},
+  "100to999": {min: 100, max: 999},
+  "1000to9999": {min: 1000, max: 9999},
+  "10000plus": {min: 10000},
+} as const;
 
 // When filters change, go back to page 1
 watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
@@ -266,7 +291,7 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
               </div>
 
               <div v-else-if="item.label === 'Number of Images'" class="p-2">
-
+                <URadioGroup v-model="selectedImageRange" :items="numberOfImages" />
               </div>
 
               <div
