@@ -164,9 +164,9 @@ const hasActiveFilters = computed(() => {
 });
 
 const sourceItems = [
-  {label: "All sources", value: "all"},
-  {label: "Deposited on Envision Portal", value: "non-external"},
-  {label: "Registered from external repository", value: "external"},
+  {label: "All sources", value: "all", count: 8267},
+  {label: "Deposited on Envision Portal", value: "non-external", count: 8265},
+  {label: "Registered from external repository", value: "external", count: 2},
 ]
 
 const modalities = [
@@ -209,7 +209,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
       />
 
       <div class="flex flex-col gap-6 pt-2 md:flex-row">
-        <div class="w-full md:w-72 md:shrink-0">
+        <div class="w-full md:w-[22rem] md:shrink-0">
           <UAccordion type="multiple" :items="items">
             <template #content="{ item }">
               <div v-if="item.label === 'Keywords'" class="p-2">
@@ -218,6 +218,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
                   type="text"
                   placeholder="Filter by keyword..."
                   size="sm"
+                  icon="i-lucide-search"
                 />
               </div>
 
@@ -304,43 +305,31 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
               </div>
 
               <div v-else-if="item.label === 'Source'" class="p-2">
-                <URadioGroup v-model="externalFilter" :items="sourceItems" />
+                <div
+                  v-for="source in sourceItems"
+                  :key="source.value"
+                  class="flex w-full items-center"
+                >
+                  <label
+                    class="flex min-w-0 flex-1 items-center gap-2"
+                  >
+                    <input 
+                      v-model="externalFilter"
+                      type="radio"
+                      :value="source.value"
+                      class="shrink-0"
+                    />
+                    <span class="text-sm whitespace-nowrap">{{ source.label }}</span>
+                  </label>
+                  <span class="w-14 shrink-0 text-left tabular-nums text-xs">
+                    {{ source.count }}
+                  </span>
+                </div>
+
               </div>
 
               <div v-else-if="item.label === 'Number of Images'" class="p-2">
                 <URadioGroup v-model="selectedImageRange" :items="numberOfImages" />
-              </div>
-
-              <div
-                v-else-if="item.label === 'External datasets'"
-                class="flex flex-col gap-2 p-2"
-              >
-                <UBadge
-                  variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
-                  :color="externalFilter === 'all' ? 'primary' : 'neutral'"
-                  @click="externalFilter = 'all'"
-                >
-                  All datasets
-                </UBadge>
-                <UBadge
-                  variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
-                  :color="externalFilter === 'external' ? 'primary' : 'neutral'"
-                  @click="externalFilter = 'external'"
-                >
-                  External only
-                </UBadge>
-                <UBadge
-                  variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
-                  :color="
-                    externalFilter === 'non-external' ? 'primary' : 'neutral'
-                  "
-                  @click="externalFilter = 'non-external'"
-                >
-                  Envision Portal only
-                </UBadge>
               </div>
             </template>
           </UAccordion>
