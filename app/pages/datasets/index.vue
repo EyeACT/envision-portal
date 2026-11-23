@@ -170,9 +170,12 @@ const sourceItems = [
 ]
 
 const modalities = [
-  {label: "OCT", value: "oct"},
-  {label: "OCT Angiography", value: "octa"},
-  {label: "Fundus Photography", value: "fundus_photography"}
+  {longLabel: "Optical coherence tomography", shortLabel: "OCT", value: "oct", count: 12, color: 'bg-red-500'},
+  {longLabel: "OCT Angiography", shortLabel: "OCTA", value: "octa", count: 32000, color: "bg-blue-500"},
+  {longLabel: "Fundus Photography", shortLabel: "FP", value: "fundus_photography", count: 1000, color: "bg-green-500"},
+  {longLabel: "Fundus Autoflourscence",shortLabel: "FA", value: "fundus_autoflourescence", count: 150, color: "bg-yellow-500"},
+  {longLabel: "Pseudo Color Fundus", shortLabel: "PCF", value: "pseudo_color_fundus", count: 220, color: "bg-purple-500"},
+  {longLabel: "Infrared reflectance", shortLabel: "IR", value: "infrared_reflectance", count: 2, color: "bg-orange-500"},
 ]
 
 const numberOfImages = [
@@ -206,7 +209,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
       />
 
       <div class="flex flex-col gap-6 pt-2 md:flex-row">
-        <div class="w-full md:w-1/5">
+        <div class="w-full md:w-72 md:shrink-0">
           <UAccordion type="multiple" :items="items">
             <template #content="{ item }">
               <div v-if="item.label === 'Keywords'" class="p-2">
@@ -272,15 +275,32 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
               </div>
 
               <div v-else-if="item.label === 'Imaging Modality'" class="p-2">
-                <legend>Modalities</legend>
-                <label v-for="modality in modalities" :key="modality.value">
-                  <input 
-                    v-model="selectedModalities"
-                    type="checkbox"
-                    :value="modality.value"
-                    />
-                    {{ modality.label }}
-                </label>
+                <p class="text-xs text-left mb-2">Detected automatically from the image files.</p>
+                  <div 
+                    v-for="modality in modalities"
+                    class="flex w-full items-center"
+                  >
+                    <label 
+                      :key="modality.value"
+                      class="flex min-w-0 flex-1 items-center gap-2"
+                      >
+                        <input 
+                          v-model="selectedModalities"
+                          type="checkbox"
+                          :value="modality.value"
+                          class="shrink-0"
+                          />
+                          <span 
+                            aria-hidden="true" 
+                            :class="['size-2 shrink-0 rounded-full', modality.color]"></span>
+                          <span class="flex translate-y-1 flex-col leading-5">
+                            <span class="font-semibold text-sm">{{ modality.shortLabel }}</span>
+                            <span class="text-xs whitespace-nowrap">{{ modality.longLabel }}</span>
+                          </span>
+                    </label>
+                    <span class="w-14 shrink-0 text-left tabular-nums text-xs">{{ modality.count }}</span>
+                </div>
+
               </div>
 
               <div v-else-if="item.label === 'Source'" class="p-2">
