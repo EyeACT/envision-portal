@@ -15,7 +15,7 @@ const toast = useToast();
 type ImageRange = "any" | "under100" | "100to999" | "1000to9999" | "10000plus"
 const ITEMS_PER_PAGE = 5;
 const page = ref(1);
-const selectedKeyword = ref<string>("");
+const selectedKeywords = ref<string[]>([]);
 const searchQuery = ref<string>("");
 type ExternalFilter = "all" | "external" | "non-external";
 const externalFilter = ref<ExternalFilter>("all");
@@ -62,8 +62,8 @@ const queryParams = computed(() => {
     params.search = appliedSearch.value;
   }
 
-  if (selectedKeyword.value) {
-    params.keyword = selectedKeyword.value;
+  if (selectedKeywords.value.length > 0) {
+    params.keyword = selectedKeywords.value;
   }
 
   if (selectedModalities.value.length > 0) {
@@ -92,8 +92,6 @@ const queryParams = computed(() => {
     if(bounds.max !== undefined) params.imageCountMax = bounds.max
   }
 
-  console.log(params)
-
   return params;
 });
 
@@ -118,7 +116,6 @@ if (error.value) {
 }
 
 const datasets = computed(() => response.value?.data ?? []);
-console.log(datasets)
 const totalDatasets = computed(() => response.value?.total ?? 0);
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
@@ -147,7 +144,7 @@ const searchDatasets = () => {
 };
 
 const resetFilters = () => {
-  selectedKeyword.value = "";
+  selectedKeywords.value = "";
   dateRange.value = undefined;
   externalFilter.value = "all";
   appliedSearch.value = "";
@@ -159,7 +156,7 @@ const resetFilters = () => {
 
 const hasActiveFilters = computed(() => {
   return (
-    selectedKeyword.value !== "" ||
+    selectedKeywords.value !== "" ||
     dateRange.value !== undefined ||
     externalFilter.value !== "all" ||
     appliedSearch.value !== "" 
@@ -194,7 +191,7 @@ const imageRangeBounds = {
 } as const;
 
 // When filters change, go back to page 1
-watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
+watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
   page.value = 1;
 });
 </script>
@@ -213,8 +210,8 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
           <UAccordion type="multiple" :items="items">
             <template #content="{ item }">
               <div v-if="item.label === 'Keywords'" class="p-2">
-                <UInput
-                  v-model="selectedKeyword"
+                <UInputTags
+                  v-model="selectedKeywords"
                   type="text"
                   placeholder="Filter by keyword..."
                   size="sm"

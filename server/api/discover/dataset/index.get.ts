@@ -48,6 +48,17 @@ const parseModalities = (modalities: any) : string[] => {
     .filter(Boolean)
 }
 
+const parseKeywords = (keywords: any) : string [] => {
+  if(typeof keywords === null) {
+    return []
+  }
+
+  return (Array.isArray(keywords) ? keywords : [keywords])
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
+}
+
 // Returns a paginated list of published datasets (latest version of each)
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -56,7 +67,8 @@ export default defineEventHandler(async (event) => {
     MAX_LIMIT,
     Math.max(1, parseInt(String(query.limit || String(DEFAULT_LIMIT)), 10)),
   );
-  const keyword = typeof query.keyword === "string" ? query.keyword.trim() : "";
+  const keywords = parseKeywords(query.keyword)
+  console.log(keywords)
   const modalities = parseModalities(query.modality)
   const dateFrom = typeof query.dateFrom === "string" ? query.dateFrom : null;
   const dateTo = typeof query.dateTo === "string" ? query.dateTo : null;
@@ -73,7 +85,7 @@ export default defineEventHandler(async (event) => {
 
   const offset = (page - 1) * limit;
 
-  const hasKeyword = keyword.length > 0;
+  const hasKeyword = keywords.length > 0;
   const hasModality = modalities.length > 0;
   const hasDateFrom = dateFrom !== null && dateFrom !== "";
   const hasDateTo = dateTo !== null && dateTo !== "";
@@ -125,10 +137,9 @@ export default defineEventHandler(async (event) => {
   }
 
   if (hasKeyword) {
-    const kwLower = keyword.toLowerCase();
     filtered = filtered.filter((row) => {
-      const keywords = getKeywords(row.publishedMetadata);
-      return keywords.some((k) => (k?.toLowerCase() ?? "") === kwLower);
+      const currentKeywords = getKeywords(row.publishedMetadata);
+      return currentKeywords.some((k) => keywords.includes(k.toLowerCase()));
     });
   } 
 
