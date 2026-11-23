@@ -1,5 +1,5 @@
 import type { DiscoveryDatasetList } from "#shared/types/dataset";
-
+import type { PublishedDatasetModality } from "~~/shared/generated/client";
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 100;
 
@@ -11,9 +11,15 @@ type PublishedMetadata = {
   };
 };
 
+
+
 function getKeywords(publishedMetadata: unknown): string[] {
   const meta = publishedMetadata as PublishedMetadata;
   return meta?.datasetDescription?.subject?.map((s) => s.subjectValue) ?? [];
+}
+
+function getModalities(publishedDatasetModalities: PublishedDatasetModality[]): string[] {
+  return publishedDatasetModalities.map(modalityRecord => modalityRecord.modality)
 }
 
 function matchesSearch(
@@ -21,11 +27,25 @@ function matchesSearch(
   title: string,
   description: string,
   keywords: string[],
+  modalities: string[]
 ): boolean {
   const t = title?.toLowerCase() ?? "";
   const d = description?.toLowerCase() ?? "";
   if (t.includes(searchLower) || d.includes(searchLower)) return true;
-  return keywords.some((k) => (k?.toLowerCase() ?? "").includes(searchLower));
+  return keywords.some((k) => (k?.toLowerCase() ?? "").includes(searchLower)) || 
+  modalities.some((m) => (m?.toLowerCase() ?? "").includes(searchLower))
+}
+
+
+const parseModalities = (modalities: any) : string[] => {
+  if(typeof modalities === null) {
+    return []
+  }
+
+  return (Array.isArray(modalities) ? modalities : [modalities])
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
 }
 
 // Returns a paginated list of published datasets (latest version of each)
@@ -37,6 +57,8 @@ export default defineEventHandler(async (event) => {
     Math.max(1, parseInt(String(query.limit || String(DEFAULT_LIMIT)), 10)),
   );
   const keyword = typeof query.keyword === "string" ? query.keyword.trim() : "";
+  const modalities = parseModalities(query.modality)
+  console.log(modalities)
   const dateFrom = typeof query.dateFrom === "string" ? query.dateFrom : null;
   const dateTo = typeof query.dateTo === "string" ? query.dateTo : null;
   const search = typeof query.search === "string" ? query.search.trim() : "";
@@ -51,11 +73,13 @@ export default defineEventHandler(async (event) => {
   const offset = (page - 1) * limit;
 
   const hasKeyword = keyword.length > 0;
+  const hasModality = modalities.length > 0;
   const hasDateFrom = dateFrom !== null && dateFrom !== "";
   const hasDateTo = dateTo !== null && dateTo !== "";
   const hasSearch = search.length > 0;
   const hasExternalFilter = externalOnly !== null;
   const searchLower = hasSearch ? search.toLowerCase() : "";
+
 
   // 1. Get latest id per canonicalId (Prisma groupBy)
   const latestPerCanonical = await prisma.publishedDataset.groupBy({
@@ -77,20 +101,23 @@ export default defineEventHandler(async (event) => {
     orderBy: { created: "desc" },
     include: {
       PublishedDatasetRegistrationDetails: true,
+      PublishedDatasetModality: true,
     },
   });
 
-  // 3. Filter in JS (search, keyword, date range)
+  // 3. Filter in JS (search, keyword, modality, date range)
   let filtered = publishedDatasets;
 
   if (hasSearch) {
     filtered = filtered.filter((row) => {
       const keywords = getKeywords(row.publishedMetadata);
+      const modalities = getModalities(row.PublishedDatasetModality)
       return matchesSearch(
         searchLower,
         row.title ?? "",
         row.description ?? "",
         keywords,
+        modalities
       );
     });
   }
@@ -101,6 +128,16 @@ export default defineEventHandler(async (event) => {
       const keywords = getKeywords(row.publishedMetadata);
       return keywords.some((k) => (k?.toLowerCase() ?? "") === kwLower);
     });
+  } 
+
+  if(hasModality){
+    console.log("Filtering mby modality")
+    filtered = filtered.filter((row) => {
+      const currentDatasetModalities = getModalities(row.PublishedDatasetModality)
+      return currentDatasetModalities.some((m) => {
+        return modalities.includes(m.toLocaleLowerCase())
+      })
+    })
   }
 
   if (hasDateFrom) {

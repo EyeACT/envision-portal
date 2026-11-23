@@ -18,6 +18,8 @@ const selectedKeyword = ref<string>("");
 const searchQuery = ref<string>("");
 type ExternalFilter = "all" | "external" | "non-external";
 const externalFilter = ref<ExternalFilter>("all");
+const selectedModalities = ref<string[]>([])
+
 
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
@@ -50,16 +52,23 @@ const appliedSearch = ref<string>("");
 
 // Build query params for API (reactive so we refetch when filters or page change)
 const queryParams = computed(() => {
-  const params: Record<string, string | number> = {
+  const params: Record<string, string | number | string[]> = {
     page: page.value,
     limit: ITEMS_PER_PAGE,
   };
+  
   if (appliedSearch.value) {
     params.search = appliedSearch.value;
   }
+
   if (selectedKeyword.value) {
     params.keyword = selectedKeyword.value;
   }
+
+  if (selectedModalities.value.length > 0) {
+    params.modality = selectedModalities.value
+  }
+
   if (dateRange.value?.start) {
     params.dateFrom = dateRange.value.start
       .toDate(getLocalTimeZone())
@@ -99,12 +108,11 @@ if (error.value) {
 }
 
 const datasets = computed(() => response.value?.data ?? []);
+console.log(datasets)
 const totalDatasets = computed(() => response.value?.total ?? 0);
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
-
-console.log(datasets)
 
 const getDaysAgo = (date: string | Date): string => {
   const daysAgo = dayjs(date).diff(dayjs(), "day");
@@ -115,9 +123,12 @@ const getDaysAgo = (date: string | Date): string => {
 };
 
 const items = ref<AccordionItem[]>([
+  { content: "",  label: "Imaging Modality" },
+  { content: "", label: "Source"},
+  { content: "", label: "Publication Year" },
+  { content: "", label: "Number of Images"},
+  // { content: "", label: "External datasets" },
   { content: "", label: "Keywords" },
-  { content: "", label: "Date Range" },
-  { content: "", label: "External datasets" },
 ]);
 
 const searchDatasets = () => {
@@ -132,6 +143,7 @@ const resetFilters = () => {
   appliedSearch.value = "";
   searchQuery.value = "";
   page.value = 1;
+  selectedModalities.value = []
 };
 
 const hasActiveFilters = computed(() => {
@@ -143,6 +155,14 @@ const hasActiveFilters = computed(() => {
   );
 });
 
+
+
+const modalities = [
+  {label: "OCT", value: "oct"},
+  {label: "OCT Angiography", value: "octa"},
+  {label: "Fundus Photography", value: "fundus_photography"}
+]
+
 // When filters change, go back to page 1
 watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
   page.value = 1;
@@ -152,6 +172,7 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
 <template>
   <div>
     <UContainer>
+      <h2 class="text-md ">Filters</h2>
       <UBreadcrumb
         class="mb-4"
         :items="[{ label: 'All Datasets', to: '/datasets' }]"
@@ -170,7 +191,7 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
                 />
               </div>
 
-              <div v-else-if="item.label === 'Date Range'" class="p-2">
+              <div v-else-if="item.label === 'Publication Year'" class="p-2">
                 <UPopover :popper="{ placement: 'bottom-start' }">
                   <UButton
                     color="neutral"
@@ -221,6 +242,31 @@ watch([selectedKeyword, dateRange, externalFilter, appliedSearch], () => {
                     />
                   </template>
                 </UPopover>
+              </div>
+
+              <div v-else-if="item.label === 'Imaging Modality'" class="p-2">
+                <legend>Modalities</legend>
+                <label v-for="modality in modalities" :key="modality.value">
+                  <input 
+                    v-model="selectedModalities"
+                    type="checkbox"
+                    :value="modality.value"
+                    />
+                    {{ modality.label }}
+                </label>
+              </div>
+
+              <div v-else-if="item.label === 'Source'" class="p-2">
+                <UInput
+                  v-model="selectedModality"
+                  type="text"
+                  placeholder="Filter by modality..."
+                  size="sm"
+                />
+              </div>
+
+              <div v-else-if="item.label === 'Number of Images'" class="p-2">
+
               </div>
 
               <div
