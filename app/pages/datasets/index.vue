@@ -110,6 +110,7 @@ const {
   total: number;
   modalityToTotalMap: Record<string, number>;
   sourceToTotalMap: Record<string, number>;
+  repositoryToTotalMap: Record<string, number>;
 }>("/api/discover/dataset", {
   query: queryParams,
   watch: [queryParams],
@@ -127,6 +128,7 @@ const datasets = computed(() => response.value?.data ?? []);
 const totalDatasets = computed(() => response.value?.total ?? 0);
 const totalModalityFiles = computed(() => response.value?.modalityToTotalMap ?? {})
 const totalSources = computed(() => response.value?.sourceToTotalMap ?? {})
+const totalRepositorySources = computed(() => response.value?.repositoryToTotalMap)
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
@@ -451,6 +453,18 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                     <span class="w-14 shrink-0 text-left tabular-nums text-xs">
                       {{ getSourceValue(source.label)}}
                     </span>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2 p-2 items-center min-w-0">
+                    <UBadge
+                      v-for="[rs, total] in Object.entries(totalRepositorySources ?? {}).filter(([rs]) => rs !== '')"
+                      color="neutral"
+                      variant="subtle"
+                      :key="rs"
+                    > 
+                      <span>{{ rs }}</span>
+                      <span>{{ total }}</span>
+                    </UBadge>
                   </div>
 
                 </div>

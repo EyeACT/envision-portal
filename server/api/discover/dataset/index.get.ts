@@ -200,6 +200,7 @@ export default defineEventHandler(async (event) => {
   // 3.5 Precompute filtered totals
   const modalityToTotalMap: Record<string, number> = {}
   const sourceToTotalMap: Record<string, number> = {}
+  const repositoryToTotalMap: Record<string, number> = {}
   filtered.forEach(d => {
     d.PublishedDatasetModality.forEach(m => {
       const modalityName = m.modality;
@@ -211,6 +212,8 @@ export default defineEventHandler(async (event) => {
 
     const extractionMethod = d.PublishedDatasetRegistrationDetails?.extractionMethod ?? ""
     sourceToTotalMap[extractionMethod] = (sourceToTotalMap[extractionMethod] ?? 0) + 1
+    const datasetSource = d.PublishedDatasetRegistrationDetails?.datasetSource ?? ""
+    repositoryToTotalMap[datasetSource] = (repositoryToTotalMap[datasetSource] ?? 0) + 1;
   })
 
   
@@ -283,5 +286,5 @@ export default defineEventHandler(async (event) => {
     };
   });
 
-  return { data: datasets, total, modalityToTotalMap, sourceToTotalMap };
+  return { data: datasets, total, modalityToTotalMap, sourceToTotalMap, repositoryToTotalMap };
 });
