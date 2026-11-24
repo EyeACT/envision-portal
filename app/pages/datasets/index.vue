@@ -417,7 +417,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
             <div class="flex gap-4 text-sm text-gray-600">
               <span>
                 Showing
-                <strong class="text-gray-900">{{ datasets.length }}</strong>
+                <strong class="text-gray-900">{{(page * ITEMS_PER_PAGE) - (ITEMS_PER_PAGE - 1)}} - {{ page * ITEMS_PER_PAGE }}</strong>
                 of
                 <strong class="text-gray-900">{{ totalDatasets }}</strong>
                 {{ totalDatasets === 1 ? "dataset" : "datasets" }}
