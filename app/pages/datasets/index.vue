@@ -21,6 +21,8 @@ type ExternalFilter = "all" | "external" | "non-external";
 const externalFilter = ref<ExternalFilter>("all");
 const selectedModalities = ref<string[]>([])
 const selectedImageRange = ref<ImageRange>("any")
+type DatasetSort = "relevance" | "modality_count"
+const sortBy = ref<DatasetSort>("relevance")
 
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
@@ -92,6 +94,10 @@ const queryParams = computed(() => {
     if(bounds.max !== undefined) params.imageCountMax = bounds.max
   }
 
+  if(sortBy.value !== "relevance") {
+    params.sortBy = sortBy.value
+  }
+
   return params;
 });
 
@@ -152,6 +158,7 @@ const resetFilters = () => {
   page.value = 1;
   selectedModalities.value = []
   selectedImageRange.value = "any"
+  sortBy.value = "relevance"
 };
 
 const hasActiveFilters = computed(() => {
@@ -193,6 +200,12 @@ const imageRangeBounds = {
   "10000plus": {min: 10000},
 } as const;
 
+const sortOptions = [
+  {label: "Relevance", value: "relevance"},
+  {label: "Modality Count", value: "modality_count"},
+]
+
+
 // When filters change, go back to page 1
 watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
   page.value = 1;
@@ -201,9 +214,6 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
 
 <template>
   <div>
-
-
-
     <UContainer>
     <div class="border-b border-gray-200 pb-4 space-y-4">
       <h1 class="text-sm font-medium text-green-500">Find datasets</h1>
@@ -388,8 +398,6 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
         </div>
 
         <div class="flex w-full flex-col gap-4 md:w-4/5">
-
-
           <!-- Dataset counts and reset button -->
           <div class="flex items-center justify-between gap-4">
             <div v-if="hasActiveFilters">
@@ -418,6 +426,16 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
               <span v-if="hasActiveFilters" class="text-gray-400">
                 (filtered)
               </span>
+            </div>
+
+            <div class="flex gap-4 text-sm text-gray-600">
+              <USelect 
+                v-model="sortBy"
+                :items="sortOptions"
+                aria-label="Sort datasets"
+                class="w-48"
+                icon="i-lucide-sparkles"
+                />
             </div>
           </div>
 

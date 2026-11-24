@@ -1,5 +1,6 @@
 import type { DiscoveryDatasetList } from "#shared/types/dataset";
 import type { PublishedDatasetModality } from "~~/shared/generated/client";
+import type {PublishedDataset} from "~~/shared/generated/client"
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 100;
 
@@ -59,6 +60,8 @@ const parseKeywords = (keywords: any) : string [] => {
     .filter(Boolean)
 }
 
+
+
 // Returns a paginated list of published datasets (latest version of each)
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -82,6 +85,7 @@ export default defineEventHandler(async (event) => {
         : null;
   const imageCountMin = typeof query.imageCountMin === "string" ? parseInt(query.imageCountMin) : null
   const imageCountMax = typeof query.imageCountMax === "string" ? parseInt(query.imageCountMax) : null
+  const sortBy = typeof query.sortBy === "string" ? query.sortBy : null
 
   const offset = (page - 1) * limit;
 
@@ -93,6 +97,7 @@ export default defineEventHandler(async (event) => {
   const hasExternalFilter = externalOnly !== null;
   const searchLower = hasSearch ? search.toLowerCase() : "";
   const hasImageCountFilter = imageCountMin !== null || imageCountMax !== null
+  const hasSortBy = sortBy !== null
 
   // 1. Get latest id per canonicalId (Prisma groupBy)
   const latestPerCanonical = await prisma.publishedDataset.groupBy({
@@ -181,6 +186,15 @@ export default defineEventHandler(async (event) => {
 
   if (total === 0) {
     return { data: [], total: 0 };
+  }
+
+  if(hasSortBy) {
+    // order results based off user preferred order rather than default option (relevance)
+    if(sortBy === "modality_count") {
+      filtered.sort((a,b) => {
+        return b.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0) - a.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0) 
+      })
+    }
   }
 
   // 4. Paginate in JS
