@@ -109,6 +109,7 @@ const {
   data: DiscoveryDatasetList[];
   total: number;
   modalityToTotalMap: Record<string, number>;
+  sourceToTotalMap: Record<string, number>;
 }>("/api/discover/dataset", {
   query: queryParams,
   watch: [queryParams],
@@ -125,6 +126,8 @@ if (error.value) {
 const datasets = computed(() => response.value?.data ?? []);
 const totalDatasets = computed(() => response.value?.total ?? 0);
 const totalModalityFiles = computed(() => response.value?.modalityToTotalMap ?? {})
+const totalSources = computed(() => response.value?.sourceToTotalMap ?? {})
+console.log(totalSources)
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
@@ -142,7 +145,6 @@ const items = ref<AccordionItem[]>([
   { content: "", label: "Source"},
   { content: "", label: "Publication Year" },
   { content: "", label: "Number of Images"},
-  // { content: "", label: "External datasets" },
   { content: "", label: "Keywords" },
 ]);
 
@@ -178,8 +180,6 @@ const sourceItems = [
   {label: "Registered from external repository", value: "external", count: 2},
 ]
 
-console.log(totalModalityFiles)
-
 const modalities = [
   {longLabel: "Optical coherence tomography", shortLabel: "OCT", value: "oct",  color: 'bg-red-500'},
   {longLabel: "OCT Angiography", shortLabel: "OCTA", value: "octa", color: "bg-blue-500"},
@@ -208,6 +208,16 @@ const sortOptions = [
   {label: "Relevance", value: "relevance"},
   {label: "Modality Count", value: "modality_count"},
 ]
+
+const getSourceValue = (label: string) => {
+  if(label === "Deposited on Envision Portal") {
+      return totalSources.value[""]
+  } else if (label === "Registered from external repository") {
+      return totalSources.value["Automatic Registration"]
+  } else {
+      return totalDatasets
+  }
+}
 
 
 // When filters change, go back to page 1
@@ -386,7 +396,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                       <span class="text-sm whitespace-nowrap">{{ source.label }}</span>
                     </label>
                     <span class="w-14 shrink-0 text-left tabular-nums text-xs">
-                      {{ source.count }}
+                      {{ getSourceValue(source.label)}}
                     </span>
                   </div>
 

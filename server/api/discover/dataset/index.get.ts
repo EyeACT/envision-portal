@@ -197,8 +197,9 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // 3.5 Calculate Modality totals based off filtered results
+  // 3.5 Precompute filtered totals
   const modalityToTotalMap: Record<string, number> = {}
+  const sourceToTotalMap: Record<string, number> = {}
   filtered.forEach(d => {
     d.PublishedDatasetModality.forEach(m => {
       const modalityName = m.modality;
@@ -207,7 +208,12 @@ export default defineEventHandler(async (event) => {
       }
       modalityToTotalMap[modalityName] += m.fileCount ?? 0
     })
+
+    const extractionMethod = d.PublishedDatasetRegistrationDetails?.extractionMethod ?? ""
+    sourceToTotalMap[extractionMethod] = (sourceToTotalMap[extractionMethod] ?? 0) + 1
   })
+
+  
 
 
   // 4. Paginate in JS
@@ -275,5 +281,5 @@ export default defineEventHandler(async (event) => {
     };
   });
 
-  return { data: datasets, total, modalityToTotalMap };
+  return { data: datasets, total, modalityToTotalMap, sourceToTotalMap };
 });
