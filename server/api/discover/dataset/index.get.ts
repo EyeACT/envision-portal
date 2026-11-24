@@ -201,6 +201,7 @@ export default defineEventHandler(async (event) => {
   const modalityToTotalMap: Record<string, number> = {}
   const sourceToTotalMap: Record<string, number> = {}
   const repositoryToTotalMap: Record<string, number> = {}
+  let totalImageFiles = 0
   filtered.forEach(d => {
     d.PublishedDatasetModality.forEach(m => {
       const modalityName = m.modality;
@@ -214,6 +215,7 @@ export default defineEventHandler(async (event) => {
     sourceToTotalMap[extractionMethod] = (sourceToTotalMap[extractionMethod] ?? 0) + 1
     const datasetSource = d.PublishedDatasetRegistrationDetails?.datasetSource ?? ""
     repositoryToTotalMap[datasetSource] = (repositoryToTotalMap[datasetSource] ?? 0) + 1;
+    totalImageFiles += d.PublishedDatasetFileSummary?.imageFileCount || 0
   })
 
   
@@ -286,5 +288,5 @@ export default defineEventHandler(async (event) => {
     };
   });
 
-  return { data: datasets, total, modalityToTotalMap, sourceToTotalMap, repositoryToTotalMap };
+  return { data: datasets, total, modalityToTotalMap, sourceToTotalMap, repositoryToTotalMap, totalImageFiles };
 });

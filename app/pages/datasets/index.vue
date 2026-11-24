@@ -111,6 +111,7 @@ const {
   modalityToTotalMap: Record<string, number>;
   sourceToTotalMap: Record<string, number>;
   repositoryToTotalMap: Record<string, number>;
+  totalImageFiles: number;
 }>("/api/discover/dataset", {
   query: queryParams,
   watch: [queryParams],
@@ -129,6 +130,7 @@ const totalDatasets = computed(() => response.value?.total ?? 0);
 const totalModalityFiles = computed(() => response.value?.modalityToTotalMap ?? {})
 const totalSources = computed(() => response.value?.sourceToTotalMap ?? {})
 const totalRepositorySources = computed(() => response.value?.repositoryToTotalMap)
+const totalImageFiles = computed(() => response.value?.totalImageFiles)
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
@@ -318,16 +320,16 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
 
         <div class="flex flex-col">
           <span class="text-sm font-medium">Eye Images Classified</span>
-          <span class="text-xl font-semibold">488.6k</span>
+          <span class="text-xl font-semibold">{{ formatFileCount(totalImageFiles ?? 0) }}</span>
         </div>
 
         <div class="flex flex-col">
           <span class="text-sm font-medium">Imaging Modalities</span>
-          <span class="text-xl font-semibold">6</span>
+          <span class="text-xl font-semibold">{{ Object.keys(totalModalityFiles ?? {}).length }}</span>
         </div>
         <div class="flex flex-col">
           <span class="text-sm font-medium">Sources</span>
-          <span class="text-xl font-semibold">6</span>
+          <span class="text-xl font-semibold">{{ Object.keys(totalRepositorySources ?? {}).length  || 6 }}</span>
         </div>
       </div>
     </div>
