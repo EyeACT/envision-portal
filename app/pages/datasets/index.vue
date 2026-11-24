@@ -127,7 +127,6 @@ const datasets = computed(() => response.value?.data ?? []);
 const totalDatasets = computed(() => response.value?.total ?? 0);
 const totalModalityFiles = computed(() => response.value?.modalityToTotalMap ?? {})
 const totalSources = computed(() => response.value?.sourceToTotalMap ?? {})
-console.log(totalSources)
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
@@ -139,6 +138,26 @@ const getDaysAgo = (date: string | Date): string => {
     ? "Today"
     : `${Math.abs(daysAgo)} day${Math.abs(daysAgo) > 1 ? "s" : ""} ago`;
 };
+
+
+const formatFileCount = (fileCount: number) => {
+  if (fileCount >= 1000000) {
+    const millions = (Math.round(fileCount / 100000) / 10).toFixed(1)
+    return `${millions.replace(/\.0$/, '')}M`
+  }
+
+  if (fileCount >= 1000) {
+    const roundedThousands = Math.round(fileCount / 100) / 10;
+
+    if (roundedThousands >= 1000) {
+      return `1M`
+    }
+
+    return `${roundedThousands.toFixed(1).replace(/\.0$/, '')}k+`
+  }
+
+  return fileCount.toString()
+}
 
 const items = ref<AccordionItem[]>([
   { content: "",  label: "Imaging Modality" },
@@ -181,12 +200,37 @@ const sourceItems = [
 ]
 
 const modalities = [
-  {longLabel: "Optical coherence tomography", shortLabel: "OCT", value: "oct",  color: 'bg-red-500'},
-  {longLabel: "OCT Angiography", shortLabel: "OCTA", value: "octa", color: "bg-blue-500"},
-  {longLabel: "Fundus Autofluorescence",shortLabel: "FA", value: "fundus_autofluorescence", color: "bg-yellow-500"},
-  {longLabel: "Pseudo Color Fundus", shortLabel: "PCF", value: "pseudo_color_fundus", color: "bg-purple-500"},
-  {longLabel: "Infrared reflectance", shortLabel: "IR", value: "infrared_reflectance",  color: "bg-orange-500"},
-  {longLabel: "Color Fundus Photography", shortLabel: "CFP", value: "color_fundus_photography", color: "bg-green-500"},
+  {
+    longLabel: "Optical coherence tomography", shortLabel: "OCT", 
+    value: "oct",  color: 'bg-red-500', badgeColor: "bg-red-50",
+    borderColor: "border-red-200"
+  },
+  {
+    longLabel: "OCT Angiography", shortLabel: "OCTA", 
+    value: "octa", color: "bg-blue-500", badgeColor: "bg-blue-50",
+    borderColor: "border-blue-200"
+
+  },
+  {
+    longLabel: "Fundus Autofluorescence",shortLabel: "FA", 
+    value: "fundus_autofluorescence", color: "bg-yellow-500", badgeColor: "bg-yellow-50",
+    borderColor: "border-yellow-200"
+  },
+  {
+    longLabel: "Pseudo Color Fundus", shortLabel: "PCF", 
+    value: "pseudo_color_fundus", color: "bg-purple-500", badgeColor: "bg-purple-50",
+    borderColor: "border-purple-200"
+  },
+  {
+    longLabel: "Infrared reflectance", shortLabel: "IR", 
+    value: "infrared_reflectance",  color: "bg-orange-500", badgeColor: "bg-orange-50",
+    borderColor: "border-orange-200"
+  },
+  {
+    longLabel: "Color Fundus Photography", shortLabel: "CFP", 
+    value: "color_fundus_photography", color: "bg-green-500", badgeColor: "bg-green-50",
+    borderColor: "border-green-200"
+  },
 ]
 
 const numberOfImages = [
@@ -549,15 +593,24 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                   </div>
 
                   <div class="flex flex-wrap gap-2 ">
-                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5"
-                        v-for="modalityRecord in dataset.modalities.filter(m => m.fileCount !== 0)"
+                    <div 
+                      v-for="modalityRecord in dataset.modalities.filter(m => m.fileCount !== 0)"
+                      :class="
+                      [
+                        'inline-flex items-center gap-2 rounded-lg border px-3 py-0.5',
+                        modalities.find(m => m.value == modalityRecord.modality)?.badgeColor ?? 'bg-gray-50',
+                        modalities.find(m => m.value == modalityRecord.modality)?.borderColor ?? 'bg-gray-50',
+
+                      ]"
                     >
                       <span 
                         aria-hidden="true"
                         :class="['size-2 shrink-0 rounded-full', modalities.find(m => m.value == modalityRecord.modality)?.color ?? 'bg-gray-400']"
                       ></span>
-                      <span class="text-sm font-medium">{{ modalityRecord.modality }}</span>
-                      <span class="tabular-nums text-xs text-gray-500">{{ modalityRecord.fileCount }}</span>
+                      <span class="flex items-baseline gap-1">
+                        <span class="text-sm font-medium ">{{ modalities.find(m => m.value == modalityRecord.modality)?.shortLabel }}</span>
+                        <span class="tabular-nums text-xs text-gray-500">{{ formatFileCount(modalityRecord.fileCount) }}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -597,7 +650,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                             :key="keyword"
                             variant="subtle"
                             color="neutral"
-                            class="text-xs capitalize"
+                            class="text-xs capitalize border-0"
                           >
                             {{ keyword }}
                           </UBadge>
