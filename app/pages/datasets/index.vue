@@ -544,31 +544,15 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                   </div>
 
                   <div class="flex flex-wrap gap-2 ">
-                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5"
+                        v-for="modalityRecord in dataset.modalities.filter(m => m.fileCount !== 0)"
+                    >
                       <span 
                         aria-hidden="true"
                         :class="['size-2 shrink-0 rounded-full bg-red-500']"
                       ></span>
-                      <span class="text-sm font-medium">OCT</span>
-                      <span class="tabular-nums text-xs text-gray-500">25,000</span>
-                    </div>
-
-                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
-                      <span 
-                        aria-hidden="true"
-                        :class="['size-2 shrink-0 rounded-full bg-blue-500']"
-                      ></span>
-                      <span class="text-sm font-medium">OCTA</span>
-                      <span class="tabular-nums text-xs text-gray-500">25,000</span>
-                    </div>
-
-                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
-                      <span 
-                        aria-hidden="true"
-                        :class="['size-2 shrink-0 rounded-full bg-blue-500']"
-                      ></span>
-                      <span class="text-sm font-medium">FP</span>
-                      <span class="tabular-nums text-xs text-gray-500">50,000</span>
+                      <span class="text-sm font-medium">{{ modalityRecord.modality }}</span>
+                      <span class="tabular-nums text-xs text-gray-500">{{ modalityRecord.fileCount }}</span>
                     </div>
                   </div>
                 </div>

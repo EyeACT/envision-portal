@@ -251,7 +251,13 @@ export default defineEventHandler(async (event) => {
       versionCount: versionCount - 1,
       rights,
       registrationSource,
-      imageFileCount: row.PublishedDatasetFileSummary?.imageFileCount || 0
+      imageFileCount: row.PublishedDatasetFileSummary?.imageFileCount || 0,
+      modalities: row.PublishedDatasetModality.map((row) => {
+        return {
+          modality: row.modality,
+          fileCount: row.fileCount || 0
+        }
+      })
     };
   });
 

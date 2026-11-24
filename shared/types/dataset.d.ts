@@ -22,6 +22,11 @@ interface DiscoveryListDatasetCreator {
   }[];
 }
 
+interface Modality {
+  modality: string;
+  fileCount: number;
+}
+
 export interface DiscoveryDatasetList {
   id: number;
   canonicalId: string | null;
@@ -40,4 +45,5 @@ export interface DiscoveryDatasetList {
   labelingMethod: string;
   validationInfo: string;
   imageFileCount: number;
+  modalities: Modality[]
 }
