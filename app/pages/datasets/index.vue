@@ -108,6 +108,7 @@ const {
 } = await useFetch<{
   data: DiscoveryDatasetList[];
   total: number;
+  modalityToTotalMap: Record<string, number>;
 }>("/api/discover/dataset", {
   query: queryParams,
   watch: [queryParams],
@@ -123,6 +124,7 @@ if (error.value) {
 
 const datasets = computed(() => response.value?.data ?? []);
 const totalDatasets = computed(() => response.value?.total ?? 0);
+const totalModalityFiles = computed(() => response.value?.modalityToTotalMap ?? {})
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
@@ -176,15 +178,15 @@ const sourceItems = [
   {label: "Registered from external repository", value: "external", count: 2},
 ]
 
-const modalities = [
-  {longLabel: "Optical coherence tomography", shortLabel: "OCT", value: "oct", count: 12, color: 'bg-red-500'},
-  {longLabel: "OCT Angiography", shortLabel: "OCTA", value: "octa", count: 32000, color: "bg-blue-500"},
-  {longLabel: "Fundus Photography", shortLabel: "FP", value: "fundus_photography", count: 1000, color: "bg-green-500"},
-  {longLabel: "Fundus Autoflourscence",shortLabel: "FA", value: "fundus_autoflourescence", count: 150, color: "bg-yellow-500"},
-  {longLabel: "Pseudo Color Fundus", shortLabel: "PCF", value: "pseudo_color_fundus", count: 220, color: "bg-purple-500"},
-  {longLabel: "Infrared reflectance", shortLabel: "IR", value: "infrared_reflectance", count: 2, color: "bg-orange-500"},
-  {longLabel: "Color Fundus Photography", shortLabel: "CFP", value: "color_fundus_photography", count: 2, color: "bg-pink-500"},
+console.log(totalModalityFiles)
 
+const modalities = [
+  {longLabel: "Optical coherence tomography", shortLabel: "OCT", value: "oct",  color: 'bg-red-500'},
+  {longLabel: "OCT Angiography", shortLabel: "OCTA", value: "octa", color: "bg-blue-500"},
+  {longLabel: "Fundus Autofluorescence",shortLabel: "FA", value: "fundus_autofluorescence", color: "bg-yellow-500"},
+  {longLabel: "Pseudo Color Fundus", shortLabel: "PCF", value: "pseudo_color_fundus", color: "bg-purple-500"},
+  {longLabel: "Infrared reflectance", shortLabel: "IR", value: "infrared_reflectance",  color: "bg-orange-500"},
+  {longLabel: "Color Fundus Photography", shortLabel: "CFP", value: "color_fundus_photography", color: "bg-green-500"},
 ]
 
 const numberOfImages = [
@@ -361,7 +363,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                               <span class="text-xs whitespace-nowrap">{{ modality.longLabel }}</span>
                             </span>
                       </label>
-                      <span class="w-14 shrink-0 text-left tabular-nums text-xs">{{ modality.count }}</span>
+                      <span class="w-14 shrink-0 text-left tabular-nums text-xs">{{ totalModalityFiles[modality.value] ?? 0 }}</span>
                   </div>
 
                 </div>

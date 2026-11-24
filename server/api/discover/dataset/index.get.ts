@@ -197,6 +197,19 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  // 3.5 Calculate Modality totals based off filtered results
+  const modalityToTotalMap: Record<string, number> = {}
+  filtered.forEach(d => {
+    d.PublishedDatasetModality.forEach(m => {
+      const modalityName = m.modality;
+      if (!modalityToTotalMap[modalityName]) {
+        modalityToTotalMap[modalityName] = 0
+      }
+      modalityToTotalMap[modalityName] += m.fileCount ?? 0
+    })
+  })
+
+
   // 4. Paginate in JS
   const pageRows = filtered.slice(offset, offset + limit);
   const canonicalIds = pageRows
@@ -262,5 +275,5 @@ export default defineEventHandler(async (event) => {
     };
   });
 
-  return { data: datasets, total };
+  return { data: datasets, total, modalityToTotalMap };
 });
