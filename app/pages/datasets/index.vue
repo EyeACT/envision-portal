@@ -584,7 +584,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                         class="shrink-0 text-gray-500"
                         aria-hidden="true"
                       />
-                      <span class="text-sm font-semibold">23,000 images</span>
+                      <span class="text-sm font-semibold">{{ dataset.imageFileCount }} images</span>
                     </div>
 
 

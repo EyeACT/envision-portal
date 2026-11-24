@@ -39,4 +39,5 @@ export interface DiscoveryDatasetList {
   versionCount: number;
   labelingMethod: string;
   validationInfo: string;
+  imageFileCount: number;
 }

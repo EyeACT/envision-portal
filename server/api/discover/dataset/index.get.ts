@@ -251,6 +251,7 @@ export default defineEventHandler(async (event) => {
       versionCount: versionCount - 1,
       rights,
       registrationSource,
+      imageFileCount: row.PublishedDatasetFileSummary?.imageFileCount || 0
     };
   });
 
