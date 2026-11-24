@@ -561,7 +561,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                           </UBadge>
                       </UTooltip>
 
-                        <UBadge color="primary" variant="outline">
+                        <UBadge color="neutral" variant="outline">
                           Version {{ dataset.versionTitle }}
                         </UBadge>
 
