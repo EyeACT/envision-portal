@@ -38,6 +38,7 @@ export interface DiscoveryDatasetList {
   versionTitle: string;
   rights: string[];
   registrationSource: string;
+  datasetSource: string; // zenodo, figshare, etc
   creators: DiscoveryListDatasetCreator[];
   keywords: string[];
   created: Date;

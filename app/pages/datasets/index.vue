@@ -172,6 +172,8 @@ const searchDatasets = () => {
   page.value = 1;
 };
 
+console.log(datasets)
+
 const resetFilters = () => {
   selectedKeywords.value = "";
   dateRange.value = undefined;
@@ -197,6 +199,13 @@ const sourceItems = [
   {label: "All sources", value: "all", count: 8267},
   {label: "Deposited on Envision Portal", value: "non-external", count: 8265},
   {label: "Registered from external repository", value: "external", count: 2},
+]
+
+const repositorySource = [
+  {name: "figshare", icon: "i-lucide-network", color: "bg-gray-200 text-gray-800"},
+  {name: "zenodo", icon: "i-lucide-database", color: "bg-gray-200 text-gray-800"},
+  {name: "kaggle", icon: "i-lucide-letter-k", color: "bg-gray-200 text-gray-800"},
+  {name: "", icon: "i-lucide-eye", color: "bg-green-50 text-green-600 border-green-200"}
 ]
 
 const modalities = [
@@ -511,45 +520,38 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                   <div class="flex flex-col">
                     <div class="flex items-start justify-between gap-2">
                       <div class="mb-1 flex items-start gap-2">
+                        <UTooltip
+                            :text="
+                            dataset.registrationSource === 'Manual Registration'
+                              ? 'This dataset was registered manually by our review team.'
+                              : dataset.registrationSource ===
+                                  'Automatic Registration'
+                                ? 'This dataset was found via our automated discovery process.'
+                                : 'This dataset was published on the Envision Portal.'
+                          "
+                        >
+                          <UBadge
+                            :icon="repositorySource.find(rs => rs.name.toLowerCase() === dataset.datasetSource.toLowerCase())?.icon"
+                            :color="dataset.datasetSource !== '' ? 'neutral' : 'primary'"
+                            variant="subtle"
+                          >
+                            {{ dataset.datasetSource || "Envision Portal"}}
+                          </UBadge>
+                          <UBadge
+                            v-if="dataset.external"
+                            color="neutral"
+                            variant="subtle"
+                            icon="i-lucide-orbit"
+                          >
+                            Auto-discovered
+                          </UBadge>
+                      </UTooltip>
+
                         <UBadge color="primary" variant="outline">
                           Version {{ dataset.versionTitle }}
                         </UBadge>
 
-                        <UBadge
-                          v-if="dataset.external"
-                          color="warning"
-                          variant="soft"
-                        >
-                          External Dataset
-                        </UBadge>
                       </div>
-
-                      <UTooltip
-                        :text="
-                          dataset.registrationSource === 'Manual Registration'
-                            ? 'This dataset was registered manually by our review team.'
-                            : dataset.registrationSource ===
-                                'Automatic Registration'
-                              ? 'This dataset was found via our automated discovery process.'
-                              : 'This dataset was published on the Envision Portal.'
-                        "
-                      >
-                        <UBadge
-                          color="primary"
-                          variant="soft"
-                          class="cursor-help"
-                        >
-                          <Icon name="material-symbols:auto-mode" size="14" />
-                          {{
-                            dataset.registrationSource === "Manual Registration"
-                              ? "Registered manually"
-                              : dataset.registrationSource ===
-                                  "Automatic Registration"
-                                ? "Registered automatically"
-                                : "Published on Envision Portal"
-                          }}
-                        </UBadge>
-                      </UTooltip>
                     </div>
 
                     <h2 class="text-xl font-semibold text-blue-400">

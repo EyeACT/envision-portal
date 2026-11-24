@@ -252,6 +252,7 @@ export default defineEventHandler(async (event) => {
     const versionCount = versionCountMap.get(canonicalId) ?? 1;
     const registrationSource =
       PublishedDatasetRegistrationDetails?.extractionMethod ?? "";
+    const datasetSource = PublishedDatasetRegistrationDetails?.datasetSource ?? ""
 
     return {
       id: row.id,
@@ -270,6 +271,7 @@ export default defineEventHandler(async (event) => {
       versionCount: versionCount - 1,
       rights,
       registrationSource,
+      datasetSource,
       imageFileCount: row.PublishedDatasetFileSummary?.imageFileCount || 0,
       modalities: row.PublishedDatasetModality.map((row) => {
         return {
