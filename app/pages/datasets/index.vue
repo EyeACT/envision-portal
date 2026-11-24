@@ -417,7 +417,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                               <span class="text-xs whitespace-nowrap">{{ modality.longLabel }}</span>
                             </span>
                       </label>
-                      <span class="w-14 shrink-0 text-left tabular-nums text-xs">{{ totalModalityFiles[modality.value] ?? 0 }}</span>
+                      <span class="w-14 shrink-0 text-left tabular-nums text-xs">{{ formatFileCount(totalModalityFiles[modality.value] ?? 0 )}}</span>
                   </div>
 
                 </div>
@@ -626,7 +626,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                         class="shrink-0 text-gray-500"
                         aria-hidden="true"
                       />
-                      <span class="text-sm font-semibold">{{ dataset.imageFileCount }} images</span>
+                      <span class="text-sm font-semibold">{{formatFileCount(dataset.imageFileCount ?? 0) }} images</span>
                     </div>
 
 
