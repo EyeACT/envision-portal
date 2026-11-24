@@ -183,6 +183,8 @@ const modalities = [
   {longLabel: "Fundus Autoflourscence",shortLabel: "FA", value: "fundus_autoflourescence", count: 150, color: "bg-yellow-500"},
   {longLabel: "Pseudo Color Fundus", shortLabel: "PCF", value: "pseudo_color_fundus", count: 220, color: "bg-purple-500"},
   {longLabel: "Infrared reflectance", shortLabel: "IR", value: "infrared_reflectance", count: 2, color: "bg-orange-500"},
+  {longLabel: "Color Fundus Photography", shortLabel: "CFP", value: "color_fundus_photography", count: 2, color: "bg-pink-500"},
+
 ]
 
 const numberOfImages = [
@@ -527,18 +529,9 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
 
                   >
                     <div 
-                      :class="['h-full shrink-0 bg-red-500']"
-                      :style="{width: '25%'}"
-                    ></div>
-
-                    <div 
-                      :class="['h-full shrink-0 bg-blue-500']"
-                      :style="{width: '25%'}"
-                    ></div>
-
-                    <div 
-                      :class="['h-full shrink-0 bg-green-500']"
-                      :style="{width: '50%'}"
+                      v-for="modalityRecord in dataset.modalities.filter(m => m.fileCount !== 0)"
+                      :class="['h-full shrink-0', modalities.find(m => m.value == modalityRecord.modality)?.color ?? 'bg-gray-400']"
+                      :style="{width: `${(modalityRecord.fileCount / dataset.modalityFileCount) * 100}%`}"
                     ></div>
                 
                   </div>
@@ -549,7 +542,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                     >
                       <span 
                         aria-hidden="true"
-                        :class="['size-2 shrink-0 rounded-full bg-red-500']"
+                        :class="['size-2 shrink-0 rounded-full', modalities.find(m => m.value == modalityRecord.modality)?.color ?? 'bg-gray-400']"
                       ></span>
                       <span class="text-sm font-medium">{{ modalityRecord.modality }}</span>
                       <span class="tabular-nums text-xs text-gray-500">{{ modalityRecord.fileCount }}</span>

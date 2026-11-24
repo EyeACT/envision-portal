@@ -257,7 +257,8 @@ export default defineEventHandler(async (event) => {
           modality: row.modality,
           fileCount: row.fileCount || 0
         }
-      })
+      }),
+      modalityFileCount: row.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0)
     };
   });
 
