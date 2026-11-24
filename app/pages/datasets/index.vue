@@ -647,6 +647,16 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                       <span class="text-sm font-semibold">{{formatFileCount(dataset.imageFileCount ?? 0) }} images</span>
                     </div>
 
+                    <div class="flex min-w-0 items-center gap-2" v-if="dataset.maskFileCount !== 0">
+                      <Icon 
+                        name="i-lucide-files"
+                        size="16"
+                        class="shrink-0 text-gray-500"
+                        aria-hidden="true"
+                      />
+                      <span class="text-sm font-semibold">Includes {{formatFileCount(dataset.maskFileCount ?? 0) }} masks</span>
+                    </div>
+
 
                       <div 
                         v-if="dataset.keywords && dataset.keywords.length > 0"

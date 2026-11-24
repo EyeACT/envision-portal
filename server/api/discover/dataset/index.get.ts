@@ -278,6 +278,7 @@ export default defineEventHandler(async (event) => {
       registrationSource,
       datasetSource,
       imageFileCount: row.PublishedDatasetFileSummary?.imageFileCount || 0,
+      maskFileCount: row.PublishedDatasetFileSummary?.maskFileCount  || 0,
       modalities: row.PublishedDatasetModality.map((row) => {
         return {
           modality: row.modality,

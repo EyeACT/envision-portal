@@ -46,6 +46,7 @@ export interface DiscoveryDatasetList {
   labelingMethod: string;
   validationInfo: string;
   imageFileCount: number;
+  maskFileCount: number;
   modalities: Modality[];
   modalityFileCount: number;
 }
