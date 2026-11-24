@@ -22,6 +22,11 @@ interface DiscoveryListDatasetCreator {
   }[];
 }
 
+interface Modality {
+  modality: string;
+  fileCount: number;
+}
+
 export interface DiscoveryDatasetList {
   id: number;
   canonicalId: string | null;
@@ -33,10 +38,15 @@ export interface DiscoveryDatasetList {
   versionTitle: string;
   rights: string[];
   registrationSource: string;
+  datasetSource: string; // zenodo, figshare, etc
   creators: DiscoveryListDatasetCreator[];
   keywords: string[];
   created: Date;
   versionCount: number;
   labelingMethod: string;
   validationInfo: string;
+  imageFileCount: number;
+  maskFileCount: number;
+  modalities: Modality[];
+  modalityFileCount: number;
 }

@@ -21,6 +21,8 @@ type ExternalFilter = "all" | "external" | "non-external";
 const externalFilter = ref<ExternalFilter>("all");
 const selectedModalities = ref<string[]>([])
 const selectedImageRange = ref<ImageRange>("any")
+type DatasetSort = "relevance" | "modality_count"
+const sortBy = ref<DatasetSort>("relevance")
 
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
@@ -92,6 +94,10 @@ const queryParams = computed(() => {
     if(bounds.max !== undefined) params.imageCountMax = bounds.max
   }
 
+  if(sortBy.value !== "relevance") {
+    params.sortBy = sortBy.value
+  }
+
   return params;
 });
 
@@ -102,6 +108,10 @@ const {
 } = await useFetch<{
   data: DiscoveryDatasetList[];
   total: number;
+  modalityToTotalMap: Record<string, number>;
+  sourceToTotalMap: Record<string, number>;
+  repositoryToTotalMap: Record<string, number>;
+  totalImageFiles: number;
 }>("/api/discover/dataset", {
   query: queryParams,
   watch: [queryParams],
@@ -117,6 +127,10 @@ if (error.value) {
 
 const datasets = computed(() => response.value?.data ?? []);
 const totalDatasets = computed(() => response.value?.total ?? 0);
+const totalModalityFiles = computed(() => response.value?.modalityToTotalMap ?? {})
+const totalSources = computed(() => response.value?.sourceToTotalMap ?? {})
+const totalRepositorySources = computed(() => response.value?.repositoryToTotalMap)
+const totalImageFiles = computed(() => response.value?.totalImageFiles)
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
@@ -129,12 +143,31 @@ const getDaysAgo = (date: string | Date): string => {
     : `${Math.abs(daysAgo)} day${Math.abs(daysAgo) > 1 ? "s" : ""} ago`;
 };
 
+
+const formatFileCount = (fileCount: number) => {
+  if (fileCount >= 1000000) {
+    const millions = (Math.round(fileCount / 100000) / 10).toFixed(1)
+    return `${millions.replace(/\.0$/, '')}M`
+  }
+
+  if (fileCount >= 1000) {
+    const roundedThousands = Math.round(fileCount / 100) / 10;
+
+    if (roundedThousands >= 1000) {
+      return `1M`
+    }
+
+    return `${roundedThousands.toFixed(1).replace(/\.0$/, '')}k+`
+  }
+
+  return fileCount.toString()
+}
+
 const items = ref<AccordionItem[]>([
   { content: "",  label: "Imaging Modality" },
   { content: "", label: "Source"},
   { content: "", label: "Publication Year" },
   { content: "", label: "Number of Images"},
-  // { content: "", label: "External datasets" },
   { content: "", label: "Keywords" },
 ]);
 
@@ -142,6 +175,8 @@ const searchDatasets = () => {
   appliedSearch.value = searchQuery.value.trim();
   page.value = 1;
 };
+
+console.log(datasets)
 
 const resetFilters = () => {
   selectedKeywords.value = "";
@@ -152,6 +187,7 @@ const resetFilters = () => {
   page.value = 1;
   selectedModalities.value = []
   selectedImageRange.value = "any"
+  sortBy.value = "relevance"
 };
 
 const hasActiveFilters = computed(() => {
@@ -164,15 +200,50 @@ const hasActiveFilters = computed(() => {
 });
 
 const sourceItems = [
-  {label: "All sources", value: "all"},
-  {label: "Deposited on Envision Portal", value: "non-external"},
-  {label: "Registered from external repository", value: "external"},
+  {label: "All sources", value: "all", count: 8267},
+  {label: "Deposited on Envision Portal", value: "non-external", count: 8265},
+  {label: "Registered from external repository", value: "external", count: 2},
+]
+
+const repositorySource = [
+  {name: "figshare", icon: "i-lucide-network", color: "bg-gray-200 text-gray-800"},
+  {name: "zenodo", icon: "i-lucide-database", color: "bg-gray-200 text-gray-800"},
+  {name: "kaggle", icon: "i-lucide-letter-k", color: "bg-gray-200 text-gray-800"},
+  {name: "", icon: "i-lucide-eye", color: "bg-green-50 text-green-600 border-green-200"}
 ]
 
 const modalities = [
-  {label: "OCT", value: "oct"},
-  {label: "OCT Angiography", value: "octa"},
-  {label: "Fundus Photography", value: "fundus_photography"}
+  {
+    longLabel: "Optical coherence tomography", shortLabel: "OCT", 
+    value: "oct",  color: 'bg-red-500', badgeColor: "bg-red-50",
+    borderColor: "border-red-200"
+  },
+  {
+    longLabel: "OCT Angiography", shortLabel: "OCTA", 
+    value: "octa", color: "bg-blue-500", badgeColor: "bg-blue-50",
+    borderColor: "border-blue-200"
+
+  },
+  {
+    longLabel: "Fundus Autofluorescence",shortLabel: "FA", 
+    value: "fundus_autofluorescence", color: "bg-yellow-500", badgeColor: "bg-yellow-50",
+    borderColor: "border-yellow-200"
+  },
+  {
+    longLabel: "Pseudo Color Fundus", shortLabel: "PCF", 
+    value: "pseudo_color_fundus", color: "bg-purple-500", badgeColor: "bg-purple-50",
+    borderColor: "border-purple-200"
+  },
+  {
+    longLabel: "Infrared reflectance", shortLabel: "IR", 
+    value: "infrared_reflectance",  color: "bg-orange-500", badgeColor: "bg-orange-50",
+    borderColor: "border-orange-200"
+  },
+  {
+    longLabel: "Color Fundus Photography", shortLabel: "CFP", 
+    value: "color_fundus_photography", color: "bg-green-500", badgeColor: "bg-green-50",
+    borderColor: "border-green-200"
+  },
 ]
 
 const numberOfImages = [
@@ -190,8 +261,24 @@ const imageRangeBounds = {
   "10000plus": {min: 10000},
 } as const;
 
+const sortOptions = [
+  {label: "Relevance", value: "relevance"},
+  {label: "Modality Count", value: "modality_count"},
+]
+
+const getSourceValue = (label: string) => {
+  if(label === "Deposited on Envision Portal") {
+      return totalSources.value[""]
+  } else if (label === "Registered from external repository") {
+      return totalSources.value["Automatic Registration"]
+  } else {
+      return totalDatasets
+  }
+}
+
+
 // When filters change, go back to page 1
-watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
+watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModalities, sortBy, selectedImageRange], () => {
   page.value = 1;
 });
 </script>
@@ -199,151 +286,201 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
 <template>
   <div>
     <UContainer>
-      <h2 class="text-md ">Filters</h2>
-      <UBreadcrumb
-        class="mb-4"
-        :items="[{ label: 'All Datasets', to: '/datasets' }]"
-      />
+    <div class="border-b border-gray-200 pb-4 space-y-4">
+      <h1 class="text-sm font-medium text-green-500">Find datasets</h1>
+      <h2 class="text-xl font-semibold">Discover ophthalmic imaging datasets</h2>
+      <p>Search datasets deposited on the Envision Portal and registered from Zenodo and Figshare.
+        Imaging modalities are detected automatically by analyzing the image files in each dataset.
+      </p>
+      
+      <!-- search bar -->
+      <div class="flex items-center gap-2">
+        <UInput
+          v-model="searchQuery"
+          type="text"
+          icon="i-lucide-search"
+          placeholder="Search titles, descriptions, and keywords"
+          @keyup.enter="searchDatasets"
+        />
 
-      <div class="flex flex-col gap-6 pt-2 md:flex-row">
-        <div class="w-full md:w-1/5">
-          <UAccordion type="multiple" :items="items">
-            <template #content="{ item }">
-              <div v-if="item.label === 'Keywords'" class="p-2">
-                <UInputTags
-                  v-model="selectedKeywords"
-                  type="text"
-                  placeholder="Filter by keyword..."
-                  size="sm"
-                />
-              </div>
+        <UButton
+          color="primary"
+          variant="soft"
+          label="Search"
+          @click="searchDatasets"
+        />
+      </div>
 
-              <div v-else-if="item.label === 'Publication Year'" class="p-2">
-                <UPopover :popper="{ placement: 'bottom-start' }">
-                  <UButton
-                    color="neutral"
-                    variant="soft"
-                    icon="i-lucide-calendar"
-                    class="hover:border-primary-300 hover:bg-primary-50 w-full justify-start gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm transition-all"
-                    :ui="{
-                      base: 'text-gray-700 hover:text-primary-600',
-                    }"
-                  >
-                    <template v-if="dateRange?.start">
-                      <template v-if="dateRange?.end">
-                        <span class="font-medium">
-                          {{
-                            df.format(
-                              dateRange.start.toDate(getLocalTimeZone()),
-                            )
-                          }}
-                        </span>
-                        <span class="text-gray-400">-</span>
-                        <span class="font-medium">
-                          {{
-                            df.format(dateRange.end.toDate(getLocalTimeZone()))
-                          }}
-                        </span>
-                      </template>
-                      <template v-else>
-                        <span class="font-medium">
-                          {{
-                            df.format(
-                              dateRange.start.toDate(getLocalTimeZone()),
-                            )
-                          }}
-                        </span>
-                      </template>
-                    </template>
-                    <template v-else>
-                      <span class="text-gray-400">Pick a date</span>
-                    </template>
-                  </UButton>
 
-                  <template #content>
-                    <UCalendar
-                      v-model="dateRange"
-                      class="rounded-lg border border-gray-200 bg-white p-3 shadow-lg"
-                      :number-of-months="2"
-                      range
-                    />
-                  </template>
-                </UPopover>
-              </div>
-
-              <div v-else-if="item.label === 'Imaging Modality'" class="p-2">
-                <legend>Modalities</legend>
-                <label v-for="modality in modalities" :key="modality.value">
-                  <input 
-                    v-model="selectedModalities"
-                    type="checkbox"
-                    :value="modality.value"
-                    />
-                    {{ modality.label }}
-                </label>
-              </div>
-
-              <div v-else-if="item.label === 'Source'" class="p-2">
-                <URadioGroup v-model="externalFilter" :items="sourceItems" />
-              </div>
-
-              <div v-else-if="item.label === 'Number of Images'" class="p-2">
-                <URadioGroup v-model="selectedImageRange" :items="numberOfImages" />
-              </div>
-
-              <div
-                v-else-if="item.label === 'External datasets'"
-                class="flex flex-col gap-2 p-2"
-              >
-                <UBadge
-                  variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
-                  :color="externalFilter === 'all' ? 'primary' : 'neutral'"
-                  @click="externalFilter = 'all'"
-                >
-                  All datasets
-                </UBadge>
-                <UBadge
-                  variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
-                  :color="externalFilter === 'external' ? 'primary' : 'neutral'"
-                  @click="externalFilter = 'external'"
-                >
-                  External only
-                </UBadge>
-                <UBadge
-                  variant="soft"
-                  class="cursor-pointer transition-all hover:bg-blue-100"
-                  :color="
-                    externalFilter === 'non-external' ? 'primary' : 'neutral'
-                  "
-                  @click="externalFilter = 'non-external'"
-                >
-                  Envision Portal only
-                </UBadge>
-              </div>
-            </template>
-          </UAccordion>
+      <div class="flex w-full flex-row gap-20 items-center ">
+        <div class="flex flex-col">
+          <span class="text-sm font-medium">Datasets</span>
+          <span class="text-xl font-semibold">{{ totalDatasets }}</span>
         </div>
 
-        <div class="flex w-full flex-col gap-4 md:w-4/5">
-          <!-- search bar -->
-          <div class="flex items-center gap-2">
-            <UInput
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search datasets..."
-              @keyup.enter="searchDatasets"
-            />
+        <div class="flex flex-col">
+          <span class="text-sm font-medium">Eye Images Classified</span>
+          <span class="text-xl font-semibold">{{ formatFileCount(totalImageFiles ?? 0) }}</span>
+        </div>
 
-            <UButton
-              color="primary"
-              variant="soft"
-              icon="material-symbols:search"
-              @click="searchDatasets"
-            />
+        <div class="flex flex-col">
+          <span class="text-sm font-medium">Imaging Modalities</span>
+          <span class="text-xl font-semibold">{{ Object.keys(totalModalityFiles ?? {}).length }}</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-medium">Sources</span>
+          <span class="text-xl font-semibold">{{ Object.keys(totalRepositorySources ?? {}).length  || 6 }}</span>
+        </div>
+      </div>
+    </div>
+
+
+
+
+      <div class="flex flex-col gap-6 pt-2 md:flex-row mt-4">
+        <div class="flex flex-col">
+          <h2 class="text-lg font-semibold">Filters</h2>
+          <div class="w-full md:w-[22rem] md:shrink-0">
+            <UAccordion type="multiple" :items="items">
+              <template #content="{ item }">
+                <div v-if="item.label === 'Keywords'" class="p-2">
+                  <UInputTags
+                    v-model="selectedKeywords"
+                    type="text"
+                    placeholder="Filter by keyword..."
+                    size="sm"
+                    icon="i-lucide-search"
+                  />
+                </div>
+
+                <div v-else-if="item.label === 'Publication Year'" class="p-2">
+                  <UPopover :popper="{ placement: 'bottom-start' }">
+                    <UButton
+                      color="neutral"
+                      variant="soft"
+                      icon="i-lucide-calendar"
+                      class="hover:border-primary-300 hover:bg-primary-50 w-full justify-start gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm transition-all"
+                      :ui="{
+                        base: 'text-gray-700 hover:text-primary-600',
+                      }"
+                    >
+                      <template v-if="dateRange?.start">
+                        <template v-if="dateRange?.end">
+                          <span class="font-medium">
+                            {{
+                              df.format(
+                                dateRange.start.toDate(getLocalTimeZone()),
+                              )
+                            }}
+                          </span>
+                          <span class="text-gray-400">-</span>
+                          <span class="font-medium">
+                            {{
+                              df.format(dateRange.end.toDate(getLocalTimeZone()))
+                            }}
+                          </span>
+                        </template>
+                        <template v-else>
+                          <span class="font-medium">
+                            {{
+                              df.format(
+                                dateRange.start.toDate(getLocalTimeZone()),
+                              )
+                            }}
+                          </span>
+                        </template>
+                      </template>
+                      <template v-else>
+                        <span class="text-gray-400">Pick a date</span>
+                      </template>
+                    </UButton>
+
+                    <template #content>
+                      <UCalendar
+                        v-model="dateRange"
+                        class="rounded-lg border border-gray-200 bg-white p-3 shadow-lg"
+                        :number-of-months="2"
+                        range
+                      />
+                    </template>
+                  </UPopover>
+                </div>
+
+                <div v-else-if="item.label === 'Imaging Modality'" class="p-2">
+                  <p class="text-xs text-left mb-2">Detected automatically from the image files.</p>
+                    <div 
+                      v-for="modality in modalities"
+                      class="flex w-full items-center"
+                    >
+                      <label 
+                        :key="modality.value"
+                        class="flex min-w-0 flex-1 items-center gap-2"
+                        >
+                          <input 
+                            v-model="selectedModalities"
+                            type="checkbox"
+                            :value="modality.value"
+                            class="shrink-0"
+                            />
+                            <span 
+                              aria-hidden="true" 
+                              :class="['size-2 shrink-0 rounded-full', modality.color]"></span>
+                            <span class="flex translate-y-1 flex-col leading-5">
+                              <span class="font-semibold text-sm">{{ modality.shortLabel }}</span>
+                              <span class="text-xs whitespace-nowrap">{{ modality.longLabel }}</span>
+                            </span>
+                      </label>
+                      <span class="w-14 shrink-0 text-left tabular-nums text-xs">{{ formatFileCount(totalModalityFiles[modality.value] ?? 0 )}}</span>
+                  </div>
+
+                </div>
+
+                <div v-else-if="item.label === 'Source'" class="p-2">
+                  <div
+                    v-for="source in sourceItems"
+                    :key="source.value"
+                    class="flex w-full items-center"
+                  >
+                    <label
+                      class="flex min-w-0 flex-1 items-center gap-2"
+                    >
+                      <input 
+                        v-model="externalFilter"
+                        type="radio"
+                        :value="source.value"
+                        class="shrink-0"
+                      />
+                      <span class="text-sm whitespace-nowrap">{{ source.label }}</span>
+                    </label>
+                    <span class="w-14 shrink-0 text-left tabular-nums text-xs">
+                      {{ getSourceValue(source.label)}}
+                    </span>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2 p-2 items-center min-w-0">
+                    <UBadge
+                      v-for="[rs, total] in Object.entries(totalRepositorySources ?? {}).filter(([rs]) => rs !== '')"
+                      color="neutral"
+                      variant="subtle"
+                      :key="rs"
+                    > 
+                      <span>{{ rs }}</span>
+                      <span>{{ total }}</span>
+                    </UBadge>
+                  </div>
+
+                </div>
+
+                <div v-else-if="item.label === 'Number of Images'" class="p-2">
+                  <URadioGroup v-model="selectedImageRange" :items="numberOfImages" />
+                </div>
+              </template>
+            </UAccordion>
           </div>
+        </div>
 
+
+        <div class="flex w-full flex-col gap-4 md:w-4/5">
           <!-- Dataset counts and reset button -->
           <div class="flex items-center justify-between gap-4">
             <div v-if="hasActiveFilters">
@@ -363,7 +500,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
             <div class="flex gap-4 text-sm text-gray-600">
               <span>
                 Showing
-                <strong class="text-gray-900">{{ datasets.length }}</strong>
+                <strong class="text-gray-900">{{(page * ITEMS_PER_PAGE) - (ITEMS_PER_PAGE - 1)}} - {{ page * ITEMS_PER_PAGE }}</strong>
                 of
                 <strong class="text-gray-900">{{ totalDatasets }}</strong>
                 {{ totalDatasets === 1 ? "dataset" : "datasets" }}
@@ -372,6 +509,16 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
               <span v-if="hasActiveFilters" class="text-gray-400">
                 (filtered)
               </span>
+            </div>
+
+            <div class="flex gap-4 text-sm text-gray-600">
+              <USelect 
+                v-model="sortBy"
+                :items="sortOptions"
+                aria-label="Sort datasets"
+                class="w-48"
+                icon="i-lucide-sparkles"
+                />
             </div>
           </div>
 
@@ -389,45 +536,38 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
                   <div class="flex flex-col">
                     <div class="flex items-start justify-between gap-2">
                       <div class="mb-1 flex items-start gap-2">
-                        <UBadge color="primary" variant="outline">
+                        <UTooltip
+                            :text="
+                            dataset.registrationSource === 'Manual Registration'
+                              ? 'This dataset was registered manually by our review team.'
+                              : dataset.registrationSource ===
+                                  'Automatic Registration'
+                                ? 'This dataset was found via our automated discovery process.'
+                                : 'This dataset was published on the Envision Portal.'
+                          "
+                        >
+                          <UBadge
+                            :icon="repositorySource.find(rs => rs.name.toLowerCase() === dataset.datasetSource.toLowerCase())?.icon"
+                            :color="dataset.datasetSource !== '' ? 'neutral' : 'primary'"
+                            variant="subtle"
+                          >
+                            {{ dataset.datasetSource || "Envision Portal"}}
+                          </UBadge>
+                          <UBadge
+                            v-if="dataset.external"
+                            color="neutral"
+                            variant="subtle"
+                            icon="i-lucide-orbit"
+                          >
+                            Auto-discovered
+                          </UBadge>
+                      </UTooltip>
+
+                        <UBadge color="neutral" variant="outline">
                           Version {{ dataset.versionTitle }}
                         </UBadge>
 
-                        <UBadge
-                          v-if="dataset.external"
-                          color="warning"
-                          variant="soft"
-                        >
-                          External Dataset
-                        </UBadge>
                       </div>
-
-                      <UTooltip
-                        :text="
-                          dataset.registrationSource === 'Manual Registration'
-                            ? 'This dataset was registered manually by our review team.'
-                            : dataset.registrationSource ===
-                                'Automatic Registration'
-                              ? 'This dataset was found via our automated discovery process.'
-                              : 'This dataset was published on the Envision Portal.'
-                        "
-                      >
-                        <UBadge
-                          color="primary"
-                          variant="soft"
-                          class="cursor-help"
-                        >
-                          <Icon name="material-symbols:auto-mode" size="14" />
-                          {{
-                            dataset.registrationSource === "Manual Registration"
-                              ? "Registered manually"
-                              : dataset.registrationSource ===
-                                  "Automatic Registration"
-                                ? "Registered automatically"
-                                : "Published on Envision Portal"
-                          }}
-                        </UBadge>
-                      </UTooltip>
                     </div>
 
                     <h2 class="text-xl font-semibold text-blue-400">
@@ -451,102 +591,113 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
                   </p>
                 </template>
 
-                <div class="space-y-4">
+                <div class="space-y-4 border-b border-gray-200 pb-4 mb-3">
                   <p class="line-clamp-3 text-sm text-gray-500">
                     {{ dataset.description || "No description available." }}
                   </p>
 
-                  <div v-if="dataset.keywords && dataset.keywords.length > 0">
-                    <h3 class="text-md mb-1 font-semibold text-gray-500">
-                      Keywords:
-                    </h3>
+                  <div 
+                    class="flex h-3 w-full overflow-hidden rounded-full bg-gray-100"
+                    role="img"
+                    aria-label="Modality breakdown"
 
-                    <div class="flex flex-wrap gap-2">
-                      <UBadge
-                        v-for="keyword in visibleKeywords(
-                          dataset.id,
-                          dataset.keywords,
-                        )"
-                        :key="keyword"
-                        variant="outline"
-                        class="text-xs capitalize"
-                      >
-                        {{ keyword }}
-                      </UBadge>
-
-                      <UButton
-                        v-if="dataset.keywords.length > KEYWORD_PREVIEW_LIMIT"
-                        size="xs"
-                        variant="link"
-                        class="px-1"
-                        @click.prevent.stop="toggleKeywords(dataset.id)"
-                      >
-                        {{
-                          expandedKeywords.has(dataset.id)
-                            ? "Show less"
-                            : `Show ${dataset.keywords.length - KEYWORD_PREVIEW_LIMIT} more`
-                        }}
-                      </UButton>
-                    </div>
+                  >
+                    <div 
+                      v-for="modalityRecord in dataset.modalities.filter(m => m.fileCount !== 0)"
+                      :class="['h-full shrink-0', modalities.find(m => m.value == modalityRecord.modality)?.color ?? 'bg-gray-400']"
+                      :style="{width: `${(modalityRecord.fileCount / dataset.modalityFileCount) * 100}%`}"
+                    ></div>
+                
                   </div>
 
-                  <div class="space-y-2">
-                    <div class="flex items-start gap-3 text-sm">
-                      <div class="flex gap-2">
-                        <Icon
-                          name="charm:person"
-                          size="12"
-                          class="mt-1 text-blue-500"
-                        />
+                  <div class="flex flex-wrap gap-2 ">
+                    <div 
+                      v-for="modalityRecord in dataset.modalities.filter(m => m.fileCount !== 0)"
+                      :class="
+                      [
+                        'inline-flex items-center gap-2 rounded-lg border px-3 py-0.5',
+                        modalities.find(m => m.value == modalityRecord.modality)?.badgeColor ?? 'bg-gray-50',
+                        modalities.find(m => m.value == modalityRecord.modality)?.borderColor ?? 'bg-gray-50',
 
-                        <span class="min-w-[80px] font-medium text-gray-600">
-                          Creators:
-                        </span>
-                      </div>
-                      <div class="flex-wraptext-gray-700 flex">
-                        <span
-                          v-if="dataset.creators && dataset.creators.length > 0"
-                        >
-                          <span
-                            v-for="(creator, index) in dataset.creators"
-                            :key="index"
-                            class="capitalize"
-                          >
-                            {{ creator.creatorName
-                            }}<span v-if="index < dataset.creators.length - 1"
-                              >,
-                            </span>
-                          </span>
-                        </span>
-
-                        <span v-else class="text-gray-400 italic">
-                          No creators available
-                        </span>
-                      </div>
-                    </div>
-
-                    <div
-                      class="flex items-start gap-3 text-sm"
-                      v-if="dataset.versionCount > 0"
+                      ]"
                     >
-                      <div class="flex gap-2">
-                        <Icon
-                          name="mdi:file-document-multiple"
-                          size="12"
-                          class="mt-1 text-blue-500"
+                      <span 
+                        aria-hidden="true"
+                        :class="['size-2 shrink-0 rounded-full', modalities.find(m => m.value == modalityRecord.modality)?.color ?? 'bg-gray-400']"
+                      ></span>
+                      <span class="flex items-baseline gap-1">
+                        <span class="text-sm font-medium ">{{ modalities.find(m => m.value == modalityRecord.modality)?.shortLabel }}</span>
+                        <span class="tabular-nums text-xs text-gray-500">{{ formatFileCount(modalityRecord.fileCount) }}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+
+                <div class="flex flex-wrap gap-2">
+                  <div class="flex flex-row gap-4">
+
+                    <div class="flex min-w-0 items-center gap-2">
+                      <Icon 
+                        name="i-lucide-image"
+                        size="16"
+                        class="shrink-0 text-gray-500"
+                        aria-hidden="true"
+                      />
+                      <span class="text-sm font-semibold">{{formatFileCount(dataset.imageFileCount ?? 0) }} images</span>
+                    </div>
+
+                    <div class="flex min-w-0 items-center gap-2" v-if="dataset.maskFileCount !== 0">
+                      <Icon 
+                        name="i-lucide-files"
+                        size="16"
+                        class="shrink-0 text-gray-500"
+                        aria-hidden="true"
+                      />
+                      <span class="text-sm font-semibold">Includes {{formatFileCount(dataset.maskFileCount ?? 0) }} masks</span>
+                    </div>
+
+
+                      <div 
+                        v-if="dataset.keywords && dataset.keywords.length > 0"
+                        class="flex min-w-0 items-center gap-2"
+                        >
+                        <Icon 
+                          name="i-lucide-tag"
+                          size="16"
+                          class="shrink-0 text-gray-500"
+                          aria-hidden="true"
                         />
 
-                        <span class="min-w-[80px] font-medium text-gray-600">
-                          Versions:
-                        </span>
+                        <div class="flex flex-wrap gap-2 min-w-0 items-center">
+                          <UBadge
+                            v-for="keyword in visibleKeywords(
+                              dataset.id,
+                              dataset.keywords,
+                            )"
+                            :key="keyword"
+                            variant="subtle"
+                            color="neutral"
+                            class="text-xs capitalize border-0"
+                          >
+                            {{ keyword }}
+                          </UBadge>
+
+                          <UButton
+                            v-if="dataset.keywords.length > KEYWORD_PREVIEW_LIMIT"
+                            size="xs"
+                            variant="link"
+                            class="px-1"
+                            @click.prevent.stop="toggleKeywords(dataset.id)"
+                          >
+                            {{
+                              expandedKeywords.has(dataset.id)
+                                ? "Show less"
+                                : `Show ${dataset.keywords.length - KEYWORD_PREVIEW_LIMIT} more`
+                            }}
+                          </UButton>
+                        </div>
                       </div>
-                      <div class="flex-wraptext-gray-700 flex">
-                        <span class="text-gray-700">
-                          This dataset has {{ dataset.versionCount }} other
-                          version{{ dataset.versionCount > 1 ? "s" : "" }}.
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </UCard>

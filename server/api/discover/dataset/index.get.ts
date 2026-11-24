@@ -1,5 +1,6 @@
 import type { DiscoveryDatasetList } from "#shared/types/dataset";
 import type { PublishedDatasetModality } from "~~/shared/generated/client";
+import type {PublishedDataset} from "~~/shared/generated/client"
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 100;
 
@@ -59,6 +60,8 @@ const parseKeywords = (keywords: any) : string [] => {
     .filter(Boolean)
 }
 
+
+
 // Returns a paginated list of published datasets (latest version of each)
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -82,6 +85,7 @@ export default defineEventHandler(async (event) => {
         : null;
   const imageCountMin = typeof query.imageCountMin === "string" ? parseInt(query.imageCountMin) : null
   const imageCountMax = typeof query.imageCountMax === "string" ? parseInt(query.imageCountMax) : null
+  const sortBy = typeof query.sortBy === "string" ? query.sortBy : null
 
   const offset = (page - 1) * limit;
 
@@ -93,6 +97,7 @@ export default defineEventHandler(async (event) => {
   const hasExternalFilter = externalOnly !== null;
   const searchLower = hasSearch ? search.toLowerCase() : "";
   const hasImageCountFilter = imageCountMin !== null || imageCountMax !== null
+  const hasSortBy = sortBy !== null
 
   // 1. Get latest id per canonicalId (Prisma groupBy)
   const latestPerCanonical = await prisma.publishedDataset.groupBy({
@@ -183,6 +188,39 @@ export default defineEventHandler(async (event) => {
     return { data: [], total: 0 };
   }
 
+  if(hasSortBy) {
+    // order results based off user preferred order rather than default option (relevance)
+    if(sortBy === "modality_count") {
+      filtered.sort((a,b) => {
+        return b.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0) - a.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0) 
+      })
+    }
+  }
+
+  // 3.5 Precompute filtered totals
+  const modalityToTotalMap: Record<string, number> = {}
+  const sourceToTotalMap: Record<string, number> = {}
+  const repositoryToTotalMap: Record<string, number> = {}
+  let totalImageFiles = 0
+  filtered.forEach(d => {
+    d.PublishedDatasetModality.forEach(m => {
+      const modalityName = m.modality;
+      if (!modalityToTotalMap[modalityName]) {
+        modalityToTotalMap[modalityName] = 0
+      }
+      modalityToTotalMap[modalityName] += m.fileCount ?? 0
+    })
+
+    const extractionMethod = d.PublishedDatasetRegistrationDetails?.extractionMethod ?? ""
+    sourceToTotalMap[extractionMethod] = (sourceToTotalMap[extractionMethod] ?? 0) + 1
+    const datasetSource = d.PublishedDatasetRegistrationDetails?.datasetSource ?? ""
+    repositoryToTotalMap[datasetSource] = (repositoryToTotalMap[datasetSource] ?? 0) + 1;
+    totalImageFiles += d.PublishedDatasetFileSummary?.imageFileCount || 0
+  })
+
+  
+
+
   // 4. Paginate in JS
   const pageRows = filtered.slice(offset, offset + limit);
   const canonicalIds = pageRows
@@ -219,6 +257,7 @@ export default defineEventHandler(async (event) => {
     const versionCount = versionCountMap.get(canonicalId) ?? 1;
     const registrationSource =
       PublishedDatasetRegistrationDetails?.extractionMethod ?? "";
+    const datasetSource = PublishedDatasetRegistrationDetails?.datasetSource ?? ""
 
     return {
       id: row.id,
@@ -237,8 +276,18 @@ export default defineEventHandler(async (event) => {
       versionCount: versionCount - 1,
       rights,
       registrationSource,
+      datasetSource,
+      imageFileCount: row.PublishedDatasetFileSummary?.imageFileCount || 0,
+      maskFileCount: row.PublishedDatasetFileSummary?.maskFileCount  || 0,
+      modalities: row.PublishedDatasetModality.map((row) => {
+        return {
+          modality: row.modality,
+          fileCount: row.fileCount || 0
+        }
+      }),
+      modalityFileCount: row.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0)
     };
   });
 
-  return { data: datasets, total };
+  return { data: datasets, total, modalityToTotalMap, sourceToTotalMap, repositoryToTotalMap, totalImageFiles };
 });
