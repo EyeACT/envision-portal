@@ -207,7 +207,7 @@ const sortOptions = [
 
 
 // When filters change, go back to page 1
-watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
+watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModalities, sortBy, selectedImageRange], () => {
   page.value = 1;
 });
 </script>
