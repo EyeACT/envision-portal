@@ -264,138 +264,138 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch], () => {
     </div>
 
 
-      <h2 class="text-md ">Filters</h2>
-      <UBreadcrumb
-        class="mb-4"
-        :items="[{ label: 'All Datasets', to: '/datasets' }]"
-      />
 
-      <div class="flex flex-col gap-6 pt-2 md:flex-row">
-        <div class="w-full md:w-[22rem] md:shrink-0">
-          <UAccordion type="multiple" :items="items">
-            <template #content="{ item }">
-              <div v-if="item.label === 'Keywords'" class="p-2">
-                <UInputTags
-                  v-model="selectedKeywords"
-                  type="text"
-                  placeholder="Filter by keyword..."
-                  size="sm"
-                  icon="i-lucide-search"
-                />
-              </div>
 
-              <div v-else-if="item.label === 'Publication Year'" class="p-2">
-                <UPopover :popper="{ placement: 'bottom-start' }">
-                  <UButton
-                    color="neutral"
-                    variant="soft"
-                    icon="i-lucide-calendar"
-                    class="hover:border-primary-300 hover:bg-primary-50 w-full justify-start gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm transition-all"
-                    :ui="{
-                      base: 'text-gray-700 hover:text-primary-600',
-                    }"
-                  >
-                    <template v-if="dateRange?.start">
-                      <template v-if="dateRange?.end">
-                        <span class="font-medium">
-                          {{
-                            df.format(
-                              dateRange.start.toDate(getLocalTimeZone()),
-                            )
-                          }}
-                        </span>
-                        <span class="text-gray-400">-</span>
-                        <span class="font-medium">
-                          {{
-                            df.format(dateRange.end.toDate(getLocalTimeZone()))
-                          }}
-                        </span>
+      <div class="flex flex-col gap-6 pt-2 md:flex-row mt-4">
+        <div class="flex flex-col">
+          <h2 class="text-lg font-semibold">Filters</h2>
+          <div class="w-full md:w-[22rem] md:shrink-0">
+            <UAccordion type="multiple" :items="items">
+              <template #content="{ item }">
+                <div v-if="item.label === 'Keywords'" class="p-2">
+                  <UInputTags
+                    v-model="selectedKeywords"
+                    type="text"
+                    placeholder="Filter by keyword..."
+                    size="sm"
+                    icon="i-lucide-search"
+                  />
+                </div>
+
+                <div v-else-if="item.label === 'Publication Year'" class="p-2">
+                  <UPopover :popper="{ placement: 'bottom-start' }">
+                    <UButton
+                      color="neutral"
+                      variant="soft"
+                      icon="i-lucide-calendar"
+                      class="hover:border-primary-300 hover:bg-primary-50 w-full justify-start gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm transition-all"
+                      :ui="{
+                        base: 'text-gray-700 hover:text-primary-600',
+                      }"
+                    >
+                      <template v-if="dateRange?.start">
+                        <template v-if="dateRange?.end">
+                          <span class="font-medium">
+                            {{
+                              df.format(
+                                dateRange.start.toDate(getLocalTimeZone()),
+                              )
+                            }}
+                          </span>
+                          <span class="text-gray-400">-</span>
+                          <span class="font-medium">
+                            {{
+                              df.format(dateRange.end.toDate(getLocalTimeZone()))
+                            }}
+                          </span>
+                        </template>
+                        <template v-else>
+                          <span class="font-medium">
+                            {{
+                              df.format(
+                                dateRange.start.toDate(getLocalTimeZone()),
+                              )
+                            }}
+                          </span>
+                        </template>
                       </template>
                       <template v-else>
-                        <span class="font-medium">
-                          {{
-                            df.format(
-                              dateRange.start.toDate(getLocalTimeZone()),
-                            )
-                          }}
-                        </span>
+                        <span class="text-gray-400">Pick a date</span>
                       </template>
-                    </template>
-                    <template v-else>
-                      <span class="text-gray-400">Pick a date</span>
-                    </template>
-                  </UButton>
+                    </UButton>
 
-                  <template #content>
-                    <UCalendar
-                      v-model="dateRange"
-                      class="rounded-lg border border-gray-200 bg-white p-3 shadow-lg"
-                      :number-of-months="2"
-                      range
-                    />
-                  </template>
-                </UPopover>
-              </div>
+                    <template #content>
+                      <UCalendar
+                        v-model="dateRange"
+                        class="rounded-lg border border-gray-200 bg-white p-3 shadow-lg"
+                        :number-of-months="2"
+                        range
+                      />
+                    </template>
+                  </UPopover>
+                </div>
 
-              <div v-else-if="item.label === 'Imaging Modality'" class="p-2">
-                <p class="text-xs text-left mb-2">Detected automatically from the image files.</p>
-                  <div 
-                    v-for="modality in modalities"
+                <div v-else-if="item.label === 'Imaging Modality'" class="p-2">
+                  <p class="text-xs text-left mb-2">Detected automatically from the image files.</p>
+                    <div 
+                      v-for="modality in modalities"
+                      class="flex w-full items-center"
+                    >
+                      <label 
+                        :key="modality.value"
+                        class="flex min-w-0 flex-1 items-center gap-2"
+                        >
+                          <input 
+                            v-model="selectedModalities"
+                            type="checkbox"
+                            :value="modality.value"
+                            class="shrink-0"
+                            />
+                            <span 
+                              aria-hidden="true" 
+                              :class="['size-2 shrink-0 rounded-full', modality.color]"></span>
+                            <span class="flex translate-y-1 flex-col leading-5">
+                              <span class="font-semibold text-sm">{{ modality.shortLabel }}</span>
+                              <span class="text-xs whitespace-nowrap">{{ modality.longLabel }}</span>
+                            </span>
+                      </label>
+                      <span class="w-14 shrink-0 text-left tabular-nums text-xs">{{ modality.count }}</span>
+                  </div>
+
+                </div>
+
+                <div v-else-if="item.label === 'Source'" class="p-2">
+                  <div
+                    v-for="source in sourceItems"
+                    :key="source.value"
                     class="flex w-full items-center"
                   >
-                    <label 
-                      :key="modality.value"
+                    <label
                       class="flex min-w-0 flex-1 items-center gap-2"
-                      >
-                        <input 
-                          v-model="selectedModalities"
-                          type="checkbox"
-                          :value="modality.value"
-                          class="shrink-0"
-                          />
-                          <span 
-                            aria-hidden="true" 
-                            :class="['size-2 shrink-0 rounded-full', modality.color]"></span>
-                          <span class="flex translate-y-1 flex-col leading-5">
-                            <span class="font-semibold text-sm">{{ modality.shortLabel }}</span>
-                            <span class="text-xs whitespace-nowrap">{{ modality.longLabel }}</span>
-                          </span>
+                    >
+                      <input 
+                        v-model="externalFilter"
+                        type="radio"
+                        :value="source.value"
+                        class="shrink-0"
+                      />
+                      <span class="text-sm whitespace-nowrap">{{ source.label }}</span>
                     </label>
-                    <span class="w-14 shrink-0 text-left tabular-nums text-xs">{{ modality.count }}</span>
+                    <span class="w-14 shrink-0 text-left tabular-nums text-xs">
+                      {{ source.count }}
+                    </span>
+                  </div>
+
                 </div>
 
-              </div>
-
-              <div v-else-if="item.label === 'Source'" class="p-2">
-                <div
-                  v-for="source in sourceItems"
-                  :key="source.value"
-                  class="flex w-full items-center"
-                >
-                  <label
-                    class="flex min-w-0 flex-1 items-center gap-2"
-                  >
-                    <input 
-                      v-model="externalFilter"
-                      type="radio"
-                      :value="source.value"
-                      class="shrink-0"
-                    />
-                    <span class="text-sm whitespace-nowrap">{{ source.label }}</span>
-                  </label>
-                  <span class="w-14 shrink-0 text-left tabular-nums text-xs">
-                    {{ source.count }}
-                  </span>
+                <div v-else-if="item.label === 'Number of Images'" class="p-2">
+                  <URadioGroup v-model="selectedImageRange" :items="numberOfImages" />
                 </div>
-
-              </div>
-
-              <div v-else-if="item.label === 'Number of Images'" class="p-2">
-                <URadioGroup v-model="selectedImageRange" :items="numberOfImages" />
-              </div>
-            </template>
-          </UAccordion>
+              </template>
+            </UAccordion>
+          </div>
         </div>
+
 
         <div class="flex w-full flex-col gap-4 md:w-4/5">
           <!-- Dataset counts and reset button -->
