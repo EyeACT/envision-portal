@@ -265,6 +265,17 @@ onMounted(() => {
                   {{ dataset.access.datasetSource }}
                 </UBadge>
 
+                <UBadge 
+                  v-else-if="!dataset?.external"
+                  color="primary"
+                  icon="i-lucide-eye"
+                  variant="subtle"
+                  class="mt-2 w-max"
+
+                  >
+                  Envision Portal
+                </UBadge>
+
                 <UBadge
                   v-if="dataset?.access"
                   color="warning"
