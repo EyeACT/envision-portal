@@ -720,36 +720,37 @@ onMounted(() => {
 
               </UCard>
 
-              <UCard>
-                <figure class="flex flex-col items-center gap-1 py-2 text-center">
-                    <data 
-                      class="text-3xl font-bold text-[var(--ui-primary)]"
-                      :value="imageCounts"
-                      >
-                      {{ (imageCounts).toLocaleString() }}
-                    </data>
+              <div class="flex gap-2 mt-4">
+                <UCard class="min-w-0 flex-1">
+                  <figure class="flex flex-col items-center gap-1 py-2 text-center">
+                      <data 
+                        class="text-3xl font-bold text-[var(--ui-primary)]"
+                        :value="imageCounts"
+                        >
+                        {{ (imageCounts).toLocaleString() }}
+                      </data>
 
-                    <figcaption> 
-                      <h3 class="text-sm font-medium">Image Files</h3>
-                    </figcaption>
-                </figure>
-              </UCard>
+                      <figcaption> 
+                        <h3 class="text-sm font-medium">Image Files</h3>
+                      </figcaption>
+                  </figure>
+                </UCard>
 
-              <UCard>
-                <figure class="flex flex-col items-center gap-1 py-2 text-center">
-                    <data 
-                      class="text-3xl font-bold text-[var(--ui-primary)]"
-                      :value="masks"
-                      >
-                      {{ (masks).toLocaleString() }}
-                    </data>
+                <UCard class="min-w-0 flex-1">
+                  <figure class="flex flex-col items-center gap-1 py-2 text-center">
+                      <data 
+                        class="text-3xl font-bold text-[var(--ui-primary)]"
+                        :value="masks"
+                        >
+                        {{ (masks).toLocaleString() }}
+                      </data>
 
-                    <figcaption> 
-                      <h3 class="text-sm font-medium">Masks Included</h3>
-                    </figcaption>
-                </figure>
-              </UCard>
-
+                      <figcaption> 
+                        <h3 class="text-sm font-medium">Masks Included</h3>
+                      </figcaption>
+                  </figure>
+                </UCard>
+              </div>
             </template>
           </UTabs>
         </div>
