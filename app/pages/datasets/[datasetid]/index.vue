@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
 import type { InternalApi } from "nitropack/types";
-import {repositorySources} from "#shared/constants/repositorySources";
+import {repositorySources, modalities} from "#shared/constants/repositorySources";
 
 console.log(repositorySources)
 
@@ -72,14 +72,14 @@ if (dataset.value) {
   });
 }
 
-console.log(dataset.value)
-
-const modalityCategories: Record<string, any> = {}
+const modalityCategories: Record<string, {name: string, color: string}> = {}
 const modalityData : number []  = []
 dataset?.value?.modalities.forEach(element => {
+  const currentModality = modalities.find((item) => item.value === element.modality);
   modalityData.push(element.fileCount)
   modalityCategories[element.modality] = {
-    name: element.modality
+    name: currentModality?.shortLabel ?? element.modality,
+    color: currentModality?.color ?? "#9CA3AF"
   }
 });
 
@@ -709,63 +709,68 @@ onMounted(() => {
 
             <template #metrics>
               <h3 class="text-lg font-semibold">Dataset at a Glance</h3>
-              <UCard>
-                  <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Files Per Modality</h2>
-                  <div v-if="modalityData.length">    
-                    <DonutChart
-                      :data="modalityData"
-                      :tooltip-title-formatter="formatModalityTooltip"
-                      :categories="modalityCategories"
-                      variant="gradient"
-                      glow
-                      :height="200"
-                      :radius="80"
-                      :pad-angle="0.1"
-                      :arc-width="20"
-                    >
-                    </DonutChart>
-                  </div>
 
-                  <UAlert v-else
-                    color="info"
-                    variant="subtle"
-                    title="No confirmed modality data"
-                    role="status"
-                  />
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 
-              </UCard>
+                <UCard class="min-w-0">
+                    <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Files Per Modality</h2>
+                    <div v-if="modalityData.length">    
+                      <DonutChart
+                        :data="modalityData"
+                        :tooltip-title-formatter="formatModalityTooltip"
+                        :categories="modalityCategories"
+                        variant="gradient"
+                        glow
+                        :height="200"
+                        :radius="80"
+                        :pad-angle="0.1"
+                        :arc-width="20"
+                      >
+                      </DonutChart>
+                    </div>
 
-              <div class="flex gap-2 mt-4">
-                <UCard class="min-w-0 flex-1">
-                  <figure class="flex flex-col items-center gap-1 py-2 text-center">
-                      <data 
-                        class="text-3xl font-bold text-[var(--ui-primary)]"
-                        :value="imageCounts"
-                        >
-                        {{ (imageCounts).toLocaleString() }}
-                      </data>
-
-                      <figcaption> 
-                        <h3 class="text-sm font-medium">Image Files</h3>
-                      </figcaption>
-                  </figure>
+                    <UAlert v-else
+                      color="info"
+                      variant="subtle"
+                      title="No confirmed modality data"
+                      role="status"
+                    />
                 </UCard>
 
-                <UCard class="min-w-0 flex-1">
-                  <figure class="flex flex-col items-center gap-1 py-2 text-center">
-                      <data 
-                        class="text-3xl font-bold text-[var(--ui-primary)]"
-                        :value="masks"
-                        >
-                        {{ (masks).toLocaleString() }}
-                      </data>
+                <div class="flex flex-col min-w-0 gap-4">
+                  <UCard>
+                    <figure class="flex flex-col items-center gap-1 py-2 text-center">
+                        <data 
+                          class="text-3xl font-bold text-[var(--ui-primary)]"
+                          :value="imageCounts"
+                          >
+                          {{ (imageCounts).toLocaleString() }}
+                        </data>
 
-                      <figcaption> 
-                        <h3 class="text-sm font-medium">Masks Included</h3>
-                      </figcaption>
-                  </figure>
-                </UCard>
+                        <figcaption> 
+                          <h3 class="text-sm font-medium">Image Files</h3>
+                        </figcaption>
+                    </figure>
+                  </UCard>
+
+                  <UCard>
+                    <figure class="flex flex-col items-center gap-1 py-2 text-center">
+                        <data 
+                          class="text-3xl font-bold text-[var(--ui-primary)]"
+                          :value="masks"
+                          >
+                          {{ (masks).toLocaleString() }}
+                        </data>
+
+                        <figcaption> 
+                          <h3 class="text-sm font-medium">Masks Included</h3>
+                        </figcaption>
+                    </figure>
+                  </UCard>
+                </div>
+
               </div>
+
             </template>
           </UTabs>
         </div>
