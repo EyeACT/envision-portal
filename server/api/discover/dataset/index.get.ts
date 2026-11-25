@@ -97,7 +97,6 @@ export default defineEventHandler(async (event) => {
   const hasExternalFilter = externalOnly !== null;
   const searchLower = hasSearch ? search.toLowerCase() : "";
   const hasImageCountFilter = imageCountMin !== null || imageCountMax !== null
-  const hasSortBy = sortBy !== null
 
   // 1. Get latest id per canonicalId (Prisma groupBy)
   const latestPerCanonical = await prisma.publishedDataset.groupBy({
@@ -188,14 +187,26 @@ export default defineEventHandler(async (event) => {
     return { data: [], total: 0 };
   }
 
-  if(hasSortBy) {
-    // order results based off modality count
-    if(sortBy === "relevance") {
-      filtered.sort((a,b) => {
-        return b.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0) - a.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0) 
-      })
-    }
-    // else best match - do nothing
+  // Rows arrive newest first, so "newest" (and any unknown value) keeps that order
+  type Row = (typeof filtered)[number]
+  const modalityCount = (d: Row) =>
+    d.PublishedDatasetModality.filter((m) => (m.fileCount ?? 0) > 0).length
+  const modalityFiles = (d: Row) =>
+    d.PublishedDatasetModality.reduce((total, m) => total + (m.fileCount ?? 0), 0)
+  const imageCount = (d: Row) => d.PublishedDatasetFileSummary?.imageFileCount ?? 0
+
+  const comparators: Record<string, (a: Row, b: Row) => number> = {
+    // Most distinct modalities first, then most classified images
+    relevance: (a, b) =>
+      modalityCount(b) - modalityCount(a) || modalityFiles(b) - modalityFiles(a),
+    oldest: (a, b) => a.created.getTime() - b.created.getTime(),
+    images: (a, b) => imageCount(b) - imageCount(a),
+    title: (a, b) => (a.title ?? "").localeCompare(b.title ?? "", undefined, { sensitivity: "base" }),
+  }
+
+  const comparator = sortBy ? comparators[sortBy] : undefined
+  if (comparator) {
+    filtered.sort(comparator)
   }
 
   // 3.5 Precompute filtered totals
