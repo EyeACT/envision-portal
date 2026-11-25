@@ -86,6 +86,8 @@ const formatModalityTooltip = (segment: unknown) => {
   return `${segment.value} files (${percent}%)`
 }
 
+const imageFileCount = dataset?.value?.imageFileCount || 0
+
 const tabItems = [
   {
     icon: "ri:information-line",
@@ -655,32 +657,61 @@ onMounted(() => {
             </template>
 
             <template #metrics>
-              <h3 class="text-lg font-semibold">Dataset at a Glance</h3>
-              <UCard>
-                  <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Files Per Modality</h2>
-                  <div v-if="modalityData.length">    
-                    <DonutChart
-                      :data="modalityData"
-                      :tooltip-title-formatter="formatModalityTooltip"
-                      :categories="modalityCategories"
-                      variant="gradient"
-                      glow
-                      :height="200"
-                      :radius="80"
-                      :pad-angle="0.1"
-                      :arc-width="20"
-                    >
-                    </DonutChart>
-                  </div>
+              <section class="flex flex-col gap-4">
+                <h3 class="text-lg font-semibold">Dataset at a Glance</h3>
+                <UCard>
+                    <h2 class="mb-2 text-sm font-semibold text-gray-900 uppercase dark:text-white">Files Per Modality</h2>
+                    <div v-if="modalityData.length">    
+                      <DonutChart
+                        :data="modalityData"
+                        :tooltip-title-formatter="formatModalityTooltip"
+                        :categories="modalityCategories"
+                        variant="gradient"
+                        glow
+                        :height="200"
+                        :radius="80"
+                        :pad-angle="0.1"
+                        :arc-width="20"
+                      >
+                      </DonutChart>
+                    </div>
 
-                  <UAlert v-else
+                    <UAlert v-else
+                      color="info"
+                      variant="subtle"
+                      title="No confirmed modality data"
+                      role="status"
+                    />
+
+                </UCard>
+
+
+                <UCard v-if="imageFileCount">
+                  <figure 
+                    class="flex flex-col items-center gap-1 py-2 text-center"
+                    >
+                    <div class="text-3xl font-bold text-[var(--ui-primary)]">
+                      {{ imageFileCount }}
+                    </div>
+
+                    <figcaption>
+                      <h3 class="text-lg font-semibold">Total Image Files</h3>
+                      <p class="text-muted text-xs">Found in the current dataset</p>
+                    </figcaption>
+                  </figure>
+                </UCard>
+
+                <UCard v-else>
+                  <h3 class="text-sm font-semibold">TOTAL IMAGE FILES</h3>
+                  <UAlert
+                    role="status"
                     color="info"
                     variant="subtle"
-                    title="No confirmed modality data"
-                    role="status"
-                  />
-
-              </UCard>
+                    title="No confirmed image files at this time."      
+                  >
+                  </UAlert>
+                </UCard>
+              </section>
             </template>
           </UTabs>
         </div>

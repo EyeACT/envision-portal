@@ -79,6 +79,7 @@ export const computeSnapshot = async (client: PrismaClient = prisma) : Promise<M
     include: {
       PublishedDatasetModality: true,
       PublishedDatasetRegistrationDetails: true,
+      PublishedDatasetFileSummary: true
     }
   })
 
@@ -216,6 +217,6 @@ export const computeSnapshot = async (client: PrismaClient = prisma) : Promise<M
       dois,
       "licenseData": groupedLicenseData,
       "publishers": publishersData
-    }
+    },
   }
 }
