@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { DateFormatter, getLocalTimeZone } from "@internationalized/date";
 import type { AccordionItem } from "@nuxt/ui";
 import type { DiscoveryDatasetList } from "#shared/types/dataset";
-
+import {repositorySources} from "#shared/constants/repositorySources";
 definePageMeta({ layout: "public" });
 
 useSeoMeta({
@@ -129,7 +129,7 @@ const datasets = computed(() => response.value?.data ?? []);
 const totalDatasets = computed(() => response.value?.total ?? 0);
 const totalModalityFiles = computed(() => response.value?.modalityToTotalMap ?? {})
 const totalSources = computed(() => response.value?.sourceToTotalMap ?? {})
-const totalRepositorySources = computed(() => response.value?.repositoryToTotalMap)
+const totalrepositorySources = computed(() => response.value?.repositoryToTotalMap)
 const totalImageFiles = computed(() => response.value?.totalImageFiles)
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
@@ -203,12 +203,6 @@ const sourceItems = [
   {label: "Registered from external repository", value: "external", count: 2},
 ]
 
-const repositorySource = [
-  {name: "figshare", icon: "i-lucide-network", color: "bg-gray-200 text-gray-800"},
-  {name: "zenodo", icon: "i-lucide-database", color: "bg-gray-200 text-gray-800"},
-  {name: "kaggle", icon: "i-lucide-letter-k", color: "bg-gray-200 text-gray-800"},
-  {name: "", icon: "i-lucide-eye", color: "bg-green-50 text-green-600 border-green-200"}
-]
 
 const modalities = [
   {
@@ -327,7 +321,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
         </div>
         <div class="flex flex-col">
           <span class="text-sm font-medium">Sources</span>
-          <span class="text-xl font-semibold">{{ Object.keys(totalRepositorySources ?? {}).length  || 6 }}</span>
+          <span class="text-xl font-semibold">{{ Object.keys(totalrepositorySources ?? {}).length  || 6 }}</span>
         </div>
       </div>
     </div>
@@ -457,7 +451,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
 
                   <div class="flex flex-wrap gap-2 p-2 items-center min-w-0">
                     <UBadge
-                      v-for="[rs, total] in Object.entries(totalRepositorySources ?? {}).filter(([rs]) => rs !== '')"
+                      v-for="[rs, total] in Object.entries(totalrepositorySources ?? {}).filter(([rs]) => rs !== '')"
                       color="neutral"
                       variant="subtle"
                       :key="rs"
@@ -545,7 +539,7 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                           "
                         >
                           <UBadge
-                            :icon="repositorySource.find(rs => rs.name.toLowerCase() === dataset.datasetSource.toLowerCase())?.icon"
+                            :icon="repositorySources.find(rs => rs.name.toLowerCase() === dataset.datasetSource.toLowerCase())?.icon"
                             :color="dataset.datasetSource !== '' ? 'error' : 'primary'"
                             variant="subtle"
                           >

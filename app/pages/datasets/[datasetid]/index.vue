@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
 import type { InternalApi } from "nitropack/types";
+import {repositorySources} from "#shared/constants/repositorySources";
+
+console.log(repositorySources)
+
 definePageMeta({
   layout: "public",
 });
@@ -255,7 +259,7 @@ onMounted(() => {
                   v-if="dataset?.access"
                   color="error"
                   variant="subtle"
-                  icon="i-lucide-orbit"
+                  :icon="repositorySources.find(s => s.name == dataset.access.datasetSource.toLowerCase())?.icon"
                   class="mt-2 w-max"
                 >
                   {{ dataset.access.datasetSource }}
