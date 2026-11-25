@@ -546,14 +546,14 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                         >
                           <UBadge
                             :icon="repositorySource.find(rs => rs.name.toLowerCase() === dataset.datasetSource.toLowerCase())?.icon"
-                            :color="dataset.datasetSource !== '' ? 'neutral' : 'primary'"
+                            :color="dataset.datasetSource !== '' ? 'error' : 'primary'"
                             variant="subtle"
                           >
                             {{ dataset.datasetSource || "Envision Portal"}}
                           </UBadge>
                           <UBadge
                             v-if="dataset.external"
-                            color="neutral"
+                            color="warning"
                             variant="subtle"
                             icon="i-lucide-orbit"
                           >
