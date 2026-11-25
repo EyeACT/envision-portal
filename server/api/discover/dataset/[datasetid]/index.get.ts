@@ -9,7 +9,8 @@ export default defineEventHandler(async (event) => {
     },
     include: {
       PublishedDatasetRegistrationDetails: true,
-      PublishedDatasetModality: true
+      PublishedDatasetModality: true,
+      PublishedDatasetFileSummary: true,
     },
   });
 
@@ -90,8 +91,22 @@ export default defineEventHandler(async (event) => {
         modality: modalityRecord.modality,
         fileCount: modalityRecord.fileCount ?? 0
       }
-    })
+    }),
+    fileSummary: {
+      imageFileCount: publishedDataset?.PublishedDatasetFileSummary?.imageFileCount ?? 0,
+      maskFileCount: publishedDataset?.PublishedDatasetFileSummary?.maskFileCount ?? 0,
+      fileTypeCounts: isFileTypeCounts(publishedDataset?.PublishedDatasetFileSummary?.fileTypeCounts) ? publishedDataset?.PublishedDatasetFileSummary?.fileTypeCounts ?? {} : {}
+    }
   };
 
   return dataset;
 });
+
+function isFileTypeCounts (value: unknown) : value is Record<string, number> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((count) => typeof count === "number")
+  )
+}

@@ -510,6 +510,12 @@ interface ModalityRecord {
   fileCount: number;
 }
 
+interface PublishedDatasetFileSummary {
+  imageFileCount: number;
+  maskFileCount: number;
+  fileTypeCounts: Record<string, number>;
+}
+
 interface Dataset {
   id: string;
   // Only set for external datasets, from their registration details
@@ -532,6 +538,7 @@ interface Dataset {
   publishedMetadata?: PublishedMetadata;
   versions: VersionArray;
   modalities: ModalityRecord[];
+  fileSummary: PublishedDatasetFileSummary;
 }
 
 interface DatasetArray extends Array<Dataset> {}

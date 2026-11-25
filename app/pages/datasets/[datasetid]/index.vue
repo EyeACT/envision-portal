@@ -68,6 +68,8 @@ if (dataset.value) {
   });
 }
 
+console.log(dataset.value)
+
 const modalityCategories: Record<string, any> = {}
 const modalityData : number []  = []
 dataset?.value?.modalities.forEach(element => {
@@ -77,6 +79,9 @@ dataset?.value?.modalities.forEach(element => {
   }
 });
 
+
+const imageCounts = dataset?.value?.fileSummary.imageFileCount ?? 0
+const masks = dataset?.value?.fileSummary.maskFileCount ?? 0
 
 const totalModalityFileCount = modalityData.reduce((acc, num) => acc + num, 0);
 
@@ -245,35 +250,87 @@ onMounted(() => {
                 </div>
               </div>
 
-              <UBadge class="mt-2 w-max" color="primary" variant="outline">
-                Version {{ dataset?.versionTitle }}
-              </UBadge>
+              <div class="mb-1 flex items-start gap-2">
+                <UBadge
+                  v-if="dataset?.access"
+                  color="error"
+                  variant="subtle"
+                  icon="i-lucide-orbit"
+                  class="mt-2 w-max"
+                >
+                  {{ dataset.access.datasetSource }}
+                </UBadge>
+
+                <UBadge
+                  v-if="dataset?.access"
+                  color="warning"
+                  variant="subtle"
+                  icon="i-lucide-orbit"
+                  class="mt-2 w-max"
+                >
+                  Auto-discovered
+                </UBadge>
+
+                <UBadge class="mt-2 w-max" color="primary" variant="outline">
+                  Version {{ dataset?.versionTitle }}
+                </UBadge>
+              </div>
             </div>
 
             <div class="mt-3 flex flex-col gap-2">
               <div
-                class="w-max border-b border-dashed border-slate-300 font-medium"
                 v-if="
                   dataset?.metadata?.studyDescription?.conditionsModule
                     ?.keywordList &&
                   dataset?.metadata?.studyDescription?.conditionsModule
                     ?.keywordList?.length > 0
-                "
-              >
-                Keywords
+                ">
+                  <div
+                    class="w-max border-b border-dashed border-slate-300 font-medium"
+                    v-if="
+                      dataset?.metadata?.studyDescription?.conditionsModule
+                        ?.keywordList &&
+                      dataset?.metadata?.studyDescription?.conditionsModule
+                        ?.keywordList?.length > 0
+                    "
+                  >
+                    Keywords
+                  </div>
+
+                  <div class="flex flex-wrap gap-2">
+                    <UBadge
+                      v-for="item in dataset?.metadata?.studyDescription
+                        ?.conditionsModule?.keywordList"
+                      :key="item.keywordValue"
+                      color="primary"
+                      size="sm"
+                      variant="outline"
+                    >
+                      {{ item.keywordValue }}
+                    </UBadge>
+                  </div>
               </div>
 
-              <div class="flex flex-wrap gap-2">
-                <UBadge
-                  v-for="item in dataset?.metadata?.studyDescription
-                    ?.conditionsModule?.keywordList"
-                  :key="item.keywordValue"
-                  color="primary"
-                  size="sm"
-                  variant="outline"
-                >
-                  {{ item.keywordValue }}
-                </UBadge>
+              <div 
+                v-else-if="dataset?.metadata?.datasetDescription?.subject &&
+                          dataset?.metadata?.datasetDescription?.subject?.length > 0"
+              >
+                <div class="w-max border-b border-dashed border-slate-300 font-medium">
+                  Keywords
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                  <UBadge
+                    v-for="item in dataset?.metadata?.datasetDescription
+                      ?.subject"
+                    :key="item.subjectValue"
+                    color="primary"
+                    size="sm"
+                    variant="outline"
+                  >
+                    {{ item.subjectValue }}
+                  </UBadge>
+                </div>   
               </div>
 
               <div
@@ -342,25 +399,6 @@ onMounted(() => {
                 </UPopover>
               </NuxtLink>
 
-              <!-- <UDropdownMenu
-                v-else
-                :items="downloadDropdownItems"
-                :content="{
-                  align: 'end',
-                  side: 'bottom',
-                  sideOffset: 8,
-                }"
-                :ui="{
-                  content: 'w-max',
-                }"
-              >
-                <UButton
-                  label="Download"
-                  icon="line-md:download-loop"
-                  size="xl"
-                  color="primary"
-                />
-              </UDropdownMenu> -->
 
               <UButton
                 v-if="!dataset?.external"
@@ -681,6 +719,37 @@ onMounted(() => {
                   />
 
               </UCard>
+
+              <UCard>
+                <figure class="flex flex-col items-center gap-1 py-2 text-center">
+                    <data 
+                      class="text-3xl font-bold text-[var(--ui-primary)]"
+                      :value="imageCounts"
+                      >
+                      {{ (imageCounts).toLocaleString() }}
+                    </data>
+
+                    <figcaption> 
+                      <h3 class="text-sm font-medium">Image Files</h3>
+                    </figcaption>
+                </figure>
+              </UCard>
+
+              <UCard>
+                <figure class="flex flex-col items-center gap-1 py-2 text-center">
+                    <data 
+                      class="text-3xl font-bold text-[var(--ui-primary)]"
+                      :value="masks"
+                      >
+                      {{ (masks).toLocaleString() }}
+                    </data>
+
+                    <figcaption> 
+                      <h3 class="text-sm font-medium">Masks Included</h3>
+                    </figcaption>
+                </figure>
+              </UCard>
+
             </template>
           </UTabs>
         </div>
