@@ -189,12 +189,13 @@ export default defineEventHandler(async (event) => {
   }
 
   if(hasSortBy) {
-    // order results based off user preferred order rather than default option (relevance)
-    if(sortBy === "modality_count") {
+    // order results based off modality count
+    if(sortBy === "relevance") {
       filtered.sort((a,b) => {
         return b.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0) - a.PublishedDatasetModality.reduce((total, modality) => total + (modality.fileCount ?? 0), 0) 
       })
     }
+    // else best match - do nothing
   }
 
   // 3.5 Precompute filtered totals

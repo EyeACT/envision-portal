@@ -94,7 +94,7 @@ const queryParams = computed(() => {
     if(bounds.max !== undefined) params.imageCountMax = bounds.max
   }
 
-  if(sortBy.value !== "relevance") {
+  if(sortBy.value == "relevance") {
     params.sortBy = sortBy.value
   }
 
@@ -175,8 +175,6 @@ const searchDatasets = () => {
   appliedSearch.value = searchQuery.value.trim();
   page.value = 1;
 };
-
-console.log(datasets)
 
 const resetFilters = () => {
   selectedKeywords.value = "";
@@ -262,8 +260,8 @@ const imageRangeBounds = {
 } as const;
 
 const sortOptions = [
-  {label: "Relevance", value: "relevance"},
-  {label: "Modality Count", value: "modality_count"},
+  {label: "Relevance", value: "relevance"}, // order results by modality count
+  {label: "Best Match", value: "best_match"}, // order solely by search and filter options
 ]
 
 const getSourceValue = (label: string) => {
