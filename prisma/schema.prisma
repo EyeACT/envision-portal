@@ -877,6 +877,9 @@ model PublishedDataset {
     PublishedDatasetRegistrationDetails PublishedDatasetRegistrationDetails?
     PublishedDatasetModality            PublishedDatasetModality[]
     PublishedDatasetFileSummary         PublishedDatasetFileSummary?
+
+    // Latest version per canonicalId (groupBy + max(id)) and version counts on the discover page
+    @@index([canonicalId, id])
 }
 
 model PublishedDatasetFileSummary {

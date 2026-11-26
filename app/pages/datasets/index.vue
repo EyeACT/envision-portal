@@ -12,17 +12,17 @@ useSeoMeta({
 
 const toast = useToast();
 
-type ImageRange = "any" | "under100" | "100to999" | "1000to9999" | "10000plus"
+type ImageRange = "any" | "under100" | "100to999" | "1000to9999" | "10000plus";
 const ITEMS_PER_PAGE = 5;
 const page = ref(1);
 const selectedKeywords = ref<string[]>([]);
 const searchQuery = ref<string>("");
 type ExternalFilter = "all" | "external" | "non-external";
 const externalFilter = ref<ExternalFilter>("all");
-const selectedModalities = ref<string[]>([])
-const selectedImageRange = ref<ImageRange>("any")
-type DatasetSort = "relevance" | "newest" | "oldest" | "images" | "title"
-const sortBy = ref<DatasetSort>("relevance")
+const selectedModalities = ref<string[]>([]);
+const selectedImageRange = ref<ImageRange>("any");
+type DatasetSort = "relevance" | "newest" | "oldest" | "images" | "title";
+const sortBy = ref<DatasetSort>("relevance");
 
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
@@ -59,7 +59,7 @@ const queryParams = computed(() => {
     page: page.value,
     limit: ITEMS_PER_PAGE,
   };
-  
+
   if (appliedSearch.value) {
     params.search = appliedSearch.value;
   }
@@ -69,7 +69,7 @@ const queryParams = computed(() => {
   }
 
   if (selectedModalities.value.length > 0) {
-    params.modality = selectedModalities.value
+    params.modality = selectedModalities.value;
   }
 
   if (dateRange.value?.start) {
@@ -88,13 +88,13 @@ const queryParams = computed(() => {
     params.external = "false";
   }
 
-  if(selectedImageRange.value !== "any") {
-    const bounds = imageRangeBounds[selectedImageRange.value]
-    if(bounds.min !== undefined) params.imageCountMin = bounds.min 
-    if(bounds.max !== undefined) params.imageCountMax = bounds.max
+  if (selectedImageRange.value !== "any") {
+    const bounds = imageRangeBounds[selectedImageRange.value];
+    if (bounds.min !== undefined) params.imageCountMin = bounds.min;
+    if (bounds.max !== undefined) params.imageCountMax = bounds.max;
   }
 
-  params.sortBy = sortBy.value
+  params.sortBy = sortBy.value;
 
   return params;
 });
@@ -125,10 +125,14 @@ if (error.value) {
 
 const datasets = computed(() => response.value?.data ?? []);
 const totalDatasets = computed(() => response.value?.total ?? 0);
-const totalModalityFiles = computed(() => response.value?.modalityToTotalMap ?? {})
-const totalSources = computed(() => response.value?.sourceToTotalMap ?? {})
-const totalRepositorySources = computed(() => response.value?.repositoryToTotalMap)
-const totalImageFiles = computed(() => response.value?.totalImageFiles)
+const totalModalityFiles = computed(
+  () => response.value?.modalityToTotalMap ?? {},
+);
+const totalSources = computed(() => response.value?.sourceToTotalMap ?? {});
+const totalRepositorySources = computed(
+  () => response.value?.repositoryToTotalMap,
+);
+const totalImageFiles = computed(() => response.value?.totalImageFiles);
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(totalDatasets.value / ITEMS_PER_PAGE)),
 );
@@ -141,31 +145,30 @@ const getDaysAgo = (date: string | Date): string => {
     : `${Math.abs(daysAgo)} day${Math.abs(daysAgo) > 1 ? "s" : ""} ago`;
 };
 
-
 const formatFileCount = (fileCount: number) => {
   if (fileCount >= 1000000) {
-    const millions = (Math.round(fileCount / 100000) / 10).toFixed(1)
-    return `${millions.replace(/\.0$/, '')}M`
+    const millions = (Math.round(fileCount / 100000) / 10).toFixed(1);
+    return `${millions.replace(/\.0$/, "")}M`;
   }
 
   if (fileCount >= 1000) {
     const roundedThousands = Math.round(fileCount / 100) / 10;
 
     if (roundedThousands >= 1000) {
-      return `1M`
+      return `1M`;
     }
 
-    return `${roundedThousands.toFixed(1).replace(/\.0$/, '')}k+`
+    return `${roundedThousands.toFixed(1).replace(/\.0$/, "")}k+`;
   }
 
-  return fileCount.toString()
-}
+  return fileCount.toString();
+};
 
 const items = ref<AccordionItem[]>([
-  { content: "",  label: "Imaging Modality" },
-  { content: "", label: "Source"},
+  { content: "", label: "Imaging Modality" },
+  { content: "", label: "Source" },
   { content: "", label: "Publication Year" },
-  { content: "", label: "Number of Images"},
+  { content: "", label: "Number of Images" },
   { content: "", label: "Keywords" },
 ]);
 
@@ -181,9 +184,9 @@ const resetFilters = () => {
   appliedSearch.value = "";
   searchQuery.value = "";
   page.value = 1;
-  selectedModalities.value = []
-  selectedImageRange.value = "any"
-  sortBy.value = "relevance"
+  selectedModalities.value = [];
+  selectedImageRange.value = "any";
+  sortBy.value = "relevance";
 };
 
 const hasActiveFilters = computed(() => {
@@ -198,17 +201,33 @@ const hasActiveFilters = computed(() => {
 });
 
 const sourceItems = [
-  {label: "All sources", value: "all", count: 8267},
-  {label: "Deposited on Envision Portal", value: "non-external", count: 8265},
-  {label: "Registered from external repository", value: "external", count: 2},
-]
+  { label: "All sources", value: "all", count: 8267 },
+  { label: "Deposited on Envision Portal", value: "non-external", count: 8265 },
+  { label: "Registered from external repository", value: "external", count: 2 },
+];
 
 const repositorySource = [
-  {name: "figshare", icon: "i-lucide-network", color: "bg-gray-200 text-gray-800"},
-  {name: "zenodo", icon: "i-lucide-database", color: "bg-gray-200 text-gray-800"},
-  {name: "kaggle", icon: "i-lucide-letter-k", color: "bg-gray-200 text-gray-800"},
-  {name: "", icon: "i-lucide-eye", color: "bg-green-50 text-green-600 border-green-200"}
-]
+  {
+    name: "figshare",
+    icon: "i-lucide-network",
+    color: "bg-gray-200 text-gray-800",
+  },
+  {
+    name: "zenodo",
+    icon: "i-lucide-database",
+    color: "bg-gray-200 text-gray-800",
+  },
+  {
+    name: "kaggle",
+    icon: "i-lucide-letter-k",
+    color: "bg-gray-200 text-gray-800",
+  },
+  {
+    name: "",
+    icon: "i-lucide-eye",
+    color: "bg-green-50 text-green-600 border-green-200",
+  },
+];
 
 // Okabe–Ito palette: stays distinct under common color vision deficiencies
 const modalities: {
@@ -217,47 +236,81 @@ const modalities: {
   value: string;
   color: string;
 }[] = [
-  { longLabel: "Optical coherence tomography", shortLabel: "OCT", value: "oct", color: "#D55E00" },
-  { longLabel: "OCT Angiography", shortLabel: "OCTA", value: "octa", color: "#0072B2" },
-  { longLabel: "Fundus Autofluorescence", shortLabel: "FA", value: "fundus_autofluorescence", color: "#E69F00" },
-  { longLabel: "Pseudo Color Fundus", shortLabel: "PCF", value: "pseudo_color_fundus", color: "#CC79A7" },
-  { longLabel: "Infrared reflectance", shortLabel: "IR", value: "infrared_reflectance", color: "#56B4E9" },
-  { longLabel: "Color Fundus Photography", shortLabel: "CFP", value: "color_fundus_photography", color: "#009E73" },
+  {
+    longLabel: "Optical coherence tomography",
+    shortLabel: "OCT",
+    value: "oct",
+    color: "#D55E00",
+  },
+  {
+    longLabel: "OCT Angiography",
+    shortLabel: "OCTA",
+    value: "octa",
+    color: "#0072B2",
+  },
+  {
+    longLabel: "Fundus Autofluorescence",
+    shortLabel: "FA",
+    value: "fundus_autofluorescence",
+    color: "#E69F00",
+  },
+  {
+    longLabel: "Pseudo Color Fundus",
+    shortLabel: "PCF",
+    value: "pseudo_color_fundus",
+    color: "#CC79A7",
+  },
+  {
+    longLabel: "Infrared reflectance",
+    shortLabel: "IR",
+    value: "infrared_reflectance",
+    color: "#56B4E9",
+  },
+  {
+    longLabel: "Color Fundus Photography",
+    shortLabel: "CFP",
+    value: "color_fundus_photography",
+    color: "#009E73",
+  },
 ];
 
 const UNKNOWN_MODALITY_COLOR = "#9CA3AF";
 
 const numberOfImages = [
-  {label: "Any number", value: "any"}, // no filter
-  {label: "Fewer Than 100", value: "under100"}, 
-  {label: "100 - 999", value: "100to999"},
-  {label: "1000 - 9,999", value: "1000to9999"},
-  {label: "10,000 or more", value: "10000plus"},
-]
+  { label: "Any number", value: "any" }, // no filter
+  { label: "Fewer Than 100", value: "under100" },
+  { label: "100 - 999", value: "100to999" },
+  { label: "1000 - 9,999", value: "1000to9999" },
+  { label: "10,000 or more", value: "10000plus" },
+];
 
 const imageRangeBounds = {
-  under100: {min: 0, max: 99},
-  "100to999": {min: 100, max: 999},
-  "1000to9999": {min: 1000, max: 9999},
-  "10000plus": {min: 10000},
+  under100: { min: 0, max: 99 },
+  "100to999": { min: 100, max: 999 },
+  "1000to9999": { min: 1000, max: 9999 },
+  "10000plus": { min: 10000 },
 } as const;
 
 const sortOptions = [
-  {label: "Most relevant", value: "relevance"}, // most distinct modalities first, then most images
-  {label: "Newest", value: "newest"},
-  {label: "Oldest", value: "oldest"},
-  {label: "Most images", value: "images"},
-  {label: "Title (A–Z)", value: "title"},
-]
+  { label: "Most relevant", value: "relevance" }, // most distinct modalities first, then most images
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+  { label: "Most images", value: "images" },
+  { label: "Title (A–Z)", value: "title" },
+];
 
-const getModality = (value: string) => modalities.find((m) => m.value === value);
+const getModality = (value: string) =>
+  modalities.find((m) => m.value === value);
 
 type ModalityRecord = DiscoveryDatasetList["modalities"][number];
 
 const nonEmptyModalities = (dataset: DiscoveryDatasetList) =>
   dataset.modalities.filter((m) => m.fileCount !== 0);
 
-const modalityPercent = (record: ModalityRecord, dataset: DiscoveryDatasetList) => {
+const modalityPercent = (
+  record: ModalityRecord,
+  dataset: DiscoveryDatasetList,
+) => {
   const pct = (record.fileCount / dataset.modalityFileCount) * 100;
   return pct > 0 && pct < 1 ? "<1%" : `${Math.round(pct)}%`;
 };
@@ -280,38 +333,55 @@ const rangeEnd = computed(() =>
 
 const stats = computed(() => [
   { label: "Datasets", value: totalDatasets.value.toLocaleString() },
-  { label: "Eye images classified", value: formatFileCount(totalImageFiles.value ?? 0) },
-  { label: "Imaging modalities", value: Object.keys(totalModalityFiles.value ?? {}).length },
-  { label: "Sources", value: Object.keys(totalRepositorySources.value ?? {}).length || 6 },
+  {
+    label: "Eye images classified",
+    value: formatFileCount(totalImageFiles.value ?? 0),
+  },
+  {
+    label: "Imaging modalities",
+    value: Object.keys(totalModalityFiles.value ?? {}).length,
+  },
+  {
+    label: "Sources",
+    value: Object.keys(totalRepositorySources.value ?? {}).length || 6,
+  },
 ]);
 
 const getSourceValue = (label: string) => {
-  if(label === "Deposited on Envision Portal") {
-      return totalSources.value[""]
+  if (label === "Deposited on Envision Portal") {
+    return totalSources.value[""];
   } else if (label === "Registered from external repository") {
-      return totalSources.value["Automatic Registration"]
+    return totalSources.value["Automatic Registration"];
   } else {
-      return totalDatasets.value
+    return totalDatasets.value;
   }
-}
-
+};
 
 // When filters change, go back to page 1
-watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModalities, sortBy, selectedImageRange], () => {
-  page.value = 1;
-});
+watch(
+  [
+    selectedKeywords,
+    dateRange,
+    externalFilter,
+    appliedSearch,
+    selectedModalities,
+    sortBy,
+    selectedImageRange,
+  ],
+  () => {
+    page.value = 1;
+  },
+);
 </script>
-
 
 <template>
   <UContainer class="py-10 sm:py-14">
     <!-- Hero -->
     <section class="border-default border-b pb-10">
       <div class="max-w-3xl space-y-3">
-        <p class="text-primary text-sm font-semibold tracking-wide uppercase">
-          Find datasets
-        </p>
-        <h1 class="text-highlighted text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1
+          class="text-highlighted text-3xl font-bold tracking-tight sm:text-4xl"
+        >
           Discover ophthalmic imaging datasets
         </h1>
         <p class="text-muted text-base leading-relaxed">
@@ -401,12 +471,16 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                   >
                     <template v-if="dateRange?.start">
                       <span class="font-medium">
-                        {{ df.format(dateRange.start.toDate(getLocalTimeZone())) }}
+                        {{
+                          df.format(dateRange.start.toDate(getLocalTimeZone()))
+                        }}
                       </span>
                       <template v-if="dateRange?.end">
                         <span class="text-dimmed">–</span>
                         <span class="font-medium">
-                          {{ df.format(dateRange.end.toDate(getLocalTimeZone())) }}
+                          {{
+                            df.format(dateRange.end.toDate(getLocalTimeZone()))
+                          }}
                         </span>
                       </template>
                     </template>
@@ -424,7 +498,10 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                 </UPopover>
               </div>
 
-              <div v-else-if="item.label === 'Imaging Modality'" class="space-y-1">
+              <div
+                v-else-if="item.label === 'Imaging Modality'"
+                class="space-y-1"
+              >
                 <p class="text-muted mb-3 text-xs">
                   Detected automatically from the image files.
                 </p>
@@ -453,7 +530,9 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                     </span>
                   </span>
                   <span class="text-muted shrink-0 text-xs tabular-nums">
-                    {{ formatFileCount(totalModalityFiles[modality.value] ?? 0) }}
+                    {{
+                      formatFileCount(totalModalityFiles[modality.value] ?? 0)
+                    }}
                   </span>
                 </label>
               </div>
@@ -479,11 +558,17 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                 </label>
 
                 <div
-                  v-if="Object.keys(totalRepositorySources ?? {}).some((rs) => rs !== '')"
+                  v-if="
+                    Object.keys(totalRepositorySources ?? {}).some(
+                      (rs) => rs !== '',
+                    )
+                  "
                   class="flex flex-wrap gap-2 px-2 pt-3"
                 >
                   <UBadge
-                    v-for="[rs, total] in Object.entries(totalRepositorySources ?? {}).filter(([rs]) => rs !== '')"
+                    v-for="[rs, total] in Object.entries(
+                      totalRepositorySources ?? {},
+                    ).filter(([rs]) => rs !== '')"
                     :key="rs"
                     color="neutral"
                     variant="subtle"
@@ -512,7 +597,9 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
         <div class="flex flex-wrap items-center justify-between gap-4">
           <p class="text-muted text-sm">
             Showing
-            <strong class="text-highlighted">{{ rangeStart }}–{{ rangeEnd }}</strong>
+            <strong class="text-highlighted"
+              >{{ rangeStart }}–{{ rangeEnd }}</strong
+            >
             of
             <strong class="text-highlighted">{{ totalDatasets }}</strong>
             {{ totalDatasets === 1 ? "dataset" : "datasets" }}
@@ -549,8 +636,16 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                 >
                   <div class="flex items-center gap-2">
                     <UBadge
-                      :icon="repositorySource.find((rs) => rs.name.toLowerCase() === dataset.datasetSource.toLowerCase())?.icon"
-                      :color="dataset.datasetSource !== '' ? 'error' : 'primary'"
+                      :icon="
+                        repositorySource.find(
+                          (rs) =>
+                            rs.name.toLowerCase() ===
+                            dataset.datasetSource.toLowerCase(),
+                        )?.icon
+                      "
+                      :color="
+                        dataset.datasetSource !== '' ? 'error' : 'primary'
+                      "
                       variant="subtle"
                       class="capitalize"
                     >
@@ -616,7 +711,9 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                       class="h-full shrink-0"
                       :style="{
                         width: `${(modalityRecord.fileCount / dataset.modalityFileCount) * 100}%`,
-                        backgroundColor: getModality(modalityRecord.modality)?.color ?? UNKNOWN_MODALITY_COLOR,
+                        backgroundColor:
+                          getModality(modalityRecord.modality)?.color ??
+                          UNKNOWN_MODALITY_COLOR,
                       }"
                     ></div>
                   </UTooltip>
@@ -635,7 +732,11 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                     <span
                       aria-hidden="true"
                       class="size-2 shrink-0 rounded-full"
-                      :style="{ backgroundColor: getModality(modalityRecord.modality)?.color ?? UNKNOWN_MODALITY_COLOR }"
+                      :style="{
+                        backgroundColor:
+                          getModality(modalityRecord.modality)?.color ??
+                          UNKNOWN_MODALITY_COLOR,
+                      }"
                     ></span>
                     <span class="text-highlighted text-xs font-semibold">
                       {{ modalityLabel(modalityRecord) }}
@@ -652,16 +753,26 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                 class="border-default mt-6 flex flex-wrap items-start gap-x-6 gap-y-3 border-t pt-5"
               >
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-image" class="text-dimmed size-4 shrink-0" />
+                  <UIcon
+                    name="i-lucide-image"
+                    class="text-dimmed size-4 shrink-0"
+                  />
                   <span class="text-highlighted text-sm font-medium">
                     {{ formatFileCount(dataset.imageFileCount ?? 0) }} images
                   </span>
                 </div>
 
-                <div v-if="dataset.maskFileCount !== 0" class="flex items-center gap-2">
-                  <UIcon name="i-lucide-files" class="text-dimmed size-4 shrink-0" />
+                <div
+                  v-if="dataset.maskFileCount !== 0"
+                  class="flex items-center gap-2"
+                >
+                  <UIcon
+                    name="i-lucide-files"
+                    class="text-dimmed size-4 shrink-0"
+                  />
                   <span class="text-highlighted text-sm font-medium">
-                    Includes {{ formatFileCount(dataset.maskFileCount ?? 0) }} masks
+                    Includes
+                    {{ formatFileCount(dataset.maskFileCount ?? 0) }} masks
                   </span>
                 </div>
 
@@ -669,10 +780,16 @@ watch([selectedKeywords, dateRange, externalFilter, appliedSearch, selectedModal
                   v-if="dataset.keywords && dataset.keywords.length > 0"
                   class="flex min-w-0 flex-1 items-start gap-2"
                 >
-                  <UIcon name="i-lucide-tag" class="text-dimmed mt-0.5 size-4 shrink-0" />
+                  <UIcon
+                    name="i-lucide-tag"
+                    class="text-dimmed mt-0.5 size-4 shrink-0"
+                  />
                   <div class="flex min-w-0 flex-wrap items-center gap-1.5">
                     <UBadge
-                      v-for="keyword in visibleKeywords(dataset.id, dataset.keywords)"
+                      v-for="keyword in visibleKeywords(
+                        dataset.id,
+                        dataset.keywords,
+                      )"
                       :key="keyword"
                       variant="soft"
                       color="neutral"
