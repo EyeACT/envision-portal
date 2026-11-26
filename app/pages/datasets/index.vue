@@ -446,6 +446,7 @@ watch(
           <UAccordion
             type="multiple"
             :items="items"
+            :default-value="items.map((_, index) => String(index))"
             :ui="{
               trigger: 'py-4 text-sm font-semibold',
               body: 'pb-5 pt-0',
